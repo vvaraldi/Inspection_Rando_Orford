@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SkiTrack - Inspection des abris</title>
+  <title>SkiTrack - Inspection d'abri</title>
   <style>
     * {
       box-sizing: border-box;
@@ -246,10 +246,10 @@
     <nav>
       <div class="logo">SkiTrack - Mont Orford</div>
       <div class="nav-links">
-        <a href="#">Tableau de bord</a>
-        <a href="#">Carte</a>
-        <a href="#">Nouvelle inspection</a>
-        <a href="#">Historique</a>
+        <a href="../index.html">Tableau de bord</a>
+        <a href="trail-inspection.html">Inspection de sentier</a>
+        <a href="shelter-inspection.html" class="active">Inspection d'abri</a>
+        <a href="inspection-history.html">Historique</a>
       </div>
     </nav>
   </header>
@@ -260,36 +260,36 @@
     </div>
     
     <div class="form-container">
-      <form id="shelterForm">
+      <form id="shelterInspectionForm">
         <div class="form-section">
           <h2 class="form-section-title">Informations générales</h2>
           
           <div class="dual-column">
             <div class="form-group">
-              <label for="shelter-name">Abri</label>
-              <select id="shelter-name" required>
+              <label for="shelter-select">Abri</label>
+              <select id="shelter-select" required>
                 <option value="">Sélectionner un abri</option>
                 <option value="giroux">Mont Giroux (650 m)</option>
-                <option value="orford" selected>Mont Orford (850 m)</option>
+                <option value="orford">Mont Orford (850 m)</option>
                 <option value="alfred">Mont Alfred-Desrochers (615 m)</option>
               </select>
             </div>
             
             <div class="form-group">
-              <label for="inspector">Inspecteur</label>
-              <input type="text" id="inspector" value="Pierre Martin" readonly>
+              <label for="inspector-name">Inspecteur</label>
+              <input type="text" id="inspector-name" readonly>
             </div>
           </div>
           
           <div class="dual-column">
             <div class="form-group">
               <label for="inspection-date">Date</label>
-              <input type="date" id="inspection-date" value="2025-04-14" required>
+              <input type="date" id="inspection-date" required>
             </div>
             
             <div class="form-group">
               <label for="inspection-time">Heure</label>
-              <input type="time" id="inspection-time" value="11:15" required>
+              <input type="time" id="inspection-time" required>
             </div>
           </div>
         </div>
@@ -301,21 +301,21 @@
             <label>État général de la structure</label>
             
             <div class="condition-option">
-              <input type="radio" name="shelter-condition" id="condition-good" value="good">
+              <input type="radio" name="condition" id="condition-good" value="good">
               <span class="condition-label">
                 <strong class="good">Bon</strong> - Structure en bon état, aucun problème majeur
               </span>
             </div>
             
             <div class="condition-option">
-              <input type="radio" name="shelter-condition" id="condition-warning" value="warning" checked>
+              <input type="radio" name="condition" id="condition-warning" value="warning" checked>
               <span class="condition-label">
                 <strong class="warning">Attention</strong> - Problèmes mineurs nécessitant une intervention
               </span>
             </div>
             
             <div class="condition-option">
-              <input type="radio" name="shelter-condition" id="condition-critical" value="critical">
+              <input type="radio" name="condition" id="condition-critical" value="critical">
               <span class="condition-label">
                 <strong class="critical">Critique</strong> - Problèmes importants, intervention urgente requise
               </span>
@@ -328,12 +328,12 @@
             <div class="issue-list">
               <div class="issue-item">
                 <span>Infiltration d'eau au niveau du toit</span>
-                <button type="button">&times;</button>
+                <button type="button" class="remove-issue">&times;</button>
               </div>
               
               <div class="issue-item">
                 <span>Un des bancs est instable</span>
-                <button type="button">&times;</button>
+                <button type="button" class="remove-issue">&times;</button>
               </div>
             </div>
             
@@ -370,8 +370,8 @@
           </div>
           
           <div class="form-group">
-            <label>Détails sur la propreté</label>
-            <textarea placeholder="Décrivez l'état de propreté de l'abri...">Déchets laissés par des randonneurs (emballages alimentaires). Présence de poussière et de feuilles accumulées. Nettoyage recommandé dans la semaine.</textarea>
+            <label for="cleanliness-details">Détails sur la propreté</label>
+            <textarea id="cleanliness-details" placeholder="Décrivez l'état de propreté de l'abri..."></textarea>
           </div>
         </div>
         
@@ -404,8 +404,8 @@
           </div>
           
           <div class="form-group">
-            <label>Commentaires sur l'accessibilité</label>
-            <textarea placeholder="Décrivez l'état du chemin d'accès...">Le chemin d'accès est bien dégagé. La signalisation est claire et visible.</textarea>
+            <label for="accessibility-details">Commentaires sur l'accessibilité</label>
+            <textarea id="accessibility-details" placeholder="Décrivez l'état du chemin d'accès..."></textarea>
           </div>
         </div>
         
@@ -413,11 +413,13 @@
           <h2 class="form-section-title">Photos</h2>
           
           <div class="form-group">
-            <div class="file-upload">
+            <div class="file-upload" id="photo-upload">
               <div class="file-icon">📷</div>
               <p>Déposez des photos ici ou cliquez pour parcourir</p>
               <p style="font-size: 0.875rem; color: #6b7280; margin-top: 0.5rem;">Format accepté: JPG, PNG • Taille max: 10 MB</p>
+              <input type="file" id="file-input" multiple accept="image/*" style="display: none;">
             </div>
+            <div id="preview-container" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px;"></div>
           </div>
         </div>
         
@@ -425,12 +427,12 @@
           <h2 class="form-section-title">Commentaires additionnels</h2>
           
           <div class="form-group">
-            <textarea placeholder="Ajoutez des commentaires ou des observations supplémentaires...">Le livre de visite est presque plein, prévoir un remplacement. La trousse de premiers secours est complète et à jour.</textarea>
+            <textarea id="additional-comments" placeholder="Ajoutez des commentaires ou des observations supplémentaires..."></textarea>
           </div>
         </div>
         
         <div class="button-group">
-          <button type="button" class="btn btn-secondary">Annuler</button>
+          <button type="button" class="btn btn-secondary" id="cancel-btn">Annuler</button>
           <button type="submit" class="btn">Enregistrer l'inspection</button>
         </div>
       </form>
@@ -438,37 +440,181 @@
   </main>
   
   <script>
-    // Dans une implémentation réelle, ce code permettrait de gérer le formulaire
-    document.getElementById('shelterForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      alert('Inspection de l\'abri enregistrée avec succès');
-      // En production, on enverrait les données au serveur ou les stockerait localement
+    // Date et heure actuelles pour les champs
+    const now = new Date();
+    const dateField = document.getElementById('inspection-date');
+    const timeField = document.getElementById('inspection-time');
+    
+    // Format de la date YYYY-MM-DD
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    dateField.value = `${year}-${month}-${day}`;
+    
+    // Format de l'heure HH:MM
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    timeField.value = `${hours}:${minutes}`;
+    
+    // Simuler un inspecteur connecté
+    document.getElementById('inspector-name').value = "Pierre Martin";
+    
+    // Gestion des problèmes
+    document.querySelectorAll('.remove-issue').forEach(button => {
+      button.addEventListener('click', function() {
+        this.parentElement.remove();
+      });
     });
     
     document.querySelector('.add-issue-btn').addEventListener('click', function() {
       const issue = prompt('Décrivez le problème:');
-      if (issue) {
+      if (issue && issue.trim() !== '') {
         const issueList = document.querySelector('.issue-list');
         const issueItem = document.createElement('div');
         issueItem.className = 'issue-item';
         issueItem.innerHTML = `
           <span>${issue}</span>
-          <button type="button">&times;</button>
+          <button type="button" class="remove-issue">&times;</button>
         `;
         issueList.appendChild(issueItem);
         
-        // Ajouter gestionnaire d'événement pour le bouton de suppression
-        issueItem.querySelector('button').addEventListener('click', function() {
+        // Ajouter l'événement pour supprimer ce problème
+        issueItem.querySelector('.remove-issue').addEventListener('click', function() {
           issueItem.remove();
         });
       }
     });
     
-    // Ajouter gestionnaires d'événements pour les boutons de suppression existants
-    document.querySelectorAll('.issue-item button').forEach(button => {
-      button.addEventListener('click', function() {
-        this.parentElement.remove();
+    // Gestion des photos
+    const photoUpload = document.getElementById('photo-upload');
+    const fileInput = document.getElementById('file-input');
+    const previewContainer = document.getElementById('preview-container');
+    
+    photoUpload.addEventListener('click', () => {
+      fileInput.click();
+    });
+    
+    photoUpload.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      photoUpload.style.backgroundColor = '#f3f4f6';
+    });
+    
+    photoUpload.addEventListener('dragleave', () => {
+      photoUpload.style.backgroundColor = '';
+    });
+    
+    photoUpload.addEventListener('drop', (e) => {
+      e.preventDefault();
+      photoUpload.style.backgroundColor = '';
+      if (e.dataTransfer.files.length) {
+        fileInput.files = e.dataTransfer.files;
+        displayImagePreviews(e.dataTransfer.files);
+      }
+    });
+    
+    fileInput.addEventListener('change', () => {
+      displayImagePreviews(fileInput.files);
+    });
+    
+    function displayImagePreviews(files) {
+      previewContainer.innerHTML = '';
+      
+      [...files].forEach(file => {
+        if (!file.type.startsWith('image/')) return;
+        
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          const previewWrapper = document.createElement('div');
+          previewWrapper.style.position = 'relative';
+          
+          const img = document.createElement('img');
+          img.src = event.target.result;
+          img.style.width = '100px';
+          img.style.height = '100px';
+          img.style.objectFit = 'cover';
+          img.style.borderRadius = '4px';
+          
+          const removeBtn = document.createElement('button');
+          removeBtn.innerHTML = '&times;';
+          removeBtn.style.position = 'absolute';
+          removeBtn.style.top = '2px';
+          removeBtn.style.right = '2px';
+          removeBtn.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
+          removeBtn.style.border = 'none';
+          removeBtn.style.borderRadius = '50%';
+          removeBtn.style.width = '20px';
+          removeBtn.style.height = '20px';
+          removeBtn.style.cursor = 'pointer';
+          removeBtn.style.display = 'flex';
+          removeBtn.style.justifyContent = 'center';
+          removeBtn.style.alignItems = 'center';
+          
+          removeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            previewWrapper.remove();
+            // Note: Dans une implémentation réelle, vous devriez également gérer la liste des fichiers
+          });
+          
+          previewWrapper.appendChild(img);
+          previewWrapper.appendChild(removeBtn);
+          previewContainer.appendChild(previewWrapper);
+        };
+        
+        reader.readAsDataURL(file);
       });
+    }
+    
+    // Soumission du formulaire
+    document.getElementById('shelterInspectionForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // Collecter les données du formulaire
+      const shelterId = document.getElementById('shelter-select').value;
+      const inspector = document.getElementById('inspector-name').value;
+      const date = document.getElementById('inspection-date').value;
+      const time = document.getElementById('inspection-time').value;
+      const condition = document.querySelector('input[name="condition"]:checked').value;
+      const cleanliness = document.querySelector('input[name="cleanliness"]:checked').value;
+      const accessibility = document.querySelector('input[name="accessibility"]:checked').value;
+      
+      // Collecter les problèmes
+      const issues = [];
+      document.querySelectorAll('.issue-item span').forEach(item => {
+        issues.push(item.textContent);
+      });
+      
+      const cleanlinessDetails = document.getElementById('cleanliness-details').value;
+      const accessibilityDetails = document.getElementById('accessibility-details').value;
+      const additionalComments = document.getElementById('additional-comments').value;
+      
+      // Dans une implémentation réelle, vous enverriez ces données à votre backend/Firebase
+      console.log({
+        shelterId,
+        inspector,
+        date,
+        time,
+        condition,
+        cleanliness,
+        accessibility,
+        issues,
+        cleanlinessDetails,
+        accessibilityDetails,
+        additionalComments
+        // Les photos seraient gérées avec Firebase Storage
+      });
+      
+      // Simuler la réussite
+      alert('Inspection d\'abri enregistrée avec succès!');
+      
+      // Rediriger vers le tableau de bord
+      // window.location.href = '../index.html';
+    });
+    
+    // Bouton d'annulation
+    document.getElementById('cancel-btn').addEventListener('click', function() {
+      if (confirm('Êtes-vous sûr de vouloir annuler cette inspection? Les données non enregistrées seront perdues.')) {
+        window.location.href = '../index.html';
+      }
     });
   </script>
 </body>
