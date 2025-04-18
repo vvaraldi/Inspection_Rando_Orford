@@ -3,37 +3,356 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SkiTrack - Mont Orford</title>
-  <link rel="stylesheet" href="css/styles.css">
+  <title>Status - Mont Orford Randonnée Alpine</title>
   <style>
-    /* Cacher le contenu principal par défaut */
-    #main-content {
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      background-color: #f0f4f8;
+      color: #333;
+    }
+    
+    header {
+      background-color: #1a56db;
+      color: white;
+      padding: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+    
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+    }
+    
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+    
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    .btn {
+      background-color: #1a56db;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 0.25rem;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    
+    .btn:hover {
+      background-color: #1e429f;
+    }
+    
+    .status-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    
+    .card {
+      background-color: white;
+      border-radius: 0.5rem;
+      padding: 1.25rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .card-title {
+      font-size: 0.875rem;
+      color: #6b7280;
+      margin-bottom: 0.5rem;
+    }
+    
+    .card-value {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    
+    .map-controls {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .filter-box {
+      background-color: white;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    
+    .filter-box select {
+      padding: 0.5rem;
+      border-radius: 0.25rem;
+      border: 1px solid #e5e7eb;
+    }
+    
+    .map-container {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .map-view {
+      flex: 1;
+      background-color: white;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      height: 700px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .map-bg {
+      height: 100%;
+      position: relative;
+      overflow: auto;
+      display: flex;
+      justify-content: center;
+    }
+    
+    .map-image {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+    
+    .trail-marker {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      font-size: 0.8rem;
+      z-index: 10;
+    }
+    
+    .marker-good {
+      background-color: #10b981;
+    }
+    
+    .marker-warning {
+      background-color: #f59e0b;
+    }
+    
+    .marker-critical {
+      background-color: #ef4444;
+    }
+    
+    .marker-not-inspected {
+      background-color: #9ca3af;
+    }
+    
+    .legend {
+      width: 280px;
+      background-color: white;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .legend-title {
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+    
+    .legend-section {
+      margin-bottom: 1rem;
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    
+    .legend-color {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      margin-right: 0.5rem;
+      flex-shrink: 0;
+    }
+    
+    .green {
+      background-color: #10b981;
+    }
+    
+    .orange {
+      background-color: #f59e0b;
+    }
+    
+    .red {
+      background-color: #ef4444;
+    }
+    
+    .gray {
+      background-color: #9ca3af;
+    }
+    
+    .blue {
+      background-color: #3b82f6;
+    }
+    
+    .dark-blue {
+      background-color: #1e40af;
+    }
+    
+    .black {
+      background-color: #1f2937;
+    }
+    
+    .info-panel {
+      background-color: white;
+      border-radius: 0.5rem;
+      padding: 1.25rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .selected-info {
       display: none;
     }
     
-    /* Style pour l'indicateur de chargement */
-    .loading {
+    .show {
+      display: block;
+    }
+    
+    .info-header {
       display: flex;
-      justify-content: center;
+      justify-content: space-between;
       align-items: center;
-      height: 100vh;
-      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    
+    .status-good {
+      background-color: #def7ec;
+      color: #0e9f6e;
+    }
+    
+    .status-warning {
+      background-color: #feecdc;
+      color: #ff5a1f;
+    }
+    
+    .status-critical {
+      background-color: #fde8e8;
+      color: #e02424;
+    }
+    
+    .status-not-inspected {
+      background-color: #f3f4f6;
       color: #6b7280;
     }
     
-    .spinner {
-      border: 4px solid rgba(0, 0, 0, 0.1);
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      border-left-color: #1a56db;
-      animation: spin 1s linear infinite;
-      margin-right: 10px;
+    .info-section {
+      margin-bottom: 1rem;
     }
     
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+    .info-title {
+      font-weight: 500;
+      color: #6b7280;
+      margin-bottom: 0.5rem;
+    }
+    
+    .issue-item {
+      padding: 0.5rem;
+      border-radius: 0.25rem;
+      margin-bottom: 0.5rem;
+      background-color: #f9fafb;
+    }
+    
+    .toggle-button {
+      background-color: #f3f4f6;
+      border: 1px solid #d1d5db;
+      border-radius: 0.25rem;
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      cursor: pointer;
+    }
+    
+    .toggle-button:hover {
+      background-color: #e5e7eb;
+    }
+    
+    .difficulty-label {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 4px;
+    }
+    
+    .difficulty-easy {
+      background-color: #10b981;
+    }
+    
+    .difficulty-medium {
+      background-color: #3b82f6;
+    }
+    
+    .difficulty-hard {
+      background-color: #1f2937;
+    }
+    
+    @media (max-width: 768px) {
+      .map-container {
+        flex-direction: column;
+      }
+      
+      .legend {
+        width: 100%;
+      }
     }
   </style>
 </head>
@@ -42,23 +361,15 @@
     <nav>
       <div class="logo">SkiTrack - Mont Orford</div>
       <div class="nav-links">
-        <a href="index.html" class="active">Tableau de bord</a>
-        <a href="pages/trail-inspection.html">Inspection piste</a>
-        <a href="pages/shelter-inspection.html">Inspection abri</a>
+        <a href="#">Tableau de bord</a>
+        <a href="#">Carte</a>
+        <a href="pages/trail-inspection.html">Nouvelle inspection</a>
         <a href="pages/inspection-history.html">Historique</a>
-        <a href="#" id="login-link">Connexion</a>
       </div>
     </nav>
   </header>
   
-  <!-- Indicateur de chargement -->
-  <div id="loading" class="loading">
-    <div class="spinner"></div>
-    <span>Vérification de l'authentification...</span>
-  </div>
-  
-  <!-- Contenu principal (caché initialement) -->
-  <div id="main-content">
+  <main>
     <div class="dashboard-header">
       <h1>Inspection des pistes de randonnée alpine</h1>
       <button class="btn" href="pages/trail-inspection.html">+ Nouvelle inspection</button>
@@ -317,113 +628,8 @@
       </div>
     </div>
   </main>
-
-  </div>
-
-  <!-- Scripts Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
   
   <script>
-    // Configuration Firebase
-    const firebaseConfig = {
-      apiKey: "AIzaSyDcBZrwGTskM7QUvanzLTACEJ_T-55j-DA",
-      authDomain: "trail-inspection.firebaseapp.com",
-      projectId: "trail-inspection",
-      storageBucket: "trail-inspection.appspot.com",
-      messagingSenderId: "VOTRE_MESSAGING_ID",
-      appId: "VOTRE_APP_ID"
-    };
-    
-    // Initialisation de Firebase
-    firebase.initializeApp(firebaseConfig);
-    
-    // Référence à l'auth et Firestore
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-    
-    // Gestion de l'authentification
-    function checkAuthStatus() {
-      const loading = document.getElementById('loading');
-      const mainContent = document.getElementById('main-content');
-      const loginLink = document.getElementById('login-link');
-      const userName = document.getElementById('user-name');
-      
-      auth.onAuthStateChanged(function(user) {
-        if (user) {
-          // L'utilisateur est connecté
-          console.log("Utilisateur connecté:", user.email);
-          
-          // Mettre à jour l'interface
-          loginLink.textContent = 'Déconnexion';
-          loginLink.onclick = function(e) {
-            e.preventDefault();
-            auth.signOut().then(() => {
-              window.location.reload();
-            });
-          };
-          
-          // Afficher le nom de l'utilisateur
-          if (user.displayName) {
-            userName.textContent = user.displayName;
-          } else {
-            db.collection('inspectors').where('email', '==', user.email).get()
-              .then((querySnapshot) => {
-                if (!querySnapshot.empty) {
-                  const inspectorData = querySnapshot.docs[0].data();
-                  userName.textContent = inspectorData.name || user.email;
-                } else {
-                  userName.textContent = user.email;
-                }
-              })
-              .catch((error) => {
-                console.error("Erreur lors de la récupération des données:", error);
-                userName.textContent = user.email;
-              });
-          }
-          
-          // Charger les données du tableau de bord
-          loadDashboardData();
-          
-          // Afficher le contenu principal
-          loading.style.display = 'none';
-          mainContent.style.display = 'block';
-        } else {
-          // L'utilisateur n'est pas connecté, rediriger vers la page de connexion
-          console.log("Aucun utilisateur connecté");
-          window.location.href = 'pages/login.html';
-        }
-      });
-    }
-    
-    // Fonction pour charger les données du tableau de bord
-    function loadDashboardData() {
-      // Logique pour charger les données depuis Firestore
-      // Cette fonction serait développée pour récupérer les dernières inspections,
-      // calculer les statistiques, etc.
-      console.log("Chargement des données du tableau de bord...");
-      
-      // Exemple: récupérer les inspections récentes
-      db.collection('trail_inspections')
-        .orderBy('date', 'desc')
-        .limit(5)
-        .get()
-        .then((querySnapshot) => {
-          // Traiter les résultats
-          console.log("Inspections récentes récupérées");
-        })
-        .catch((error) => {
-          console.error("Erreur lors de la récupération des inspections:", error);
-        });
-        
-      // Dans une implémentation réelle, vous mettriez à jour les cartes de statut,
-      // la carte, et le tableau des inspections récentes avec les données de Firestore
-    }
-    
-    // Vérifier l'authentification au chargement de la page
-    document.addEventListener('DOMContentLoaded', checkAuthStatus);
-
     // Script pour gérer l'interaction avec la carte
     document.querySelectorAll('.trail-marker').forEach(marker => {
       marker.addEventListener('click', () => {
@@ -433,7 +639,6 @@
         document.getElementById('piste-info').classList.add('show');
       });
     });
-
   </script>
 </body>
 </html>
