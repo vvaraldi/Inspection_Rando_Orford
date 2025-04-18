@@ -408,6 +408,7 @@
   </div>
   
   <!-- Contenu principal (caché initialement) -->
+  <main>
   <div id="main-content">
     <div class="dashboard-header">
       <h1>Inspection des pistes de randonnée alpine</h1>
@@ -674,7 +675,6 @@
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-  
   <script>
     // Configuration Firebase
     const firebaseConfig = {
@@ -773,7 +773,8 @@
     
     // Vérifier l'authentification au chargement de la page
     document.addEventListener('DOMContentLoaded', checkAuthStatus);
-
+  </script>
+  <script>  
     // Script pour gérer l'interaction avec la carte
     document.querySelectorAll('.trail-marker').forEach(marker => {
       marker.addEventListener('click', () => {
