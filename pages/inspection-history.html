@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkiTrack - Historique des inspections</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      background-color: #f0f4f8;
+      color: #333;
+    }
+    
+    header {
+      background-color: #1a56db;
+      color: white;
+      padding: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+    
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+    }
+    
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+    
+    .page-header {
+      margin-bottom: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .filter-container {
+      background-color: white;
+      border-radius: 0.5rem;
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .filter-group {
+      flex: 1;
+      min-width: 200px;
+    }
+    
+    .filter-label {
+      display: block;
+      margin-bottom: 0.375rem;
+      font-weight: 500;
+      font-size: 0.875rem;
+      color: #4b5563;
+    }
+    
+    .filter-control {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.375rem;
+      font-size: 0.875rem;
+    }
+    
+    .search-box {
+      display: flex;
+      align-items: center;
+      border: 1px solid #d1d5db;
+      border-radius: 0.375rem;
+      padding: 0.5rem 0.75rem;
+      width: 100%;
+      background-color: white;
+    }
+    
+    .search-icon {
+      color: #9ca3af;
+      margin-right: 0.5rem;
+    }
+    
+    .search-input {
+      border: none;
+      outline: none;
+      width: 100%;
+      font-size: 0.875rem;
+    }
+    
+    .filter-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+    }
+    
+    .btn {
+      background-color: #1a56db;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 0.875rem;
+    }
+    
+    .btn:hover {
+      background-color: #1e429f;
+    }
+    
+    .btn-secondary {
+      background-color: white;
+      color: #4b5563;
+      border: 1px solid #d1d5db;
+    }
+    
+    .btn-secondary:hover {
+      background-color: #f9fafb;
+    }
+    
+    .export-dropdown {
+      position: relative;
+      display: inline-block;
+    }
+    
+    .export-dropdown-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      min-width: 160px;
+      z-index: 1;
+      background-color: white;
+      border-radius: 0.375rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    }
+    
+    .export-dropdown:hover .export-dropdown-content {
+      display: block;
+    }
+    
+    .export-dropdown-item {
+      padding: 0.75rem 1rem;
+      text-decoration: none;
+      display: block;
+      color: #4b5563;
+      font-size: 0.875rem;
+    }
+    
+    .export-dropdown-item:hover {
+      background-color: #f3f4f6;
+    }
+    
+    .table-container {
+      background-color: white;
+      border-radius: 0.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    th, td {
+      padding: 1rem;
+      text-align: left;
+    }
+    
+    th {
+      background-color: #f9fafb;
+      font-weight: 600;
+      color: #4b5563;
+      font-size: 0.875rem;
+      border-bottom: 1px solid #e5e7eb;
+      position: relative;
+      cursor: pointer;
+    }
+    
+    th:hover {
+      background-color: #f3f4f6;
+    }
+    
+    th::after {
+      content: "⇅";
+      position: absolute;
+      right: 0.5rem;
+      color: #9ca3af;
+      font-size: 0.75rem;
+    }
+    
+    tbody tr {
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    tbody tr:last-child {
+      border-bottom: none;
+    }
+    
+    tbody tr:hover {
+      background-color: #f9fafb;
+    }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    
+    .status-good {
+      background-color: #def7ec;
+      color: #0e9f6e;
+    }
+    
+    .status-warning {
+      background-color: #feecdc;
+      color: #ff5a1f;
+    }
+    
+    .status-critical {
+      background-color: #fde8e8;
+      color: #e02424;
+    }
+    
+    .status-not-inspected {
+      background-color: #f3f4f6;
+      color: #6b7280;
+    }
+    
+    .type-badge {
+      display: inline-block;
+      padding: 0.125rem 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      margin-right: 0.5rem;
+    }
+    
+    .type-trail {
+      background-color: #dbeafe;
+      color: #1e40af;
+    }
+    
+    .type-shelter {
+      background-color: #f3e8ff;
+      color: #5b21b6;
+    }
+    
+    .view-btn {
+      padding: 0.375rem 0.75rem;
+      border: none;
+      border-radius: 0.25rem;
+      background-color: #f3f4f6;
+      color: #4b5563;
+      font-size: 0.75rem;
+      cursor: pointer;
+    }
+    
+    .view-btn:hover {
+      background-color: #e5e7eb;
+    }
+    
+    .pagination {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      border-top: 1px solid #e5e7eb;
+    }
+    
+    .pagination-info {
+      color: #6b7280;
+      font-size: 0.875rem;
+    }
+    
+    .pagination-buttons {
+      display: flex;
+      gap: 0.25rem;
+    }
+    
+    .page-btn {
+      padding: 0.375rem 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.25rem;
+      background-color: white;
+      color: #4b5563;
+      font-size: 0.875rem;
+      cursor: pointer;
+    }
+    
+    .page-btn:hover {
+      background-color: #f9fafb;
+    }
+    
+    .page-btn.active {
+      background-color: #1a56db;
+      color: white;
+      border-color: #1a56db;
+    }
+    
+    .page-btn:disabled {
+      background-color: #f3f4f6;
+      color: #9ca3af;
+      cursor: not-allowed;
+    }
+    
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 100;
+      overflow-y: auto;
+    }
+    
+    .modal-content {
+      background-color: white;
+      border-radius: 0.5rem;
+      margin: 2rem auto;
+      width: 90%;
+      max-width: 900px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .modal-header {
+      padding: 1.25rem;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .modal-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    
+    .modal-close {
+      border: none;
+      background-color: transparent;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #6b7280;
+    }
+    
+    .modal-body {
+      padding: 1.25rem;
+    }
+    
+    .inspection-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .detail-box {
+      background-color: #f9fafb;
+      border-radius: 0.375rem;
+      padding: 1rem;
+    }
+    
+    .detail-title {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #4b5563;
+    }
+    
+    .detail-list {
+      list-style: none;
+    }
+    
+    .detail-list li {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .detail-list li:last-child {
+      border-bottom: none;
+    }
+    
+    .detail-label {
+      color: #6b7280;
+      font-size: 0.875rem;
+      margin-bottom: 0.25rem;
+    }
+    
+    .detail-value {
+      font-weight: 500;
+    }
+    
+    .issues-container {
+      margin-bottom: 1.5rem;
+    }
+    
+    .photo-gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .gallery-image {
+      border-radius: 0.375rem;
+      overflow: hidden;
+      aspect-ratio: 1;
+    }
+    
+    .gallery-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .history-chart {
+      border: 1px solid #e5e7eb;
+      border-radius: 0.375rem;
+      padding: 1rem;
+      height: 300px;
+      position: relative;
+    }
+    
+    .chart-placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: #9ca3af;
+      font-style: italic;
+    }
+    
+    @media (max-width: 768px) {
+      .filter-row {
+        flex-direction: column;
+      }
+      
+      .filter-buttons {
+        justify-content: space-between;
+      }
+      
+      .inspection-details {
+        grid-template-columns: 1fr;
+      }
+      
+      .photo-gallery {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <div class="logo">SkiTrack - Mont Orford</div>
+      <div class="nav-links">
+        <a href="../index.html">Tableau de bord</a>
+        <a href="trail-inspection.html">Inspection de sentier</a>
+        <a href="shelter-inspection.html">Inspection d'abri</a>
+        <a href="inspection-history.html" class="active">Historique</a>
+      </div>
+    </nav>
+  </header>
+  
+  <main>
+    <div class="page-header">
+      <h1>Historique des inspections</h1>
+      
+      <div class="export-dropdown">
+        <button class="btn btn-secondary">Exporter <span>▼</span></button>
+        <div class="export-dropdown-content">
+          <a href="#" class="export-dropdown-item">Exporter en PDF</a>
+          <a href="#" class="export-dropdown-item">Exporter en CSV</a>
+          <a href="#" class="export-dropdown-item">Exporter en Excel</a>
+        </div>
+      </div>
+    </div>
+    
+    <div class="filter-container">
+      <div class="filter-row">
+        <div class="filter-group">
+          <label class="filter-label" for="period-filter">Période</label>
+          <select class="filter-control" id="period-filter">
+            <option value="all">Toutes les dates</option>
+            <option value="today">Aujourd'hui</option>
+            <option value="week">Cette semaine</option>
+            <option value="month">Ce mois</option>
+            <option value="custom">Période personnalisée</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label class="filter-label" for="type-filter">Type</label>
+          <select class="filter-control" id="type-filter">
+            <option value="all">Tous les types</option>
+            <option value="trail">Sentiers</option>
+            <option value="shelter">Abris</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label class="filter-label" for="location-filter">Sentier/Abri</label>
+          <select class="filter-control" id="location-filter">
+            <option value="all">Tous</option>
+            <optgroup label="Sentiers">
+              <option value="1">1. La tortue</option>
+              <option value="2">2. Tracé du lynx</option>
+              <option value="3">3. Adams</option>
+              <option value="4">4. Le renard</option>
+              <option value="5">5. Le lièvre</option>
+              <option value="6">6. Le Campagnol</option>
+              <option value="7">7. L'Hermine</option>
+              <option value="8">8. L'Alouette</option>
+              <option value="9">9. L'Urubu</option>
+              <option value="10">10. La Carcajou</option>
+              <option value="11">11. La Mille-Pattes</option>
+            </optgroup>
+            <optgroup label="Abris">
+              <option value="giroux">Mont Giroux</option>
+              <option value="orford">Mont Orford</option>
+              <option value="alfred">Mont Alfred-Desrochers</option>
+            </optgroup>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label class="filter-label" for="status-filter">État</label>
+          <select class="filter-control" id="status-filter">
+            <option value="all">Tous les états</option>
+            <option value="good">Bon</option>
+            <option value="warning">Attention</option>
+            <option value="critical">Critique</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="filter-row">
+        <div class="filter-group">
+          <label class="filter-label" for="inspector-filter">Inspecteur</label>
+          <select class="filter-control" id="inspector-filter">
+            <option value="all">Tous les inspecteurs</option>
+            <option value="pierre">Pierre Martin</option>
+            <option value="sophie">Sophie Legrand</option>
+            <option value="marc">Marc Dubois</option>
+            <option value="julie">Julie Blanc</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label class="filter-label">Recherche</label>
+          <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" class="search-input" placeholder="Rechercher...">
+          </div>
+        </div>
+      </div>
+      
+      <div class="filter-buttons">
+        <button class="btn btn-secondary" id="reset-filters">Réinitialiser</button>
+        <button class="btn" id="apply-filters">Appliquer</button>
+      </div>
+    </div>
+    
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Sentier/Abri</th>
+            <th>Inspecteur</th>
+            <th>État</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>14 avril 2025, 10:45</td>
+            <td><span class="type-badge type-trail">Sentier</span></td>
+            <td>2. Tracé du lynx</td>
+            <td>Pierre Martin</td>
+            <td><span class="status-badge status-warning">Attention</span></td>
+            <td><button class="view-btn" data-id="1">Voir détails</button></td>
+          </tr>
+          <tr>
+            <td>14 avril 2025, 09:30</td>
+            <td><span class="type-badge type-shelter">Abri</span></td>
+            <td>Mont Orford</td>
+            <td>Sophie Legrand</td>
+            <td><span class="status-badge status-warning">Attention</span></td>
+            <td><button class="view-btn" data-id="2">Voir détails</button></td>
+          </tr>
+          <tr>
+            <td>13 avril 2025, 15:20</td>
+            <td><span class="type-badge type-trail">Sentier</span></td>
+            <td>7. L'Hermine</td>
+            <td>Marc Dubois</td>
+            <td><span class="status-badge status-good">Bon</span></td>
+            <td><button class="view-btn" data-id="3">Voir détails</button></td>
+          </tr>
+          <tr>
+            <td>13 avril 2025, 14:05</td>
+            <td><span class="type-badge type-trail">Sentier</span></td>
+            <td>10. La Carcajou</td>
+            <td>Pierre Martin</td>
+            <td><span class="status-badge status-warning">Attention</span></td>
+            <td><button class="view-btn" data-id="4">Voir détails</button></td>
+          </tr>
+          <tr>
+            <td>13 avril 2025, 11:45</td>
+            <td><span class="type-badge type-shelter">Abri</span></td>
+            <td>Mont Giroux</td>
+            <td>Julie Blanc</td>
+            <td><span class="status-badge status-good">Bon</span></td>
+            <td><button class="view-btn" data-id="5">Voir détails</button></td>
+          </tr>
+          <tr>
+            <td>12 avril 2025, 16:30</td>
+            <td><span class="type-badge type-trail">Sentier</span></td>
+            <td>6. Le Campagnol</td>
+            <td>Sophie Legrand</td>
+            <td><span class="status-badge status-critical">Critique</span></td>
+            <td><button class="view-btn" data-id="6">Voir détails</button></td>
+          </tr>
+          <tr>
+            <td>12 avril 2025, 14:15</td>
+            <td><span class="type-badge type-trail">Sentier</span></td>
+            <td>1. La tortue</td>
+            <td>Marc Dubois</td>
+            <td><span class="status-badge status-good">Bon</span></td>
+            <td><button class="view-btn" data-id="7">Voir détails</button></td>
+          </tr>
+          <tr>
+            <td>12 avril 2025, 10:00</td>
+            <td><span class="type-badge type-shelter">Abri</span></td>
+            <td>Mont Alfred-Desrochers</td>
+            <td>Pierre Martin</td>
+            <td><span class="status-badge status-good">Bon</span></td>
+            <td><button class="view-btn" data-id="8">Voir détails</button></td>
+          </tr>
+          <tr>
+            <td>11 avril 2025, 15:40</td>
+            <td><span class="type-badge type-trail">Sentier</span></td>
+            <td>8. L'Alouette</td>
+            <td>Julie Blanc</td>
+            <td><span class="status-badge status-good">Bon</span></td>
+            <td><button class="view-btn" data-id="9">Voir détails</button></td>
+          </tr>
+          <tr>
+            <td>11 avril 2025, 13:10</td>
+            <td><span class="type-badge type-trail">Sentier</span></td>
+            <td>11. La Mille-Pattes</td>
+            <td>Sophie Legrand</td>
+            <td><span class="status-badge status-critical">Critique</span></td>
+            <td><button class="view-btn" data-id="10">Voir détails</button></td>
+          </tr>
+        </tbody>
+      </table>
+      
+      <div class="pagination">
+        <div class="pagination-info">
+          Affichage de 1 à 10 sur 42 entrées
+        </div>
+        
+        <div class="pagination-buttons">
+          <button class="page-btn" disabled>&laquo;</button>
+          <button class="page-btn active">1</button>
+          <button class="page-btn">2</button>
+          <button class="page-btn">3</button>
+          <button class="page-btn">4</button>
+          <button class="page-btn">5</button>
+          <button class="page-btn">&raquo;</button>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <!-- Modal de détails d'inspection -->
+  <div id="inspection-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Détails de l'inspection</h2>
+        <button class="modal-close">&times;</button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="inspection-details">
+          <div class="detail-box">
+            <h3 class="detail-title">Informations générales</h3>
+            <ul class="detail-list">
+              <li>
+                <div class="detail-label">Type</div>
+                <div class="detail-value"><span class="type-badge type-trail">Sentier</span> 2. Tracé du lynx</div>
+              </li>
+              <li>
+                <div class="detail-label">Date et heure</div>
+                <div class="detail-value">14 avril 2025, 10:45</div>
+              </li>
+              <li>
+                <div class="detail-label">Inspecteur</div>
+                <div class="detail-value">Pierre Martin</div>
+              </li>
+              <li>
+                <div class="detail-label">État général</div>
+                <div class="detail-value"><span class="status-badge status-warning">Attention</span></div>
+              </li>
+            </ul>
+          </div>
+          
+          <div class="detail-box">
+            <h3 class="detail-title">Problèmes signalés</h3>
+            <ul class="detail-list issues-list">
+              <li>
+                <div class="detail-value">Neige irrégulière sur le premier tiers du sentier</div>
+              </li>
+              <li>
+                <div class="detail-value">Signalisation endommagée à l'intersection</div>
+              </li>
+            </ul>
+          </div>
+          
+          <div class="detail-box">
+            <h3 class="detail-title">Caractéristiques</h3>
+            <ul class="detail-list">
+              <li>
+                <div class="detail-label">Longueur</div>
+                <div class="detail-value">0,6 km</div>
+              </li>
+              <li>
+                <div class="detail-label">Difficulté</div>
+                <div class="detail-value">Facile</div>
+              </li>
+              <li>
+                <div class="detail-label">Altitude</div>
+                <div class="detail-value">Mont Giroux (650 m)</div>
+              </li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="detail-box">
+          <h3 class="detail-title">Commentaires</h3>
+          <p style="padding: 0.5rem 0;">
+            Le sentier est généralement en bon état, mais les deux problèmes identifiés nécessitent une intervention. 
+            La signalisation endommagée à l'intersection pourrait poser des problèmes pour les randonneurs moins expérimentés. 
+            Recommandation de réparer la signalisation dans les prochains jours.
+          </p>
+        </div>
+        
+        <h3 class="detail-title" style="margin: 1.5rem 0 0.75rem;">Photos</h3>
+        <div class="photo-gallery">
+          <div class="gallery-image">
+            <img src="https://via.placeholder.com/300x300" alt="Photo d'inspection">
+          </div>
+          <div class="gallery-image">
+            <img src="https://via.placeholder.com/300x300" alt="Photo d'inspection">
+          </div>
+          <div class="gallery-image">
+            <img src="https://via.placeholder.com/300x300" alt="Photo d'inspection">
+          </div>
+        </div>
+        
+        <h3 class="detail-title" style="margin: 1.5rem 0 0.75rem;">Historique du sentier</h3>
+        <div class="history-chart">
+          <div class="chart-placeholder">
+            Graphique d'historique des inspections
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // Gestion des tris de tableau
+    document.querySelectorAll('th').forEach(header => {
+      header.addEventListener('click', () => {
+        // Dans une implémentation réelle, ajoutez la logique de tri ici
+        console.log('Tri par', header.textContent.trim());
+      });
+    });
+    
+    // Gestion des filtres
+    document.getElementById('reset-filters').addEventListener('click', () => {
+      document.getElementById('period-filter').value = 'all';
+      document.getElementById('type-filter').value = 'all';
+      document.getElementById('location-filter').value = 'all';
+      document.getElementById('status-filter').value = 'all';
+      document.getElementById('inspector-filter').value = 'all';
+      document.querySelector('.search-input').value = '';
+    });
+    
+    document.getElementById('apply-filters').addEventListener('click', () => {
+      // Dans une implémentation réelle, ajoutez la logique de filtrage ici
+      const filters = {
+        period: document.getElementById('period-filter').value,
+        type: document.getElementById('type-filter').value,
+        location: document.getElementById('location-filter').value,
+        status: document.getElementById('status-filter').value,
+        inspector: document.getElementById('inspector-filter').value,
+        search: document.querySelector('.search-input').value
+      };
+      
+      console.log('Filtres appliqués:', filters);
+      
+      // Simuler un retard de chargement
+      alert('Filtres appliqués');
+    });
+    
+    // Gestion de la pagination
+    document.querySelectorAll('.page-btn:not([disabled])').forEach(btn => {
+      btn.addEventListener('click', function() {
+        if (!this.classList.contains('active')) {
+          document.querySelector('.page-btn.active').classList.remove('active');
+          this.classList.add('active');
+          // Dans une implémentation réelle, chargez les données de la page correspondante
+        }
+      });
+    });
+    
+    // Gestion de l'exportation
