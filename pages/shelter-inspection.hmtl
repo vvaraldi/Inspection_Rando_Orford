@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkiTrack - Inspection des abris</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      background-color: #f0f4f8;
+      color: #333;
+    }
+    
+    header {
+      background-color: #1a56db;
+      color: white;
+      padding: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+    
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+    }
+    
+    main {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+    
+    .page-header {
+      margin-bottom: 2rem;
+    }
+    
+    .form-container {
+      background-color: white;
+      border-radius: 0.5rem;
+      padding: 2rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .form-section {
+      margin-bottom: 2rem;
+    }
+    
+    .form-section-title {
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .form-row {
+      margin-bottom: 1rem;
+    }
+    
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    
+    input[type="text"],
+    input[type="date"],
+    input[type="time"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.375rem;
+      font-size: 1rem;
+    }
+    
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+    
+    .btn {
+      background-color: #1a56db;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 1rem;
+    }
+    
+    .btn:hover {
+      background-color: #1e429f;
+    }
+    
+    .btn-secondary {
+      background-color: #6b7280;
+    }
+    
+    .btn-secondary:hover {
+      background-color: #4b5563;
+    }
+    
+    .button-group {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    
+    .condition-option {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      padding: 0.75rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.375rem;
+      cursor: pointer;
+    }
+    
+    .condition-option:hover {
+      background-color: #f9fafb;
+    }
+    
+    .condition-option input {
+      margin-right: 0.75rem;
+    }
+    
+    .condition-label {
+      flex-grow: 1;
+    }
+    
+    .good {
+      color: #0e9f6e;
+    }
+    
+    .warning {
+      color: #ff5a1f;
+    }
+    
+    .critical {
+      color: #e02424;
+    }
+    
+    .dual-column {
+      display: flex;
+      gap: 1rem;
+    }
+    
+    .dual-column > div {
+      flex: 1;
+    }
+    
+    .issue-list {
+      margin-top: 1rem;
+    }
+    
+    .issue-item {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem;
+      background-color: #f9fafb;
+      border-radius: 0.375rem;
+      margin-bottom: 0.75rem;
+    }
+    
+    .issue-item button {
+      background-color: transparent;
+      border: none;
+      color: #ef4444;
+      cursor: pointer;
+      margin-left: auto;
+    }
+    
+    .add-issue-btn {
+      display: flex;
+      align-items: center;
+      padding: 0.5rem;
+      background-color: #f9fafb;
+      border: 1px dashed #d1d5db;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      width: 100%;
+      justify-content: center;
+    }
+    
+    .add-issue-btn:hover {
+      background-color: #f3f4f6;
+    }
+    
+    .file-upload {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+      border: 2px dashed #d1d5db;
+      border-radius: 0.5rem;
+      cursor: pointer;
+    }
+    
+    .file-upload:hover {
+      background-color: #f9fafb;
+    }
+    
+    .file-icon {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      color: #6b7280;
+    }
+    
+    @media (max-width: 640px) {
+      .dual-column {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <div class="logo">SkiTrack - Mont Orford</div>
+      <div class="nav-links">
+        <a href="#">Tableau de bord</a>
+        <a href="#">Carte</a>
+        <a href="#">Nouvelle inspection</a>
+        <a href="#">Historique</a>
+      </div>
+    </nav>
+  </header>
+  
+  <main>
+    <div class="page-header">
+      <h1>Inspection d'abri</h1>
+    </div>
+    
+    <div class="form-container">
+      <form id="shelterForm">
+        <div class="form-section">
+          <h2 class="form-section-title">Informations générales</h2>
+          
+          <div class="dual-column">
+            <div class="form-group">
+              <label for="shelter-name">Abri</label>
+              <select id="shelter-name" required>
+                <option value="">Sélectionner un abri</option>
+                <option value="giroux">Mont Giroux (650 m)</option>
+                <option value="orford" selected>Mont Orford (850 m)</option>
+                <option value="alfred">Mont Alfred-Desrochers (615 m)</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="inspector">Inspecteur</label>
+              <input type="text" id="inspector" value="Pierre Martin" readonly>
+            </div>
+          </div>
+          
+          <div class="dual-column">
+            <div class="form-group">
+              <label for="inspection-date">Date</label>
+              <input type="date" id="inspection-date" value="2025-04-14" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="inspection-time">Heure</label>
+              <input type="time" id="inspection-time" value="11:15" required>
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-section">
+          <h2 class="form-section-title">État de l'abri</h2>
+          
+          <div class="form-group">
+            <label>État général de la structure</label>
+            
+            <div class="condition-option">
+              <input type="radio" name="shelter-condition" id="condition-good" value="good">
+              <span class="condition-label">
+                <strong class="good">Bon</strong> - Structure en bon état, aucun problème majeur
+              </span>
+            </div>
+            
+            <div class="condition-option">
+              <input type="radio" name="shelter-condition" id="condition-warning" value="warning" checked>
+              <span class="condition-label">
+                <strong class="warning">Attention</strong> - Problèmes mineurs nécessitant une intervention
+              </span>
+            </div>
+            
+            <div class="condition-option">
+              <input type="radio" name="shelter-condition" id="condition-critical" value="critical">
+              <span class="condition-label">
+                <strong class="critical">Critique</strong> - Problèmes importants, intervention urgente requise
+              </span>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>Problèmes identifiés</label>
+            
+            <div class="issue-list">
+              <div class="issue-item">
+                <span>Infiltration d'eau au niveau du toit</span>
+                <button type="button">&times;</button>
+              </div>
+              
+              <div class="issue-item">
+                <span>Un des bancs est instable</span>
+                <button type="button">&times;</button>
+              </div>
+            </div>
+            
+            <button type="button" class="add-issue-btn">+ Ajouter un problème</button>
+          </div>
+        </div>
+        
+        <div class="form-section">
+          <h2 class="form-section-title">Propreté</h2>
+          
+          <div class="form-group">
+            <label>Niveau de propreté</label>
+            
+            <div class="condition-option">
+              <input type="radio" name="cleanliness" id="cleanliness-good" value="good">
+              <span class="condition-label">
+                <strong class="good">Propre</strong> - Abri propre, aucun déchet ni dégradation
+              </span>
+            </div>
+            
+            <div class="condition-option">
+              <input type="radio" name="cleanliness" id="cleanliness-warning" value="warning" checked>
+              <span class="condition-label">
+                <strong class="warning">Moyen</strong> - Quelques déchets ou saleté, nettoyage recommandé
+              </span>
+            </div>
+            
+            <div class="condition-option">
+              <input type="radio" name="cleanliness" id="cleanliness-critical" value="critical">
+              <span class="condition-label">
+                <strong class="critical">Sale</strong> - Nombreux déchets ou dégradations, nettoyage urgent
+              </span>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>Détails sur la propreté</label>
+            <textarea placeholder="Décrivez l'état de propreté de l'abri...">Déchets laissés par des randonneurs (emballages alimentaires). Présence de poussière et de feuilles accumulées. Nettoyage recommandé dans la semaine.</textarea>
+          </div>
+        </div>
+        
+        <div class="form-section">
+          <h2 class="form-section-title">Accessibilité</h2>
+          
+          <div class="form-group">
+            <label>État du chemin d'accès</label>
+            
+            <div class="condition-option">
+              <input type="radio" name="accessibility" id="accessibility-good" value="good" checked>
+              <span class="condition-label">
+                <strong class="good">Dégagé</strong> - Accès facile et dégagé
+              </span>
+            </div>
+            
+            <div class="condition-option">
+              <input type="radio" name="accessibility" id="accessibility-warning" value="warning">
+              <span class="condition-label">
+                <strong class="warning">Partiellement obstrué</strong> - Quelques obstacles sur le chemin
+              </span>
+            </div>
+            
+            <div class="condition-option">
+              <input type="radio" name="accessibility" id="accessibility-critical" value="critical">
+              <span class="condition-label">
+                <strong class="critical">Bloqué</strong> - Accès difficile ou dangereux
+              </span>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>Commentaires sur l'accessibilité</label>
+            <textarea placeholder="Décrivez l'état du chemin d'accès...">Le chemin d'accès est bien dégagé. La signalisation est claire et visible.</textarea>
+          </div>
+        </div>
+        
+        <div class="form-section">
+          <h2 class="form-section-title">Photos</h2>
+          
+          <div class="form-group">
+            <div class="file-upload">
+              <div class="file-icon">📷</div>
+              <p>Déposez des photos ici ou cliquez pour parcourir</p>
+              <p style="font-size: 0.875rem; color: #6b7280; margin-top: 0.5rem;">Format accepté: JPG, PNG • Taille max: 10 MB</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-section">
+          <h2 class="form-section-title">Commentaires additionnels</h2>
+          
+          <div class="form-group">
+            <textarea placeholder="Ajoutez des commentaires ou des observations supplémentaires...">Le livre de visite est presque plein, prévoir un remplacement. La trousse de premiers secours est complète et à jour.</textarea>
+          </div>
+        </div>
+        
+        <div class="button-group">
+          <button type="button" class="btn btn-secondary">Annuler</button>
+          <button type="submit" class="btn">Enregistrer l'inspection</button>
+        </div>
+      </form>
+    </div>
+  </main>
+  
+  <script>
+    // Dans une implémentation réelle, ce code permettrait de gérer le formulaire
+    document.getElementById('shelterForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      alert('Inspection de l\'abri enregistrée avec succès');
+      // En production, on enverrait les données au serveur ou les stockerait localement
+    });
+    
+    document.querySelector('.add-issue-btn').addEventListener('click', function() {
+      const issue = prompt('Décrivez le problème:');
+      if (issue) {
+        const issueList = document.querySelector('.issue-list');
+        const issueItem = document.createElement('div');
+        issueItem.className = 'issue-item';
+        issueItem.innerHTML = `
+          <span>${issue}</span>
+          <button type="button">&times;</button>
+        `;
+        issueList.appendChild(issueItem);
+        
+        // Ajouter gestionnaire d'événement pour le bouton de suppression
+        issueItem.querySelector('button').addEventListener('click', function() {
+          issueItem.remove();
+        });
+      }
+    });
+    
+    // Ajouter gestionnaires d'événements pour les boutons de suppression existants
+    document.querySelectorAll('.issue-item button').forEach(button => {
+      button.addEventListener('click', function() {
+        this.parentElement.remove();
+      });
+    });
+  </script>
+</body>
+</html>
