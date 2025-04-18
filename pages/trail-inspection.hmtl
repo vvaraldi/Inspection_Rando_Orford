@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkiTrack - Inspection de sentier</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      background-color: #f0f4f8;
+      color: #333;
+    }
+    
+    header {
+      background-color: #1a56db;
+      color: white;
+      padding: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+    
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+    }
+    
+    main {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+    
+    .page-header {
+      margin-bottom: 2rem;
+    }
+    
+    .form-container {
+      background-color: white;
+      border-radius: 0.5rem;
+      padding: 2rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .form-section {
+      margin-bottom: 2rem;
+    }
+    
+    .form-section-title {
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .form-row {
+      margin-bottom: 1rem;
+    }
+    
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    
+    input[type="text"],
+    input[type="date"],
+    input[type="time"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.375rem;
+      font-size: 1rem;
+    }
+    
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+    
+    .btn {
+      background-color: #1a56db;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 1rem;
+    }
+    
+    .btn:hover {
+      background-color: #1e429f;
+    }
+    
+    .btn-secondary {
+      background-color: #6b7280;
+    }
+    
+    .btn-secondary:hover {
+      background-color: #4b5563;
+    }
+    
+    .button-group {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    
+    .condition-option {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      padding: 0.75rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.375rem;
+      cursor: pointer;
+    }
+    
+    .condition-option:hover {
+      background-color: #f9fafb;
+    }
+    
+    .condition-option input {
+      margin-right: 0.75rem;
+    }
+    
+    .condition-label {
+      flex-grow: 1;
+    }
+    
+    .good {
+      color: #0e9f6e;
+    }
+    
+    .warning {
+      color: #ff5a1f;
+    }
+    
+    .critical {
+      color: #e02424;
+    }
+    
+    .dual-column {
+      display: flex;
+      gap: 1rem;
+    }
+    
+    .dual-column > div {
+      flex: 1;
+    }
+    
+    .issue-list {
+      margin-top: 1rem;
+    }
+    
+    .issue-item {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem;
+      background-color: #f9fafb;
+      border-radius: 0.375rem;
+      margin-bottom: 0.75rem;
+    }
+    
+    .issue-item button {
+      background-color: transparent;
+      border: none;
+      color: #ef4444;
+      cursor: pointer;
+      margin-left: auto;
+    }
+    
+    .add-issue-btn {
+      display: flex;
+      align-items: center;
+      padding: 0.5rem;
+      background-color: #f9fafb;
+      border: 1px dashed #d1d5db;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      width: 100%;
+      justify-content: center;
+    }
+    
+    .add-issue-btn:hover {
+      background-color: #f3f4f6;
+    }
+    
+    .file-upload {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+      border: 2px dashed #d1d5db;
+      border-radius: 0.5rem;
+      cursor: pointer;
+    }
+    
+    .file-upload:hover {
+      background-color: #f9fafb;
+    }
+    
+    .file-icon {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      color: #6b7280;
+    }
+    
+    @media (max-width: 640px) {
+      .dual-column {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <div class="logo">SkiTrack - Mont Orford</div>
+      <div class="nav-links">
+        <a href="../index.html">Tableau de bord</a>
+        <a href="trail-inspection.html" class="active">Inspection de sentier</a>
+        <a href="shelter-inspection.html">Inspection d'abri</a>
+        <a href="inspection-history.html">Historique</a>
+      </div>
+    </nav>
+  </header>
+  
+  <main>
+    <div class="page-header">
+      <h1>Inspection de sentier</h1>
+    </div>
+    
+    <div class="form-container">
+      <form id="trailInspectionForm">
+        <div class="form-section">
+          <h2 class="form-section-title">Informations générales</h2>
+          
+          <div class="dual-column">
+            <div class="form-group">
+              <label for="trail-select">Sentier</label>
+              <select id="trail-select" required>
+                <option value="">Sélectionner un sentier</option>
+                <option value="1">1. La tortue (1,1 km)</option>
+                <option value="2">2. Tracé du lynx (0,6 km)</option>
+                <option value="3">3. Adams (0,6 km)</option>
+                <option value="4">4. Le renard (2,4 km)</option>
+                <option value="5">5. Le lièvre (1,3 km)</option>
+                <option value="6">6. Le Campagnol (1,5 km)</option>
+                <option value="7">7. L'Hermine (1,8 km)</option>
+                <option value="8">8. L'Alouette (2,4 km)</option>
+                <option value="9">9. L'Urubu (1,2 km)</option>
+                <option value="10">10. La Carcajou (0,8 km)</option>
+                <option value="11">11. La Mille-Pattes (1,5 km)</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="inspector-name">Inspecteur</label>
+              <input type="text" id="inspector-name" readonly>
+            </div>
+          </div>
+          
+          <div class="dual-column">
+            <div class="form-group">
+              <label for="inspection-date">Date</label>
+              <input type="date" id="inspection-date" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="inspection-time">Heure</label>
+              <input type="time" id="inspection-time" required>
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-section">
+          <h2 class="form-section-title">État du sentier</h2>
+          
+          <div class="form-group">
+            <label>Condition générale</label>
+            
+            <div class="condition-option">
+              <input type="radio" name="condition" id="condition-good" value="good">
+              <span class="condition-label">
+                <strong class="good">Bon</strong> - Sentier en bon état, aucun problème majeur
+              </span>
+            </div>
+            
+            <div class="condition-option">
+              <input type="radio" name="condition" id="condition-warning" value="warning" checked>
+              <span class="condition-label">
+                <strong class="warning">Attention</strong> - Problèmes mineurs nécessitant une intervention
+              </span>
+            </div>
+            
+            <div class="condition-option">
+              <input type="radio" name="condition" id="condition-critical" value="critical">
+              <span class="condition-label">
+                <strong class="critical">Critique</strong> - Problèmes importants, intervention urgente requise
+              </span>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>Problèmes identifiés</label>
+            
+            <div class="issue-list">
+              <div class="issue-item">
+                <span>Neige irrégulière sur le premier tiers du sentier</span>
+                <button type="button" class="remove-issue">&times;</button>
+              </div>
+              
+              <div class="issue-item">
+                <span>Signalisation endommagée à l'intersection</span>
+                <button type="button" class="remove-issue">&times;</button>
+              </div>
+            </div>
+            
+            <button type="button" class="add-issue-btn">+ Ajouter un problème</button>
+          </div>
+        </div>
+        
+        <div class="form-section">
+          <h2 class="form-section-title">Détails supplémentaires</h2>
+          
+          <div class="form-group">
+            <label for="comments">Commentaires</label>
+            <textarea id="comments" placeholder="Ajoutez des commentaires ou des observations supplémentaires..."></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label>Photos</label>
+            <div class="file-upload" id="photo-upload">
+              <div class="file-icon">📷</div>
+              <p>Déposez des photos ici ou cliquez pour parcourir</p>
+              <p style="font-size: 0.875rem; color: #6b7280; margin-top: 0.5rem;">Format accepté: JPG, PNG • Taille max: 10 MB</p>
+              <input type="file" id="file-input" multiple accept="image/*" style="display: none;">
+            </div>
+            <div id="preview-container" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px;"></div>
+          </div>
+        </div>
+        
+        <div class="button-group">
+          <button type="button" class="btn btn-secondary" id="cancel-btn">Annuler</button>
+          <button type="submit" class="btn">Enregistrer l'inspection</button>
+        </div>
+      </form>
+    </div>
+  </main>
+  
+  <script>
+    // Date et heure actuelles pour les champs
+    const now = new Date();
+    const dateField = document.getElementById('inspection-date');
+    const timeField = document.getElementById('inspection-time');
+    
+    // Format de la date YYYY-MM-DD
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    dateField.value = `${year}-${month}-${day}`;
+    
+    // Format de l'heure HH:MM
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    timeField.value = `${hours}:${minutes}`;
+    
+    // Simuler un inspecteur connecté
+    document.getElementById('inspector-name').value = "Pierre Martin";
+    
+    // Gestion des problèmes
+    document.querySelectorAll('.remove-issue').forEach(button => {
+      button.addEventListener('click', function() {
+        this.parentElement.remove();
+      });
+    });
+    
+    document.querySelector('.add-issue-btn').addEventListener('click', function() {
+      const issue = prompt('Décrivez le problème:');
+      if (issue && issue.trim() !== '') {
+        const issueList = document.querySelector('.issue-list');
+        const issueItem = document.createElement('div');
+        issueItem.className = 'issue-item';
+        issueItem.innerHTML = `
+          <span>${issue}</span>
+          <button type="button" class="remove-issue">&times;</button>
+        `;
+        issueList.appendChild(issueItem);
+        
+        // Ajouter l'événement pour supprimer ce problème
+        issueItem.querySelector('.remove-issue').addEventListener('click', function() {
+          issueItem.remove();
+        });
+      }
+    });
+    
+    // Gestion des photos
+    const photoUpload = document.getElementById('photo-upload');
+    const fileInput = document.getElementById('file-input');
+    const previewContainer = document.getElementById('preview-container');
+    
+    photoUpload.addEventListener('click', () => {
+      fileInput.click();
+    });
+    
+    photoUpload.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      photoUpload.style.backgroundColor = '#f3f4f6';
+    });
+    
+    photoUpload.addEventListener('dragleave', () => {
+      photoUpload.style.backgroundColor = '';
+    });
+    
+    photoUpload.addEventListener('drop', (e) => {
+      e.preventDefault();
+      photoUpload.style.backgroundColor = '';
+      if (e.dataTransfer.files.length) {
+        fileInput.files = e.dataTransfer.files;
+        displayImagePreviews(e.dataTransfer.files);
+      }
+    });
+    
+    fileInput.addEventListener('change', () => {
+      displayImagePreviews(fileInput.files);
+    });
+    
+    function displayImagePreviews(files) {
+      previewContainer.innerHTML = '';
+      
+      [...files].forEach(file => {
+        if (!file.type.startsWith('image/')) return;
+        
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          const previewWrapper = document.createElement('div');
+          previewWrapper.style.position = 'relative';
+          
+          const img = document.createElement('img');
+          img.src = event.target.result;
+          img.style.width = '100px';
+          img.style.height = '100px';
+          img.style.objectFit = 'cover';
+          img.style.borderRadius = '4px';
+          
+          const removeBtn = document.createElement('button');
+          removeBtn.innerHTML = '&times;';
+          removeBtn.style.position = 'absolute';
+          removeBtn.style.top = '2px';
+          removeBtn.style.right = '2px';
+          removeBtn.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
+          removeBtn.style.border = 'none';
+          removeBtn.style.borderRadius = '50%';
+          removeBtn.style.width = '20px';
+          removeBtn.style.height = '20px';
+          removeBtn.style.cursor = 'pointer';
+          removeBtn.style.display = 'flex';
+          removeBtn.style.justifyContent = 'center';
+          removeBtn.style.alignItems = 'center';
+          
+          removeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            previewWrapper.remove();
+            // Note: Dans une implémentation réelle, vous devriez également gérer la liste des fichiers
+          });
+          
+          previewWrapper.appendChild(img);
+          previewWrapper.appendChild(removeBtn);
+          previewContainer.appendChild(previewWrapper);
+        };
+        
+        reader.readAsDataURL(file);
+      });
+    }
+    
+    // Soumission du formulaire
+    document.getElementById('trailInspectionForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // Collecter les données du formulaire
+      const trailId = document.getElementById('trail-select').value;
+      const inspector = document.getElementById('inspector-name').value;
+      const date = document.getElementById('inspection-date').value;
+      const time = document.getElementById('inspection-time').value;
+      const condition = document.querySelector('input[name="condition"]:checked').value;
+      
+      // Collecter les problèmes
+      const issues = [];
+      document.querySelectorAll('.issue-item span').forEach(item => {
+        issues.push(item.textContent);
+      });
+      
+      const comments = document.getElementById('comments').value;
+      
+      // Dans une implémentation réelle, vous enverriez ces données à votre backend/Firebase
+      console.log({
+        trailId,
+        inspector,
+        date,
+        time,
+        condition,
+        issues,
+        comments
+        // Les photos seraient gérées avec Firebase Storage
+      });
+      
+      // Simuler la réussite
+      alert('Inspection enregistrée avec succès!');
+      
+      // Rediriger vers le tableau de bord
+      // window.location.href = '../index.html';
+    });
+    
+    // Bouton d'annulation
+    document.getElementById('cancel-btn').addEventListener('click', function() {
+      if (confirm('Êtes-vous sûr de vouloir annuler cette inspection? Les données non enregistrées seront perdues.')) {
+        window.location.href = '../index.html';
+      }
+    });
+  </script>
+</body>
+</html>
