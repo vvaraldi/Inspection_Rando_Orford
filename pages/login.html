@@ -5,6 +5,47 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Connexion - SkiTrack</title>
   <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    .login-container {
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 2rem;
+      background-color: white;
+      border-radius: 0.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-top: 2rem;
+    }
+    
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    
+    input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.375rem;
+      font-size: 1rem;
+    }
+    
+    .btn {
+      width: 100%;
+      margin-top: 1rem;
+    }
+    
+    .error-message {
+      color: #e02424;
+      margin-top: 1rem;
+      font-size: 0.875rem;
+      display: none;
+    }
+  </style>
 </head>
 <body>
   <header>
@@ -18,44 +59,95 @@
   </header>
   
   <main>
-    <h1>Connexion</h1>
-    <div class="login-form">
+    <div class="login-container">
+      <h1>Connexion</h1>
       <form id="loginForm">
         <div class="form-group">
-          <label for="email">Email</label>
+          <label for="email">Adresse email</label>
           <input type="email" id="email" required>
         </div>
+        
         <div class="form-group">
           <label for="password">Mot de passe</label>
           <input type="password" id="password" required>
         </div>
+        
         <button type="submit" class="btn">Se connecter</button>
+        
+        <div id="error-message" class="error-message"></div>
       </form>
     </div>
   </main>
-
+  
   <!-- Scripts Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
   
-  <!-- Scripts locaux -->
-  <script src="../js/auth.js"></script>
   <script>
-    // Script spécifique à la page de connexion
+    // Configuration Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyDcBZrwGTskM7QUvanzLTACEJ_T-55j-DA",
+      authDomain: "trail-inspection.firebaseapp.com",
+      projectId: "trail-inspection",
+      storageBucket: "trail-inspection.appspot.com",
+      messagingSenderId: "VOTRE_MESSAGING_ID",
+      appId: "VOTRE_APP_ID"
+    };
+    
+    // Initialisation de Firebase
+    firebase.initializeApp(firebaseConfig);
+    
+    // Référence à l'auth
+    const auth = firebase.auth();
+    
+    // Vérifier si l'utilisateur est déjà connecté
+    auth.onAuthStateChanged(function(user) {
+      if (user) {
+        // Rediriger vers l'index si déjà connecté
+        window.location.href = '../index.html';
+      }
+    });
+    
+    // Gestion du formulaire de connexion
     document.getElementById('loginForm').addEventListener('submit', function(e) {
       e.preventDefault();
       
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
+      const errorMessage = document.getElementById('error-message');
       
-      firebase.auth().signInWithEmailAndPassword(email, password)
+      // Réinitialiser le message d'erreur
+      errorMessage.style.display = 'none';
+      errorMessage.textContent = '';
+      
+      // Connecter l'utilisateur
+      auth.signInWithEmailAndPassword(email, password)
         .then((userCredential) => {
           // Connexion réussie
+          console.log('Connexion réussie');
           window.location.href = '../index.html';
         })
         .catch((error) => {
-          // Erreur de connexion
-          alert('Erreur de connexion: ' + error.message);
+          // Gérer les erreurs
+          console.error('Erreur de connexion:', error);
+          errorMessage.style.display = 'block';
+          
+          switch(error.code) {
+            case 'auth/user-not-found':
+              errorMessage.textContent = 'Aucun utilisateur ne correspond à cette adresse email.';
+              break;
+            case 'auth/wrong-password':
+              errorMessage.textContent = 'Mot de passe incorrect.';
+              break;
+            case 'auth/invalid-email':
+              errorMessage.textContent = 'Adresse email invalide.';
+              break;
+            case 'auth/too-many-requests':
+              errorMessage.textContent = 'Trop de tentatives infructueuses. Veuillez réessayer plus tard.';
+              break;
+            default:
+              errorMessage.textContent = 'Erreur de connexion: ' + error.message;
+          }
         });
     });
   </script>
