@@ -1,9 +1,9 @@
 // Configuration Firebase (à remplacer par vos informations)
 const firebaseConfig = {
-  apiKey: "VOTRE_API_KEY",
-  authDomain: "votre-projet.firebaseapp.com",
-  projectId: "votre-projet",
-  storageBucket: "votre-projet.appspot.com",
+  apiKey: "AIzaSyDcBZrwGTskM7QUvanzLTACEJ_T-55j-DA",
+  authDomain: "Trail-Inspection.firebaseapp.com",
+  projectId: "Trail-Inspection",
+  storageBucket: "Trail-Inspection.appspot.com",
   messagingSenderId: "VOTRE_MESSAGING_ID",
   appId: "VOTRE_APP_ID"
 };
