@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administration - SkiTrack</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      background-color: #f0f4f8;
+      color: #333;
+    }
+    
+    header {
+      background-color: #1a56db;
+      color: white;
+      padding: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+    
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+    }
+    
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+    
+    .page-header {
+      margin-bottom: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .admin-panel {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .admin-card {
+      background-color: white;
+      border-radius: 0.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      padding: 1.5rem;
+    }
+    
+    .admin-section {
+      margin-bottom: 1.5rem;
+    }
+    
+    .admin-section:last-child {
+      margin-bottom: 0;
+    }
+    
+    .admin-title {
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    
+    input, select, textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.375rem;
+      font-size: 1rem;
+    }
+    
+    .btn {
+      display: inline-block;
+      background-color: #1a56db;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 1rem;
+      text-decoration: none;
+    }
+    
+    .btn:hover {
+      background-color: #1e429f;
+    }
+    
+    .btn-secondary {
+      background-color: #6b7280;
+    }
+    
+    .btn-secondary:hover {
+      background-color: #4b5563;
+    }
+    
+    .btn-success {
+      background-color: #0e9f6e;
+    }
+    
+    .btn-success:hover {
+      background-color: #057a55;
+    }
+    
+    .btn-warning {
+      background-color: #ff5a1f;
+    }
+    
+    .btn-warning:hover {
+      background-color: #d03801;
+    }
+    
+    .btn-danger {
+      background-color: #e02424;
+    }
+    
+    .btn-danger:hover {
+      background-color: #b91c1c;
+    }
+    
+    .actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    
+    .status-message {
+      margin-top: 1rem;
+      padding: 0.75rem;
+      border-radius: 0.375rem;
+      font-size: 0.875rem;
+    }
+    
+    .status-success {
+      background-color: #def7ec;
+      color: #0e9f6e;
+    }
+    
+    .status-error {
+      background-color: #fde8e8;
+      color: #e02424;
+    }
+    
+    .status-warning {
+      background-color: #feecdc;
+      color: #ff5a1f;
+    }
+    
+    .status-info {
+      background-color: #e1effe;
+      color: #1e429f;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    
+    th, td {
+      padding: 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    th {
+      background-color: #f9fafb;
+      font-weight: 600;
+      color: #4b5563;
+    }
+    
+    tr:hover {
+      background-color: #f9fafb;
+    }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    
+    .status-active {
+      background-color: #def7ec;
+      color: #0e9f6e;
+    }
+    
+    .status-inactive {
+      background-color: #f3f4f6;
+      color: #6b7280;
+    }
+    
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid #e5e7eb;
+      margin-bottom: 1.5rem;
+    }
+    
+    .tab {
+      padding: 0.75rem 1.5rem;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+    }
+    
+    .tab.active {
+      border-bottom-color: #1a56db;
+      color: #1a56db;
+      font-weight: 500;
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .modal-content {
+      background-color: white;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      width: 90%;
+      max-width: 500px;
+    }
+    
+    .modal-header {
+      padding: 1.25rem;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .modal-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #6b7280;
+    }
+    
+    .modal-body {
+      padding: 1.25rem;
+    }
+    
+    .modal-footer {
+      padding: 1.25rem;
+      border-top: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+    }
+    
+    @media (max-width: 768px) {
+      .admin-panel {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <div class="logo">SkiTrack - Administration</div>
+      <div class="nav-links">
+        <a href="../index.html">Tableau de bord</a>
+        <a href="admin.html" class="active">Administration</a>
+        <a href="#" id="logout-link">Déconnexion</a>
+      </div>
+    </nav>
+  </header>
+  
+  <main>
+    <div class="page-header">
+      <h1>Panneau d'administration</h1>
+      <div id="user-info">Connecté en tant que: <span id="admin-name">Administrateur</span></div>
+    </div>
+    
+    <div class="tabs">
+      <div class="tab active" data-tab="users">Gestion des utilisateurs</div>
+      <div class="tab" data-tab="data">Données du système</div>
+      <div class="tab" data-tab="stats">Statistiques</div>
+    </div>
+    
+    <div class="tab-content active" id="users-tab">
+      <div class="admin-panel">
+        <div class="admin-card">
+          <h2 class="admin-title">Liste des inspecteurs</h2>
+          
+          <table id="inspectors-table">
+            <thead>
+              <tr>
+                <th>Nom</th>
+                <th>Email</th>
+                <th>Téléphone</th>
+                <th>Statut</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Pierre Martin</td>
+                <td>pierre.martin@example.com</td>
+                <td>06 12 34 56 78</td>
+                <td><span class="status-badge status-active">Actif</span></td>
+                <td>
+                  <button class="btn btn-secondary btn-sm edit-user" data-id="user1">Modifier</button>
+                  <button class="btn btn-danger btn-sm delete-user" data-id="user1">Supprimer</button>
+                </td>
+              </tr>
+              <tr>
+                <td>Sophie Legrand</td>
+                <td>sophie.legrand@example.com</td>
+                <td>07 23 45 67 89</td>
+                <td><span class="status-badge status-active">Actif</span></td>
+                <td>
+                  <button class="btn btn-secondary btn-sm edit-user" data-id="user2">Modifier</button>
+                  <button class="btn btn-danger btn-sm delete-user" data-id="user2">Supprimer</button>
+                </td>
+              </tr>
+              <tr>
+                <td>Marc Dubois</td>
+                <td>marc.dubois@example.com</td>
+                <td>06 34 56 78 90</td>
+                <td><span class="status-badge status-active">Actif</span></td>
+                <td>
+                  <button class="btn btn-secondary btn-sm edit-user" data-id="user3">Modifier</button>
+                  <button class="btn btn-danger btn-sm delete-user" data-id="user3">Supprimer</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <div class="actions">
+            <button id="add-user-btn" class="btn">Ajouter un inspecteur</button>
+          </div>
+        </div>
+        
+        <div class="admin-card">
+          <h2 class="admin-title">Nouvel inspecteur</h2>
+          
+          <form id="user-form">
+            <div class="form-group">
+              <label for="user-name">Nom complet</label>
+              <input type="text" id="user-name" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="user-email">Email</label>
+              <input type="email" id="user-email" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="user-phone">Téléphone (optionnel)</label>
+              <input type="tel" id="user-phone" placeholder="Ex: 06 12 34 56 78">
+            </div>
+            
+            <div class="form-group">
+              <label for="user-password">Mot de passe</label>
+              <input type="password" id="user-password" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="user-status">Statut</label>
+              <select id="user-status">
+                <option value="active">Actif</option>
+                <option value="inactive">Inactif</option>
+              </select>
+            </div>
+            
+            <div class="actions">
+              <button type="button" id="cancel-user-btn" class="btn btn-secondary">Annuler</button>
+              <button type="submit" class="btn btn-success">Enregistrer</button>
+            </div>
+          </form>
+          
+          <div id="user-status-message" class="status-message" style="display: none;"></div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="tab-content" id="data-tab">
+      <div class="admin-panel">
+        <div class="admin-card">
+          <h2 class="admin-title">Initialisation des données</h2>
+          
+          <div class="admin-section">
+            <h3>Sentiers</h3>
+            <p>Initialiser les données des sentiers de randonnée alpine du Mont Orford.</p>
+            <div class="actions">
+              <button id="init-trails-btn" class="btn btn-warning">Initialiser les sentiers</button>
+            </div>
+            <div id="trails-status" class="status-message" style="display: none;"></div>
+          </div>
+          
+          <div class="admin-section">
+            <h3>Abris</h3>
+            <p>Initialiser les données des abris des sommets du Mont Orford.</p>
+            <div class="actions">
+              <button id="init-shelters-btn" class="btn btn-warning">Initialiser les abris</button>
+            </div>
+            <div id="shelters-status" class="status-message" style="display: none;"></div>
+          </div>
+          
+          <div class="admin-section">
+            <h3>Données de test</h3>
+            <p>Créer des inspections de test pour simuler l'utilisation du système.</p>
+            <div class="actions">
+              <button id="create-sample-btn" class="btn">Créer des données de test</button>
+            </div>
+            <div id="sample-status" class="status-message" style="display: none;"></div>
+          </div>
+        </div>
+        
+        <div class="admin-card">
+          <h2 class="admin-title">Gestion des données</h2>
+          
+          <div class="admin-section">
+            <h3>Sauvegarde</h3>
+            <p>Exporter toutes les données du système en format JSON.</p>
+            <div class="actions">
+              <button id="export-data-btn" class="btn">Exporter les données</button>
+            </div>
+          </div>
+          
+          <div class="admin-section">
+            <h3>Réinitialisation</h3>
+            <p>Attention: Cette action supprimera toutes les données d'inspection.</p>
+            <div class="actions">
+              <button id="reset-inspections-btn" class="btn btn-danger">Réinitialiser les inspections</button>
+            </div>
+            <div id="reset-status" class="status-message" style="display: none;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="tab-content" id="stats-tab">
+      <div class="admin-panel">
+        <div class="admin-card">
+          <h2 class="admin-title">Statistiques d'utilisation</h2>
+          
+          <div class="admin-section">
+            <h3>Résumé des inspections</h3>
+            <table>
+              <tbody>
+                <tr>
+                  <td>Nombre total d'inspections</td>
+                  <td><strong id="total-inspections">42</strong></td>
+                </tr>
+                <tr>
+                  <td>Inspections cette semaine</td>
+                  <td><strong id="week-inspections">12</strong></td>
+                </tr>
+                <tr>
+                  <td>Inspections sentiers</td>
+                  <td><strong id="trail-inspections">32</strong></td>
+                </tr>
+                <tr>
+                  <td>Inspections abris</td>
+                  <td><strong id="shelter-inspections">10</strong></td>
+                </tr>
+                <tr>
+                  <td>Problèmes signalés non résolus</td>
+                  <td><strong id="open-issues">7</strong></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <div class="admin-section">
+            <h3>Activité des inspecteurs</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Inspecteur</th>
+                  <th>Inspections</th>
+                  <th>Dernière activité</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Pierre Martin</td>
+                  <td>15</td>
+                  <td>14/04/2025</td>
+                </tr>
+                <tr>
+                  <td>Sophie Legrand</td>
+                  <td>18</td>
+                  <td>13/04/2025</td>
+                </tr>
+                <tr>
+                  <td>Marc Dubois</td>
+                  <td>9</td>
+                  <td>12/04/2025</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        <div class="admin-card">
+          <h2 class="admin-title">État du système</h2>
+          
+          <div class="admin-section">
+            <h3>Utilisation Firebase</h3>
+            <table>
+              <tbody>
+                <tr>
+                  <td>Stockage utilisé</td>
+                  <td><strong id="storage-used">12.5 MB</strong></td>
+                </tr>
+                <tr>
+                  <td>Requêtes Firestore ce mois</td>
+                  <td><strong id="firestore-requests">1,253</strong></td>
+                </tr>
+                <tr>
+                  <td>Utilisateurs actifs</td>
+                  <td><strong id="active-users">3</strong></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <div class="admin-section">
+            <h3>Maintenance</h3>
+            <div class="actions">
+              <button id="clear-cache-btn" class="btn">Vider le cache</button>
+              <button id="check-updates-btn" class="btn">Vérifier les mises à jour</button>
+            </div>
+            <div id="maintenance-status" class="status-message" style="display: none;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <!-- Modal de confirmation pour la suppression d'utilisateur -->
+  <div id="delete-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Confirmer la suppression</h2>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>Êtes-vous sûr de vouloir supprimer cet utilisateur? Cette action est irréversible.</p>
+        <p>Toutes les inspections associées à cet utilisateur seront conservées.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary modal-cancel">Annuler</button>
+        <button class="btn btn-danger" id="confirm-delete">Supprimer</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Scripts Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+  
+  <script>
+    // Configuration Firebase
+    const firebaseConfig = {
+      apiKey: "VOTRE_API_KEY",
+      authDomain: "votre-projet.firebaseapp.com",
+      projectId: "votre-projet",
+      storageBucket: "votre-projet.appspot.com",
+      messagingSenderId: "VOTRE_MESSAGING_ID",
+      appId: "VOTRE_APP_ID"
+    };
+    
+    // Initialisation de Firebase
+    firebase.initializeApp(firebaseConfig);
+    
+    // Références Firebase
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    
+    // Vérifier si l'utilisateur est connecté et est admin
+    auth.onAuthStateChanged(function(user) {
+      if (user) {
+        // Vérifier si l'utilisateur est admin
+        db.collection('inspectors').doc(user.uid).get()
+          .then(doc => {
+            if (doc.exists && doc.data().role === 'admin') {
+              // Utilisateur est admin, afficher son nom
+              document.getElementById('admin-name').textContent = doc.data().name;
+              
+              // Charger les données
+              loadInspectors();
+              loadStatistics();
+            } else {
+              // Rediriger vers la page principale si non admin
+              window.location.href = '../index.html';
+            }
+          })
+          .catch(error => {
+            console.error("Erreur lors de la vérification des privilèges:", error);
+            window.location.href = '../index.html';
+          });
+      } else {
+        // Rediriger vers la page de connexion
+        window.location.href = 'login.html';
+      }
+    });
+    
+    // Gestion des onglets
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', function() {
+        // Retirer la classe active de tous les onglets
+        document.querySelectorAll('.tab').forEach(t => {
+          t.classList.remove('active');
+        });
+        
+        // Ajouter la classe active à l'onglet cliqué
+        this.classList.add('active');
+        
+        // Masquer tous les contenus d'onglet
+        document.querySelectorAll('.tab-content').forEach(content => {
+          content.classList.remove('active');
+        });
+        
+        // Afficher le contenu correspondant à l'onglet
+        const tabId = this.getAttribute('data-tab') + '-tab';
+        document.getElementById(tabId).classList.add('active');
+      });
+    });
+    
+    // Fonction pour charger les inspecteurs
+    function loadInspectors() {
+      db.collection('inspectors').get()
+        .then(snapshot => {
+          const table = document.getElementById('inspectors-table').querySelector('tbody');
+          table.innerHTML = '';
+          
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            const row = document.createElement('tr');
+            
+            row.innerHTML = `
+              <td>${data.name}</td>
+              <td>${data.email}</td>
+              <td>${data.phone || '-'}</td>
+              <td><span class="status-badge status-${data.status}">${data.status === 'active' ? 'Actif' : 'Inactif'}</span></td>
+              <td>
+                <button class="btn btn-secondary btn-sm edit-user" data-id="${doc.id}">Modifier</button>
+                <button class="btn btn-danger btn-sm delete-user" data-id="${doc.id}">Supprimer</button>
+              </td>
+            `;
+            
+            table.appendChild(row);
+          });
+          
+          // Ajouter les événements après avoir créé les éléments
+          setupUserActions();
+        })
+        .catch(error => {
+          console.error("Erreur lors du chargement des inspecteurs:", error);
+          showStatus('user-status-message', 'Erreur lors du chargement des inspecteurs.', 'error');
+        });
+    }
+    
+    // Configurer les actions pour les utilisateurs
+    function setupUserActions() {
+      // Bouton d'ajout d'utilisateur
+      document.getElementById('add-user-btn').addEventListener('click', function() {
+        // Réinitialiser le formulaire
+        document.getElementById('user-form').reset();
+        
+        // Afficher le formulaire
+        document.getElementById('user-form').style.display = 'block';
+      });
+      
+      // Bouton d'annulation du formulaire
+      document.getElementById('cancel-user-btn').addEventListener('click', function() {
+        document.getElementById('user-form').reset();
+      });
+      
+      // Soumission du formulaire
+      document.getElementById('user-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const name = document.getElementById('user-name').value;
+        const email = document.getElementById('user-email').value;
+        const phone = document.getElementById('user-phone').value;
+        const password = document.getElementById('user-password').value;
+        const status = document.getElementById('user-status').value;
+        
+        // Créer l'utilisateur dans Firebase Auth
+        auth.createUserWithEmailAndPassword(email, password)
+          .then(userCredential => {
+            // Ajouter les informations supplémentaires dans Firestore
+            return db.collection('inspectors').doc(userCredential.user.uid).set({
+              name: name,
+              email: email,
+              phone: phone || null,
+              status: status,
+              role: 'inspector', // Par défaut, rôle d'inspecteur
+              createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+          })
+          .then(() => {
+            showStatus('user-status-message', 'Inspecteur créé avec succès!', 'success');
+            document.getElementById('user-form').reset();
+            
+            // Recharger la liste des inspecteurs
+            loadInspectors();
+          })
+          .catch(error => {
+            console.error("Erreur lors de la création de l'inspecteur:", error);
+            showStatus('user-status-message', 'Erreur: ' + error.message, 'error');
+          });
+      });
+      
+      // Boutons de modification
+      document.querySelectorAll('.edit-user').forEach(button => {
+        button.addEventListener('click', function() {
+          const userId = this.getAttribute('data-id');
+          console.log('Modifier utilisateur:', userId);
+          
+          // Dans une implémentation réelle, charger les données de l'utilisateur
+          // et les afficher dans le formulaire
+        });
+      });
+      
+      // Boutons de suppression
+      document.querySelectorAll('.delete-user').forEach(button => {
+        button.addEventListener('click', function() {
+          const userId = this.getAttribute('data-id');
+          console.log('Supprimer utilisateur:', userId);
+          
+          // Ouvrir la modal de confirmation
+          const modal = document.getElementById('delete-modal');
+          modal.style.display = 'flex';
+          
+          // Configurer le bouton de confirmation
+          document.getElementById('confirm-delete').onclick = function() {
+            // Dans une implémentation réelle, supprimer l'utilisateur
+            modal.style.display = 'none';
+          };
+        });
+      });
+    }
+    
+    // Gestion de la modal
+    document.querySelector('.modal-close').addEventListener('click', function() {
+      document.getElementById('delete-modal').style.display = 'none';
+    });
+    
+    document.querySelector('.modal-cancel').addEventListener('click', function() {
+      document.getElementById('delete-modal').style.display = 'none';
+    });
+    
+    // Fonction pour charger les statistiques
+    function loadStatistics() {
+      // Dans une implémentation réelle, charger les statistiques depuis Firestore
+      console.log('Chargement des statistiques...');
+    }
+    
+    // Fonction pour initialiser les données des sentiers
+    document.getElementById('init-trails-btn').addEventListener('click', function() {
+      if (confirm('Êtes-vous sûr de vouloir initialiser les données des sentiers? Cela écrasera toutes les données existantes.')) {
+        showStatus('trails-status', 'Initialisation en cours...', 'info');
+        
+        // Les données des sentiers
+        const trailsData = [
+          {
+            id: 'trail_1',
+            name: "La tortue",
+            length: 1.1,
+            difficulty: "easy",
+            description: "Sentier facile idéal pour débutants",
+            coordinates: { top: 389, left: 455 }
+          },
+          {
+            id: 'trail_2',
+            name: "Tracé du lynx",
+            length: 0.6,
+            difficulty: "easy",
+            description: "Court sentier avec peu de dénivelé",
+            coordinates: { top: 316, left: 224 }
+          },
+          {
+            id: 'trail_3',
+            name: "Adams",
+            length: 0.6,
+            difficulty: "easy",
+            description: "Sentier familial accessible",
+            coordinates: { top: 500, left: 425 }
+          },
+          {
+            id: 'trail_4',
+            name: "Le renard",
+            length: 2.4,
+            difficulty: "easy",
+            description: "Sentier plus long mais avec pente douce",
+            coordinates: { top: 420, left: 70 }
+          },
+          {
+            id: 'trail_5',
+            name: "Le lièvre",
+            length: 1.3,
+            difficulty: "medium",
+            description: "Sentier intermédiaire avec quelques pentes",
+            coordinates: { top: 143, left: 288 }
+          },
+          {
+            id: 'trail_6',
+            name: "Le Campagnol",
+            length: 1.5,
+            difficulty: "hard",
+            description: "Sentier difficile pour randonneurs expérimentés",
+            coordinates: { top: 20, left: 426 }
+          },
+          {
+            id: 'trail_7',
+            name: "L'Hermine",
+            length: 1.8,
+            difficulty: "medium",
+            description: "Sentier intermédiaire avec belle vue",
+            coordinates: { top: 360, left: 533 }
+          },
+          {
+            id: 'trail_8',
+            name: "L'Alouette",
+            length: 2.4,
+            difficulty: "medium",
+            description: "Sentier avec dénivelé modéré",
+            coordinates: { top: 390, left: 658 }
+          },
+          {
+            id: 'trail_9',
+            name: "L'Urubu",
+            length: 1.2,
+            difficulty: "hard",
+            description: "Sentier technique et escarpé",
+            coordinates: { top: 485, left: 270 }
+          },
+          {
+            id: 'trail_10',
+            name: "La Carcajou",
+            length: 0.8,
+            difficulty: "hard",
+            description: "Court sentier mais très exigeant",
+            coordinates: { top: 455, left: 293 }
+          },
+          {
+            id: 'trail_11',
+            name: "La Mille-Pattes",
+            length: 1.5,
+            difficulty: "hard",
+            description: "Sentier avec plusieurs segments techniques",
+            coordinates: { top: 298, left: 515 }
+          }
+        ];
+        
+        // Initialiser les données des sentiers
+        const batch = db.batch();
+        
+        // D'abord, supprimer les données existantes
+        db.collection('trails').get()
+          .then(snapshot => {
+            snapshot.forEach(doc => {
+              batch.delete(doc.ref);
+            });
+            
+            // Ensuite, ajouter les nouvelles données
+            trailsData.forEach(trail => {
+              const docRef = db.collection('trails').doc(trail.id);
+              batch.set(docRef, {
+                name: trail.name,
+                length: trail.length,
+                difficulty: trail.difficulty,
+                description: trail.description,
+                coordinates: trail.coordinates,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+              });
+            });
+            
+            // Exécuter le batch
+            return batch.commit();
+          })
+          .then(() => {
+            showStatus('trails-status', 'Données des sentiers initialisées avec succès!', 'success');
+          })
+          .catch(error => {
+            console.error("Erreur lors de l'initialisation des sentiers:", error);
+            showStatus('trails-status', 'Erreur: ' + error.message, 'error');
+          });
+      }
+    });
+    
+    // Fonction pour initialiser les données des abris
+    document.getElementById('init-shelters-btn').addEventListener('click', function() {
+      if (confirm('Êtes-vous sûr de vouloir initialiser les données des abris? Cela écrasera toutes les données existantes.')) {
+        showStatus('shelters-status', 'Initialisation en cours...', 'info');
+        
+        // Les données des abris
+        const sheltersData = [
+          {
+            id: 'shelter_giroux',
+            name: "Mont Giroux",
+            altitude: 650,
+            coordinates: { top: 470, left: 140 }
+          },
+          {
+            id: 'shelter_orford',
+            name: "Mont Orford",
+            altitude: 850,
+            coordinates: { top: 55, left: 490 }
+          },
+          {
+            id: 'shelter_alfred',
+            name: "Mont Alfred-Desrochers",
+            altitude: 615,
+            coordinates: { top: 190, left: 630 }
+          }
+        ];
+        
+        // Initialiser les données des abris
+        const batch = db.batch();
+        
+        // D'abord, supprimer les données existantes
+        db.collection('shelters').get()
+          .then(snapshot => {
+            snapshot.forEach(doc => {
+              batch.delete(doc.ref);
+            });
+            
+            // Ensuite, ajouter les nouvelles données
+            sheltersData.forEach(shelter => {
+              const docRef = db.collection('shelters').doc(shelter.id);
+              batch.set(docRef, {
+                name: shelter.name,
+                altitude: shelter.altitude,
+                coordinates: shelter.coordinates,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+              });
+            });
+            
+            // Exécuter le batch
+            return batch.commit();
+          })
+          .then(() => {
+            showStatus('shelters-status', 'Données des abris initialisées avec succès!', 'success');
+          })
+          .catch(error => {
+            console.error("Erreur lors de l'initialisation des abris:", error);
+            showStatus('shelters-status', 'Erreur: ' + error.message, 'error');
+          });
+      }
+    });
+    
+    // Fonction pour créer des données de test
+    document.getElementById('create-sample-btn').addEventListener('click', function() {
+      if (confirm('Voulez-vous créer des données d\'inspection de test? Cela ajoutera plusieurs inspections fictives.')) {
+        showStatus('sample-status', 'Création des données de test en cours...', 'info');
+        
+        // Dans une implémentation réelle, créer des inspections de test
+        setTimeout(() => {
+          showStatus('sample-status', 'Données de test créées avec succès!', 'success');
+        }, 1500);
+      }
+    });
+    
+    // Fonction pour réinitialiser les inspections
+    document.getElementById('reset-inspections-btn').addEventListener('click', function() {
+      if (confirm('ATTENTION: Voulez-vous vraiment supprimer TOUTES les inspections? Cette action est irréversible.')) {
+        showStatus('reset-status', 'Réinitialisation en cours...', 'warning');
+        
+        // Supprimer toutes les inspections
+        const trailBatch = db.batch();
+        const shelterBatch = db.batch();
+        
+        // Supprimer les inspections de sentiers
+        db.collection('trail_inspections').get()
+          .then(snapshot => {
+            snapshot.forEach(doc => {
+              trailBatch.delete(doc.ref);
+            });
+            return trailBatch.commit();
+          })
+          .then(() => {
+            // Supprimer les inspections d'abris
+            return db.collection('shelter_inspections').get();
+          })
+          .then(snapshot => {
+            snapshot.forEach(doc => {
+              shelterBatch.delete(doc.ref);
+            });
+            return shelterBatch.commit();
+          })
+          .then(() => {
+            showStatus('reset-status', 'Toutes les inspections ont été supprimées.', 'success');
+            
+            // Mettre à jour les statistiques
+            loadStatistics();
+          })
+          .catch(error => {
+            console.error("Erreur lors de la réinitialisation:", error);
+            showStatus('reset-status', 'Erreur: ' + error.message, 'error');
+          });
+      }
+    });
+    
+    // Fonction d'exportation des données
+    document.getElementById('export-data-btn').addEventListener('click', function() {
+      // Dans une implémentation réelle, exporter toutes les données au format JSON
+      alert('Fonctionnalité d\'exportation en cours de développement.');
+    });
+    
+    // Fonctions de maintenance
+    document.getElementById('clear-cache-btn').addEventListener('click', function() {
+      // Simuler le nettoyage du cache
+      showStatus('maintenance-status', 'Nettoyage du cache en cours...', 'info');
+      
+      setTimeout(() => {
+        showStatus('maintenance-status', 'Cache nettoyé avec succès!', 'success');
+      }, 1000);
+    });
+    
+    document.getElementById('check-updates-btn').addEventListener('click', function() {
+      // Simuler la vérification des mises à jour
+      showStatus('maintenance-status', 'Vérification des mises à jour...', 'info');
+      
+      setTimeout(() => {
+        showStatus('maintenance-status', 'Votre système est à jour!', 'success');
+      }, 1500);
+    });
+    
+    // Fonction de déconnexion
+    document.getElementById('logout-link').addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      auth.signOut()
+        .then(() => {
+          window.location.href = 'login.html';
+        })
+        .catch(error => {
+          console.error("Erreur lors de la déconnexion:", error);
+        });
+    });
+    
+    // Fonction utilitaire pour afficher les messages de statut
+    function showStatus(elementId, message, type) {
+      const statusElement = document.getElementById(elementId);
+      statusElement.textContent = message;
+      statusElement.className = 'status-message status-' + type;
+      statusElement.style.display = 'block';
+      
+      // Faire disparaître le message après un certain temps, sauf pour les erreurs
+      if (type !== 'error') {
+        setTimeout(() => {
+          statusElement.style.display = 'none';
+        }, 5000);
+      }
+    }
+  </script>
+</body>
+</html>
