@@ -95,3 +95,38 @@ function createInitialAdmin(email, password, name) {
 // À NE PAS METTRE DANS LE CODE FINAL
 // Décommentez et exécutez une seule fois, puis recommentez
 //createInitialAdmin('vvaraldi@hotmail.com', 'Test1978', 'Administrateur');
+
+function checkAdminRights() {
+  firebase.auth().onAuthStateChanged(function(user) {
+    if (user) {
+      console.log("Utilisateur connecté:", user.email, "UID:", user.uid);
+      
+      // Vérifier si l'utilisateur est admin
+      firebase.firestore().collection('inspectors').doc(user.uid).get()
+        .then((doc) => {
+          console.log("Document récupéré:", doc.exists ? "Existe" : "N'existe pas");
+          if (doc.exists) {
+            console.log("Données du document:", doc.data());
+            console.log("Rôle de l'utilisateur:", doc.data().role);
+            
+            if (doc.data().role === 'admin') {
+              console.log("L'utilisateur est admin, affichage du lien d'administration");
+              document.getElementById('admin-link').style.display = 'inline';
+            } else {
+              console.log("L'utilisateur n'est pas admin, rôle:", doc.data().role);
+            }
+          } else {
+            console.log("Le document de l'utilisateur n'existe pas dans Firestore");
+          }
+        })
+        .catch((error) => {
+          console.error("Erreur lors de la vérification des droits d'admin:", error);
+        });
+    }
+  });
+}
+
+// Appeler cette fonction après l'initialisation
+document.addEventListener('DOMContentLoaded', function() {
+  checkAdminRights();
+});
