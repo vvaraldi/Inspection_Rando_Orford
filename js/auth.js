@@ -94,4 +94,4 @@ function createInitialAdmin(email, password, name) {
 
 // À NE PAS METTRE DANS LE CODE FINAL
 // Décommentez et exécutez une seule fois, puis recommentez
-createInitialAdmin('vvaraldi@hotmail.com', 'Test1978', 'Administrateur');
+//createInitialAdmin('vvaraldi@hotmail.com', 'Test1978', 'Administrateur');
