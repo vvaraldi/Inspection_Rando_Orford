@@ -623,19 +623,19 @@
           .then(doc => {
             if (doc.exists && doc.data().role === 'admin') {
               // Utilisateur est admin, afficher son nom
-              document.getElementById('admin-name').textContent = doc.data().name;
+              document.getElementById('admin-name').textContent = doc.data().name & doc.data().role;
               
               // Charger les données
               loadInspectors();
               loadStatistics();
             } else {
               // Rediriger vers la page principale si non admin
-             // window.location.href = '../index.html';
+              window.location.href = '../index.html';
             }
           })
           .catch(error => {
             console.error("Erreur lors de la vérification des privilèges:", error);
-            //window.location.href = '../index.html';
+            window.location.href = '../index.html';
           });
       } else {
         // Rediriger vers la page de connexion
