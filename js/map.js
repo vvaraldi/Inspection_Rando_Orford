@@ -1,5 +1,5 @@
-// Référence à Firestore
-const db = firebase.firestore();
+//// Référence à Firestore
+//const db = firebase.firestore();
 
 // Fonction pour récupérer les données des sentiers et leurs dernières inspections
 async function loadTrailsWithLatestInspections() {

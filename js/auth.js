@@ -71,32 +71,6 @@ document.addEventListener('DOMContentLoaded', function() {
 // Appel de la fonction au chargement
 document.addEventListener('DOMContentLoaded', checkAuthStatus);
 
-
-function createInitialAdmin(email, password, name) {
-  // Créer l'utilisateur
-  firebase.auth().createUserWithEmailAndPassword(email, password)
-    .then((userCredential) => {
-      // Ajouter les informations dans Firestore avec le rôle admin
-      return firebase.firestore().collection('inspectors').doc(userCredential.user.uid).set({
-        name: name,
-        email: email,
-        role: 'admin',
-        status: 'active',
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-    })
-    .then(() => {
-      console.log("Administrateur initial créé avec succès!");
-    })
-    .catch((error) => {
-      console.error("Erreur lors de la création de l'administrateur:", error);
-    });
-}
-
-// À NE PAS METTRE DANS LE CODE FINAL
-// Décommentez et exécutez une seule fois, puis recommentez
-//createInitialAdmin('vvaraldi@hotmail.com', 'Test1978', 'Administrateur');
-
 function checkAdminRights() {
   firebase.auth().onAuthStateChanged(function(user) {
     if (user) {
