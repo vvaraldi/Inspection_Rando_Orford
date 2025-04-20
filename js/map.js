@@ -138,9 +138,7 @@ function updateMapTrailMarkers(trails,shelters) {
     marker.style.left = `${trail.coordinates.left}px`;
     
     // Ajouter un gestionnaire d'événements au clic
-    marker.addEventListener('click', () => {
-      showTrailDetails(trail);
-    });
+    marker.addEventListener('click', () => { showTrailDetails(trail); });
     
     // Ajouter à la carte
     document.querySelector('.map-bg').appendChild(marker);
@@ -177,9 +175,7 @@ function updateMapTrailMarkers(trails,shelters) {
     marker.style.left = `${shelter.coordinates.left}px`;
 	
     // Ajouter un gestionnaire d'événements au clic
-    marker.addEventListener('click', () => {
-      showshelterDetails(shelter);
-    });
+    marker.addEventListener('click', () => { showShelterDetails(shelter); });
     
     // Ajouter à la carte
     document.querySelector('.map-bg').appendChild(marker);
