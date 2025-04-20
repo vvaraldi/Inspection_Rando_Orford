@@ -609,7 +609,7 @@
           .then(doc => {
             if (doc.exists && doc.data().role === 'admin') {
               // Utilisateur est admin, afficher son nom
-              document.getElementById('admin-name').textContent = doc.data().name + doc.data().role;
+              document.getElementById('admin-name').textContent = doc.data().name;
               
               // Charger les données
               loadInspectors();
@@ -920,7 +920,8 @@
       if (confirm('Êtes-vous sûr de vouloir initialiser les données des abris? Cela écrasera toutes les données existantes.')) {
         showStatus('shelters-status', 'Initialisation en cours...', 'info');
         
-        // Les données des abris
+      console.log('01');
+	  // Les données des abris
         const sheltersData = [
           {
             id: 'shelter_giroux',
@@ -942,9 +943,13 @@
           }
         ];
         
+      console.log('02');
+
         // Initialiser les données des abris
         const batch = db.batch();
         
+      console.log('03');
+
         // D'abord, supprimer les données existantes
         db.collection('shelters').get()
           .then(snapshot => {
@@ -963,6 +968,8 @@
               });
             });
             
+      console.log('04');
+
             // Exécuter le batch
             return batch.commit();
           })
