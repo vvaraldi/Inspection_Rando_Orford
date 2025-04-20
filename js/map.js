@@ -313,9 +313,9 @@ function showShelterDetails(shelter) {
       const inspectionSection = detailsPanel.querySelector('.info-section:nth-child(1)');
       inspectionSection.innerHTML = `
         <div class="info-title">Dernière inspection</div>
-        <p>${formattedDate} par ULK</p>
+        <p>${formattedDate} par ${inspectorName}</p>
       `;
-      //${inspectorName}
+      //
 	  
       // Mise à jour de la section "Problèmes signalés"
       const issuesSection = detailsPanel.querySelector('.info-section:nth-child(2)');
