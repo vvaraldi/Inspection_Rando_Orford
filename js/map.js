@@ -91,19 +91,9 @@ function updateMapMarkers(trails) {
     marker.setAttribute('title', trail.name);
     marker.setAttribute('data-trail-id', trail.id);
     
-    // Positions approximatives sur la carte (à ajuster)
-    const positions = {
-      'trail_1': { top: 410, left: 448 }, // La tortue
-      'trail_2': { top: 340, left: 210 }, // Tracé du lynx
-      'trail_3': { top: 535, left: 425 }, // Adams
-      // etc.
-    };
-    
     // Positionner le marqueur
-//    marker.style.top = `${positions[trail.id].top}px`;
-//    marker.style.left = `${positions[trail.id].left}px`;
     marker.style.top = `${trail.coordinates.top}px`;
-    marker.style.left = `${positions[trail.id].left}px`;
+    marker.style.left = `${trail.coordinates.left}px`;
     
     // Ajouter un gestionnaire d'événements au clic
     marker.addEventListener('click', () => {
