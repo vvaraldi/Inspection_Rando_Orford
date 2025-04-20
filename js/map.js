@@ -100,7 +100,9 @@ function updateMapMarkers(trails) {
     };
     
     // Positionner le marqueur
-    marker.style.top = `${positions[trail.id].top}px`;
+//    marker.style.top = `${positions[trail.id].top}px`;
+//    marker.style.left = `${positions[trail.id].left}px`;
+    marker.style.top = trail.coordinates.top + ' px';
     marker.style.left = `${positions[trail.id].left}px`;
     
     // Ajouter un gestionnaire d'événements au clic
