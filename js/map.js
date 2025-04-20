@@ -355,11 +355,11 @@ function showShelterDetails(shelter) {
     `;
   }
   
-//  // Afficher les caractéristiques du sentier
-//  detailsPanel.querySelector('.info-section:nth-child(4)').innerHTML = `
-//    <div class="info-title">Caractéristiques</div>
-//    <p>Longueur: ${trail.length} km • Difficulté: ${getDifficultyLabel(trail.difficulty)}</p>
-//  `;
+  // Afficher les caractéristiques de l'abris
+  detailsPanel.querySelector('.info-section:nth-child(4)').innerHTML = `
+    <div class="info-title">Caractéristiques</div>
+    <p>ALtitude: ${shelter.aLtitude} m</p>
+  `;
 }
 
 // Fonction pour obtenir le nom de l'inspecteur
