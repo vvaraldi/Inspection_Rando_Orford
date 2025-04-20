@@ -97,7 +97,7 @@ async function updateMapWithTrailData() {
   document.getElementById('map-loading').style.display = 'none';
   
   // Mettre à jour la carte avec les données récupérées
-  updateMapMarkers(trailsWithInspections);
+  updateMapTrailMarkers(trailsWithInspections);
 }
 
 // Fonction pour mettre à jour la carte
@@ -112,10 +112,10 @@ async function updateMapWithShelterData() {
   document.getElementById('map-loading').style.display = 'none';
   
   // Mettre à jour la carte avec les données récupérées
-  updateMapMarkers(sheltersWithInspections);
+  updateMapShelterMarkers(sheltersWithInspections);
 }
 
-function updateMapMarkers(trails) {
+function updateMapTrailMarkers(trails) {
   // Supposons que vous avez défini la structure de base de votre carte ailleurs
   
   // Effacer les marqueurs existants
@@ -160,9 +160,12 @@ function updateMapMarkers(trails) {
     document.querySelector('.map-bg').appendChild(marker);
   });
 
+    
+}
   
   
-  
+function updateMapShelterMarkers(shelters) {
+  // Supposons que vous avez défini la structure de base de votre carte ailleurs
   
   // Effacer les marqueurs existants
   clearExistingMarkers();
