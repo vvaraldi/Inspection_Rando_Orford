@@ -160,44 +160,7 @@ function updateMapMarkers(trails) {
     document.querySelector('.map-bg').appendChild(marker);
   });
 
-  // Parcourir tous les abris
-  trails.forEach(shelter => {
-    // Définir la classe CSS du marqueur en fonction de l'état
-    let markerClass = 'marker-not-inspected';
-    
-    if (shelter.latestInspection) {
-      switch(shelter.latestInspection.condition) {
-        case 'good':
-          markerClass = 'marker-good';
-          break;
-        case 'warning':
-          markerClass = 'marker-warning';
-          break;
-        case 'critical':
-          markerClass = 'marker-critical';
-          break;
-      }
-    }
-    
-    // Créer le marqueur HTML
-    const marker = document.createElement('div');
-    marker.className = `shelter-marker ${markerClass}`;
-    marker.textContent = shelter.id.replace('shelter_', ''); // Numéro du sentier
-    marker.setAttribute('title', shelter.name);
-    marker.setAttribute('data-shelter-id', shelter.id);
-    
-    // Positionner le marqueur
-    marker.style.top = `${shelter.coordinates.top}px`;
-    marker.style.left = `${shelter.coordinates.left}px`;
-    
-    // Ajouter un gestionnaire d'événements au clic
-    marker.addEventListener('click', () => {
-      showshelterDetails(shelter);
-    });
-    
-    // Ajouter à la carte
-    document.querySelector('.map-bg').appendChild(marker);
-  });
+
 }
 
 // Fonction pour afficher les détails d'un sentier
