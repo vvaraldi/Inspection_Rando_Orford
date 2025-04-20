@@ -247,3 +247,16 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
+function clearExistingMarkers() {
+  // Sélectionner tous les marqueurs de sentiers
+  const trailMarkers = document.querySelectorAll('.trail-marker');
+  trailMarkers.forEach(marker => {
+    marker.remove();
+  });
+  
+  // Sélectionner tous les marqueurs d'abris
+  const shelterMarkers = document.querySelectorAll('.shelter-marker');
+  shelterMarkers.forEach(marker => {
+    marker.remove();
+  });
+}
