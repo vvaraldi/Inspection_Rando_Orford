@@ -572,19 +572,10 @@
 
   <script>
 //    // Configuration Firebase
-//    const firebaseConfig = {
-//	  apiKey: "AIzaSyDcBZrwGTskM7QUvanzLTACEJ_T-55j-DA",
-//	  authDomain: "Trail-Inspection.firebaseapp.com",
-//	  projectId: "Trail-Inspection",
-//	  storageBucket: "Trail-Inspection.appspot.com",
-//	  messagingSenderId: "VOTRE_MESSAGING_ID",
-//	  appId: "VOTRE_APP_ID"
-//    };
     
 //    // Initialisation de Firebase
 //    firebase.initializeApp(firebaseConfig);
 
-//  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
   // TODO: Add SDKs for Firebase products that you want to use
   // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -606,11 +597,6 @@
   //const analytics = getAnalytics(app);
 
 
-
-
-
-
-    
     // Références Firebase
     const auth = firebase.auth();
     const db = firebase.firestore();
@@ -623,7 +609,7 @@
           .then(doc => {
             if (doc.exists && doc.data().role === 'admin') {
               // Utilisateur est admin, afficher son nom
-              document.getElementById('admin-name').textContent = doc.data().name & doc.data().role;
+              document.getElementById('admin-name').textContent = doc.data().name + doc.data().role;
               
               // Charger les données
               loadInspectors();

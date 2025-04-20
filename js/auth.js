@@ -1,11 +1,12 @@
 // Configuration Firebase (à remplacer par vos informations)
 const firebaseConfig = {
-  apiKey: "AIzaSyDcBZrwGTskM7QUvanzLTACEJ_T-55j-DA",
-  authDomain: "Trail-Inspection.firebaseapp.com",
-  projectId: "Trail-Inspection",
-  storageBucket: "Trail-Inspection.appspot.com",
-  messagingSenderId: "VOTRE_MESSAGING_ID",
-  appId: "VOTRE_APP_ID"
+    apiKey: "AIzaSyDcBZrwGTskM7QUvanzLTACEJ_T-55j-DA",
+    authDomain: "trail-inspection.firebaseapp.com",
+    projectId: "trail-inspection",
+    storageBucket: "trail-inspection.firebasestorage.app",
+    messagingSenderId: "415995272058",
+    appId: "1:415995272058:web:dc476de8ffee052e2ad4c3",
+    measurementId: "G-EBLYWBM9YB"
 };
 
 // Initialisation de Firebase
