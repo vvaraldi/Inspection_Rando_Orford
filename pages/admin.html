@@ -920,7 +920,6 @@
       if (confirm('Êtes-vous sûr de vouloir initialiser les données des abris? Cela écrasera toutes les données existantes.')) {
         showStatus('shelters-status', 'Initialisation en cours...', 'info');
         
-      console.log('01');
 	  // Les données des abris
         const sheltersData = [
           {
@@ -943,12 +942,11 @@
           }
         ];
         
-      console.log('02');
+      console.log(sheltersData);
 
         // Initialiser les données des abris
         const batch = db.batch();
         
-      console.log('03');
 
         // D'abord, supprimer les données existantes
         db.collection('shelters').get()
