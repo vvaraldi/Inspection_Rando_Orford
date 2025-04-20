@@ -570,18 +570,46 @@
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
 
   <script>
-    // Configuration Firebase
-    const firebaseConfig = {
-	  apiKey: "AIzaSyDcBZrwGTskM7QUvanzLTACEJ_T-55j-DA",
-	  authDomain: "Trail-Inspection.firebaseapp.com",
-	  projectId: "Trail-Inspection",
-	  storageBucket: "Trail-Inspection.appspot.com",
-	  messagingSenderId: "VOTRE_MESSAGING_ID",
-	  appId: "VOTRE_APP_ID"
-    };
+//    // Configuration Firebase
+//    const firebaseConfig = {
+//	  apiKey: "AIzaSyDcBZrwGTskM7QUvanzLTACEJ_T-55j-DA",
+//	  authDomain: "Trail-Inspection.firebaseapp.com",
+//	  projectId: "Trail-Inspection",
+//	  storageBucket: "Trail-Inspection.appspot.com",
+//	  messagingSenderId: "VOTRE_MESSAGING_ID",
+//	  appId: "VOTRE_APP_ID"
+//    };
     
-    // Initialisation de Firebase
+//    // Initialisation de Firebase
+//    firebase.initializeApp(firebaseConfig);
+
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyDcBZrwGTskM7QUvanzLTACEJ_T-55j-DA",
+    authDomain: "trail-inspection.firebaseapp.com",
+    projectId: "trail-inspection",
+    storageBucket: "trail-inspection.firebasestorage.app",
+    messagingSenderId: "415995272058",
+    appId: "1:415995272058:web:dc476de8ffee052e2ad4c3",
+    measurementId: "G-EBLYWBM9YB"
+  };
+
+  // Initialize Firebase
+  //const app = initializeApp(firebaseConfig);
     firebase.initializeApp(firebaseConfig);
+  //const analytics = getAnalytics(app);
+
+
+
+
+
+
     
     // Références Firebase
     const auth = firebase.auth();
