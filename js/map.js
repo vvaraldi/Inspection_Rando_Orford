@@ -168,14 +168,14 @@ function updateMapTrailMarkers(trails,shelters) {
     // Créer le marqueur HTML
     const marker = document.createElement('div');
     marker.className = `trail-marker ${markerClass}`;
-    marker.textContent = shelter.id.replace('shelter_', ''); // Numéro du sentier
+    marker.textContent = 'M' + shelter.id.replace('shelter_', ''); // Numéro de l'abris
     marker.setAttribute('title', shelter.name);
     marker.setAttribute('data-shelter-id', shelter.id);
     
     // Positionner le marqueur
     marker.style.top = `${shelter.coordinates.top}px`;
     marker.style.left = `${shelter.coordinates.left}px`;
-//    marker.setAttribute('background-color', #8b5cf6);
+    marker.background-color = #8b5cf6;
 	
     // Ajouter un gestionnaire d'événements au clic
     marker.addEventListener('click', () => {
