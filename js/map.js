@@ -7,7 +7,10 @@ async function loadTrailsWithLatestInspections() {
     // Étape 1: Récupérer tous les sentiers
     const trailsSnapshot = await db.collection('trails').get();
     const trails = {};
+    console.error(trails);
+    console.error(trailsSnapshot);
     
+	
     trailsSnapshot.forEach(doc => {
       trails[doc.id] = {
         id: doc.id,
