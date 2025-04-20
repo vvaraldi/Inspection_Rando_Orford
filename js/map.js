@@ -253,7 +253,7 @@ function clearExistingMarkers() {
   trailMarkers.forEach(marker => {
     marker.remove();
   });
-  
+ 
   // Sélectionner tous les marqueurs d'abris
   const shelterMarkers = document.querySelectorAll('.shelter-marker');
   shelterMarkers.forEach(marker => {
