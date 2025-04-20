@@ -10,16 +10,16 @@
 async function loadDashboardData() {
   try {
     // 1. Récupérer les statistiques générales
-    await updateDashboardStats();
+    //await updateDashboardStats();
     
     // 2. Charger les données pour la carte
     await loadMapData();
     
     // 3. Récupérer les inspections récentes pour le tableau
-    await loadRecentInspections();
+    //await loadRecentInspections();
     
     // 4. Mettre à jour l'état général du domaine
-    updateOverallStatus();
+    //updateOverallStatus();
     
     console.log("Données du tableau de bord chargées avec succès");
   } catch (error) {
@@ -32,11 +32,7 @@ async function loadDashboardData() {
  */
 async function updateDashboardStats() {
   // Récupérer le nombre total de pistes et d'abris
-  const [trailsSnapshot, sheltersSnapshot] = await Promise.all([
-    db.collection('trails').get(),
-    db.collection('shelters').get()
-  ]);
-  
+  const [trailsSnapshot, sheltersSnapshot] = await Promise.all([ db.collection('trails').get(), db.collection('shelters').get() ]);
   const totalTrails = trailsSnapshot.size;
   const totalShelters = sheltersSnapshot.size;
   const totalInspectable = totalTrails + totalShelters;
@@ -45,15 +41,7 @@ async function updateDashboardStats() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   
-  const [trailInspToday, shelterInspToday] = await Promise.all([
-    db.collection('trail_inspections')
-      .where('date', '>=', today)
-      .get(),
-    db.collection('shelter_inspections')
-      .where('date', '>=', today)
-      .get()
-  ]);
-  
+  const [trailInspToday, shelterInspToday] = await Promise.all([ db.collection('trail_inspections').where('date', '>=', today).get(), db.collection('shelter_inspections').where('date', '>=', today).get() ]);
   const inspectedToday = trailInspToday.size + shelterInspToday.size;
   
   // Mettre à jour l'élément dans le DOM
@@ -61,8 +49,7 @@ async function updateDashboardStats() {
   
   // Récupérer le nombre de problèmes signalés non résolus
   const [criticalTrails, warningTrails, criticalShelters, warningShelters] = await getLatestIssues();
-  const totalIssues = criticalTrails.length + warningTrails.length + 
-                      criticalShelters.length + warningShelters.length;
+  const totalIssues = criticalTrails.length + warningTrails.length + criticalShelters.length + warningShelters.length;
   
   document.getElementById('reported-issues').textContent = totalIssues;
   
@@ -211,12 +198,7 @@ function updateOverallStatus() {
   // Cette fonction serait appelée après avoir chargé les données de la carte
   // Elle analyserait l'état des pistes et abris pour déterminer l'état général
   
-  const statusCounts = {
-    good: document.querySelectorAll('.marker-good').length,
-    warning: document.querySelectorAll('.marker-warning').length,
-    critical: document.querySelectorAll('.marker-critical').length,
-    notInspected: document.querySelectorAll('.marker-not-inspected').length
-  };
+  const statusCounts = { good: document.querySelectorAll('.marker-good').length, warning: document.querySelectorAll('.marker-warning').length, critical: document.querySelectorAll('.marker-critical').length, notInspected: document.querySelectorAll('.marker-not-inspected').length };
   
   let overallStatus = 'Bon';
   

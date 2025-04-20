@@ -46,7 +46,6 @@ function checkAuthStatus() {
           if (mainContent) mainContent.style.display = 'block';
           
           // Charger les données du tableau de bord
-    console.log('load dashboard');
           loadDashboardData();
         })
         .catch((error) => {
