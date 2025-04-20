@@ -175,7 +175,7 @@ function updateMapTrailMarkers(trails,shelters) {
     // Positionner le marqueur
     marker.style.top = `${shelter.coordinates.top}px`;
     marker.style.left = `${shelter.coordinates.left}px`;
-    marker.background-color = #8b5cf6;
+//    marker.setAttribute('background-color', #8b5cf6);
 	
     // Ajouter un gestionnaire d'événements au clic
     marker.addEventListener('click', () => {
