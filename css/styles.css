@@ -38,6 +38,13 @@ nav {
   text-decoration: none;
 }
 
+.nav-links a.active {
+  font-weight: bold;
+  border-bottom: 2px solid white;
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
 main {
   max-width: 1200px;
   margin: 0 auto;
