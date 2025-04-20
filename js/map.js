@@ -92,30 +92,16 @@ async function updateMapWithTrailData() {
   
   // Récupérer les données
   const trailsWithInspections = await loadTrailsWithLatestInspections();
-  
-  // Masquer l'indicateur de chargement
-  document.getElementById('map-loading').style.display = 'none';
-  
-  // Mettre à jour la carte avec les données récupérées
-  updateMapTrailMarkers(trailsWithInspections);
-}
-
-// Fonction pour mettre à jour la carte
-async function updateMapWithShelterData() {
-  // Afficher un indicateur de chargement si nécessaire
-  document.getElementById('map-loading').style.display = 'block';
-  
-  // Récupérer les données
   const sheltersWithInspections = await loadSheltersWithLatestInspections();
   
   // Masquer l'indicateur de chargement
   document.getElementById('map-loading').style.display = 'none';
   
   // Mettre à jour la carte avec les données récupérées
-  updateMapShelterMarkers(sheltersWithInspections);
+  updateMapTrailMarkers(trailsWithInspections,sheltersWithInspections);
 }
 
-function updateMapTrailMarkers(trails) {
+function updateMapTrailMarkers(trails,shelters) {
   // Supposons que vous avez défini la structure de base de votre carte ailleurs
   
   // Effacer les marqueurs existants
@@ -160,17 +146,6 @@ function updateMapTrailMarkers(trails) {
     document.querySelector('.map-bg').appendChild(marker);
   });
 
-    
-}
-  
-  
-function updateMapShelterMarkers(shelters) {
-  // Supposons que vous avez défini la structure de base de votre carte ailleurs
-  
-  // Effacer les marqueurs existants
-  clearExistingMarkers();
-  
-  
   // Parcourir tous les abris
   shelters.forEach(shelter => {
     // Définir la classe CSS du marqueur en fonction de l'état
@@ -209,8 +184,7 @@ function updateMapShelterMarkers(shelters) {
     // Ajouter à la carte
     document.querySelector('.map-bg').appendChild(marker);
   });
-  
-  
+    
 }
 
 // Fonction pour afficher les détails d'un sentier
@@ -431,7 +405,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (user) {
       // L'utilisateur est connecté, charger les données
       updateMapWithTrailData();
-      updateMapWithShelterData();
     }
   });
 });
@@ -440,12 +413,6 @@ function clearExistingMarkers() {
   // Sélectionner tous les marqueurs de sentiers
   const trailMarkers = document.querySelectorAll('.trail-marker');
   trailMarkers.forEach(marker => {
-    marker.remove();
-  });
- 
-  // Sélectionner tous les marqueurs d'abris
-  const shelterMarkers = document.querySelectorAll('.shelter-marker');
-  shelterMarkers.forEach(marker => {
     marker.remove();
   });
 }
