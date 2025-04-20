@@ -241,6 +241,7 @@ document.addEventListener('DOMContentLoaded', function() {
   firebase.auth().onAuthStateChanged(function(user) {
     if (user) {
       // L'utilisateur est connecté, charger les données
+console.log('update trail data')
       updateMapWithTrailData();
     }
   });
