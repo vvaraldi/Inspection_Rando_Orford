@@ -169,7 +169,7 @@ function updateMapMarkers(trails) {
   
   
   // Parcourir tous les abris
-  trails.forEach(shelter => {
+  shelters.forEach(shelter => {
     // Définir la classe CSS du marqueur en fonction de l'état
     let markerClass = 'marker-not-inspected';
     
