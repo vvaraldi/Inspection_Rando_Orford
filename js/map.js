@@ -167,7 +167,7 @@ function updateMapTrailMarkers(trails,shelters) {
     
     // Créer le marqueur HTML
     const marker = document.createElement('div');
-    marker.className = `shelter-marker ${markerClass}`;
+    marker.className = `trail-marker ${markerClass}`;
     marker.textContent = shelter.id.replace('shelter_', ''); // Numéro du sentier
     marker.setAttribute('title', shelter.name);
     marker.setAttribute('data-shelter-id', shelter.id);
