@@ -5,6 +5,9 @@
  * - Inspections récentes
  * - Problèmes signalés
  */
+// Référence à Firestore
+const db = firebase.firestore();
+
 async function loadDashboardData() {
   try {
     // 1. Récupérer les statistiques générales
