@@ -223,7 +223,7 @@ function showTrailDetails(trail) {
       const inspectionSection = detailsPanel.querySelector('.info-section:nth-child(1)');
       inspectionSection.innerHTML = `
         <div class="info-title">Dernière inspection</div>
-        <p>${formattedDate} par ULK</p>
+        <p>${formattedDate} par ${inspectorName}</p>
       `;
       // inspectorName
 	  
@@ -269,8 +269,11 @@ function showTrailDetails(trail) {
   // Afficher les caractéristiques du sentier
   detailsPanel.querySelector('.info-section:nth-child(4)').innerHTML = `
     <div class="info-title">Caractéristiques</div>
-    <p>Longueur: ${trail.length} km • Difficulté: ${getDifficultyLabel(trail.difficulty)}</p>
+    <p>Longueur: 5 km • Difficulté: tough</p>
   `;
+
+    // <p>Longueur: ${trail.length} km • Difficulté: ${getDifficultyLabel(trail.difficulty)}</p>
+
 }
 
 // Fonction pour afficher les détails d'un abris
