@@ -269,10 +269,9 @@ function showTrailDetails(trail) {
   // Afficher les caractéristiques du sentier
   detailsPanel.querySelector('.info-section:nth-child(4)').innerHTML = `
     <div class="info-title">Caractéristiques</div>
-    <p>Longueur: 5 km • Difficulté: tough</p>
+    <p>Longueur: ${trail.length} km • Difficulté: ${getDifficultyLabel(trail.difficulty)}</p>
   `;
 
-    // <p>Longueur: ${trail.length} km • Difficulté: ${getDifficultyLabel(trail.difficulty)}</p>
 
 }
 
