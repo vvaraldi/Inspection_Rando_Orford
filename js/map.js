@@ -225,6 +225,7 @@ function showTrailDetails(trail) {
         <div class="info-title">Dernière inspection</div>
         <p>${formattedDate} par ${inspectorName}</p>
       `;
+      // inspectorName
 	  
       // Mise à jour de la section "Problèmes signalés"
       const issuesSection = detailsPanel.querySelector('.info-section:nth-child(2)');
@@ -309,7 +310,19 @@ function showShelterDetails(shelter) {
     const formattedDate = `${date.getDate()} ${getMonthName(date.getMonth())} ${date.getFullYear()}, ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
 //    const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}, ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
     
+<<<<<<< HEAD
       const inspectionSection = infoPanel.querySelector('.info-section:nth-child(1)');
+=======
+    // Convertir le timestamp Firestore en date lisible
+    const date = inspection.date.toDate();
+//    const formattedDate = `${date.getDate()} ${getMonthName(date.getMonth())} ${date.getFullYear()}, ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
+    const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}, ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
+    
+    // Récupérer le nom de l'inspecteur (si nécessaire)
+    getInspectorName(inspection.inspector_id).then((inspectorName) => {
+      // Mise à jour de la section "Dernière inspection"
+      const inspectionSection = detailsPanel.querySelector('.info-section:nth-child(1)');
+>>>>>>> parent of d4b1111 (Update map.js)
       inspectionSection.innerHTML = `
         <div class="info-title">Dernière inspection</div>
         <p>${formattedDate} par ${inspectorName}</p>
