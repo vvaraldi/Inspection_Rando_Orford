@@ -361,7 +361,7 @@ function showShelterDetails(shelter) {
   // Afficher les caractéristiques de l'abris
   detailsPanel.querySelector('.info-section:nth-child(4)').innerHTML = `
     <div class="info-title">Caractéristiques</div>
-    <p>ALtitude: ${shelter.aLtitude} m</p>
+    <p>ALtitude: ${shelter.altitude} m</p>
   `;
 }
 
