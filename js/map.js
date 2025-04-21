@@ -311,7 +311,7 @@ function showShelterDetails(shelter) {
     const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}, ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
     
     // Récupérer le nom de l'inspecteur (si nécessaire)
-    getInspectorName(inspection.inspector_id).then(inspectorName => {
+    getInspectorName(inspection.inspector_id).then((inspectorName) => {
       // Mise à jour de la section "Dernière inspection"
       const inspectionSection = detailsPanel.querySelector('.info-section:nth-child(1)');
       inspectionSection.innerHTML = `
