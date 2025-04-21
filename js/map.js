@@ -315,7 +315,7 @@ function showShelterDetails(shelter) {
       const inspectionSection = detailsPanel.querySelector('.info-section:nth-child(1)');
       inspectionSection.innerHTML = `
         <div class="info-title">Dernière inspection</div>
-        <p>${formattedDate} par ${inspectorName}</p>
+        <p>${formattedDate} par ${inspection.inspector_id}</p>
       `;
       //
 	  
