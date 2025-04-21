@@ -303,9 +303,6 @@ function showShelterDetails(shelter) {
   // Afficher les informations de la dernière inspection
   if (shelter.latestInspection) {
   
-console.log("Inspection:", shelter.lastInspection);
-console.log("ID inspecteur:", shelter.lastInspection.inspector_id);
-
     const inspection = shelter.latestInspection;
     const inspectorName = await getInspectorName(shelter.lastInspection.inspector_id);
 	const date = inspection.date.toDate();
