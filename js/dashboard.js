@@ -13,7 +13,7 @@ async function loadDashboardData() {
     //await updateDashboardStats();
     
     // 2. Charger les données pour la carte
-    await loadMapData();
+    //await loadMapData();
     
     // 3. Récupérer les inspections récentes pour le tableau
     //await loadRecentInspections();
