@@ -305,43 +305,33 @@ function showShelterDetails(shelter) {
   if (shelter.latestInspection) {
   
     const inspection = shelter.latestInspection;
-    const inspectorName = await getInspectorName(shelter.lastInspection.inspector_id);
 	const date = inspection.date.toDate();
     const formattedDate = `${date.getDate()} ${getMonthName(date.getMonth())} ${date.getFullYear()}, ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
-//    const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}, ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
     
-<<<<<<< HEAD
-      const inspectionSection = infoPanel.querySelector('.info-section:nth-child(1)');
-=======
-    // Convertir le timestamp Firestore en date lisible
-    const date = inspection.date.toDate();
-//    const formattedDate = `${date.getDate()} ${getMonthName(date.getMonth())} ${date.getFullYear()}, ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
-    const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}, ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
+    const inspectionSection = infoPanel.querySelector('.info-section:nth-child(1)');
     
-    // Récupérer le nom de l'inspecteur (si nécessaire)
-    getInspectorName(inspection.inspector_id).then((inspectorName) => {
-      // Mise à jour de la section "Dernière inspection"
-      const inspectionSection = detailsPanel.querySelector('.info-section:nth-child(1)');
->>>>>>> parent of d4b1111 (Update map.js)
-      inspectionSection.innerHTML = `
-        <div class="info-title">Dernière inspection</div>
-        <p>${formattedDate} par ${inspectorName}</p>
-      `;
-
+    try {
 //    // Récupérer le nom de l'inspecteur (si nécessaire)
-//    getInspectorName(inspection.inspector_id).then((InspectorName) => {
-//      // Mise à jour de la section "Dernière inspection"
-//      const inspectionSection = detailsPanel.querySelector('.info-section:nth-child(1)');
+//    const inspectorName = await getInspectorName(shelter.lastInspection.inspector_id);
+//      // Mettre à jour le DOM seulement après avoir résolu toutes les promesses
+//      const inspectionSection = infoPanel.querySelector('.info-section:nth-child(1)');
 //      inspectionSection.innerHTML = `
 //        <div class="info-title">Dernière inspection</div>
-//        <p>${formattedDate} par ${InspectorName}</p>
+//        <p>${formattedDate} par ${inspectorName}</p>
 //      `;
+    } catch (error) {
+      console.error("Erreur lors de l'affichage des détails:", error);
+    }
+
+    // Récupérer le nom de l'inspecteur (si nécessaire)
+    getInspectorName(inspection.inspector_id).then((InspectorName) => {
+      // Mise à jour de la section "Dernière inspection"
+      const inspectionSection = detailsPanel.querySelector('.info-section:nth-child(1)');
+      inspectionSection.innerHTML = `
+        <div class="info-title">Dernière inspection</div>
+        <p>${formattedDate} par ${InspectorName}</p>
+      `;
 	  
-//    const inspectionSection = infoPanel.querySelector('.info-section:nth-child(1)');
-//    inspectionSection.innerHTML = `
-//      <div class="info-title">Dernière inspection</div>
-//      <p>${formattedDate} par ${shelter.lastInspection.inspector_name || 'Inspecteur'}</p>
-//    `;
 	  
 	  
 	  
@@ -392,19 +382,39 @@ function showShelterDetails(shelter) {
   `;
 }
 
-// Fonction pour obtenir le nom de l'inspecteur
+/**
+ * Récupère le nom de l'inspecteur à partir de son ID
+ * @param {string} inspectorId - L'ID de l'inspecteur dans Firestore
+ * @returns {Promise<string>} - Le nom de l'inspecteur ou une valeur par défaut
+ */
 async function getInspectorName(inspectorId) {
+  // Vérifier si l'ID est valide
+  if (!inspectorId) {
+    console.warn("ID d'inspecteur manquant");
+    return "Inspecteur inconnu";
+  }
+
   try {
+    // Récupérer le document de l'inspecteur depuis Firestore
     const inspectorDoc = await db.collection('inspectors').doc(inspectorId).get();
     
+    // Vérifier si le document existe
     if (inspectorDoc.exists) {
-      return inspectorDoc.data().name;
+      const data = inspectorDoc.data();
+      // Vérifier si le champ 'name' existe
+      if (data && data.name) {
+        return data.name;
+      } else {
+        console.warn(`Le champ 'name' est manquant pour l'inspecteur ${inspectorId}`);
+        return "Inspecteur sans nom";
+      }
     } else {
+      console.warn(`Aucun inspecteur trouvé avec l'ID: ${inspectorId}`);
       return "Inspecteur inconnu";
     }
   } catch (error) {
     console.error("Erreur lors de la récupération du nom de l'inspecteur:", error);
-    return "Inspecteur inconnu";
+    return "Erreur de chargement";
   }
 }
 
