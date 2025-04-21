@@ -302,21 +302,27 @@ function showShelterDetails(shelter) {
   
   // Afficher les informations de la dernière inspection
   if (shelter.latestInspection) {
+  
     const inspection = shelter.latestInspection;
+    const inspectorName = await getInspectorName(shelter.lastInspection.inspector_id);
+	const date = inspection.date.toDate();
+    const formattedDate = `${date.getDate()} ${getMonthName(date.getMonth())} ${date.getFullYear()}, ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
+//    const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}, ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
     
-    // Convertir le timestamp Firestore en date lisible
-    const date = inspection.date.toDate();
-//    const formattedDate = `${date.getDate()} ${getMonthName(date.getMonth())} ${date.getFullYear()}, ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
-    const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}, ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
-    
-    // Récupérer le nom de l'inspecteur (si nécessaire)
-    getInspectorName(inspection.inspector_id).then((InspectorName) => {
-      // Mise à jour de la section "Dernière inspection"
-      const inspectionSection = detailsPanel.querySelector('.info-section:nth-child(1)');
+      const inspectionSection = infoPanel.querySelector('.info-section:nth-child(1)');
       inspectionSection.innerHTML = `
         <div class="info-title">Dernière inspection</div>
-        <p>${formattedDate} par ${InspectorName}</p>
+        <p>${formattedDate} par ${inspectorName}</p>
       `;
+
+//    // Récupérer le nom de l'inspecteur (si nécessaire)
+//    getInspectorName(inspection.inspector_id).then((InspectorName) => {
+//      // Mise à jour de la section "Dernière inspection"
+//      const inspectionSection = detailsPanel.querySelector('.info-section:nth-child(1)');
+//      inspectionSection.innerHTML = `
+//        <div class="info-title">Dernière inspection</div>
+//        <p>${formattedDate} par ${InspectorName}</p>
+//      `;
 	  
 //    const inspectionSection = infoPanel.querySelector('.info-section:nth-child(1)');
 //    inspectionSection.innerHTML = `
