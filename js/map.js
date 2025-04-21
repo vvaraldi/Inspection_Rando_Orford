@@ -374,18 +374,54 @@ function showShelterDetails(shelter) {
 }
 
 // Fonction pour obtenir le nom de l'inspecteur
+//async function getInspectorName(inspectorId) {
+//  try {
+//    const inspectorDoc = await db.collection('inspectors').doc(inspectorId).get();
+//   
+//    if (inspectorDoc.exists) {
+//      return inspectorDoc.data().name;
+//    } else {
+//      return "Inspecteur inconnu";
+//    }
+//  } catch (error) {
+//    console.error("Erreur lors de la récupération du nom de l'inspecteur:", error);
+//    return "Inspecteur inconnu";
+//  }
+//}
+
+/**
+ * Récupère le nom de l'inspecteur à partir de son ID
+ * @param {string} inspectorId - L'ID de l'inspecteur dans Firestore
+ * @returns {Promise<string>} - Le nom de l'inspecteur ou une valeur par défaut
+ */
 async function getInspectorName(inspectorId) {
+  // Vérifier si l'ID est valide
+  if (!inspectorId) {
+    console.warn("ID d'inspecteur manquant");
+    return "Inspecteur inconnu";
+  }
+
   try {
+    // Récupérer le document de l'inspecteur depuis Firestore
     const inspectorDoc = await db.collection('inspectors').doc(inspectorId).get();
     
+    // Vérifier si le document existe
     if (inspectorDoc.exists) {
-      return inspectorDoc.data().name;
+      const data = inspectorDoc.data();
+      // Vérifier si le champ 'name' existe
+      if (data && data.name) {
+        return data.name;
+      } else {
+        console.warn(`Le champ 'name' est manquant pour l'inspecteur ${inspectorId}`);
+        return "Inspecteur sans nom";
+      }
     } else {
+      console.warn(`Aucun inspecteur trouvé avec l'ID: ${inspectorId}`);
       return "Inspecteur inconnu";
     }
   } catch (error) {
     console.error("Erreur lors de la récupération du nom de l'inspecteur:", error);
-    return "Inspecteur inconnu";
+    return "Erreur de chargement";
   }
 }
 
