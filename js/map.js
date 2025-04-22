@@ -404,6 +404,7 @@ async function getInspectorName(inspectorId) {
       // Vérifier si le champ 'name' existe
       if (data && data.name) {
         console.error(data);
+        console.error(data.name);
         return data.name;
       } else {
         console.warn(`Le champ 'name' est manquant pour l'inspecteur ${inspectorId}`);
