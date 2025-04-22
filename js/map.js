@@ -311,9 +311,9 @@ function showShelterDetails(shelter) {
     const inspectionSection = infoPanel.querySelector('.info-section:nth-child(1)');
     
     try {
-//    // Récupérer le nom de l'inspecteur (si nécessaire)
-    const InspNam = await getInspectorName(inspection.inspector_id);
-    console.error (InspNam);
+    // Récupérer le nom de l'inspecteur (si nécessaire)
+//    const InspNam = await getInspectorName(inspection.inspector_id);
+//    console.error (InspNam);
 //      // Mettre à jour le DOM seulement après avoir résolu toutes les promesses
 //      const inspectionSection = infoPanel.querySelector('.info-section:nth-child(1)');
 //      inspectionSection.innerHTML = `
@@ -321,7 +321,7 @@ function showShelterDetails(shelter) {
 //        <p>${formattedDate} par ${inspectorName}</p>
 //      `;
     } catch (error) {
-//      console.error("Erreur lors de l'affichage des détails:", error);
+      console.error("Erreur lors de l'affichage des détails:", error);
     }
 
     // Récupérer le nom de l'inspecteur (si nécessaire)
