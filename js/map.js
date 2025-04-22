@@ -310,18 +310,19 @@ function showShelterDetails(shelter) {
     
     const inspectionSection = infoPanel.querySelector('.info-section:nth-child(1)');
     
-//    try {
+    try {
 //    // Récupérer le nom de l'inspecteur (si nécessaire)
-//    const IInspectorName = await getInspectorName(shelter.lastInspection.inspector_id);
+    const InspNam = await getInspectorName(inspection.inspector_id);
+    console.error (InspNam);
 //      // Mettre à jour le DOM seulement après avoir résolu toutes les promesses
 //      const inspectionSection = infoPanel.querySelector('.info-section:nth-child(1)');
 //      inspectionSection.innerHTML = `
 //        <div class="info-title">Dernière inspection</div>
 //        <p>${formattedDate} par ${inspectorName}</p>
 //      `;
-//    } catch (error) {
+    } catch (error) {
 //      console.error("Erreur lors de l'affichage des détails:", error);
-//    }
+    }
 
     // Récupérer le nom de l'inspecteur (si nécessaire)
     getInspectorName(inspection.inspector_id).then((InspectorName) => {
@@ -403,7 +404,6 @@ async function getInspectorName(inspectorId) {
       const data = inspectorDoc.data();
       // Vérifier si le champ 'name' existe
       if (data && data.name) {
-        console.error(data);
         console.error(data.name);
         return data.name;
       } else {
