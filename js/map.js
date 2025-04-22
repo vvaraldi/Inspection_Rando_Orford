@@ -312,7 +312,7 @@ function showShelterDetails(shelter) {
     
     try {
 //    // Récupérer le nom de l'inspecteur (si nécessaire)
-//    const inspectorName = await getInspectorName(shelter.lastInspection.inspector_id);
+    const IInspectorName = await getInspectorName(shelter.lastInspection.inspector_id);
 //      // Mettre à jour le DOM seulement après avoir résolu toutes les promesses
 //      const inspectionSection = infoPanel.querySelector('.info-section:nth-child(1)');
 //      inspectionSection.innerHTML = `
