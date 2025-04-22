@@ -403,8 +403,8 @@ async function getInspectorName(inspectorId) {
       const data = inspectorDoc.data();
       // Vérifier si le champ 'name' existe
       if (data && data.name) {
-        return data.name;
         console.error(data);
+        return data.name;
       } else {
         console.warn(`Le champ 'name' est manquant pour l'inspecteur ${inspectorId}`);
         return "Inspecteur sans nom";
