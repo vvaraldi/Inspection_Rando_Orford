@@ -448,7 +448,7 @@ async function showShelterDetails(shelter) {
       }
       
       // Mettre à jour la section d'inspection
-      const inspectionSection = infoPanel.querySelector('.info-section:nth-child(1)');
+      const inspectionSection = infoPanel.querySelector('.info-section:nth-child(2)');
       inspectionSection.innerHTML = `
         <div class="info-title">Dernière inspection   testttttt</div>
       `;
@@ -466,21 +466,21 @@ async function showShelterDetails(shelter) {
 	  
 	  
 	  
-      // Mettre à jour la section des problèmes
-      const issuesSection = infoPanel.querySelector('.info-section:nth-child(2)');
-      let issuesHTML = '';
+//      // Mettre à jour la section des problèmes
+//      const issuesSection = infoPanel.querySelector('.info-section:nth-child(2)');
+//      let issuesHTML = '';
       
-      if (shelter.lastInspection.issues && shelter.lastInspection.issues.length > 0) {
-        shelter.lastInspection.issues.forEach(issue => {
-          issuesHTML += `
-            <div class="issue-item">
-              <p><strong>${issue}</strong></p>
-            </div>
-          `;
-        });
-      } else {
-        issuesHTML = '<p>Aucun problème signalé</p>';
-      }
+//      if (shelter.lastInspection.issues && shelter.lastInspection.issues.length > 0) {
+//        shelter.lastInspection.issues.forEach(issue => {
+//          issuesHTML += `
+//            <div class="issue-item">
+//              <p><strong>${issue}</strong></p>
+//            </div>
+//          `;
+//        });
+//      } else {
+//        issuesHTML = '<p>Aucun problème signalé</p>';
+//      }
       
       issuesSection.innerHTML = `
         <div class="info-title">Problèmes signalés</div>
