@@ -891,7 +891,7 @@ function initFilterControls() {
   const typeFilter = document.getElementById('type-filter');
   const difficultyFilter = document.getElementById('difficulty-filter');
   const dateFilter = document.getElementById('date-filter');  // Nouveau filtre
-  const applyBtn = document.getElementById('apply-filters');
+//  const applyBtn = document.getElementById('apply-filters');
   const resetBtn = document.getElementById('reset-filters');
   
   // Si les éléments n'existent pas, sortir
@@ -900,18 +900,18 @@ function initFilterControls() {
     return;
   }
   
-  // Gestionnaire pour le bouton Appliquer
-  applyBtn.addEventListener('click', function() {
-    // Mettre à jour les filtres actuels
-    currentFilters.status = statusFilter.value;
-    currentFilters.type = typeFilter.value;
-    currentFilters.difficulty = difficultyFilter.value;
-    currentFilters.date = dateFilter.value;  // Nouveau filtre
-    
+  // Fonction pour appliquer les filtres
+  const applyFilters = () => {
     // Afficher l'indicateur de chargement
     if (document.getElementById('map-loading')) {
       document.getElementById('map-loading').style.display = 'flex';
     }
+    
+    // Mettre à jour les filtres actuels
+    currentFilters.status = statusFilter.value;
+    currentFilters.type = typeFilter.value;
+    currentFilters.difficulty = difficultyFilter.value;
+    currentFilters.date = dateFilter.value;
     
     // Petit délai pour permettre à l'indicateur de s'afficher
     setTimeout(() => {
@@ -923,8 +923,14 @@ function initFilterControls() {
         document.getElementById('map-loading').style.display = 'none';
       }
     }, 100);
-  });
+  };
   
+  // Ajouter les écouteurs d'événements pour chaque filtre
+  statusFilter.addEventListener('change', applyFilters);
+  typeFilter.addEventListener('change', applyFilters);
+  difficultyFilter.addEventListener('change', applyFilters);
+  dateFilter.addEventListener('change', applyFilters);
+
   // Gestionnaire pour le bouton Réinitialiser
   resetBtn.addEventListener('click', function() {
     // Réinitialiser les valeurs des filtres
@@ -954,6 +960,10 @@ function initFilterControls() {
         document.getElementById('map-loading').style.display = 'none';
       }
     }, 100);
+
+    // Déclencher manuellement l'événement change pour appliquer les filtres
+    statusFilter.dispatchEvent(new Event('change'));
+	
   });
 }
 
