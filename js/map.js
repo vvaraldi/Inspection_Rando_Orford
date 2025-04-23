@@ -1,5 +1,5 @@
 // Référence à Firestore - supposée être déjà initialisée dans auth.js
-const db = firebase.firestore();
+//const db = firebase.firestore();
 
 /**
  * Fonction principale pour charger les données de la carte
