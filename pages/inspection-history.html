@@ -436,6 +436,34 @@
         grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
       }
     }
+
+    /* Ajout d'un indicateur de chargement */
+    #loading-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(255, 255, 255, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 50;
+    }
+
+    .loading-spinner {
+      border: 4px solid rgba(0, 0, 0, 0.1);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border-left-color: #1a56db;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
@@ -447,222 +475,140 @@
         <a href="trail-inspection.html">Inspection de sentier</a>
         <a href="shelter-inspection.html">Inspection d'abri</a>
         <a href="inspection-history.html" class="active">Historique</a>
+        <a href="admin.html" id="admin-link" style="display: none;">Administration</a>
+        <a href="#" id="login-link">Connexion</a>
       </div>
     </nav>
   </header>
   
-  <main>
-    <div class="page-header">
-      <h1>Historique des inspections</h1>
-      
-      <div class="export-dropdown">
-        <button class="btn btn-secondary">Exporter <span>▼</span></button>
-        <div class="export-dropdown-content">
-          <a href="#" class="export-dropdown-item">Exporter en PDF</a>
-          <a href="#" class="export-dropdown-item">Exporter en CSV</a>
-          <a href="#" class="export-dropdown-item">Exporter en Excel</a>
-        </div>
-      </div>
+  <!-- Indicateur de chargement principal -->
+  <div id="loading">
+    <div style="text-align: center;">
+      <div class="loading-spinner"></div>
+      <p>Vérification de l'authentification...</p>
     </div>
-    
-    <div class="filter-container">
-      <div class="filter-row">
-        <div class="filter-group">
-          <label class="filter-label" for="period-filter">Période</label>
-          <select class="filter-control" id="period-filter">
-            <option value="all">Toutes les dates</option>
-            <option value="today">Aujourd'hui</option>
-            <option value="week">Cette semaine</option>
-            <option value="month">Ce mois</option>
-            <option value="custom">Période personnalisée</option>
-          </select>
-        </div>
+  </div>
+  
+  <!-- Contenu principal - caché initialement -->
+  <div id="main-content" style="display: none;">
+    <main>
+      <div class="page-header">
+        <h1>Historique des inspections</h1>
         
-        <div class="filter-group">
-          <label class="filter-label" for="type-filter">Type</label>
-          <select class="filter-control" id="type-filter">
-            <option value="all">Tous les types</option>
-            <option value="trail">Sentiers</option>
-            <option value="shelter">Abris</option>
-          </select>
-        </div>
-        
-        <div class="filter-group">
-          <label class="filter-label" for="location-filter">Sentier/Abri</label>
-          <select class="filter-control" id="location-filter">
-            <option value="all">Tous</option>
-            <optgroup label="Sentiers">
-              <option value="1">1. La tortue</option>
-              <option value="2">2. Tracé du lynx</option>
-              <option value="3">3. Adams</option>
-              <option value="4">4. Le renard</option>
-              <option value="5">5. Le lièvre</option>
-              <option value="6">6. Le Campagnol</option>
-              <option value="7">7. L'Hermine</option>
-              <option value="8">8. L'Alouette</option>
-              <option value="9">9. L'Urubu</option>
-              <option value="10">10. La Carcajou</option>
-              <option value="11">11. La Mille-Pattes</option>
-            </optgroup>
-            <optgroup label="Abris">
-              <option value="giroux">Mont Giroux</option>
-              <option value="orford">Mont Orford</option>
-              <option value="alfred">Mont Alfred-Desrochers</option>
-            </optgroup>
-          </select>
-        </div>
-        
-        <div class="filter-group">
-          <label class="filter-label" for="status-filter">État</label>
-          <select class="filter-control" id="status-filter">
-            <option value="all">Tous les états</option>
-            <option value="good">Bon</option>
-            <option value="warning">Attention</option>
-            <option value="critical">Critique</option>
-          </select>
-        </div>
-      </div>
-      
-      <div class="filter-row">
-        <div class="filter-group">
-          <label class="filter-label" for="inspector-filter">Inspecteur</label>
-          <select class="filter-control" id="inspector-filter">
-            <option value="all">Tous les inspecteurs</option>
-            <option value="pierre">Pierre Martin</option>
-            <option value="sophie">Sophie Legrand</option>
-            <option value="marc">Marc Dubois</option>
-            <option value="julie">Julie Blanc</option>
-          </select>
-        </div>
-        
-        <div class="filter-group">
-          <label class="filter-label">Recherche</label>
-          <div class="search-box">
-            <span class="search-icon">🔍</span>
-            <input type="text" class="search-input" placeholder="Rechercher...">
+        <div class="export-dropdown">
+          <button class="btn btn-secondary">Exporter <span>▼</span></button>
+          <div class="export-dropdown-content">
+            <a href="#" class="export-dropdown-item" id="export-pdf">Exporter en PDF</a>
+            <a href="#" class="export-dropdown-item" id="export-csv">Exporter en CSV</a>
+            <a href="#" class="export-dropdown-item" id="export-excel">Exporter en Excel</a>
           </div>
         </div>
       </div>
       
-      <div class="filter-buttons">
-        <button class="btn btn-secondary" id="reset-filters">Réinitialiser</button>
-        <button class="btn" id="apply-filters">Appliquer</button>
-      </div>
-    </div>
-    
-    <div class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Type</th>
-            <th>Sentier/Abri</th>
-            <th>Inspecteur</th>
-            <th>État</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>14 avril 2025, 10:45</td>
-            <td><span class="type-badge type-trail">Sentier</span></td>
-            <td>2. Tracé du lynx</td>
-            <td>Pierre Martin</td>
-            <td><span class="status-badge status-warning">Attention</span></td>
-            <td><button class="view-btn" data-id="1">Voir détails</button></td>
-          </tr>
-          <tr>
-            <td>14 avril 2025, 09:30</td>
-            <td><span class="type-badge type-shelter">Abri</span></td>
-            <td>Mont Orford</td>
-            <td>Sophie Legrand</td>
-            <td><span class="status-badge status-warning">Attention</span></td>
-            <td><button class="view-btn" data-id="2">Voir détails</button></td>
-          </tr>
-          <tr>
-            <td>13 avril 2025, 15:20</td>
-            <td><span class="type-badge type-trail">Sentier</span></td>
-            <td>7. L'Hermine</td>
-            <td>Marc Dubois</td>
-            <td><span class="status-badge status-good">Bon</span></td>
-            <td><button class="view-btn" data-id="3">Voir détails</button></td>
-          </tr>
-          <tr>
-            <td>13 avril 2025, 14:05</td>
-            <td><span class="type-badge type-trail">Sentier</span></td>
-            <td>10. La Carcajou</td>
-            <td>Pierre Martin</td>
-            <td><span class="status-badge status-warning">Attention</span></td>
-            <td><button class="view-btn" data-id="4">Voir détails</button></td>
-          </tr>
-          <tr>
-            <td>13 avril 2025, 11:45</td>
-            <td><span class="type-badge type-shelter">Abri</span></td>
-            <td>Mont Giroux</td>
-            <td>Julie Blanc</td>
-            <td><span class="status-badge status-good">Bon</span></td>
-            <td><button class="view-btn" data-id="5">Voir détails</button></td>
-          </tr>
-          <tr>
-            <td>12 avril 2025, 16:30</td>
-            <td><span class="type-badge type-trail">Sentier</span></td>
-            <td>6. Le Campagnol</td>
-            <td>Sophie Legrand</td>
-            <td><span class="status-badge status-critical">Critique</span></td>
-            <td><button class="view-btn" data-id="6">Voir détails</button></td>
-          </tr>
-          <tr>
-            <td>12 avril 2025, 14:15</td>
-            <td><span class="type-badge type-trail">Sentier</span></td>
-            <td>1. La tortue</td>
-            <td>Marc Dubois</td>
-            <td><span class="status-badge status-good">Bon</span></td>
-            <td><button class="view-btn" data-id="7">Voir détails</button></td>
-          </tr>
-          <tr>
-            <td>12 avril 2025, 10:00</td>
-            <td><span class="type-badge type-shelter">Abri</span></td>
-            <td>Mont Alfred-Desrochers</td>
-            <td>Pierre Martin</td>
-            <td><span class="status-badge status-good">Bon</span></td>
-            <td><button class="view-btn" data-id="8">Voir détails</button></td>
-          </tr>
-          <tr>
-            <td>11 avril 2025, 15:40</td>
-            <td><span class="type-badge type-trail">Sentier</span></td>
-            <td>8. L'Alouette</td>
-            <td>Julie Blanc</td>
-            <td><span class="status-badge status-good">Bon</span></td>
-            <td><button class="view-btn" data-id="9">Voir détails</button></td>
-          </tr>
-          <tr>
-            <td>11 avril 2025, 13:10</td>
-            <td><span class="type-badge type-trail">Sentier</span></td>
-            <td>11. La Mille-Pattes</td>
-            <td>Sophie Legrand</td>
-            <td><span class="status-badge status-critical">Critique</span></td>
-            <td><button class="view-btn" data-id="10">Voir détails</button></td>
-          </tr>
-        </tbody>
-      </table>
-      
-      <div class="pagination">
-        <div class="pagination-info">
-          Affichage de 1 à 10 sur 42 entrées
+      <div class="filter-container">
+        <div class="filter-row">
+          <div class="filter-group">
+            <label class="filter-label" for="period-filter">Période</label>
+            <select class="filter-control" id="period-filter">
+              <option value="all">Toutes les dates</option>
+              <option value="today">Aujourd'hui</option>
+              <option value="week">Cette semaine</option>
+              <option value="month">Ce mois</option>
+              <option value="custom">Période personnalisée</option>
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <label class="filter-label" for="type-filter">Type</label>
+            <select class="filter-control" id="type-filter">
+              <option value="all">Tous les types</option>
+              <option value="trail">Sentiers</option>
+              <option value="shelter">Abris</option>
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <label class="filter-label" for="location-filter">Sentier/Abri</label>
+            <select class="filter-control" id="location-filter">
+              <option value="all">Tous</option>
+              <!-- Les options seront chargées dynamiquement -->
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <label class="filter-label" for="status-filter">État</label>
+            <select class="filter-control" id="status-filter">
+              <option value="all">Tous les états</option>
+              <option value="good">Bon</option>
+              <option value="warning">Attention</option>
+              <option value="critical">Critique</option>
+            </select>
+          </div>
         </div>
         
-        <div class="pagination-buttons">
-          <button class="page-btn" disabled>&laquo;</button>
-          <button class="page-btn active">1</button>
-          <button class="page-btn">2</button>
-          <button class="page-btn">3</button>
-          <button class="page-btn">4</button>
-          <button class="page-btn">5</button>
-          <button class="page-btn">&raquo;</button>
+        <div class="filter-row">
+          <div class="filter-group">
+            <label class="filter-label" for="inspector-filter">Inspecteur</label>
+            <select class="filter-control" id="inspector-filter">
+              <option value="all">Tous les inspecteurs</option>
+              <!-- Les options seront chargées dynamiquement -->
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <label class="filter-label">Recherche</label>
+            <div class="search-box">
+              <span class="search-icon">🔍</span>
+              <input type="text" class="search-input" id="search-input" placeholder="Rechercher...">
+            </div>
+          </div>
+        </div>
+        
+        <div class="filter-buttons">
+          <button class="btn btn-secondary" id="reset-filters">Réinitialiser</button>
+          <button class="btn" id="apply-filters">Appliquer</button>
         </div>
       </div>
-    </div>
-  </main>
+      
+      <div class="table-container" style="position: relative;">
+        <!-- Indicateur de chargement pour le tableau -->
+        <div id="loading-overlay" style="display: none;">
+          <div class="loading-spinner"></div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th data-sort="date">Date</th>
+              <th data-sort="type">Type</th>
+              <th data-sort="location">Sentier/Abri</th>
+              <th data-sort="inspector">Inspecteur</th>
+              <th data-sort="condition">État</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="inspections-table">
+            <!-- Les données seront chargées dynamiquement -->
+            <tr>
+              <td colspan="6" style="text-align: center;">Chargement des données...</td>
+            </tr>
+          </tbody>
+        </table>
+        
+        <div class="pagination">
+          <div class="pagination-info" id="pagination-info">
+            Affichage de 1 à 10 sur 0 entrées
+          </div>
+          
+          <div class="pagination-buttons" id="pagination-buttons">
+            <button class="page-btn" disabled>&laquo;</button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">&raquo;</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
   
   <!-- Modal de détails d'inspection -->
   <div id="inspection-modal" class="modal">
@@ -672,138 +618,1048 @@
         <button class="modal-close">&times;</button>
       </div>
       
-      <div class="modal-body">
+      <div class="modal-body" id="modal-content">
+        <!-- Le contenu de la modal sera généré dynamiquement -->
+      </div>
+    </div>
+  </div>
+  
+  <!-- Scripts Firebase nouveau -->
+  <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore-compat.js"></script>
+  
+  <!-- Scripts de l'application -->
+  <script src="../js/auth.js"></script>
+  <script>
+    // Variables pour la pagination et le tri
+    let currentPage = 1;
+    const pageSize = 10;
+    let totalItems = 0;
+    let allInspections = [];
+    let filteredInspections = [];
+    let sortField = 'date';
+    let sortDirection = 'desc';
+    let currentFilters = {
+      period: 'all',
+      type: 'all',
+      location: 'all',
+      status: 'all',
+      inspector: 'all',
+      search: ''
+    };
+
+    // Référence à Storage
+    const storage = firebase.storage();
+    
+    // Éléments du DOM
+    const loadingOverlay = document.getElementById('loading-overlay');
+    const inspectionsTable = document.getElementById('inspections-table');
+    const paginationInfo = document.getElementById('pagination-info');
+    const paginationButtons = document.getElementById('pagination-buttons');
+    const modal = document.getElementById('inspection-modal');
+    
+    // Initialisation lors du chargement du document
+    document.addEventListener('DOMContentLoaded', function() {
+      // Après authentification, auth.js affichera le contenu principal
+      // et appellera loadInspectionHistory
+      
+      // Configurer les filtres
+      setupFilters();
+      
+      // Configurer le tri
+      setupTableSorting();
+      
+      // Configurer la pagination
+      setupPagination();
+      
+      // Configurer la modal
+      setupModal();
+      
+      // Configurer l'exportation
+      setupExport();
+    });
+
+    // Fonction appelée après l'authentification réussie
+    async function loadInspectionHistory() {
+      try {
+        showLoading(true);
+        
+        // Charger les données des emplacements pour les filtres
+        await loadLocationsForFilter();
+        
+        // Charger les données des inspecteurs pour les filtres
+        await loadInspectorsForFilter();
+        
+        // Charger toutes les inspections
+        await loadAllInspections();
+        
+        // Appliquer les filtres par défaut
+        applyFilters();
+        
+        showLoading(false);
+      } catch (error) {
+        console.error("Erreur lors du chargement de l'historique:", error);
+        showLoading(false);
+        // Afficher un message d'erreur
+        inspectionsTable.innerHTML = `
+          <tr>
+            <td colspan="6" style="text-align: center; color: #e02424;">
+              Erreur lors du chargement des données. Veuillez réessayer.
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    // Charger les données des sentiers et abris pour le filtre
+    async function loadLocationsForFilter() {
+      try {
+        const locationFilter = document.getElementById('location-filter');
+        locationFilter.innerHTML = '<option value="all">Tous</option>';
+        
+        // Groupe pour les sentiers
+        const trailOptgroup = document.createElement('optgroup');
+        trailOptgroup.label = "Sentiers";
+        
+        // Récupérer les sentiers
+        const trailsSnapshot = await db.collection('trails').orderBy('name').get();
+        trailsSnapshot.forEach(doc => {
+          const trail = doc.data();
+          const option = document.createElement('option');
+          option.value = doc.id;
+          option.textContent = `${trail.name}`;
+          trailOptgroup.appendChild(option);
+        });
+        
+        // Groupe pour les abris
+        const shelterOptgroup = document.createElement('optgroup');
+        shelterOptgroup.label = "Abris";
+        
+        // Récupérer les abris
+        const sheltersSnapshot = await db.collection('shelters').orderBy('name').get();
+        sheltersSnapshot.forEach(doc => {
+          const shelter = doc.data();
+          const option = document.createElement('option');
+          option.value = doc.id;
+          option.textContent = `${shelter.name}`;
+          shelterOptgroup.appendChild(option);
+        });
+        
+        // Ajouter les groupes au select
+        locationFilter.appendChild(trailOptgroup);
+        locationFilter.appendChild(shelterOptgroup);
+      } catch (error) {
+        console.error("Erreur lors du chargement des emplacements:", error);
+      }
+    }
+
+    // Charger les données des inspecteurs pour le filtre
+    async function loadInspectorsForFilter() {
+      try {
+        const inspectorFilter = document.getElementById('inspector-filter');
+        inspectorFilter.innerHTML = '<option value="all">Tous les inspecteurs</option>';
+        
+        // Récupérer les inspecteurs
+        const inspectorsSnapshot = await db.collection('inspectors').orderBy('name').get();
+        inspectorsSnapshot.forEach(doc => {
+          const inspector = doc.data();
+          if (inspector.status === 'active') {
+            const option = document.createElement('option');
+            option.value = doc.id;
+            option.textContent = inspector.name;
+            inspectorFilter.appendChild(option);
+          }
+        });
+      } catch (error) {
+        console.error("Erreur lors du chargement des inspecteurs:", error);
+      }
+    }
+
+    // Charger toutes les inspections
+    async function loadAllInspections() {
+      allInspections = [];
+      
+      // Récupérer les inspections de sentiers
+      const trailInspections = await loadTrailInspections();
+      
+      // Récupérer les inspections d'abris
+      const shelterInspections = await loadShelterInspections();
+      
+      // Combiner les deux types d'inspection
+      allInspections = [...trailInspections, ...shelterInspections];
+      
+      // Trier par date décroissante (plus récent en premier)
+      allInspections.sort((a, b) => b.date.getTime() - a.date.getTime());
+      
+      return allInspections;
+    }
+
+    // Charger les inspections de sentiers
+    async function loadTrailInspections() {
+      const trailInspections = [];
+      
+      try {
+        // Récupérer toutes les inspections de sentiers
+        const snapshot = await db.collection('trail_inspections')
+          .orderBy('date', 'desc')
+          .get();
+        
+        // Créer une map des sentiers pour accéder rapidement aux noms
+        const trailsMap = await getTrailsMap();
+        
+        // Créer une map des inspecteurs pour accéder rapidement aux noms
+        const inspectorsMap = await getInspectorsMap();
+        
+        for (const doc of snapshot.docs) {
+          const data = doc.data();
+          const trailId = data.trail_id;
+          const inspectorId = data.inspector_id;
+          
+          // Obtenir les informations du sentier
+          const trail = trailsMap.get(trailId) || { name: 'Sentier inconnu' };
+          
+          // Obtenir les informations de l'inspecteur
+          const inspector = inspectorsMap.get(inspectorId) || { name: 'Inspecteur inconnu' };
+          
+          trailInspections.push({
+            id: doc.id,
+            type: 'trail',
+            date: data.date.toDate(),
+            location: trail.name,
+            locationId: trailId,
+            inspector: inspector.name,
+            inspectorId: inspectorId,
+            condition: data.condition || 'not-inspected',
+            issues: data.issues || [],
+            comments: data.comments || '',
+            photos: data.photos || [],
+            rawData: data
+          });
+        }
+      } catch (error) {
+        console.error("Erreur lors du chargement des inspections de sentiers:", error);
+      }
+      
+      return trailInspections;
+    }
+
+    // Charger les inspections d'abris
+    async function loadShelterInspections() {
+      const shelterInspections = [];
+      
+      try {
+        // Récupérer toutes les inspections d'abris
+        const snapshot = await db.collection('shelter_inspections')
+          .orderBy('date', 'desc')
+          .get();
+        
+        // Créer une map des abris pour accéder rapidement aux noms
+        const sheltersMap = await getSheltersMap();
+        
+        // Créer une map des inspecteurs pour accéder rapidement aux noms
+        const inspectorsMap = await getInspectorsMap();
+        
+        for (const doc of snapshot.docs) {
+          const data = doc.data();
+          const shelterId = data.shelter_id;
+          const inspectorId = data.inspector_id;
+          
+          // Obtenir les informations de l'abri
+          const shelter = sheltersMap.get(shelterId) || { name: 'Abri inconnu' };
+          
+          // Obtenir les informations de l'inspecteur
+          const inspector = inspectorsMap.get(inspectorId) || { name: 'Inspecteur inconnu' };
+          
+          shelterInspections.push({
+            id: doc.id,
+            type: 'shelter',
+            date: data.date.toDate(),
+            location: shelter.name,
+            locationId: shelterId,
+            inspector: inspector.name,
+            inspectorId: inspectorId,
+            condition: data.condition || 'not-inspected',
+            issues: data.issues || [],
+            comments: data.comments || '',
+            photos: data.photos || [],
+            rawData: data
+          });
+        }
+      } catch (error) {
+        console.error("Erreur lors du chargement des inspections d'abris:", error);
+      }
+      
+      return shelterInspections;
+    }
+
+    // Obtenir une map des sentiers
+    async function getTrailsMap() {
+      const trailsMap = new Map();
+      
+      try {
+        const snapshot = await db.collection('trails').get();
+        snapshot.forEach(doc => {
+          trailsMap.set(doc.id, doc.data());
+        });
+      } catch (error) {
+        console.error("Erreur lors du chargement des sentiers:", error);
+      }
+      
+      return trailsMap;
+    }
+
+    // Obtenir une map des abris
+    async function getSheltersMap() {
+      const sheltersMap = new Map();
+      
+      try {
+        const snapshot = await db.collection('shelters').get();
+        snapshot.forEach(doc => {
+          sheltersMap.set(doc.id, doc.data());
+        });
+      } catch (error) {
+        console.error("Erreur lors du chargement des abris:", error);
+      }
+      
+      return sheltersMap;
+    }
+
+    // Obtenir une map des inspecteurs
+    async function getInspectorsMap() {
+      const inspectorsMap = new Map();
+      
+      try {
+        const snapshot = await db.collection('inspectors').get();
+        snapshot.forEach(doc => {
+          inspectorsMap.set(doc.id, doc.data());
+        });
+      } catch (error) {
+        console.error("Erreur lors du chargement des inspecteurs:", error);
+      }
+      
+      return inspectorsMap;
+    }
+
+    // Configurer les filtres
+    function setupFilters() {
+      // Événements pour les filtres
+      document.getElementById('reset-filters').addEventListener('click', resetFilters);
+      document.getElementById('apply-filters').addEventListener('click', applyFilters);
+      
+      // Événement de recherche
+      document.getElementById('search-input').addEventListener('input', function() {
+        // Appliquer la recherche après un court délai pour éviter trop de requêtes
+        clearTimeout(this.searchTimeout);
+        this.searchTimeout = setTimeout(() => {
+          currentFilters.search = this.value.trim().toLowerCase();
+          applyFilters();
+        }, 300);
+      });
+    }
+
+    // Réinitialiser tous les filtres
+    function resetFilters() {
+      document.getElementById('period-filter').value = 'all';
+      document.getElementById('type-filter').value = 'all';
+      document.getElementById('location-filter').value = 'all';
+      document.getElementById('status-filter').value = 'all';
+      document.getElementById('inspector-filter').value = 'all';
+      document.getElementById('search-input').value = '';
+      
+      currentFilters = {
+        period: 'all',
+        type: 'all',
+        location: 'all',
+        status: 'all',
+        inspector: 'all',
+        search: ''
+      };
+      
+      applyFilters();
+    }
+
+    // Appliquer les filtres
+    function applyFilters() {
+      showLoading(true);
+      
+      // Récupérer les valeurs des filtres
+      currentFilters.period = document.getElementById('period-filter').value;
+      currentFilters.type = document.getElementById('type-filter').value;
+      currentFilters.location = document.getElementById('location-filter').value;
+      currentFilters.status = document.getElementById('status-filter').value;
+      currentFilters.inspector = document.getElementById('inspector-filter').value;
+      currentFilters.search = document.getElementById('search-input').value.trim().toLowerCase();
+      
+      // Filtrer les inspections
+      filteredInspections = allInspections.filter(inspection => {
+        // Filtrer par période
+        if (currentFilters.period !== 'all') {
+          const now = new Date();
+          const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          
+          switch (currentFilters.period) {
+            case 'today':
+              if (inspection.date < today) return false;
+              break;
+            case 'week':
+              const weekAgo = new Date(now);
+              weekAgo.setDate(weekAgo.getDate() - 7);
+              if (inspection.date < weekAgo) return false;
+              break;
+            case 'month':
+              const monthAgo = new Date(now);
+              monthAgo.setMonth(monthAgo.getMonth() - 1);
+              if (inspection.date < monthAgo) return false;
+              break;
+          }
+        }
+        
+        // Filtrer par type
+        if (currentFilters.type !== 'all' && inspection.type !== currentFilters.type) {
+          return false;
+        }
+        
+        // Filtrer par emplacement
+        if (currentFilters.location !== 'all' && inspection.locationId !== currentFilters.location) {
+          return false;
+        }
+        
+        // Filtrer par état
+        if (currentFilters.status !== 'all' && inspection.condition !== currentFilters.status) {
+          return false;
+        }
+        
+        // Filtrer par inspecteur
+        if (currentFilters.inspector !== 'all' && inspection.inspectorId !== currentFilters.inspector) {
+          return false;
+        }
+        
+        // Filtrer par recherche textuelle
+        if (currentFilters.search) {
+          const searchTerms = currentFilters.search.split(' ');
+          
+          // Vérifier si tous les termes sont présents
+          return searchTerms.every(term => {
+            return (
+              inspection.location.toLowerCase().includes(term) ||
+              inspection.inspector.toLowerCase().includes(term) ||
+              inspection.comments.toLowerCase().includes(term) ||
+              inspection.issues.some(issue => issue.toLowerCase().includes(term))
+            );
+          });
+        }
+        
+        return true;
+      });
+      
+      // Appliquer le tri actuel
+      sortInspections(sortField, sortDirection);
+      
+      // Mettre à jour la pagination
+      totalItems = filteredInspections.length;
+      currentPage = 1;
+      updatePagination();
+      
+      // Afficher les résultats
+      displayInspections();
+      
+      showLoading(false);
+    }
+
+    // Configurer le tri des colonnes
+    function setupTableSorting() {
+      document.querySelectorAll('th[data-sort]').forEach(header => {
+        header.addEventListener('click', function() {
+          const field = this.getAttribute('data-sort');
+          
+          // Inverser la direction si on clique sur la colonne déjà triée
+          if (field === sortField) {
+            sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+          } else {
+            sortField = field;
+            sortDirection = 'asc';
+          }
+          
+          // Appliquer le tri
+          sortInspections(sortField, sortDirection);
+          
+          // Mettre à jour l'affichage
+          displayInspections();
+          
+          // Mettre à jour l'indicateur visuel de tri
+          document.querySelectorAll('th[data-sort]').forEach(th => {
+            th.classList.remove('sort-asc', 'sort-desc');
+          });
+          this.classList.add(`sort-${sortDirection}`);
+        });
+      });
+    }
+
+    // Trier les inspections
+    function sortInspections(field, direction) {
+      filteredInspections.sort((a, b) => {
+        let valueA, valueB;
+        
+        switch (field) {
+          case 'date':
+            valueA = a.date.getTime();
+            valueB = b.date.getTime();
+            break;
+          case 'type':
+            valueA = a.type;
+            valueB = b.type;
+            break;
+          case 'location':
+            valueA = a.location;
+            valueB = b.location;
+            break;
+          case 'inspector':
+            valueA = a.inspector;
+            valueB = b.inspector;
+            break;
+          case 'condition':
+            // Ordre personnalisé pour les conditions
+            const order = { 'critical': 0, 'warning': 1, 'good': 2, 'not-inspected': 3 };
+            valueA = order[a.condition];
+            valueB = order[b.condition];
+            break;
+          default:
+            valueA = a.date.getTime();
+            valueB = b.date.getTime();
+        }
+        
+        // Comparer les valeurs en tenant compte de la direction du tri
+        if (direction === 'asc') {
+          return valueA > valueB ? 1 : valueA < valueB ? -1 : 0;
+        } else {
+          return valueA < valueB ? 1 : valueA > valueB ? -1 : 0;
+        }
+      });
+    }
+
+    // Configurer la pagination
+    function setupPagination() {
+      document.getElementById('pagination-buttons').addEventListener('click', function(e) {
+        if (e.target.classList.contains('page-btn')) {
+          // Déterminer la page à afficher
+          if (e.target.textContent === '«') {
+            // Bouton précédent
+            if (currentPage > 1) {
+              currentPage--;
+            }
+          } else if (e.target.textContent === '»') {
+            // Bouton suivant
+            if (currentPage < Math.ceil(totalItems / pageSize)) {
+              currentPage++;
+            }
+          } else {
+            // Numéro de page
+            currentPage = parseInt(e.target.textContent);
+          }
+          
+          // Mettre à jour la pagination et l'affichage
+          updatePagination();
+          displayInspections();
+        }
+      });
+    }
+
+    // Mettre à jour la pagination
+    function updatePagination() {
+      const totalPages = Math.ceil(totalItems / pageSize);
+      const startItem = (currentPage - 1) * pageSize + 1;
+      const endItem = Math.min(startItem + pageSize - 1, totalItems);
+      
+      // Mettre à jour l'info de pagination
+      paginationInfo.textContent = `Affichage de ${totalItems > 0 ? startItem : 0} à ${endItem} sur ${totalItems} entrées`;
+      
+      // Générer les boutons de pagination
+      let paginationHTML = '';
+      
+      // Bouton précédent
+      paginationHTML += `<button class="page-btn" ${currentPage === 1 ? 'disabled' : ''}>&laquo;</button>`;
+      
+      // Pages
+      if (totalPages <= 7) {
+        // Afficher toutes les pages si moins de 7
+        for (let i = 1; i <= totalPages; i++) {
+          paginationHTML += `<button class="page-btn ${i === currentPage ? 'active' : ''}">${i}</button>`;
+        }
+      } else {
+        // Afficher un nombre limité de pages avec ellipsis
+        if (currentPage <= 3) {
+          // Près du début
+          for (let i = 1; i <= 5; i++) {
+            paginationHTML += `<button class="page-btn ${i === currentPage ? 'active' : ''}">${i}</button>`;
+          }
+          paginationHTML += `<span class="page-ellipsis">...</span>`;
+          paginationHTML += `<button class="page-btn">${totalPages}</button>`;
+        } else if (currentPage >= totalPages - 2) {
+          // Près de la fin
+          paginationHTML += `<button class="page-btn">1</button>`;
+          paginationHTML += `<span class="page-ellipsis">...</span>`;
+          for (let i = totalPages - 4; i <= totalPages; i++) {
+            paginationHTML += `<button class="page-btn ${i === currentPage ? 'active' : ''}">${i}</button>`;
+          }
+        } else {
+          // Au milieu
+          paginationHTML += `<button class="page-btn">1</button>`;
+          paginationHTML += `<span class="page-ellipsis">...</span>`;
+          for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+            paginationHTML += `<button class="page-btn ${i === currentPage ? 'active' : ''}">${i}</button>`;
+          }
+          paginationHTML += `<span class="page-ellipsis">...</span>`;
+          paginationHTML += `<button class="page-btn">${totalPages}</button>`;
+        }
+      }
+      
+      // Bouton suivant
+      paginationHTML += `<button class="page-btn" ${currentPage === totalPages || totalPages === 0 ? 'disabled' : ''}>&raquo;</button>`;
+      
+      // Mettre à jour les boutons
+      paginationButtons.innerHTML = paginationHTML;
+    }
+
+    // Afficher les inspections pour la page actuelle
+    function displayInspections() {
+      // Calculer les limites de la page actuelle
+      const startIndex = (currentPage - 1) * pageSize;
+      const endIndex = startIndex + pageSize;
+      const pageInspections = filteredInspections.slice(startIndex, endIndex);
+      
+      // Vider le tableau
+      inspectionsTable.innerHTML = '';
+      
+      // Afficher un message si aucune inspection
+      if (pageInspections.length === 0) {
+        inspectionsTable.innerHTML = `
+          <tr>
+            <td colspan="6" style="text-align: center;">Aucune inspection ne correspond à vos critères.</td>
+          </tr>
+        `;
+        return;
+      }
+      
+      // Créer les lignes du tableau
+      pageInspections.forEach(inspection => {
+        const row = document.createElement('tr');
+        
+        // Formater la date
+        const date = inspection.date;
+        const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}, ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+        
+        // Type d'inspection
+        const typeText = inspection.type === 'trail' ? 'Sentier' : 'Abri';
+        const typeClass = inspection.type === 'trail' ? 'type-trail' : 'type-shelter';
+        
+        // État
+        let statusText = '';
+        switch (inspection.condition) {
+          case 'good':
+            statusText = 'Bon';
+            break;
+          case 'warning':
+            statusText = 'Attention';
+            break;
+          case 'critical':
+            statusText = 'Critique';
+            break;
+          default:
+            statusText = 'Non inspecté';
+        }
+        
+        row.innerHTML = `
+          <td>${formattedDate}</td>
+          <td><span class="type-badge ${typeClass}">${typeText}</span></td>
+          <td>${inspection.location}</td>
+          <td>${inspection.inspector}</td>
+          <td><span class="status-badge status-${inspection.condition}">${statusText}</span></td>
+          <td><button class="view-btn" data-id="${inspection.id}" data-type="${inspection.type}">Voir détails</button></td>
+        `;
+        
+        inspectionsTable.appendChild(row);
+      });
+      
+      // Ajouter les événements aux boutons de détails
+      document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const id = this.getAttribute('data-id');
+          const type = this.getAttribute('data-type');
+          showInspectionDetails(id, type);
+        });
+      });
+    }
+
+    // Configurer la modal
+    function setupModal() {
+      // Fermer la modal
+      document.querySelector('.modal-close').addEventListener('click', function() {
+        modal.style.display = 'none';
+      });
+      
+      // Fermer la modal quand on clique en dehors du contenu
+      window.addEventListener('click', function(e) {
+        if (e.target === modal) {
+          modal.style.display = 'none';
+        }
+      });
+    }
+
+    // Afficher les détails d'une inspection
+    async function showInspectionDetails(id, type) {
+      showLoading(true);
+      
+      try {
+        // Récupérer les données de l'inspection
+        let inspectionData;
+        let locationData;
+        let inspectorData;
+        
+        if (type === 'trail') {
+          // Inspection de sentier
+          const doc = await db.collection('trail_inspections').doc(id).get();
+          inspectionData = doc.data();
+          
+          if (inspectionData) {
+            // Récupérer les informations du sentier
+            const trailDoc = await db.collection('trails').doc(inspectionData.trail_id).get();
+            locationData = trailDoc.data();
+            
+            // Récupérer les informations de l'inspecteur
+            const inspectorDoc = await db.collection('inspectors').doc(inspectionData.inspector_id).get();
+            inspectorData = inspectorDoc.data();
+          }
+        } else {
+          // Inspection d'abri
+          const doc = await db.collection('shelter_inspections').doc(id).get();
+          inspectionData = doc.data();
+          
+          if (inspectionData) {
+            // Récupérer les informations de l'abri
+            const shelterDoc = await db.collection('shelters').doc(inspectionData.shelter_id).get();
+            locationData = shelterDoc.data();
+            
+            // Récupérer les informations de l'inspecteur
+            const inspectorDoc = await db.collection('inspectors').doc(inspectionData.inspector_id).get();
+            inspectorData = inspectorDoc.data();
+          }
+        }
+        
+        if (!inspectionData) {
+          throw new Error("Inspection non trouvée");
+        }
+        
+        // Remplir la modal avec les détails
+        fillModalWithInspectionDetails(inspectionData, locationData, inspectorData, type);
+        
+        // Afficher la modal
+        modal.style.display = 'block';
+      } catch (error) {
+        console.error("Erreur lors du chargement des détails de l'inspection:", error);
+        alert("Erreur lors du chargement des détails de l'inspection.");
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    // Remplir la modal avec les détails de l'inspection
+    function fillModalWithInspectionDetails(inspection, location, inspector, type) {
+      const modalContent = document.getElementById('modal-content');
+      
+      // Type d'emplacement
+      const locationTypeText = type === 'trail' ? 'Sentier' : 'Abri';
+      const locationName = location ? location.name : (type === 'trail' ? 'Sentier inconnu' : 'Abri inconnu');
+      
+      // Formater la date
+      const date = inspection.date.toDate();
+      const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}, ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+      
+      // État
+      let statusText = '';
+      switch (inspection.condition) {
+        case 'good':
+          statusText = 'Bon';
+          break;
+        case 'warning':
+          statusText = 'Attention';
+          break;
+        case 'critical':
+          statusText = 'Critique';
+          break;
+        default:
+          statusText = 'Non inspecté';
+      }
+      
+      // Informations spécifiques au type
+      let specificInfoHTML = '';
+      if (type === 'trail' && location) {
+        let difficultyText = '';
+        switch (location.difficulty) {
+          case 'easy':
+            difficultyText = 'Facile';
+            break;
+          case 'medium':
+            difficultyText = 'Intermédiaire';
+            break;
+          case 'hard':
+            difficultyText = 'Difficile';
+            break;
+          default:
+            difficultyText = 'Inconnue';
+        }
+        
+        specificInfoHTML = `
+          <li>
+            <div class="detail-label">Longueur</div>
+            <div class="detail-value">${location.length || '?'} km</div>
+          </li>
+          <li>
+            <div class="detail-label">Difficulté</div>
+            <div class="detail-value">${difficultyText}</div>
+          </li>
+        `;
+      } else if (type === 'shelter' && location) {
+        specificInfoHTML = `
+          <li>
+            <div class="detail-label">Altitude</div>
+            <div class="detail-value">${location.altitude || '?'} m</div>
+          </li>
+        `;
+        
+        if (inspection.cleanliness) {
+          let cleanlinessText = '';
+          switch (inspection.cleanliness) {
+            case 'good':
+              cleanlinessText = 'Propre';
+              break;
+            case 'warning':
+              cleanlinessText = 'Moyen';
+              break;
+            case 'critical':
+              cleanlinessText = 'Sale';
+              break;
+          }
+          
+          specificInfoHTML += `
+            <li>
+              <div class="detail-label">Propreté</div>
+              <div class="detail-value">${cleanlinessText}</div>
+            </li>
+          `;
+        }
+        
+        if (inspection.accessibility) {
+          let accessibilityText = '';
+          switch (inspection.accessibility) {
+            case 'good':
+              accessibilityText = 'Dégagé';
+              break;
+            case 'warning':
+              accessibilityText = 'Partiellement obstrué';
+              break;
+            case 'critical':
+              accessibilityText = 'Bloqué';
+              break;
+          }
+          
+          specificInfoHTML += `
+            <li>
+              <div class="detail-label">Accessibilité</div>
+              <div class="detail-value">${accessibilityText}</div>
+            </li>
+          `;
+        }
+      }
+      
+      // Problèmes signalés
+      let issuesHTML = '';
+      if (inspection.issues && inspection.issues.length > 0) {
+        inspection.issues.forEach(issue => {
+          issuesHTML += `
+            <div class="issue-item">
+              <p><strong>${issue}</strong></p>
+            </div>
+          `;
+        });
+      } else {
+        issuesHTML = '<p>Aucun problème signalé</p>';
+      }
+      
+      // Photos
+      let photosHTML = '';
+      if (inspection.photos && inspection.photos.length > 0) {
+        photosHTML = '<div class="photo-gallery">';
+        inspection.photos.forEach(photoUrl => {
+          photosHTML += `
+            <div class="gallery-image">
+              <img src="${photoUrl}" alt="Photo d'inspection" onclick="window.open('${photoUrl}', '_blank')">
+            </div>
+          `;
+        });
+        photosHTML += '</div>';
+      } else {
+        photosHTML = '<p>Aucune photo disponible</p>';
+      }
+      
+      // Commentaires
+      const comments = inspection.comments || 'Aucun commentaire';
+      
+      // Construction du HTML de la modal
+      modalContent.innerHTML = `
         <div class="inspection-details">
           <div class="detail-box">
             <h3 class="detail-title">Informations générales</h3>
             <ul class="detail-list">
               <li>
                 <div class="detail-label">Type</div>
-                <div class="detail-value"><span class="type-badge type-trail">Sentier</span> 2. Tracé du lynx</div>
+                <div class="detail-value"><span class="type-badge ${type === 'trail' ? 'type-trail' : 'type-shelter'}">${locationTypeText}</span> ${locationName}</div>
               </li>
               <li>
                 <div class="detail-label">Date et heure</div>
-                <div class="detail-value">14 avril 2025, 10:45</div>
+                <div class="detail-value">${formattedDate}</div>
               </li>
               <li>
                 <div class="detail-label">Inspecteur</div>
-                <div class="detail-value">Pierre Martin</div>
+                <div class="detail-value">${inspector ? inspector.name : 'Inspecteur inconnu'}</div>
               </li>
               <li>
                 <div class="detail-label">État général</div>
-                <div class="detail-value"><span class="status-badge status-warning">Attention</span></div>
+                <div class="detail-value"><span class="status-badge status-${inspection.condition}">${statusText}</span></div>
               </li>
             </ul>
           </div>
           
           <div class="detail-box">
             <h3 class="detail-title">Problèmes signalés</h3>
-            <ul class="detail-list issues-list">
-              <li>
-                <div class="detail-value">Neige irrégulière sur le premier tiers du sentier</div>
-              </li>
-              <li>
-                <div class="detail-value">Signalisation endommagée à l'intersection</div>
-              </li>
-            </ul>
+            <div class="issues-list">
+              ${issuesHTML}
+            </div>
           </div>
           
           <div class="detail-box">
             <h3 class="detail-title">Caractéristiques</h3>
             <ul class="detail-list">
-              <li>
-                <div class="detail-label">Longueur</div>
-                <div class="detail-value">0,6 km</div>
-              </li>
-              <li>
-                <div class="detail-label">Difficulté</div>
-                <div class="detail-value">Facile</div>
-              </li>
-              <li>
-                <div class="detail-label">Altitude</div>
-                <div class="detail-value">Mont Giroux (650 m)</div>
-              </li>
+              ${specificInfoHTML}
             </ul>
           </div>
         </div>
         
         <div class="detail-box">
           <h3 class="detail-title">Commentaires</h3>
-          <p style="padding: 0.5rem 0;">
-            Le sentier est généralement en bon état, mais les deux problèmes identifiés nécessitent une intervention. 
-            La signalisation endommagée à l'intersection pourrait poser des problèmes pour les randonneurs moins expérimentés. 
-            Recommandation de réparer la signalisation dans les prochains jours.
-          </p>
+          <p style="padding: 0.5rem 0;">${comments}</p>
         </div>
         
         <h3 class="detail-title" style="margin: 1.5rem 0 0.75rem;">Photos</h3>
-        <div class="photo-gallery">
-          <div class="gallery-image">
-            <img src="https://via.placeholder.com/300x300" alt="Photo d'inspection">
-          </div>
-          <div class="gallery-image">
-            <img src="https://via.placeholder.com/300x300" alt="Photo d'inspection">
-          </div>
-          <div class="gallery-image">
-            <img src="https://via.placeholder.com/300x300" alt="Photo d'inspection">
-          </div>
-        </div>
+        ${photosHTML}
+      `;
+    }
+
+    // Configurer l'exportation
+    function setupExport() {
+      // Exportation en PDF
+      document.getElementById('export-pdf').addEventListener('click', function(e) {
+        e.preventDefault();
+        exportToPDF();
+      });
+      
+      // Exportation en CSV
+      document.getElementById('export-csv').addEventListener('click', function(e) {
+        e.preventDefault();
+        exportToCSV();
+      });
+      
+      // Exportation en Excel
+      document.getElementById('export-excel').addEventListener('click', function(e) {
+        e.preventDefault();
+        exportToExcel();
+      });
+    }
+
+    // Exporter les données en PDF
+    function exportToPDF() {
+      alert('Fonctionnalité d\'exportation PDF en cours de développement.');
+      // Dans une implémentation réelle, utilisez une bibliothèque comme jsPDF
+    }
+
+    // Exporter les données en CSV
+    function exportToCSV() {
+      try {
+        // En-tête CSV
+        let csvContent = "Date,Type,Sentier/Abri,Inspecteur,État,Problèmes,Commentaires\n";
         
-        <h3 class="detail-title" style="margin: 1.5rem 0 0.75rem;">Historique du sentier</h3>
-        <div class="history-chart">
-          <div class="chart-placeholder">
-            Graphique d'historique des inspections
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <script>
-    // Gestion des tris de tableau
-    document.querySelectorAll('th').forEach(header => {
-      header.addEventListener('click', () => {
-        // Dans une implémentation réelle, ajoutez la logique de tri ici
-        console.log('Tri par', header.textContent.trim());
-      });
-    });
-    
-    // Gestion des filtres
-    document.getElementById('reset-filters').addEventListener('click', () => {
-      document.getElementById('period-filter').value = 'all';
-      document.getElementById('type-filter').value = 'all';
-      document.getElementById('location-filter').value = 'all';
-      document.getElementById('status-filter').value = 'all';
-      document.getElementById('inspector-filter').value = 'all';
-      document.querySelector('.search-input').value = '';
-    });
-    
-    document.getElementById('apply-filters').addEventListener('click', () => {
-      // Dans une implémentation réelle, ajoutez la logique de filtrage ici
-      const filters = {
-        period: document.getElementById('period-filter').value,
-        type: document.getElementById('type-filter').value,
-        location: document.getElementById('location-filter').value,
-        status: document.getElementById('status-filter').value,
-        inspector: document.getElementById('inspector-filter').value,
-        search: document.querySelector('.search-input').value
-      };
-      
-      console.log('Filtres appliqués:', filters);
-      
-      // Simuler un retard de chargement
-      alert('Filtres appliqués');
-    });
-    
-    // Gestion de la pagination
-    document.querySelectorAll('.page-btn:not([disabled])').forEach(btn => {
-      btn.addEventListener('click', function() {
-        if (!this.classList.contains('active')) {
-          document.querySelector('.page-btn.active').classList.remove('active');
-          this.classList.add('active');
-          // Dans une implémentation réelle, chargez les données de la page correspondante
-        }
-      });
-    });
-    
-    // Gestion de l'exportation
+        // Ajouter chaque inspection
+        filteredInspections.forEach(inspection => {
+          // Formater la date
+          const date = inspection.date;
+          const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+          
+          // Type
+          const typeText = inspection.type === 'trail' ? 'Sentier' : 'Abri';
+          
+          // État
+          let statusText = '';
+          switch (inspection.condition) {
+            case 'good':
+              statusText = 'Bon';
+              break;
+            case 'warning':
+              statusText = 'Attention';
+              break;
+            case 'critical':
+              statusText = 'Critique';
+              break;
+            default:
+              statusText = 'Non inspecté';
+          }
+          
+          // Problèmes (échapper les virgules)
+          const issues = inspection.issues.length > 0 
+            ? `"${inspection.issues.join('; ').replace(/"/g, '""')}"`
+            : '';
+          
+          // Commentaires (échapper les virgules)
+          const comments = inspection.comments 
+            ? `"${inspection.comments.replace(/"/g, '""')}"`
+            : '';
+          
+          // Ajouter la ligne
+          csvContent += `${formattedDate},${typeText},${inspection.location},${inspection.inspector},${statusText},${issues},${comments}\n`;
+        });
+        
+        // Créer un lien pour télécharger le fichier
+        const encodedUri = encodeURI('data:text/csv;charset=utf-8,' + csvContent);
+        const link = document.createElement('a');
+        link.setAttribute('href', encodedUri);
+        link.setAttribute('download', `inspections_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        
+        // Cliquer sur le lien pour télécharger
+        link.click();
+        
+        // Supprimer le lien
+        document.body.removeChild(link);
+      } catch (error) {
+        console.error("Erreur lors de l'exportation CSV:", error);
+        alert("Erreur lors de l'exportation en CSV.");
+      }
+    }
+
+    // Exporter les données en Excel
+    function exportToExcel() {
+      alert('Fonctionnalité d\'exportation Excel en cours de développement.');
+      // Dans une implémentation réelle, utilisez une bibliothèque comme SheetJS (xlsx)
+    }
+
+    // Afficher/masquer l'indicateur de chargement
+    function showLoading(show) {
+      loadingOverlay.style.display = show ? 'flex' : 'none';
+    }
+
+    // Déclarer loadInspectionHistory comme une fonction globale pour qu'elle soit accessible depuis auth.js
+    window.loadInspectionHistory = loadInspectionHistory;
+  </script>
+</body>
+</html>
+    }

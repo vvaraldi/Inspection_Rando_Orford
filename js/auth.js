@@ -31,7 +31,8 @@ function checkAuthStatus() {
     if (user) {
       // Utilisateur connecté
       console.log("Utilisateur connecté:", user.email);
-      
+	loadInspectionHistory();
+	
       // Mettre à jour le lien de connexion pour afficher "Déconnexion"
       if (loginLink) {
         loginLink.textContent = 'Déconnexion';
