@@ -365,19 +365,19 @@ async function showTrailDetails(trail) {
     }
   } else {
     // Aucune inspection trouvée
-    const inspectionSection = infoPanel.querySelector('.info-section:nth-child(1)');
+    const inspectionSection = selected-info.querySelector('.info-section:nth-child(1)');
     inspectionSection.innerHTML = `
       <div class="info-title">Dernière inspection</div>
       <p>Aucune inspection récente</p>
     `;
     
-    const issuesSection = infoPanel.querySelector('.info-section:nth-child(2)');
+    const issuesSection = selected-info.querySelector('.info-section:nth-child(2)');
     issuesSection.innerHTML = `
       <div class="info-title">Problèmes signalés</div>
       <p>Aucune information disponible</p>
     `;
     
-    const historySection = infoPanel.querySelector('.info-section:nth-child(3)');
+    const historySection = selected-info.querySelector('.info-section:nth-child(3)');
     historySection.innerHTML = `
       <div class="info-title">Historique</div>
       <p>Aucune inspection enregistrée</p>
