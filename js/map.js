@@ -327,14 +327,14 @@ async function showTrailDetails(trail) {
       }
       
       // Mettre à jour la section d'inspection
-      const inspectionSection = infoPanel.querySelector('.info-section:nth-child(1)');
+      const inspectionSection = selected-info.querySelector('.info-section:nth-child(1)');
       inspectionSection.innerHTML = `
         <div class="info-title">Dernière inspection</div>
         <p>${formattedDate} par ${inspectorName}</p>
       `;
       
       // Mettre à jour la section des problèmes
-      const issuesSection = infoPanel.querySelector('.info-section:nth-child(2)');
+      const issuesSection = selected-info.querySelector('.info-section:nth-child(2)');
       let issuesHTML = '';
       
       if (trail.lastInspection.issues && trail.lastInspection.issues.length > 0) {
@@ -385,7 +385,7 @@ async function showTrailDetails(trail) {
   }
   
   // Mettre à jour les caractéristiques du sentier
-  const characteristicsSection = infoPanel.querySelector('.info-section:nth-child(4)');
+  const characteristicsSection = selected-info.querySelector('.info-section:nth-child(4)');
   
   let difficultyText = "Inconnue";
   if (trail.difficulty) {
