@@ -325,6 +325,9 @@ function showShelterDetails(shelter) {
 //    }
 
     // Récupérer le nom de l'inspecteur (si nécessaire)
+	
+	console.warning(getInspectorName(inspection.inspector_id));
+	
     getInspectorName(inspection.inspector_id).then((InspectorName) => {
       // Mise à jour de la section "Dernière inspection"
       const inspectionSection = detailsPanel.querySelector('.info-section:nth-child(1)');
