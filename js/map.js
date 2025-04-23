@@ -224,7 +224,8 @@ function displayShelterMarkers(shelters) {
   shelters.forEach(shelter => {
     // Créer l'élément du marqueur
     const marker = document.createElement('div');
-    marker.className = `trail-marker shelter-marker marker-${shelter.status}`;
+    marker.className = `trail-marker marker-${shelter.status}`;
+//    marker.className = `trail-marker shelter-marker marker-${shelter.status}`;
     marker.innerHTML = `<span>A` + shelter.id.replace('shelter_', '') + '</span>';
 //    marker.style.backgroundColor = '#8b5cf6'; // Couleur violette pour les abris
     marker.setAttribute('data-id', shelter.id);
