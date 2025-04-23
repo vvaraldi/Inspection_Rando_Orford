@@ -624,11 +624,16 @@
     </div>
   </div>
   
-  <!-- Scripts Firebase nouveau -->
+  <!-- Scripts Firebase nouveau 
   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore-compat.js"></script>-->
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage-compat.js"></script>
+
   
   <!-- Scripts de l'application -->
   <script src="../js/auth.js"></script>
@@ -658,7 +663,16 @@
     const modal = document.getElementById('inspection-modal');
     
     // Référence à Storage
-	const storage = firebase.firestore ? firebase.storage() : null;
+let storage = null;
+try {
+  if (typeof firebase !== 'undefined' && firebase.storage) {
+    storage = firebase.storage();
+  } else {
+    console.warn("Firebase Storage n'est pas disponible");
+  }
+} catch (error) {
+  console.error("Erreur lors de l'initialisation de Firebase Storage:", error);
+}
     
 // Initialisation lors du chargement du document
 document.addEventListener('DOMContentLoaded', function() {
