@@ -650,9 +650,6 @@
       search: ''
     };
 
-    // Référence à Storage
-    const storage = firebase.storage();
-    
     // Éléments du DOM
     const loadingOverlay = document.getElementById('loading-overlay');
     const inspectionsTable = document.getElementById('inspections-table');
@@ -660,26 +657,63 @@
     const paginationButtons = document.getElementById('pagination-buttons');
     const modal = document.getElementById('inspection-modal');
     
-    // Initialisation lors du chargement du document
-    document.addEventListener('DOMContentLoaded', function() {
-      // Après authentification, auth.js affichera le contenu principal
-      // et appellera loadInspectionHistory
-      
-      // Configurer les filtres
-      setupFilters();
-      
-      // Configurer le tri
-      setupTableSorting();
-      
-      // Configurer la pagination
-      setupPagination();
-      
-      // Configurer la modal
-      setupModal();
-      
-      // Configurer l'exportation
-      setupExport();
-    });
+    // Référence à Storage
+	const storage = firebase.firestore ? firebase.storage() : null;
+    
+// Initialisation lors du chargement du document
+document.addEventListener('DOMContentLoaded', function() {
+  // Configurer les filtres
+  setupFilters();
+  
+  // Configurer le tri
+  setupTableSorting();
+  
+  // Configurer la pagination
+  setupPagination();
+  
+  // Configurer la modal
+  setupModal();
+  
+  // Configurer l'exportation
+  setupExport();
+});
+
+	// Déclarer loadInspectionHistory comme une fonction globale pour qu'elle soit accessible depuis auth.js
+	window.loadInspectionHistory = function() {
+	  try {
+		showLoading(true);
+		
+		// Charger les données des emplacements pour les filtres
+		loadLocationsForFilter().then(() => {
+		  // Charger les données des inspecteurs pour les filtres
+		  return loadInspectorsForFilter();
+		}).then(() => {
+		  // Charger toutes les inspections
+		  return loadAllInspections();
+		}).then(() => {
+		  // Appliquer les filtres par défaut
+		  applyFilters();
+		  showLoading(false);
+		}).catch(error => {
+		  console.error("Erreur lors du chargement de l'historique:", error);
+		  showLoading(false);
+		  // Afficher un message d'erreur
+		  const table = document.getElementById('inspections-table');
+		  if (table) {
+			table.innerHTML = `
+			  <tr>
+				<td colspan="6" style="text-align: center; color: #e02424;">
+				  Erreur lors du chargement des données. Veuillez réessayer.
+				</td>
+			  </tr>
+			`;
+		  }
+		});
+	  } catch (error) {
+		console.error("Erreur lors du chargement de l'historique:", error);
+		showLoading(false);
+	  }
+	};
 
     // Fonction appelée après l'authentification réussie
     async function loadInspectionHistory() {
@@ -1653,9 +1687,12 @@
     }
 
     // Afficher/masquer l'indicateur de chargement
-    function showLoading(show) {
-      loadingOverlay.style.display = show ? 'flex' : 'none';
-    }
+	function showLoading(show) {
+	  const overlay = document.getElementById('loading-overlay');
+	  if (overlay) {
+		overlay.style.display = show ? 'flex' : 'none';
+	  }
+	}
 
     // Déclarer loadInspectionHistory comme une fonction globale pour qu'elle soit accessible depuis auth.js
     window.loadInspectionHistory = loadInspectionHistory;
