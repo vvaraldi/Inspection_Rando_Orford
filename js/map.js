@@ -305,10 +305,10 @@ function showShelterDetails(shelter) {
   if (shelter.latestInspection) {
   
     const inspection = shelter.latestInspection;
-	const date = inspection.date.toDate();
+    const date = inspection.date.toDate();
     const formattedDate = `${date.getDate()} ${getMonthName(date.getMonth())} ${date.getFullYear()}, ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
     
-    const inspectionSection = infoPanel.querySelector('.info-section:nth-child(1)');
+//    const inspectionSection = infoPanel.querySelector('.info-section:nth-child(1)');
     
 //    try {
     // Récupérer le nom de l'inspecteur (si nécessaire)
@@ -326,7 +326,7 @@ function showShelterDetails(shelter) {
 
     // Récupérer le nom de l'inspecteur (si nécessaire)
 	
-	console.warning(getInspectorName(inspection.inspector_id));
+//	console.warning(getInspectorName(inspection.inspector_id));
 	
     getInspectorName(inspection.inspector_id).then((InspectorName) => {
       // Mise à jour de la section "Dernière inspection"
