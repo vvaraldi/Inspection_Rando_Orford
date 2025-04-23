@@ -6,25 +6,37 @@
   <title>SkiTrack - Mont Orford</title>
   <link rel="stylesheet" href="css/styles.css">
   <style>
-    .dashboard-header {
+    /* Styles spécifiques à la page d'accueil */
+    #loading {
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
       align-items: center;
-      margin-bottom: 1.5rem;
+      height: 100vh;
+      width: 100%;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background-color: rgba(255, 255, 255, 0.9);
+      z-index: 100;
     }
     
-    .btn {
-      background-color: #1a56db;
-      color: white;
-      border: none;
-      padding: 0.5rem 1rem;
-      border-radius: 0.25rem;
-      cursor: pointer;
-      font-weight: 500;
+    .loading-spinner {
+      border: 4px solid rgba(0, 0, 0, 0.1);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border-left-color: #1a56db;
+      animation: spin 1s linear infinite;
+      margin-right: 10px;
     }
     
-    .btn:hover {
-      background-color: #1e429f;
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    #main-content {
+      display: none;
     }
     
     .status-cards {
@@ -52,29 +64,6 @@
       font-weight: bold;
     }
     
-    .map-controls {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
-    
-    .filter-box {
-      background-color: white;
-      border-radius: 0.5rem;
-      padding: 1rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      display: flex;
-      gap: 1rem;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    
-    .filter-box select {
-      padding: 0.5rem;
-      border-radius: 0.25rem;
-      border: 1px solid #e5e7eb;
-    }
-    
     .map-container {
       display: flex;
       gap: 1.5rem;
@@ -87,22 +76,33 @@
       border-radius: 0.5rem;
       padding: 1rem;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      height: 700px;
+      height: 600px;
       position: relative;
       overflow: hidden;
+    }
+    
+    #map-loading {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: rgba(255, 255, 255, 0.8);
+      z-index: 10;
     }
     
     .map-bg {
       height: 100%;
       position: relative;
       overflow: auto;
-      display: flex;
-      justify-content: center;
     }
     
     .map-image {
-      max-width: 100%;
-      max-height: 100%;
+      width: 100%;
+      height: 100%;
       object-fit: contain;
     }
     
@@ -139,8 +139,12 @@
       background-color: #9ca3af;
     }
     
+    .shelter-marker {
+      background-color: #8b5cf6;
+    }
+    
     .legend {
-      width: 280px;
+      width: 250px;
       background-color: white;
       border-radius: 0.5rem;
       padding: 1rem;
@@ -160,7 +164,6 @@
       display: flex;
       align-items: center;
       margin-bottom: 0.5rem;
-      font-size: 0.9rem;
     }
     
     .legend-color {
@@ -187,16 +190,8 @@
       background-color: #9ca3af;
     }
     
-    .blue {
-      background-color: #3b82f6;
-    }
-    
-    .dark-blue {
-      background-color: #1e40af;
-    }
-    
-    .black {
-      background-color: #1f2937;
+    .purple {
+      background-color: #8b5cf6;
     }
     
     .info-panel {
@@ -268,37 +263,68 @@
       background-color: #f9fafb;
     }
     
-    .toggle-button {
-      background-color: #f3f4f6;
-      border: 1px solid #d1d5db;
+    .recent-inspections {
+      background-color: white;
+      border-radius: 0.5rem;
+      padding: 1.25rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-top: 2rem;
+    }
+    
+    .recent-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    
+    .recent-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .recent-table th,
+    .recent-table td {
+      padding: 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .recent-table th {
+      font-weight: 500;
+      color: #6b7280;
+    }
+    
+    .type-badge {
+      display: inline-block;
+      padding: 0.125rem 0.375rem;
       border-radius: 0.25rem;
-      padding: 0.5rem 1rem;
-      font-size: 0.875rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    
+    .type-trail {
+      background-color: #dbeafe;
+      color: #1e40af;
+    }
+    
+    .type-shelter {
+      background-color: #f3e8ff;
+      color: #5b21b6;
+    }
+    
+    .view-btn {
+      padding: 0.25rem 0.5rem;
+      background-color: #f3f4f6;
+      color: #4b5563;
+      border: none;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
       cursor: pointer;
     }
     
-    .toggle-button:hover {
+    .view-btn:hover {
       background-color: #e5e7eb;
-    }
-    
-    .difficulty-label {
-      display: inline-block;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      margin-right: 4px;
-    }
-    
-    .difficulty-easy {
-      background-color: #10b981;
-    }
-    
-    .difficulty-medium {
-      background-color: #3b82f6;
-    }
-    
-    .difficulty-hard {
-      background-color: #1f2937;
     }
     
     @media (max-width: 768px) {
@@ -309,36 +335,6 @@
       .legend {
         width: 100%;
       }
-    }
-
-    /* Cacher le contenu principal par défaut */
-    #main-content {
-      display: none;
-    }
-    
-    /* Style pour l'indicateur de chargement */
-    .loading {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      font-size: 1.2rem;
-      color: #6b7280;
-    }
-    
-    .spinner {
-      border: 4px solid rgba(0, 0, 0, 0.1);
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      border-left-color: #1a56db;
-      animation: spin 1s linear infinite;
-      margin-right: 10px;
-    }
-    
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
     }
   </style>
 </head>
@@ -351,267 +347,192 @@
         <a href="pages/trail-inspection.html">Inspection piste</a>
         <a href="pages/shelter-inspection.html">Inspection abri</a>
         <a href="pages/inspection-history.html">Historique</a>
+        <!-- Lien d'administration - caché par défaut -->
         <a href="pages/admin.html" id="admin-link" style="display: none;">Administration</a>
         <a href="#" id="login-link">Connexion</a>
       </div>
     </nav>
   </header>
   
-  <!-- Indicateur de chargement -->
-  <div id="loading" class="loading">
-    <div class="spinner"></div>
-    <span>Vérification de l'authentification...</span>
+  <!-- Indicateur de chargement principal -->
+  <div id="loading">
+    <div style="text-align: center;">
+      <div class="loading-spinner"></div>
+      <p>Vérification de l'authentification...</p>
+    </div>
   </div>
   
-  <!-- Contenu principal (caché initialement) -->
-  <main>
+  <!-- Contenu principal - caché initialement -->
   <div id="main-content">
-    <div class="dashboard-header">
-      <h1>Inspection des pistes de randonnée alpine</h1>
-      <button class="btn" href="pages/trail-inspection.html">+ Nouvelle inspection</button>
-    </div>
-    
-    <div class="status-cards">
-      <div class="card">
-        <div class="card-title">Pistes inspectées aujourd'hui</div>
-        <div class="card-value">6/11</div>
-      </div>
-      <div class="card">
-        <div class="card-title">État général du domaine</div>
-        <div class="card-value">Bon</div>
-      </div>
-      <div class="card">
-        <div class="card-title">Problèmes signalés</div>
-        <div class="card-value">4</div>
-      </div>
-      <div class="card">
-        <div class="card-title">Dernière mise à jour</div>
-        <div class="card-value">14 avril, 10:45</div>
-      </div>
-    </div>
-    
-    <div class="map-controls">
-      <div class="filter-box">
-        <div>
-          <span>Filtre :</span>
-          <select>
-            <option>Tous les états</option>
-            <option>Bon état</option>
-            <option>Attention</option>
-            <option>Critique</option>
-            <option>Non inspecté</option>
-          </select>
+    <main>
+      <div class="dashboard-header">
+        <h1>Tableau de bord des inspections</h1>
+        <div class="user-info">
+          Connecté en tant que: <span id="user-name">Inspecteur</span>
         </div>
-        <div>
-          <span>Date :</span>
-          <select>
-            <option>Aujourd'hui</option>
-            <option>Hier</option>
-            <option>Cette semaine</option>
-          </select>
-        </div>
-        <button class="toggle-button">Voir liste des pistes</button>
       </div>
-    </div>
-    
-    <div class="map-container">
-      <div class="map-view">
-        <div id="map-loading" class="loading-indicator">
-          <div class="spinner"></div>
-          <span>Chargement des données...</span>
+      
+      <!-- Cartes de statistiques -->
+      <div class="status-cards">
+        <div class="card">
+          <div class="card-title">Pistes inspectées aujourd'hui</div>
+          <div class="card-value" id="inspections-today">0/14</div>
         </div>
-        <div class="map-bg">
-          <!-- Image du Mont Orford -->
-          <img src="https://vvaraldi.github.io/Inspection_Rando_Orford/assets/map2.png" alt="Carte des pistes de randonnée alpine du Mont Orford" class="map-image">
+        <div class="card">
+          <div class="card-title">État général du domaine</div>
+          <div class="card-value" id="overall-status">Bon</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Problèmes signalés</div>
+          <div class="card-value" id="reported-issues">0</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Dernière mise à jour</div>
+          <div class="card-value" id="last-update">--:--</div>
+        </div>
+      </div>
+      
+      <!-- Carte et légende -->
+      <div class="map-container">
+        <div class="map-view">
+          <!-- Indicateur de chargement de la carte -->
+          <div id="map-loading">
+            <div class="loading-spinner"></div>
+          </div>
+          <div class="map-bg">
+            <!-- Image de la carte du Mont Orford -->
+            <img src="assets/images/mont-orford-map.jpg" alt="Carte du Mont Orford" class="map-image">
+            <!-- Les marqueurs seront ajoutés dynamiquement ici -->
+          </div>
+        </div>
+        
+        <div class="legend">
+          <div class="legend-section">
+            <div class="legend-title">État des pistes</div>
+            <div class="legend-item">
+              <div class="legend-color green"></div>
+              <span>Bon état</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color orange"></div>
+              <span>Attention</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color red"></div>
+              <span>Critique</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color gray"></div>
+              <span>Non inspecté</span>
+            </div>
+          </div>
           
-          <!-- Marqueurs des pistes - Positions approximatives sur l'image
-          <div class="trail-marker marker-good" style="top: 389px; left: 455px;" title="1. La tortue">1</div>
-          <div class="trail-marker marker-warning" style="top: 316px; left: 224px;" title="2. Tracé du lynx">2</div>
-          <div class="trail-marker marker-good" style="top: 500px; left: 425px;" title="3. Adams">3</div>
-          <div class="trail-marker marker-not-inspected" style="top: 420px; left: 70px;" title="4. Le renard">4</div>
-          <div class="trail-marker marker-warning" style="top: 143px; left: 288px;" title="5. Le lièvre">5</div>
-          <div class="trail-marker marker-critical" style="top: 20px; left: 426px;" title="6. Le Campagnol">6</div>
-          <div class="trail-marker marker-good" style="top: 360px; left: 533px;" title="7. L'Hermine">7</div>
-          <div class="trail-marker marker-good" style="top: 390px; left: 658px;" title="8. L'Alouette">8</div>
-          <div class="trail-marker marker-not-inspected" style="top: 485px; left: 270px;" title="9. L'Urubu">9</div>
-          <div class="trail-marker marker-warning" style="top: 455px; left: 293px;" title="10. La Carcajou">10</div>
-          <div class="trail-marker marker-critical" style="top: 298px; left: 515px;" title="11. La Mille-Pattes">11</div>
-       
-          <!-- Marqueurs des abris
-          <div class="trail-marker marker-good" style="top: 470px; left: 140px; background-color: #8b5cf6;" title="Abri Mont Giroux">A1</div>
-          <div class="trail-marker marker-warning" style="top: 55px; left: 490px; background-color: #8b5cf6;" title="Abri Mont Orford">A2</div>
-          <div class="trail-marker marker-good" style="top: 190px; left: 630px; background-color: #8b5cf6;" title="Abri Mont Alfred-Desrochers">A3</div>
- -->   
-		  
+          <div class="legend-section">
+            <div class="legend-title">Types</div>
+            <div class="legend-item">
+              <div class="legend-color green"></div>
+              <span>Sentiers</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color purple"></div>
+              <span>Abris</span>
+            </div>
+          </div>
+          
+          <div class="legend-section">
+            <div class="legend-title">Difficulté des sentiers</div>
+            <div class="legend-item">
+              <div class="legend-color green"></div>
+              <span>Facile</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color blue"></div>
+              <span>Intermédiaire</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color black" style="background-color: #1f2937;"></div>
+              <span>Difficile</span>
+            </div>
+          </div>
         </div>
       </div>
       
-      <div class="legend">
-        <div class="legend-section">
-          <div class="legend-title">État des pistes</div>
-          <div class="legend-item">
-            <div class="legend-color green"></div>
-            <span>Bon état</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-color orange"></div>
-            <span>Attention</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-color red"></div>
-            <span>Critique</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-color gray"></div>
-            <span>Non inspecté</span>
-          </div>
-        </div>
-        
-        <div class="legend-section">
-          <div class="legend-title">Sentiers d'ascension</div>
-          <div class="legend-item">
-            <span class="difficulty-label difficulty-easy"></span>
-            <span>1. La tortue (1,1 km)</span>
-          </div>
-          <div class="legend-item">
-            <span class="difficulty-label difficulty-easy"></span>
-            <span>2. Tracé du lynx (0,6 km)</span>
-          </div>
-          <div class="legend-item">
-            <span class="difficulty-label difficulty-easy"></span>
-            <span>3. Adams (0,6 km)</span>
-          </div>
-          <div class="legend-item">
-            <span class="difficulty-label difficulty-easy"></span>
-            <span>4. Le renard (2,4 km)</span>
-          </div>
-          <div class="legend-item">
-            <span class="difficulty-label difficulty-medium"></span>
-            <span>5. Le lièvre (1,3 km)</span>
-          </div>
-          <div class="legend-item">
-            <span class="difficulty-label difficulty-hard"></span>
-            <span>6. Le Campagnol (1,5 km)</span>
-          </div>
-          <div class="legend-item">
-            <span class="difficulty-label difficulty-medium"></span>
-            <span>7. L'Hermine (1,8 km)</span>
-          </div>
-          <div class="legend-item">
-            <span class="difficulty-label difficulty-medium"></span>
-            <span>8. L'Alouette (2,4 km)</span>
-          </div>
-          <div class="legend-item">
-            <span class="difficulty-label difficulty-hard"></span>
-            <span>9. L'Urubu (1,2 km)</span>
-          </div>
-          <div class="legend-item">
-            <span class="difficulty-label difficulty-hard"></span>
-            <span>10. La Carcajou (0,8 km)</span>
-          </div>
-          <div class="legend-item">
-            <span class="difficulty-label difficulty-hard"></span>
-            <span>11. La Mille-Pattes (1,5 km)</span>
-          </div>
-        </div>
-        
-        <div class="legend-section">
-          <div class="legend-title">Résumé</div>
-          <div class="legend-item">
-            <span>3 pistes en bon état</span>
-          </div>
-          <div class="legend-item">
-            <span>3 pistes nécessitant attention</span>
-          </div>
-          <div class="legend-item">
-            <span>2 pistes en état critique</span>
-          </div>
-          <div class="legend-item">
-            <span>3 pistes non inspectées</span>
-          </div>
-          <div style="margin-top: 4px;"></div>
-          <div class="legend-item">
-            <span>2 abris en bon état</span>
-          </div>
-          <div class="legend-item">
-            <span>1 abri nécessitant attention</span>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <div class="info-panel">
-      <div class="info-header">
-        <h2>Informations détaillées</h2>
-        <p>Cliquez sur une piste pour voir les détails</p>
-      </div>
-      
-      <div class="selected-info" id="default-info">
-        <p>Sélectionnez une piste sur la carte pour afficher ses informations.</p>
-      </div>
-      
-      <div class="selected-info show" id="piste-info">
+      <!-- Panneau d'informations -->
+      <div class="info-panel">
         <div class="info-header">
-          <h3>2. Tracé du lynx</h3>
-          <span class="status-badge status-warning">Attention</span>
+          <h2>Informations détaillées</h2>
+          <p>Cliquez sur une piste ou un abri pour voir les détails</p>
         </div>
         
-        <div class="info-section">
-          <div class="info-title">Dernière inspection</div>
-          <p>14 avril 2025, 09:15 par Pierre Martin</p>
+        <div class="selected-info show" id="default-info">
+          <p>Sélectionnez une piste ou un abri sur la carte pour afficher ses informations.</p>
         </div>
         
-        <div class="info-section">
-          <div class="info-title">Problèmes signalés</div>
-          <div class="issue-item">
-            <p><strong>Zone glissante</strong> en milieu de parcours après la jonction</p>
+        <div class="selected-info" id="piste-info">
+          <div class="info-header">
+            <h3>Nom du sentier</h3>
+            <span class="status-badge status-good">Bon</span>
           </div>
-          <div class="issue-item">
-            <p><strong>Signalisation endommagée</strong> au départ du sentier</p>
+          
+          <div class="info-section">
+            <div class="info-title">Dernière inspection</div>
+            <p>Date et inspecteur</p>
           </div>
-        </div>
-        
-        <div class="info-section">
-          <div class="info-title">Historique</div>
-          <p>6 inspections cette saison</p>
-          <p>Dernier problème majeur: 28 mars 2025 (arbres tombés)</p>
-        </div>
-        
-        <div class="info-section">
-          <div class="info-title">Caractéristiques</div>
-          <p>Longueur: 0,6 km • Difficulté: Facile • Altitude: Mont Giroux (650 m)</p>
-        </div>
-        
-        <div style="text-align: right">
-          <button class="btn">Voir l'historique complet</button>
+          
+          <div class="info-section">
+            <div class="info-title">Problèmes signalés</div>
+            <!-- Contenu dynamique -->
+          </div>
+          
+          <div class="info-section">
+            <div class="info-title">Historique</div>
+            <p>Informations historiques</p>
+          </div>
+          
+          <div class="info-section">
+            <div class="info-title">Caractéristiques</div>
+            <p>Détails sur le sentier/abri</p>
+          </div>
         </div>
       </div>
-    </div>
-  </main>
-
+      
+      <!-- Tableau des inspections récentes -->
+      <div class="recent-inspections">
+        <div class="recent-header">
+          <h2>Inspections récentes</h2>
+          <a href="pages/inspection-history.html" class="view-btn">Voir tout</a>
+        </div>
+        
+        <table class="recent-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Type</th>
+              <th>Sentier/Abri</th>
+              <th>Inspecteur</th>
+              <th>État</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="recent-inspections-table">
+            <!-- Les inspections récentes seront ajoutées dynamiquement ici -->
+            <tr>
+              <td colspan="6" style="text-align: center;">Chargement des inspections récentes...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
   </div>
-
+  
   <!-- Scripts Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+  
+  <!-- Scripts de l'application -->
   <script src="js/auth.js"></script>
-  <script src="js/db.js"></script>
   <script src="js/map.js"></script>
   <script src="js/dashboard.js"></script>
-
-  <script>
-    // Script pour gérer l'interaction avec la carte
-    document.querySelectorAll('.trail-marker').forEach(marker => {
-      marker.addEventListener('click', () => {
-        document.querySelectorAll('.selected-info').forEach(info => {
-          info.classList.remove('show');
-        });
-        document.getElementById('piste-info').classList.add('show');
-      });
-    });
-
-  </script>
 </body>
 </html>

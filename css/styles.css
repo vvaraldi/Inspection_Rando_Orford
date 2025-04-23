@@ -1,3 +1,6 @@
+/* styles.css - Styles généraux pour l'application SkiTrack */
+
+/* Reset et base */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -8,8 +11,10 @@
 body {
   background-color: #f0f4f8;
   color: #333;
+  line-height: 1.5;
 }
 
+/* En-tête et navigation */
 header {
   background-color: #1a56db;
   color: white;
@@ -36,19 +41,141 @@ nav {
 .nav-links a {
   color: white;
   text-decoration: none;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  transition: background-color 0.2s;
 }
 
-.nav-links a.active {
-  font-weight: bold;
-  border-bottom: 2px solid white;
-  color: #ffffff;
+.nav-links a:hover {
   background-color: rgba(255, 255, 255, 0.1);
 }
 
+.nav-links a.active {
+  background-color: rgba(255, 255, 255, 0.2);
+  font-weight: 500;
+}
+
+/* Conteneur principal */
 main {
   max-width: 1200px;
   margin: 0 auto;
   padding: 1.5rem;
 }
 
-/* Ajoutez ici vos styles complémentaires */
+.page-header, .dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+h1 {
+  font-size: 1.875rem;
+  color: #1f2937;
+}
+
+h2 {
+  font-size: 1.5rem;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+h3 {
+  font-size: 1.25rem;
+  color: #1f2937;
+  margin-bottom: 0.75rem;
+}
+
+p {
+  margin-bottom: 1rem;
+}
+
+/* Boutons */
+.btn {
+  display: inline-block;
+  background-color: #1a56db;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+.btn:hover {
+  background-color: #1e429f;
+}
+
+.btn-secondary {
+  background-color: #6b7280;
+}
+
+.btn-secondary:hover {
+  background-color: #4b5563;
+}
+
+.btn-success {
+  background-color: #0e9f6e;
+}
+
+.btn-success:hover {
+  background-color: #057a55;
+}
+
+.btn-warning {
+  background-color: #ff5a1f;
+}
+
+.btn-warning:hover {
+  background-color: #d03801;
+}
+
+.btn-danger {
+  background-color: #e02424;
+}
+
+.btn-danger:hover {
+  background-color: #b91c1c;
+}
+
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+/* Cartes et conteneurs */
+.card {
+  background-color: white;
+  border-radius: 0.5rem;
+  padding: 1.25rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  margin-bottom: 1rem;
+}
+
+.card-title {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+}
+
+.card-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.status-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+/* Formulaires */
+.form-container {
+  background-color: white;
+  border-radius: 0.5rem;
+  padding: 2rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  margin-bottom: 2rem;
