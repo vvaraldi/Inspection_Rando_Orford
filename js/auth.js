@@ -12,97 +12,246 @@ const firebaseConfig = {
 // Initialisation de Firebase
 firebase.initializeApp(firebaseConfig);
 
-// Fonctions d'authentification
+// Références aux services Firebase
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+/**
+ * Vérifie l'état d'authentification de l'utilisateur
+ * Redirige vers la page de connexion si non connecté
+ * Charge les données du tableau de bord si connecté
+ */
 function checkAuthStatus() {
   const loading = document.getElementById('loading');
   const mainContent = document.getElementById('main-content');
   const loginLink = document.getElementById('login-link');
   const adminLink = document.getElementById('admin-link');
   
-  firebase.auth().onAuthStateChanged(function(user) {
+  auth.onAuthStateChanged(function(user) {
     if (user) {
-      // L'utilisateur est connecté
+      // Utilisateur connecté
       console.log("Utilisateur connecté:", user.email);
       
-      // Mettre à jour l'interface
-      loginLink.textContent = 'Déconnexion';
-      loginLink.onclick = function(e) {
-        e.preventDefault();
-        firebase.auth().signOut().then(() => {
-          window.location.reload();
-        });
-      };
+      // Mettre à jour le lien de connexion pour afficher "Déconnexion"
+      if (loginLink) {
+        loginLink.textContent = 'Déconnexion';
+        loginLink.onclick = function(e) {
+          e.preventDefault();
+          auth.signOut().then(() => {
+            window.location.reload();
+          }).catch(error => {
+            console.error("Erreur lors de la déconnexion:", error);
+          });
+        };
+      }
       
       // Vérifier si l'utilisateur est admin
-      firebase.firestore().collection('inspectors').doc(user.uid).get()
+      db.collection('inspectors').doc(user.uid).get()
         .then((doc) => {
-          if (doc.exists && doc.data().role === 'admin') {
-            // Afficher le lien d'administration
-            adminLink.style.display = 'inline';
+          if (doc.exists) {
+            // Mettre à jour le nom affiché si disponible
+            const userName = document.getElementById('user-name');
+            if (userName && doc.data().name) {
+              userName.textContent = doc.data().name;
+            }
+            
+            // Vérifier si l'utilisateur est admin
+            if (doc.data().role === 'admin' && adminLink) {
+              console.log("L'utilisateur est administrateur");
+              adminLink.style.display = 'inline';
+            }
+          } else {
+            console.warn("Document de l'utilisateur non trouvé dans Firestore");
           }
           
-          // Afficher le contenu principal
+          // Afficher le contenu principal et masquer l'indicateur de chargement
           if (loading) loading.style.display = 'none';
           if (mainContent) mainContent.style.display = 'block';
           
           // Charger les données du tableau de bord
- //         loadDashboardData();
-          loadMapData();
-        })
-        .catch((error) => {
-          console.error("Erreur lors de la vérification des droits:", error);
+          if (typeof loadMapData === 'function') {
+            loadMapData();
+          }
           
-          // Afficher quand même le contenu principal en cas d'erreur
-          if (loading) loading.style.display = 'none';
-          if (mainContent) mainContent.style.display = 'block';
-        });
-    } else {
-      // L'utilisateur n'est pas connecté, rediriger vers la page de connexion
-      console.log("Aucun utilisateur connecté");
-      window.location.href = 'pages/login.html';
-    }
-  });
-}
-
-// Appeler cette fonction après l'initialisation
-document.addEventListener('DOMContentLoaded', function() {
-  checkAdminRights();
-});
-
-// Appel de la fonction au chargement
-document.addEventListener('DOMContentLoaded', checkAuthStatus);
-
-function checkAdminRights() {
-  firebase.auth().onAuthStateChanged(function(user) {
-    if (user) {
-      console.log("Utilisateur connecté:", user.email, "UID:", user.uid);
-      
-      // Vérifier si l'utilisateur est admin
-      firebase.firestore().collection('inspectors').doc(user.uid).get()
-        .then((doc) => {
-          console.log("Document récupéré:", doc.exists ? "Existe" : "N'existe pas");
-          if (doc.exists) {
-            console.log("Données du document:", doc.data());
-            console.log("Rôle de l'utilisateur:", doc.data().role);
-            
-            if (doc.data().role === 'admin') {
-              console.log("L'utilisateur est admin, affichage du lien d'administration");
-              document.getElementById('admin-link').style.display = 'inline';
-            } else {
-              console.log("L'utilisateur n'est pas admin, rôle:", doc.data().role);
-            }
-          } else {
-            console.log("Le document de l'utilisateur n'existe pas dans Firestore");
+          // Si une fonction de chargement du tableau de bord existe, l'appeler
+          if (typeof loadDashboardData === 'function') {
+            loadDashboardData();
           }
         })
         .catch((error) => {
           console.error("Erreur lors de la vérification des droits d'admin:", error);
+          
+          // Afficher quand même le contenu principal en cas d'erreur
+          if (loading) loading.style.display = 'none';
+          if (mainContent) mainContent.style.display = 'block';
+          
+          // Charger les données quand même
+          if (typeof loadMapData === 'function') {
+            loadMapData();
+          }
         });
+    } else {
+      // Utilisateur non connecté
+      console.log("Aucun utilisateur connecté");
+      
+      // Rediriger vers la page de connexion
+      const currentPage = window.location.pathname.split('/').pop();
+      if (currentPage !== 'login.html') {
+        window.location.href = window.location.pathname.includes('/pages/') 
+          ? 'login.html' 
+          : 'pages/login.html';
+      }
     }
   });
 }
 
-// Appeler cette fonction après l'initialisation
+/**
+ * Gère la connexion d'un utilisateur
+ * @param {string} email - Email de l'utilisateur
+ * @param {string} password - Mot de passe de l'utilisateur
+ * @returns {Promise} - Promesse résolue lors de la connexion réussie
+ */
+function loginUser(email, password) {
+  return auth.signInWithEmailAndPassword(email, password)
+    .then((userCredential) => {
+      console.log("Connexion réussie pour:", email);
+      return userCredential.user;
+    });
+}
+
+/**
+ * Déconnecte l'utilisateur actuel
+ * @returns {Promise} - Promesse résolue lors de la déconnexion
+ */
+function logoutUser() {
+  return auth.signOut()
+    .then(() => {
+      console.log("Déconnexion réussie");
+    });
+}
+
+/**
+ * Crée un nouvel utilisateur inspecteur
+ * @param {Object} userData - Données de l'utilisateur
+ * @returns {Promise} - Promesse résolue lors de la création
+ */
+function createInspector(userData) {
+  return auth.createUserWithEmailAndPassword(userData.email, userData.password)
+    .then((userCredential) => {
+      // Ajouter les informations supplémentaires dans Firestore
+      return db.collection('inspectors').doc(userCredential.user.uid).set({
+        name: userData.name,
+        email: userData.email,
+        phone: userData.phone || null,
+        role: userData.role || 'inspector',
+        status: userData.status || 'active',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      }).then(() => {
+        console.log("Inspecteur créé avec succès:", userData.email);
+        return userCredential.user;
+      });
+    });
+}
+
+/**
+ * Crée un administrateur initial (à n'utiliser qu'une seule fois)
+ * @param {string} email - Email de l'administrateur
+ * @param {string} password - Mot de passe de l'administrateur
+ * @param {string} name - Nom de l'administrateur
+ */
+function createInitialAdmin(email, password, name) {
+  auth.createUserWithEmailAndPassword(email, password)
+    .then((userCredential) => {
+      // Ajouter les informations dans Firestore avec le rôle admin
+      return db.collection('inspectors').doc(userCredential.user.uid).set({
+        name: name,
+        email: email,
+        role: 'admin',
+        status: 'active',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    })
+    .then(() => {
+      console.log("Administrateur initial créé avec succès!");
+      alert("Administrateur créé avec succès!");
+    })
+    .catch((error) => {
+      console.error("Erreur lors de la création de l'administrateur:", error);
+      alert("Erreur lors de la création de l'administrateur: " + error.message);
+    });
+}
+
+// Écouter le chargement du document pour vérifier l'authentification
 document.addEventListener('DOMContentLoaded', function() {
-  checkAdminRights();
+  checkAuthStatus();
+  
+  // Gestion du formulaire de connexion sur la page login.html
+  const loginForm = document.getElementById('loginForm');
+  if (loginForm) {
+    loginForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const errorMessage = document.getElementById('error-message');
+      
+      // Masquer les messages d'erreur précédents
+      if (errorMessage) {
+        errorMessage.style.display = 'none';
+        errorMessage.textContent = '';
+      }
+      
+      // Tenter la connexion
+      loginUser(email, password)
+        .then(() => {
+          // Rediriger vers la page principale en cas de succès
+          window.location.href = '../index.html';
+        })
+        .catch((error) => {
+          console.error("Erreur de connexion:", error);
+          
+          // Afficher l'erreur
+          if (errorMessage) {
+            errorMessage.style.display = 'block';
+            
+            switch(error.code) {
+              case 'auth/user-not-found':
+                errorMessage.textContent = 'Aucun utilisateur ne correspond à cette adresse email.';
+                break;
+              case 'auth/wrong-password':
+                errorMessage.textContent = 'Mot de passe incorrect.';
+                break;
+              case 'auth/invalid-email':
+                errorMessage.textContent = 'Adresse email invalide.';
+                break;
+              case 'auth/too-many-requests':
+                errorMessage.textContent = 'Trop de tentatives infructueuses. Veuillez réessayer plus tard.';
+                break;
+              default:
+                errorMessage.textContent = 'Erreur de connexion: ' + error.message;
+            }
+          }
+        });
+    });
+  }
+  
+  // Gestion du bouton de déconnexion global
+  const logoutButton = document.getElementById('logout-btn');
+  if (logoutButton) {
+    logoutButton.addEventListener('click', function(e) {
+      e.preventDefault();
+      logoutUser()
+        .then(() => {
+          window.location.href = window.location.pathname.includes('/pages/') 
+            ? 'login.html' 
+            : 'pages/login.html';
+        })
+        .catch(error => {
+          console.error("Erreur lors de la déconnexion:", error);
+        });
+    });
+  }
 });
+
+// Décommentez la ligne suivante uniquement pour créer un admin initial, puis recommentez-la
+// createInitialAdmin('admin@example.com', 'MotDePasse123', 'Administrateur');
