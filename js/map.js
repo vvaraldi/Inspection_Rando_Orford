@@ -706,8 +706,8 @@ let allShelters = [];
 let currentFilters = {
   status: 'all',
   type: 'all',
-  difficulty: 'all'
-  date: 'all'  // Ajout du filtre par date
+  difficulty: 'all',
+  date: 'all'
 };
 
 /**
