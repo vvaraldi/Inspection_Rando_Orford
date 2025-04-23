@@ -46,7 +46,7 @@ function checkAuthStatus() {
           if (mainContent) mainContent.style.display = 'block';
           
           // Charger les données du tableau de bord
-          loadDashboardData();
+ //         loadDashboardData();
           loadMapData();
         })
         .catch((error) => {
