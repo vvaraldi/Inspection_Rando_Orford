@@ -707,6 +707,7 @@ let currentFilters = {
   status: 'all',
   type: 'all',
   difficulty: 'all'
+  date: 'all'  // Ajout du filtre par date
 };
 
 /**
@@ -781,6 +782,14 @@ async function loadMapData() {
  * Filtre les données selon les critères actuels et affiche les marqueurs
  */
 function displayFilteredMarkers() {
+  // Calculer les dates limites pour les filtres temporels
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const oneWeekAgo = new Date(now);
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+  const oneMonthAgo = new Date(now);
+  oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+  
   // Filtrer les sentiers
   const filteredTrails = allTrails.filter(trail => {
     // Filtre par statut
@@ -795,6 +804,26 @@ function displayFilteredMarkers() {
     
     // Filtre par difficulté
     if (currentFilters.difficulty !== 'all' && trail.difficulty !== currentFilters.difficulty) {
+      return false;
+    }
+
+    // Filtre par date d'inspection
+    if (currentFilters.date !== 'all' && trail.lastInspection) {
+      const inspectionDate = trail.lastInspection.date.toDate();
+      
+      switch (currentFilters.date) {
+        case 'today':
+          if (inspectionDate < today) return false;
+          break;
+        case 'week':
+          if (inspectionDate < oneWeekAgo) return false;
+          break;
+        case 'month':
+          if (inspectionDate < oneMonthAgo) return false;
+          break;
+      }
+    } else if (currentFilters.date !== 'all' && !trail.lastInspection) {
+      // S'il n'y a pas d'inspection et qu'un filtre de date est actif, ne pas afficher
       return false;
     }
     
@@ -819,7 +848,27 @@ function displayFilteredMarkers() {
       return false;
     }
     
-    return true;
+      // Filtre par date d'inspection
+    if (currentFilters.date !== 'all' && shelter.lastInspection) {
+      const inspectionDate = shelter.lastInspection.date.toDate();
+      
+      switch (currentFilters.date) {
+        case 'today':
+          if (inspectionDate < today) return false;
+          break;
+        case 'week':
+          if (inspectionDate < oneWeekAgo) return false;
+          break;
+        case 'month':
+          if (inspectionDate < oneMonthAgo) return false;
+          break;
+      }
+    } else if (currentFilters.date !== 'all' && !shelter.lastInspection) {
+      // S'il n'y a pas d'inspection et qu'un filtre de date est actif, ne pas afficher
+      return false;
+    }
+    
+	return true;
   });
   
   // Afficher les marqueurs filtrés
@@ -841,11 +890,13 @@ function initFilterControls() {
   const statusFilter = document.getElementById('status-filter');
   const typeFilter = document.getElementById('type-filter');
   const difficultyFilter = document.getElementById('difficulty-filter');
+  const dateFilter = document.getElementById('date-filter');  // Nouveau filtre
   const applyBtn = document.getElementById('apply-filters');
   const resetBtn = document.getElementById('reset-filters');
   
   // Si les éléments n'existent pas, sortir
-  if (!statusFilter || !typeFilter || !difficultyFilter) {
+  if (!statusFilter || !typeFilter || !difficultyFilter || !dateFilter) {
+    console.warn("Certains contrôles de filtrage n'ont pas été trouvés");
     return;
   }
   
@@ -855,6 +906,7 @@ function initFilterControls() {
     currentFilters.status = statusFilter.value;
     currentFilters.type = typeFilter.value;
     currentFilters.difficulty = difficultyFilter.value;
+    currentFilters.date = dateFilter.value;  // Nouveau filtre
     
     // Afficher l'indicateur de chargement
     if (document.getElementById('map-loading')) {
@@ -879,11 +931,13 @@ function initFilterControls() {
     statusFilter.value = 'all';
     typeFilter.value = 'all';
     difficultyFilter.value = 'all';
+    dateFilter.value = 'all';  // Nouveau filtre
     
     // Réinitialiser les filtres actuels
     currentFilters.status = 'all';
     currentFilters.type = 'all';
     currentFilters.difficulty = 'all';
+    currentFilters.date = 'all';  // Nouveau filtre
     
     // Afficher l'indicateur de chargement
     if (document.getElementById('map-loading')) {
