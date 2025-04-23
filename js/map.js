@@ -327,14 +327,14 @@ async function showTrailDetails(trail) {
       }
       
       // Mettre à jour la section d'inspection
-      const inspectionSection = infoPanel.querySelector('.info-section:nth-child(1)');
+      const inspectionSection = infoPanel.querySelector('.info-section:nth-child(2)');
       inspectionSection.innerHTML = `
         <div class="info-title">Dernière inspection</div>
         <p>${formattedDate} par ${inspectorName}</p>
       `;
       
       // Mettre à jour la section des problèmes
-      const issuesSection = infoPanel.querySelector('.info-section:nth-child(2)');
+      const issuesSection = infoPanel.querySelector('.info-section:nth-child(3)');
       let issuesHTML = '';
       
       if (trail.lastInspection.issues && trail.lastInspection.issues.length > 0) {
@@ -355,7 +355,7 @@ async function showTrailDetails(trail) {
       `;
       
       // Mettre à jour la section d'historique (peut être personnalisée)
-      const historySection = infoPanel.querySelector('.info-section:nth-child(3)');
+      const historySection = infoPanel.querySelector('.info-section:nth-child(4)');
       historySection.innerHTML = `
         <div class="info-title">Historique</div>
         <p>Dernière inspection: ${formattedDate}</p>
@@ -365,19 +365,19 @@ async function showTrailDetails(trail) {
     }
   } else {
     // Aucune inspection trouvée
-    const inspectionSection = infoPanel.querySelector('.info-section:nth-child(1)');
+    const inspectionSection = infoPanel.querySelector('.info-section:nth-child(2)');
     inspectionSection.innerHTML = `
       <div class="info-title">Dernière inspection</div>
       <p>Aucune inspection récente</p>
     `;
     
-    const issuesSection = infoPanel.querySelector('.info-section:nth-child(2)');
+    const issuesSection = infoPanel.querySelector('.info-section:nth-child(3)');
     issuesSection.innerHTML = `
       <div class="info-title">Problèmes signalés</div>
       <p>Aucune information disponible</p>
     `;
     
-    const historySection = infoPanel.querySelector('.info-section:nth-child(3)');
+    const historySection = infoPanel.querySelector('.info-section:nth-child(4)');
     historySection.innerHTML = `
       <div class="info-title">Historique</div>
       <p>Aucune inspection enregistrée</p>
@@ -385,7 +385,7 @@ async function showTrailDetails(trail) {
   }
   
   // Mettre à jour les caractéristiques du sentier
-  const characteristicsSection = infoPanel.querySelector('.info-section:nth-child(4)');
+  const characteristicsSection = infoPanel.querySelector('.info-section:nth-child(5)');
   
   let difficultyText = "Inconnue";
   if (trail.difficulty) {
@@ -450,37 +450,25 @@ async function showShelterDetails(shelter) {
       // Mettre à jour la section d'inspection
       const inspectionSection = infoPanel.querySelector('.info-section:nth-child(2)');
       inspectionSection.innerHTML = `
-        <div class="info-title">Dernière inspection   testttttt</div>
+        <div class="info-title">Dernière inspection</div>
+        <p>${formattedDate} par ${inspectorName}</p>
       `;
-      
 	  
-//        <p>${formattedDate} par ${inspectorName}</p>
-
-	  
-	  
-	  
-	  
-	  
-	  
-	  
-	  
-	  
-	  
-//      // Mettre à jour la section des problèmes
-//      const issuesSection = infoPanel.querySelector('.info-section:nth-child(2)');
-//      let issuesHTML = '';
-      
-//      if (shelter.lastInspection.issues && shelter.lastInspection.issues.length > 0) {
-//        shelter.lastInspection.issues.forEach(issue => {
-//          issuesHTML += `
-//            <div class="issue-item">
-//              <p><strong>${issue}</strong></p>
-//            </div>
-//          `;
-//        });
-//      } else {
-//        issuesHTML = '<p>Aucun problème signalé</p>';
-//      }
+      // Mettre à jour la section des problèmes
+      const issuesSection = infoPanel.querySelector('.info-section:nth-child(3)');
+      let issuesHTML = '';
+     
+      if (shelter.lastInspection.issues && shelter.lastInspection.issues.length > 0) {
+        shelter.lastInspection.issues.forEach(issue => {
+          issuesHTML += `
+            <div class="issue-item">
+              <p><strong>${issue}</strong></p>
+            </div>
+          `;
+        });
+      } else {
+        issuesHTML = '<p>Aucun problème signalé</p>';
+      }
       
       issuesSection.innerHTML = `
         <div class="info-title">Problèmes signalés</div>
@@ -488,7 +476,7 @@ async function showShelterDetails(shelter) {
       `;
       
       // Mettre à jour la section d'historique (peut être personnalisée)
-      const historySection = infoPanel.querySelector('.info-section:nth-child(3)');
+      const historySection = infoPanel.querySelector('.info-section:nth-child(4)');
       historySection.innerHTML = `
         <div class="info-title">Historique</div>
         <p>Dernière inspection: ${formattedDate}</p>
@@ -516,19 +504,19 @@ async function showShelterDetails(shelter) {
     }
   } else {
     // Aucune inspection trouvée
-    const inspectionSection = infoPanel.querySelector('.info-section:nth-child(1)');
+    const inspectionSection = infoPanel.querySelector('.info-section:nth-child(2)');
     inspectionSection.innerHTML = `
       <div class="info-title">Dernière inspection</div>
       <p>Aucune inspection récente</p>
     `;
     
-    const issuesSection = infoPanel.querySelector('.info-section:nth-child(2)');
+    const issuesSection = infoPanel.querySelector('.info-section:nth-child(3)');
     issuesSection.innerHTML = `
       <div class="info-title">Problèmes signalés</div>
       <p>Aucune information disponible</p>
     `;
     
-    const historySection = infoPanel.querySelector('.info-section:nth-child(3)');
+    const historySection = infoPanel.querySelector('.info-section:nth-child(4)');
     historySection.innerHTML = `
       <div class="info-title">Historique</div>
       <p>Aucune inspection enregistrée</p>
@@ -536,7 +524,7 @@ async function showShelterDetails(shelter) {
   }
   
   // Mettre à jour les caractéristiques de l'abri
-  const characteristicsSection = infoPanel.querySelector('.info-section:nth-child(4)');
+  const characteristicsSection = infoPanel.querySelector('.info-section:nth-child(5)');
   characteristicsSection.innerHTML = `
     <div class="info-title">Caractéristiques</div>
     <p>Altitude: ${shelter.altitude || '?'} m</p>
