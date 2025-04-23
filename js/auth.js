@@ -47,6 +47,7 @@ function checkAuthStatus() {
           
           // Charger les données du tableau de bord
           loadDashboardData();
+          loadMapData();
         })
         .catch((error) => {
           console.error("Erreur lors de la vérification des droits:", error);

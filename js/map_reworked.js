@@ -310,13 +310,13 @@ function showShelterDetails(shelter) {
     const formattedDate = `${date.getDate()} ${getMonthName(date.getMonth())} ${date.getFullYear()}, ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
     
     // Récupérer le nom de l'inspecteur (si nécessaire)
-//    getInspectorName(inspection.inspector_id).then(inspectorName => {
-//      // Mise à jour de la section "Dernière inspection"
-//      const inspectionSection = detailsPanel.querySelector('.info-section:nth-child(1)');
-//      inspectionSection.innerHTML = `
-//        <div class="info-title">Dernière inspection</div>
-//        <p>${formattedDate} par ${inspectorName}</p>
-//      `;
+    getInspectorName(inspection.inspector_id).then(inspectorName => {
+      // Mise à jour de la section "Dernière inspection"
+      const inspectionSection = detailsPanel.querySelector('.info-section:nth-child(1)');
+      inspectionSection.innerHTML = `
+        <div class="info-title">Dernière inspection</div>
+        <p>${formattedDate} par ${inspectorName}</p>
+      `;
       //
 	  
       // Mise à jour de la section "Problèmes signalés"
