@@ -31,7 +31,6 @@ function checkAuthStatus() {
     if (user) {
       // Utilisateur connecté
       console.log("Utilisateur connecté:", user.email);
-	loadInspectionHistory();
 	
       // Mettre à jour le lien de connexion pour afficher "Déconnexion"
       if (loginLink) {
@@ -74,6 +73,10 @@ function checkAuthStatus() {
             loadMapData();
           }
           
+		  // Ajouter cette ligne pour charger l'historique des inspections
+		  if (typeof loadInspectionHistory === 'function') {
+		    loadInspectionHistory();
+		  }
           // Si une fonction de chargement du tableau de bord existe, l'appeler
           if (typeof loadDashboardData === 'function') {
             loadDashboardData();
