@@ -185,8 +185,10 @@ p {
 /*Ajout pour les filtres*/
 /*----------------------*/
   
-  .map-controls {
-  margin-bottom: 1rem;
+.map-controls {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
 }
 
 .filter-box {
