@@ -693,3 +693,220 @@ document.addEventListener('DOMContentLoaded', function() {
   // Décommentez la ligne suivante pour activer
   // setupRealtimeListeners();
 });
+
+
+// ajout pour les filtres
+// ajout pour les filtres
+// ajout pour les filtres
+
+// Variables pour stocker les données et les filtres
+let allTrails = [];
+let allShelters = [];
+let currentFilters = {
+  status: 'all',
+  type: 'all',
+  difficulty: 'all'
+};
+
+/**
+ * Fonction principale pour charger les données de la carte
+ * Récupère les sentiers, abris et leurs dernières inspections
+ */
+async function loadMapData() {
+  try {
+    // Afficher un indicateur de chargement si disponible
+    if (document.getElementById('map-loading')) {
+      document.getElementById('map-loading').style.display = 'flex';
+    }
+    
+    // Récupérer les données des sentiers
+    const trailsSnapshot = await db.collection('trails').get();
+    const trails = [];
+    
+    trailsSnapshot.forEach(doc => {
+      trails.push({
+        id: doc.id,
+        ...doc.data()
+      });
+    });
+    
+    // Récupérer les données des abris
+    const sheltersSnapshot = await db.collection('shelters').get();
+    const shelters = [];
+    
+    sheltersSnapshot.forEach(doc => {
+      shelters.push({
+        id: doc.id,
+        ...doc.data()
+      });
+    });
+    
+    // Récupérer les dernières inspections pour chaque sentier
+    const trailsWithStatus = await getTrailsWithLatestStatus(trails);
+    
+    // Récupérer les dernières inspections pour chaque abri
+    const sheltersWithStatus = await getSheltersWithLatestStatus(shelters);
+    
+    // Stocker les données complètes
+    allTrails = trailsWithStatus;
+    allShelters = sheltersWithStatus;
+    
+    // Masquer l'indicateur de chargement
+    if (document.getElementById('map-loading')) {
+      document.getElementById('map-loading').style.display = 'none';
+    }
+    
+    // Afficher les marqueurs sur la carte (avec filtres)
+    displayFilteredMarkers();
+    
+    // Mettre à jour les statistiques du tableau de bord
+    updateDashboardStats(trailsWithStatus, sheltersWithStatus);
+    
+    console.log("Carte mise à jour avec succès");
+    return { trails: trailsWithStatus, shelters: sheltersWithStatus };
+  } catch (error) {
+    console.error("Erreur lors du chargement des données de la carte:", error);
+    
+    // Masquer l'indicateur de chargement en cas d'erreur
+    if (document.getElementById('map-loading')) {
+      document.getElementById('map-loading').style.display = 'none';
+    }
+    
+    return { trails: [], shelters: [] };
+  }
+}
+
+/**
+ * Filtre les données selon les critères actuels et affiche les marqueurs
+ */
+function displayFilteredMarkers() {
+  // Filtrer les sentiers
+  const filteredTrails = allTrails.filter(trail => {
+    // Filtre par statut
+    if (currentFilters.status !== 'all' && trail.status !== currentFilters.status) {
+      return false;
+    }
+    
+    // Filtre par type (toujours true pour les sentiers si type=all ou type=trail)
+    if (currentFilters.type !== 'all' && currentFilters.type !== 'trail') {
+      return false;
+    }
+    
+    // Filtre par difficulté
+    if (currentFilters.difficulty !== 'all' && trail.difficulty !== currentFilters.difficulty) {
+      return false;
+    }
+    
+    return true;
+  });
+  
+  // Filtrer les abris
+  const filteredShelters = allShelters.filter(shelter => {
+    // Filtre par statut
+    if (currentFilters.status !== 'all' && shelter.status !== currentFilters.status) {
+      return false;
+    }
+    
+    // Filtre par type (toujours true pour les abris si type=all ou type=shelter)
+    if (currentFilters.type !== 'all' && currentFilters.type !== 'shelter') {
+      return false;
+    }
+    
+    // Les abris n'ont pas de difficulté, donc on les affiche toujours 
+    // sauf si un filtre de difficulté est actif
+    if (currentFilters.difficulty !== 'all') {
+      return false;
+    }
+    
+    return true;
+  });
+  
+  // Afficher les marqueurs filtrés
+  displayTrailMarkers(filteredTrails);
+  displayShelterMarkers(filteredShelters);
+  
+  // Mettre à jour le compteur d'éléments affichés si un tel élément existe
+  const filterCounter = document.getElementById('filter-counter');
+  if (filterCounter) {
+    filterCounter.textContent = `${filteredTrails.length + filteredShelters.length} éléments affichés`;
+  }
+}
+
+/**
+ * Initialiser les contrôles de filtrage
+ */
+function initFilterControls() {
+  // Récupérer les éléments de filtrage
+  const statusFilter = document.getElementById('status-filter');
+  const typeFilter = document.getElementById('type-filter');
+  const difficultyFilter = document.getElementById('difficulty-filter');
+  const applyBtn = document.getElementById('apply-filters');
+  const resetBtn = document.getElementById('reset-filters');
+  
+  // Si les éléments n'existent pas, sortir
+  if (!statusFilter || !typeFilter || !difficultyFilter) {
+    return;
+  }
+  
+  // Gestionnaire pour le bouton Appliquer
+  applyBtn.addEventListener('click', function() {
+    // Mettre à jour les filtres actuels
+    currentFilters.status = statusFilter.value;
+    currentFilters.type = typeFilter.value;
+    currentFilters.difficulty = difficultyFilter.value;
+    
+    // Afficher l'indicateur de chargement
+    if (document.getElementById('map-loading')) {
+      document.getElementById('map-loading').style.display = 'flex';
+    }
+    
+    // Petit délai pour permettre à l'indicateur de s'afficher
+    setTimeout(() => {
+      // Appliquer les filtres et mettre à jour la carte
+      displayFilteredMarkers();
+      
+      // Masquer l'indicateur de chargement
+      if (document.getElementById('map-loading')) {
+        document.getElementById('map-loading').style.display = 'none';
+      }
+    }, 100);
+  });
+  
+  // Gestionnaire pour le bouton Réinitialiser
+  resetBtn.addEventListener('click', function() {
+    // Réinitialiser les valeurs des filtres
+    statusFilter.value = 'all';
+    typeFilter.value = 'all';
+    difficultyFilter.value = 'all';
+    
+    // Réinitialiser les filtres actuels
+    currentFilters.status = 'all';
+    currentFilters.type = 'all';
+    currentFilters.difficulty = 'all';
+    
+    // Afficher l'indicateur de chargement
+    if (document.getElementById('map-loading')) {
+      document.getElementById('map-loading').style.display = 'flex';
+    }
+    
+    // Petit délai pour permettre à l'indicateur de s'afficher
+    setTimeout(() => {
+      // Appliquer les filtres et mettre à jour la carte
+      displayFilteredMarkers();
+      
+      // Masquer l'indicateur de chargement
+      if (document.getElementById('map-loading')) {
+        document.getElementById('map-loading').style.display = 'none';
+      }
+    }, 100);
+  });
+}
+
+// Initialisation lors du chargement de la page
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialiser les contrôles de filtrage
+  initFilterControls();
+  
+  // La fonction loadMapData sera appelée après l'authentification
+  // dans auth.js via checkAuthStatus
+});

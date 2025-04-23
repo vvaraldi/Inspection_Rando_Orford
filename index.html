@@ -391,6 +391,44 @@
           <div class="card-value" id="last-update">--:--</div>
         </div>
       </div>
+
+      <!-- filtre pour la carte -->
+      <div class="map-controls">
+        <div class="filter-box">
+          <div>
+            <span>État:</span>
+            <select id="status-filter">
+              <option value="all">Tous les états</option>
+              <option value="good">Bon état</option>
+              <option value="warning">Attention</option>
+              <option value="critical">Critique</option>
+              <option value="not-inspected">Non inspecté</option>
+            </select>
+          </div>
+          <div>
+            <span>Type:</span>
+            <select id="type-filter">
+              <option value="all">Tous</option>
+              <option value="trail">Sentiers uniquement</option>
+              <option value="shelter">Abris uniquement</option>
+            </select>
+          </div>
+          <div>
+            <span>Difficulté:</span>
+            <select id="difficulty-filter">
+              <option value="all">Toutes</option>
+              <option value="easy">Facile</option>
+              <option value="medium">Intermédiaire</option>
+              <option value="hard">Difficile</option>
+            </select>
+          </div>
+          <button id="apply-filters" class="btn">Appliquer</button>
+          <button id="reset-filters" class="btn btn-secondary">Réinitialiser</button>
+        </div>
+        <div class="filter-status">
+          <span id="filter-counter">14 éléments affichés</span>
+        </div>
+      </div>
       
       <!-- Carte et légende -->
       <div class="map-container">
