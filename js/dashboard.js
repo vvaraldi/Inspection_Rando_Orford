@@ -31,11 +31,15 @@ async function loadRecentInspections() {
       </tr>
     `;
     
-    // Charger TOUTES les inspections de sentiers récentes
-    // Nous allons filtrer par sentier unique après
+    // Calculer la date d'il y a 7 jours
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const sevenDaysAgoTimestamp = firebase.firestore.Timestamp.fromDate(sevenDaysAgo);
+    
+    // Charger les inspections de sentiers des 7 derniers jours
     const trailInspectionsSnapshot = await db.collection('trail_inspections')
+      .where('date', '>=', sevenDaysAgoTimestamp)
       .orderBy('date', 'desc')
-      .limit(20) // On prend plus que nécessaire pour avoir assez après filtrage
       .get();
     
     // Charger les données des sentiers
@@ -98,7 +102,7 @@ async function loadRecentInspections() {
     if (recentInspections.length === 0) {
       recentInspectionsTable.innerHTML = `
         <tr>
-          <td colspan="6" style="text-align: center;">Aucune inspection récente</td>
+          <td colspan="6" style="text-align: center;">Aucune inspection récente (moins de 7 jours)</td>
         </tr>
       `;
       return;
