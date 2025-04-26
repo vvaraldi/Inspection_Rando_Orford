@@ -200,7 +200,7 @@ function displayTrailMarkers(trails) {
     
 	
     // AJOUT: Indicateur de problème si l'état est critique ou à surveiller
-    if (trail.status === 'critical' || trail.status === 'warning') {
+    if (trail.lastInspection && trail.lastInspection.issues && trail.lastInspection.issues.length > 0) {
       const problemIndicator = document.createElement('div');
       problemIndicator.className = 'problem-indicator';
       
@@ -208,15 +208,20 @@ function displayTrailMarkers(trails) {
       if (trail.status === 'critical') {
         problemIndicator.innerHTML = '⚠️'; // Emoji d'avertissement
         problemIndicator.style.color = '#ef4444'; // Rouge
-      } else {
+      } else if (trail.status === 'warning') {
         problemIndicator.innerHTML = '⚠'; // Emoji d'avertissement simple
         problemIndicator.style.color = '#f59e0b'; // Orange
+      } else {
+        // Même pour les sentiers en bon état, montrer un indicateur si des problèmes sont signalés
+        problemIndicator.innerHTML = 'ℹ️'; // Emoji d'information
+        problemIndicator.style.color = '#3b82f6'; // Bleu
       }
+
       
       problemIndicator.style.position = 'absolute';
-      problemIndicator.style.top = '-10px';
-      problemIndicator.style.right = '-10px';
-      problemIndicator.style.fontSize = '12px';
+      problemIndicator.style.top = '-5px';
+      problemIndicator.style.right = '-5px';
+      problemIndicator.style.fontSize = '18px';
       
       problemIndicator.style.position = 'relative'; // S'assurer que le positionnement relatif fonctionne
       marker.appendChild(problemIndicator);
@@ -285,12 +290,16 @@ function displayShelterMarkers(shelters) {
       problemIndicator.className = 'problem-indicator';
       
       // Adapter le style selon la gravité
-      if (shelter.status === 'critical') {
+      if (trail.status === 'critical') {
         problemIndicator.innerHTML = '⚠️'; // Emoji d'avertissement
         problemIndicator.style.color = '#ef4444'; // Rouge
-      } else {
+      } else if (trail.status === 'warning') {
         problemIndicator.innerHTML = '⚠'; // Emoji d'avertissement simple
         problemIndicator.style.color = '#f59e0b'; // Orange
+      } else {
+        // Même pour les sentiers en bon état, montrer un indicateur si des problèmes sont signalés
+        problemIndicator.innerHTML = 'ℹ️'; // Emoji d'information
+        problemIndicator.style.color = '#3b82f6'; // Bleu
       }
       
       problemIndicator.style.position = 'absolute';
