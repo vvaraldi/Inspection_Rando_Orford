@@ -277,10 +277,27 @@ function displayShelterMarkers(shelters) {
     });
     
 
-    // AJOUT: Indicateur de problème si l'état est critique ou à surveiller
-    if (shelter.status === 'critical' || shelter.status === 'warning') {
+
+
+    // Préparer le texte du tooltip avec la date de dernière inspection
+    let tooltipText = shelter.name;
+    
+    // Ajouter la date de dernière inspection si disponible
+    if (shelter.lastInspection && shelter.lastInspection.date) {
+      const date = shelter.lastInspection.date.toDate();
+      const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+      tooltipText += `\nDernière inspection: ${formattedDate}`;
+    }
+	
+    // MODIFICATION: Vérifier s'il y a des problèmes signalés dans la dernière inspection
+    if (shelter.lastInspection && shelter.lastInspection.issues && shelter.lastInspection.issues.length > 0) {
+      // Ajouter les problèmes au tooltip
+      tooltipText += `\nProblèmes:\n- ${shelter.lastInspection.issues.join('\n- ')}`;
+      
+      // Ajouter l'indicateur de problème
       const problemIndicator = document.createElement('div');
       problemIndicator.className = 'problem-indicator';
+	  
       
       // Adapter le style selon la gravité
       if (shelter.status === 'critical') {
