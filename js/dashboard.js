@@ -168,3 +168,35 @@ async function loadRecentInspections() {
     }
   }
 }
+
+
+
+
+
+// JavaScript pour le menu mobile
+document.addEventListener('DOMContentLoaded', function() {
+  const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+  const mobileMenuClose = document.getElementById('mobile-menu-close');
+  const mobileNav = document.getElementById('mobile-nav');
+  const mobileLoginLink = document.getElementById('mobile-login-link');
+  
+  // Ouvrir le menu
+  if (mobileMenuBtn) {
+    mobileMenuBtn.addEventListener('click', function() {
+      mobileNav.classList.add('open');
+    });
+  }
+  
+  // Fermer le menu
+  if (mobileMenuClose) {
+    mobileMenuClose.addEventListener('click', function() {
+      mobileNav.classList.remove('open');
+    });
+  }
+  
+  // Synchroniser le lien de connexion mobile avec le lien principal
+  if (mobileLoginLink && loginLink) {
+    mobileLoginLink.textContent = loginLink.textContent;
+    mobileLoginLink.onclick = loginLink.onclick;
+  }
+});

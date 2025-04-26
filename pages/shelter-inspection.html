@@ -217,6 +217,7 @@
   
   <!-- Scripts de l'application -->
   <script src="../js/auth.js"></script>
+  <script src="js/dashboard.js"></script>
   <script>
     // Référence à Storage
     const storage = firebase.storage();
@@ -555,6 +556,16 @@ function fillInspectorField() {
     }
   });
 }
+
+// Adapter les listes déroulantes pour être plus faciles à utiliser sur mobile
+document.querySelectorAll('select').forEach(select => {
+  // Augmenter la taille des options sur mobile
+  select.addEventListener('focus', function() {
+    if (window.innerWidth <= 768) {
+      this.style.fontSize = '16px'; // Évite le zoom automatique sur iOS
+    }
+  });
+});
 
   </script>
 </body>
