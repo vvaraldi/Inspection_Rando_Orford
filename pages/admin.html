@@ -6,6 +6,14 @@
   <title>Administration - SkiTrack</title>
   <link rel="stylesheet" href="../css/styles.css">
   <style>
+/* Améliorer l'affichage sur des écrans plus grands */
+@media (min-width: 1200px) {
+  .admin-panel {
+    grid-template-columns: 2fr 1fr; /* Donner plus d'espace à la liste des inspecteurs */
+    gap: 2rem; /* Augmenter l'espace entre les colonnes */
+  }
+}
+
     .page-header {
       margin-bottom: 1.5rem;
       display: flex;
@@ -25,6 +33,9 @@
       border-radius: 0.5rem;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
       padding: 1.5rem;
+      width: 100%; /* Utiliser toute la largeur disponible */
+      min-width: 800px; /* Définir une largeur minimale */
+      overflow-x: auto; /* Permettre le défilement horizontal si nécessaire */
     }
     
     .admin-section {
@@ -339,6 +350,42 @@
       display: flex; /* Afficher le menu mobile quand il est ouvert */
     }
   }
+
+
+
+/* Améliorer la mise en page du tableau des inspecteurs */
+#inspectors-table {
+  width: 100%; /* Utiliser toute la largeur du conteneur */
+  table-layout: fixed; /* Stabiliser la largeur des colonnes */
+}
+
+/* Définir des largeurs pour les colonnes */
+#inspectors-table th:nth-child(1), 
+#inspectors-table td:nth-child(1) {
+  width: 25%; /* Nom */
+}
+
+#inspectors-table th:nth-child(2), 
+#inspectors-table td:nth-child(2) {
+  width: 25%; /* Email */
+}
+
+#inspectors-table th:nth-child(3), 
+#inspectors-table td:nth-child(3) {
+  width: 15%; /* Téléphone */
+}
+
+#inspectors-table th:nth-child(4), 
+#inspectors-table td:nth-child(4) {
+  width: 15%; /* Statut */
+}
+
+#inspectors-table th:nth-child(5), 
+#inspectors-table td:nth-child(5) {
+  width: 20%; /* Actions */
+}
+
+
 
   </style>
 </head>
