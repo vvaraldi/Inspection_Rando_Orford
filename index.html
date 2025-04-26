@@ -402,10 +402,6 @@
 
       <!-- filtre pour la carte -->
 		<div class="filter-container">
-		  <div class="filter-header">
-			<h3>Filtres</h3>
-			<button id="reset-filters" class="btn btn-sm btn-secondary">Réinitialiser</button>
-		  </div>
 		  
 		  <div class="filter-content">
 			<div class="filter-group">
@@ -460,6 +456,7 @@
 		  
 		  <div class="filter-footer">
 			<span id="filter-counter">14 éléments affichés</span>
+			<button id="reset-filters" class="btn btn-sm btn-secondary">Réinitialiser</button>
 		  </div>
 		</div>
       
@@ -570,8 +567,8 @@
       <!-- Tableau des inspections récentes -->
       <div class="recent-inspections">
         <div class="recent-header">
-          <h2>Inspections récentes</h2>
-          <a href="pages/inspection-history.html" class="view-btn">Voir tout</a>
+          <h2>Inspections récentes de sentier</h2>
+          <a href="pages/inspection-history.html" class="view-btn">Voir toutes les inspections (sentiers et abbris)</a>
         </div>
         
         <table class="recent-table">
@@ -579,10 +576,9 @@
             <tr>
               <th>Date</th>
               <th>Type</th>
-              <th>Sentier/Abri</th>
+              <th>Sentier</th>
               <th>Inspecteur</th>
               <th>État</th>
-<!--               <th>Actions</th> -->
             </tr>
           </thead>
           <tbody id="recent-inspections-table">
