@@ -302,12 +302,12 @@ function displayShelterMarkers(shelters) {
         problemIndicator.style.color = '#ef4444'; // Rouge
       }
       
-      problemIndicator.style.position = 'absolute';
-      problemIndicator.style.top = '-5px';
-      problemIndicator.style.right = '-5px';
-      problemIndicator.style.fontSize = '18px';
+//      problemIndicator.style.position = 'absolute';
+//      problemIndicator.style.top = '-5px';
+//      problemIndicator.style.right = '-5px';
+//      problemIndicator.style.fontSize = '18px';
       
-      marker.style.position = 'relative'; // S'assurer que le positionnement relatif fonctionne
+//      marker.style.position = 'relative'; // S'assurer que le positionnement relatif fonctionne
       marker.appendChild(problemIndicator);
       
       // Ajouter un tooltip avec les problèmes si disponibles
