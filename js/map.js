@@ -770,7 +770,8 @@ let currentFilters = {
   status: 'all',
   type: 'all',
   difficulty: 'all',
-  date: 'all'
+  date: 'all',
+  issues: 'all'
 };
 
 /**
@@ -889,6 +890,21 @@ function displayFilteredMarkers() {
       // S'il n'y a pas d'inspection et qu'un filtre de date est actif, ne pas afficher
       return false;
     }
+
+    // NOUVEAU: Filtre par problèmes
+    if (currentFilters.issues !== 'all') {
+      const hasIssues = trail.lastInspection && 
+                        trail.lastInspection.issues && 
+                        trail.lastInspection.issues.length > 0;
+                        
+      if (currentFilters.issues === 'with-issues' && !hasIssues) {
+        return false;
+      }
+      
+      if (currentFilters.issues === 'without-issues' && hasIssues) {
+        return false;
+      }
+    }
     
     return true;
   });
@@ -931,6 +947,21 @@ function displayFilteredMarkers() {
       return false;
     }
     
+    // NOUVEAU: Filtre par problèmes
+    if (currentFilters.issues !== 'all') {
+      const hasIssues = shelter.lastInspection && 
+                        shelter.lastInspection.issues && 
+                        shelter.lastInspection.issues.length > 0;
+                        
+      if (currentFilters.issues === 'with-issues' && !hasIssues) {
+        return false;
+      }
+      
+      if (currentFilters.issues === 'without-issues' && hasIssues) {
+        return false;
+      }
+    }
+
 	return true;
   });
   
@@ -953,12 +984,12 @@ function initFilterControls() {
   const statusFilter = document.getElementById('status-filter');
   const typeFilter = document.getElementById('type-filter');
   const difficultyFilter = document.getElementById('difficulty-filter');
-  const dateFilter = document.getElementById('date-filter');  // Nouveau filtre
-//  const applyBtn = document.getElementById('apply-filters');
+  const dateFilter = document.getElementById('date-filter');
+  const issuesFilter = document.getElementById('issues-filter');
   const resetBtn = document.getElementById('reset-filters');
   
   // Si les éléments n'existent pas, sortir
-  if (!statusFilter || !typeFilter || !difficultyFilter || !dateFilter) {
+  if (!statusFilter || !typeFilter || !difficultyFilter || !dateFilter || !issuesFilter) {
     console.warn("Certains contrôles de filtrage n'ont pas été trouvés");
     return;
   }
@@ -975,6 +1006,7 @@ function initFilterControls() {
     currentFilters.type = typeFilter.value;
     currentFilters.difficulty = difficultyFilter.value;
     currentFilters.date = dateFilter.value;
+    currentFilters.issues = issuesFilter.value;
     
     // Petit délai pour permettre à l'indicateur de s'afficher
     setTimeout(() => {
@@ -993,6 +1025,7 @@ function initFilterControls() {
   typeFilter.addEventListener('change', applyFilters);
   difficultyFilter.addEventListener('change', applyFilters);
   dateFilter.addEventListener('change', applyFilters);
+  issuesFilter.addEventListener('change', applyFilters);
 
   // Gestionnaire pour le bouton Réinitialiser
   resetBtn.addEventListener('click', function() {
@@ -1000,13 +1033,15 @@ function initFilterControls() {
     statusFilter.value = 'all';
     typeFilter.value = 'all';
     difficultyFilter.value = 'all';
-    dateFilter.value = 'all';  // Nouveau filtre
+    dateFilter.value = 'all';
+    issuesFilter.value = 'all';
     
     // Réinitialiser les filtres actuels
     currentFilters.status = 'all';
     currentFilters.type = 'all';
     currentFilters.difficulty = 'all';
-    currentFilters.date = 'all';  // Nouveau filtre
+    currentFilters.date = 'all';
+    currentFilters.issues = 'all';
     
     // Afficher l'indicateur de chargement
     if (document.getElementById('map-loading')) {

@@ -9,5 +9,3 @@ Visualisation cartographique interactive : Améliorez la carte statique actuelle
 PWA (Progressive Web App) : Transformez l'application en PWA pour une expérience proche d'une application native
 
 Faire un listing des problèmes
-
-Ajouté un marker sur la carte si un problème dans la derniere Inspection_Rando_Orford
