@@ -290,10 +290,10 @@ function displayShelterMarkers(shelters) {
       problemIndicator.className = 'problem-indicator';
       
       // Adapter le style selon la gravité
-      if (trail.status === 'critical') {
+      if (shelter.status === 'critical') {
         problemIndicator.innerHTML = '⚠️'; // Emoji d'avertissement
         problemIndicator.style.color = '#ef4444'; // Rouge
-      } else if (trail.status === 'warning') {
+      } else if (shelter.status === 'warning') {
         problemIndicator.innerHTML = '⚠'; // Emoji d'avertissement simple
         problemIndicator.style.color = '#f59e0b'; // Orange
       } else {
