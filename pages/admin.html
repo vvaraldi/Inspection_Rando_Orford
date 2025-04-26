@@ -883,37 +883,56 @@
       document.getElementById('user-form').addEventListener('submit', function(e) {
         e.preventDefault();
         
-        const name = document.getElementById('user-name').value;
-        const email = document.getElementById('user-email').value;
-        const phone = document.getElementById('user-phone').value;
-        const password = document.getElementById('user-password').value;
-        const status = document.getElementById('user-status').value;
+		const name = document.getElementById('user-name').value;
+		const email = document.getElementById('user-email').value;
+		const phone = document.getElementById('user-phone').value;
+		const password = document.getElementById('user-password').value;
+		const status = document.getElementById('user-status').value;
         
-        // Créer l'utilisateur dans Firebase Auth
-        auth.createUserWithEmailAndPassword(email, password)
-          .then(userCredential => {
-            // Ajouter les informations supplémentaires dans Firestore
-            return db.collection('inspectors').doc(userCredential.user.uid).set({
-              name: name,
-              email: email,
-              phone: phone || null,
-              status: status,
-              role: 'inspector', // Par défaut, rôle d'inspecteur
-              createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-          })
-          .then(() => {
-            showStatus('user-status-message', 'Inspecteur créé avec succès!', 'success');
-            document.getElementById('user-form').reset();
-            
-            // Recharger la liste des inspecteurs
-            loadInspectors();
-          })
-          .catch(error => {
-            console.error("Erreur lors de la création de l'inspecteur:", error);
-            showStatus('user-status-message', 'Erreur: ' + error.message, 'error');
-          });
+		// Désactiver le bouton de soumission pour éviter les soumissions multiples
+		const submitBtn = this.querySelector('button[type="submit"]');
+		if (submitBtn) submitBtn.disabled = true;
+
+  // Créer l'utilisateur dans Firebase Auth
+  auth.createUserWithEmailAndPassword(email, password)
+    .then(userCredential => {
+      console.log("Utilisateur créé dans Auth:", userCredential.user.uid);
+      
+      // IMPORTANT: Ajouter les informations dans Firestore
+      return db.collection('inspectors').doc(userCredential.user.uid).set({
+        name: name,
+        email: email,
+        phone: phone || null,
+        status: status,
+        role: 'inspector', // Par défaut, rôle d'inspecteur
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
+    })
+    .then(() => {
+      console.log("Inspecteur ajouté à Firestore avec succès");
+      
+      // Afficher un message de succès
+      showStatus('user-status-message', 'Inspecteur créé avec succès!', 'success');
+      
+      // Réinitialiser le formulaire
+      document.getElementById('user-form').reset();
+      
+      // Réactiver le bouton de soumission
+      if (submitBtn) submitBtn.disabled = false;
+      
+      // Recharger la liste des inspecteurs
+      loadInspectors();
+    })
+    .catch(error => {
+      console.error("Erreur lors de la création de l'inspecteur:", error);
+      
+      // Afficher l'erreur
+      showStatus('user-status-message', 'Erreur: ' + error.message, 'error');
+      
+      // Réactiver le bouton de soumission
+      if (submitBtn) submitBtn.disabled = false;
+    });
+});
       
       // Boutons de modification
       document.querySelectorAll('.edit-user').forEach(button => {
