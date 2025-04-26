@@ -342,8 +342,96 @@
       }
     }
 	
+	
+	  /* Style pour le menu mobile */
+  .mobile-menu-btn {
+    display: none; /* Caché par défaut sur desktop */
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+  }
+  
+  .mobile-nav {
+    display: none; /* Caché par défaut */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #1a56db;
+    z-index: 1000;
+    flex-direction: column;
+  }
+  
+  .mobile-nav-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  .mobile-nav-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+  }
+  
+  .mobile-nav-links {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+  }
+  
+  .mobile-nav-links a {
+    color: white;
+    text-decoration: none;
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 1.2rem;
+  }
+  
+  .mobile-nav-links a.active {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+  
+  /* Media query pour mobile */
+  @media (max-width: 768px) {
+    .nav-links {
+      display: none; /* Cacher les liens de navigation standard */
+    }
+    
+    .mobile-menu-btn {
+      display: block; /* Afficher le bouton du menu mobile */
+    }
+    
+    .mobile-nav.open {
+      display: flex; /* Afficher le menu mobile quand il est ouvert */
+    }
+  }
+	
   </style>
 </head>
+
+<script>
+  window.onerror = function(message, source, lineno, colno, error) {
+    console.log("Erreur JavaScript: ", message, "à la ligne", lineno, "colonne", colno);
+    console.log("Source:", source);
+    console.log("Erreur complète:", error);
+    
+    // Afficher le contenu en cas d'erreur
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+    
+    return true; // Empêche l'affichage de l'erreur dans la console
+  };
+</script>
+
 <body>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏔️</text></svg>">
   <header>

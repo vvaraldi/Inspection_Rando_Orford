@@ -5,20 +5,130 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SkiTrack - Inspection de sentier</title>
   <link rel="stylesheet" href="../css/styles.css">
+
+<style>
+  /* Style pour le menu mobile */
+  .mobile-menu-btn {
+    display: none; /* Caché par défaut sur desktop */
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+  }
+  
+  .mobile-nav {
+    display: none; /* Caché par défaut */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #1a56db;
+    z-index: 1000;
+    flex-direction: column;
+  }
+  
+  .mobile-nav-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  .mobile-nav-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+  }
+  
+  .mobile-nav-links {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+  }
+  
+  .mobile-nav-links a {
+    color: white;
+    text-decoration: none;
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 1.2rem;
+  }
+  
+  .mobile-nav-links a.active {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+  
+  /* Media query pour mobile */
+  @media (max-width: 768px) {
+    .nav-links {
+      display: none; /* Cacher les liens de navigation standard */
+    }
+    
+    .mobile-menu-btn {
+      display: block; /* Afficher le bouton du menu mobile */
+    }
+    
+    .mobile-nav.open {
+      display: flex; /* Afficher le menu mobile quand il est ouvert */
+    }
+  }
+</style>
+
+
 </head>
+
+<script>
+  window.onerror = function(message, source, lineno, colno, error) {
+    console.log("Erreur JavaScript: ", message, "à la ligne", lineno, "colonne", colno);
+    console.log("Source:", source);
+    console.log("Erreur complète:", error);
+    
+    // Afficher le contenu en cas d'erreur
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+    
+    return true; // Empêche l'affichage de l'erreur dans la console
+  };
+</script>
+
 <body>
   <header>
-    <nav>
-      <div class="logo">SkiTrack - Mont Orford</div>
-      <div class="nav-links">
-        <a href="../index.html">Tableau de bord</a>
-        <a href="trail-inspection.html" class="active">Inspection sentier</a>
-        <a href="shelter-inspection.html">Inspection abri</a>
-        <a href="inspection-history.html">Historique</a>
-        <a href="admin.html" id="admin-link" style="display: none;">Administration</a>
-        <a href="#" id="login-link">Connexion</a>
-      </div>
-    </nav>
+  <nav>
+    <div class="logo">SkiTrack - Mont Orford</div>
+    <!-- Menu desktop -->
+    <div class="nav-links">
+      <a href="../index.html">Tableau de bord</a>
+      <a href="trail-inspection.html" class="active">Inspection sentier</a>
+      <a href="shelter-inspection.html">Inspection abri</a>
+      <a href="inspection-history.html">Historique</a>
+      <a href="admin.html" id="admin-link" style="display: none;">Administration</a>
+      <a href="#" id="login-link">Connexion</a>
+    </div>
+    <!-- Bouton du menu mobile -->
+    <button class="mobile-menu-btn" id="mobile-menu-btn">☰</button>
+  </nav>
+  
+  <!-- Menu mobile -->
+  <div class="mobile-nav" id="mobile-nav">
+    <div class="mobile-nav-header">
+      <div class="logo">SkiTrack</div>
+      <button class="mobile-nav-close" id="mobile-nav-close">✕</button>
+    </div>
+    <div class="mobile-nav-links">
+      <a href="../index.html">Tableau de bord</a>
+      <a href="trail-inspection.html" class="active">Inspection sentier</a>
+      <a href="shelter-inspection.html">Inspection abri</a>
+      <a href="inspection-history.html">Historique</a>
+      <a href="admin.html" id="mobile-admin-link" style="display: none;">Administration</a>
+      <a href="#" id="mobile-login-link">Connexion</a>
+    </div>
+  </div>
   </header>
   
   <!-- Indicateur de chargement principal -->
@@ -156,6 +266,65 @@
     
     // Vérifier l'authentification spécifique à cette page
     document.addEventListener('DOMContentLoaded', function() {
+
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileNavClose = document.getElementById('mobile-nav-close');
+    const mobileNav = document.getElementById('mobile-nav');
+    const mobileLoginLink = document.getElementById('mobile-login-link');
+    const loginLink = document.getElementById('login-link');
+    const mobileAdminLink = document.getElementById('mobile-admin-link');
+    const adminLink = document.getElementById('admin-link');
+    
+    // Ouvrir le menu mobile
+    if (mobileMenuBtn) {
+      mobileMenuBtn.addEventListener('click', function() {
+        mobileNav.classList.add('open');
+      });
+    }
+    
+    // Fermer le menu mobile
+    if (mobileNavClose) {
+      mobileNavClose.addEventListener('click', function() {
+        mobileNav.classList.remove('open');
+      });
+    }
+    
+    // Synchroniser les liens de login
+    if (mobileLoginLink && loginLink) {
+      mobileLoginLink.textContent = loginLink.textContent;
+      mobileLoginLink.href = loginLink.href;
+      mobileLoginLink.onclick = function(e) {
+        e.preventDefault();
+        if (loginLink.onclick) {
+          loginLink.onclick(e);
+        }
+        mobileNav.classList.remove('open');  // Fermer le menu après clic
+      };
+    }
+    
+    // Synchroniser la visibilité du lien d'administration
+    if (mobileAdminLink && adminLink) {
+      mobileAdminLink.style.display = adminLink.style.display;
+    }
+    
+    // Fermer le menu mobile quand on clique sur un lien
+    document.querySelectorAll('.mobile-nav-links a').forEach(link => {
+      link.addEventListener('click', function() {
+        mobileNav.classList.remove('open');
+      });
+    });
+    
+    // Fermer le menu mobile quand on clique en dehors
+    document.addEventListener('click', function(e) {
+      if (mobileNav.classList.contains('open') && 
+          !mobileNav.contains(e.target) && 
+          e.target !== mobileMenuBtn) {
+        mobileNav.classList.remove('open');
+      }
+    });
+    
+    console.log('Menu mobile initialisé');
+
 		// Initialiser la date et l'heure actuelles
 		setCurrentDateTime();
 	  
