@@ -426,43 +426,54 @@
     }
 
 // Fonction pour préremplir le champ inspecteur
-async function fillInspectorField() {
-  try {
-    // Obtenir l'utilisateur actuellement connecté
-    const currentUser = firebase.auth().currentUser;
-    
-    if (currentUser) {
-      // Récupérer les informations de l'inspecteur depuis Firestore
-      const inspectorDoc = await db.collection('inspectors').doc(currentUser.uid).get();
-      
-      if (inspectorDoc.exists) {
-        const inspectorData = inspectorDoc.data();
-        const inspectorNameField = document.getElementById('inspector-name');
+function fillInspectorField() {
+  // Utilisons onAuthStateChanged pour s'assurer que l'état d'authentification est bien chargé
+  firebase.auth().onAuthStateChanged(async function(user) {
+    if (user) {
+      try {
+        // Récupérer les informations de l'inspecteur depuis Firestore
+        const inspectorDoc = await db.collection('inspectors').doc(user.uid).get();
         
-        // Préremplir le champ avec le nom de l'inspecteur
-        inspectorNameField.value = inspectorData.name || currentUser.email;
-        
-        // Stocker l'ID de l'inspecteur dans un champ caché pour le formulaire
-        // Vous pouvez ajouter ce champ caché dans votre HTML
-        const inspectorIdField = document.getElementById('inspector-id');
-        if (inspectorIdField) {
-          inspectorIdField.value = currentUser.uid;
+        if (inspectorDoc.exists) {
+          const inspectorData = inspectorDoc.data();
+          const inspectorNameField = document.getElementById('inspector-name');
+          
+          // Préremplir le champ avec le nom de l'inspecteur
+          if (inspectorNameField) {
+            inspectorNameField.value = inspectorData.name || user.email;
+          }
+          
+          // Stocker l'ID de l'inspecteur dans un champ caché pour le formulaire
+          const formId = window.location.pathname.includes('trail-inspection') ? 
+                         'trailInspectionForm' : 'shelterInspectionForm';
+          
+          const form = document.getElementById(formId);
+          if (form) {
+            // Chercher si le champ existe déjà
+            let inspectorIdField = document.getElementById('inspector-id');
+            
+            if (!inspectorIdField) {
+              // Créer le champ s'il n'existe pas
+              inspectorIdField = document.createElement('input');
+              inspectorIdField.type = 'hidden';
+              inspectorIdField.id = 'inspector-id';
+              inspectorIdField.name = 'inspector-id';
+              form.appendChild(inspectorIdField);
+            }
+            
+            // Définir la valeur
+            inspectorIdField.value = user.uid;
+          }
         } else {
-          // Si le champ n'existe pas, créez-le dynamiquement
-          const hiddenField = document.createElement('input');
-          hiddenField.type = 'hidden';
-          hiddenField.id = 'inspector-id';
-          hiddenField.name = 'inspector-id';
-          hiddenField.value = currentUser.uid;
-          document.getElementById('trailInspectionForm').appendChild(hiddenField); // ou shelterInspectionForm
+          console.warn("Aucune information d'inspecteur trouvée pour cet utilisateur");
         }
-      } else {
-        console.warn("Aucune information d'inspecteur trouvée pour cet utilisateur");
+      } catch (error) {
+        console.error("Erreur lors du chargement des informations de l'inspecteur:", error);
       }
+    } else {
+      console.warn("Aucun utilisateur connecté");
     }
-  } catch (error) {
-    console.error("Erreur lors du chargement des informations de l'inspecteur:", error);
-  }
+  });
 }
 
   </script>
