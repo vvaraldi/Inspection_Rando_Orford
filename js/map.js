@@ -199,8 +199,22 @@ function displayTrailMarkers(trails) {
     });
     
 	
-    // AJOUT: Indicateur de problème si l'état est critique ou à surveiller
+    // Préparer le texte du tooltip avec la date de dernière inspection
+    let tooltipText = trail.name;
+    
+    // Ajouter la date de dernière inspection si disponible
+    if (trail.lastInspection && trail.lastInspection.date) {
+      const date = trail.lastInspection.date.toDate();
+      const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+      tooltipText += `\nDernière inspection: ${formattedDate}`;
+    }
+    
+    // MODIFICATION: Vérifier s'il y a des problèmes signalés dans la dernière inspection
     if (trail.lastInspection && trail.lastInspection.issues && trail.lastInspection.issues.length > 0) {
+      // Ajouter les problèmes au tooltip
+      tooltipText += `\nProblèmes:\n- ${trail.lastInspection.issues.join('\n- ')}`;
+      
+      // Ajouter l'indicateur de problème
       const problemIndicator = document.createElement('div');
       problemIndicator.className = 'problem-indicator';
       
