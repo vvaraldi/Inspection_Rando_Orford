@@ -182,7 +182,7 @@ function displayTrailMarkers(trails) {
     marker.className = `trail-marker marker-${trail.status}`;
     marker.textContent = trail.id.replace('trail_', '');
     marker.setAttribute('data-id', trail.id);
-    marker.setAttribute('title', trail.name);
+//    marker.setAttribute('title', trail.name);
     
     // Positionner le marqueur selon les coordonnées enregistrées
     if (trail.coordinates) {
@@ -233,17 +233,16 @@ function displayTrailMarkers(trails) {
 
       marker.appendChild(problemIndicator);
       
-      // Ajouter un tooltip avec les problèmes si disponibles
-      if (trail.lastInspection && trail.lastInspection.issues && trail.lastInspection.issues.length > 0) {
-        const issues = trail.lastInspection.issues.join('\n- ');
-        marker.setAttribute('title', `${trail.name}\nProblèmes:\n- ${issues}`);
-      }
+//      // Ajouter un tooltip avec les problèmes si disponibles
+//      if (trail.lastInspection && trail.lastInspection.issues && trail.lastInspection.issues.length > 0) {
+//        const issues = trail.lastInspection.issues.join('\n- ');
+//        marker.setAttribute('title', `${trail.name}\nProblèmes:\n- ${issues}`);
+//      }
     }
     
+    // Définir le tooltip complet
+    marker.setAttribute('title', tooltipText);
 
-	
-	
-	
 	
     // Ajouter le marqueur à la carte
     mapContainer.appendChild(marker);
@@ -274,7 +273,7 @@ function displayShelterMarkers(shelters) {
     marker.className = `trail-marker marker-${shelter.status}`;
     marker.innerHTML = `<span>A` + shelter.id.replace('shelter_', '') + '</span>';
     marker.setAttribute('data-id', shelter.id);
-    marker.setAttribute('title', shelter.name);
+//    marker.setAttribute('title', shelter.name);
     
     // Positionner le marqueur selon les coordonnées enregistrées
     if (shelter.coordinates) {
@@ -330,13 +329,15 @@ function displayShelterMarkers(shelters) {
 //      marker.style.position = 'relative'; // S'assurer que le positionnement relatif fonctionne
       marker.appendChild(problemIndicator);
       
-      // Ajouter un tooltip avec les problèmes si disponibles
-      if (shelter.lastInspection && shelter.lastInspection.issues && shelter.lastInspection.issues.length > 0) {
-        const issues = shelter.lastInspection.issues.join('\n- ');
-        marker.setAttribute('title', `${shelter.name}\nProblèmes:\n- ${issues}`);
-      }
+//      // Ajouter un tooltip avec les problèmes si disponibles
+//      if (shelter.lastInspection && shelter.lastInspection.issues && shelter.lastInspection.issues.length > 0) {
+//        const issues = shelter.lastInspection.issues.join('\n- ');
+//        marker.setAttribute('title', `${shelter.name}\nProblèmes:\n- ${issues}`);
+//      }
     }
 
+    // Définir le tooltip complet
+    marker.setAttribute('title', tooltipText);
 
 
     // Ajouter le marqueur à la carte
