@@ -198,6 +198,41 @@ function displayTrailMarkers(trails) {
       showTrailDetails(trail);
     });
     
+	
+    // AJOUT: Indicateur de problème si l'état est critique ou à surveiller
+    if (trail.status === 'critical' || trail.status === 'warning') {
+      const problemIndicator = document.createElement('div');
+      problemIndicator.className = 'problem-indicator';
+      
+      // Adapter le style selon la gravité
+      if (trail.status === 'critical') {
+        problemIndicator.innerHTML = '⚠️'; // Emoji d'avertissement
+        problemIndicator.style.color = '#ef4444'; // Rouge
+      } else {
+        problemIndicator.innerHTML = '⚠'; // Emoji d'avertissement simple
+        problemIndicator.style.color = '#f59e0b'; // Orange
+      }
+      
+      problemIndicator.style.position = 'absolute';
+      problemIndicator.style.top = '-10px';
+      problemIndicator.style.right = '-10px';
+      problemIndicator.style.fontSize = '12px';
+      
+      marker.style.position = 'relative'; // S'assurer que le positionnement relatif fonctionne
+      marker.appendChild(problemIndicator);
+      
+      // Ajouter un tooltip avec les problèmes si disponibles
+      if (trail.lastInspection && trail.lastInspection.issues && trail.lastInspection.issues.length > 0) {
+        const issues = trail.lastInspection.issues.join('\n- ');
+        marker.setAttribute('title', `${trail.name}\nProblèmes:\n- ${issues}`);
+      }
+    }
+    
+
+	
+	
+	
+	
     // Ajouter le marqueur à la carte
     mapContainer.appendChild(marker);
   });
@@ -243,6 +278,38 @@ function displayShelterMarkers(shelters) {
       showShelterDetails(shelter);
     });
     
+
+    // AJOUT: Indicateur de problème si l'état est critique ou à surveiller
+    if (shelter.status === 'critical' || shelter.status === 'warning') {
+      const problemIndicator = document.createElement('div');
+      problemIndicator.className = 'problem-indicator';
+      
+      // Adapter le style selon la gravité
+      if (shelter.status === 'critical') {
+        problemIndicator.innerHTML = '⚠️'; // Emoji d'avertissement
+        problemIndicator.style.color = '#ef4444'; // Rouge
+      } else {
+        problemIndicator.innerHTML = '⚠'; // Emoji d'avertissement simple
+        problemIndicator.style.color = '#f59e0b'; // Orange
+      }
+      
+      problemIndicator.style.position = 'absolute';
+      problemIndicator.style.top = '-10px';
+      problemIndicator.style.right = '-10px';
+      problemIndicator.style.fontSize = '12px';
+      
+      marker.style.position = 'relative'; // S'assurer que le positionnement relatif fonctionne
+      marker.appendChild(problemIndicator);
+      
+      // Ajouter un tooltip avec les problèmes si disponibles
+      if (shelter.lastInspection && shelter.lastInspection.issues && shelter.lastInspection.issues.length > 0) {
+        const issues = shelter.lastInspection.issues.join('\n- ');
+        marker.setAttribute('title', `${shelter.name}\nProblèmes:\n- ${issues}`);
+      }
+    }
+
+
+
     // Ajouter le marqueur à la carte
     mapContainer.appendChild(marker);
   });

@@ -264,3 +264,31 @@ p {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* Affichage des problèmes */
+.problem-indicator {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  font-size: 12px;
+  background-color: white;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+/* Styles pour les problèmes dans le panneau de détails */
+.critical-issues {
+  border-left: 4px solid #ef4444;
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.warning-issues {
+  border-left: 4px solid #f59e0b;
+  background-color: rgba(245, 158, 11, 0.1);
+}
