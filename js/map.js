@@ -307,7 +307,7 @@ function displayShelterMarkers(shelters) {
       problemIndicator.style.right = '-5px';
       problemIndicator.style.fontSize = '18px';
       
-      problemIndicator.style.position = 'relative'; // S'assurer que le positionnement relatif fonctionne
+      marker.style.position = 'relative'; // S'assurer que le positionnement relatif fonctionne
       marker.appendChild(problemIndicator);
       
       // Ajouter un tooltip avec les problèmes si disponibles
