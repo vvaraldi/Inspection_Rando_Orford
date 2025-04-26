@@ -270,7 +270,7 @@ p {
 /* Affichage des problèmes */
 /*-------------------------*/
 .problem-indicator {
-  position: absolute;
+  position: relative;
   top: -8px;
   right: -8px;
   font-size: 12px;
