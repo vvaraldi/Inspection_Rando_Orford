@@ -23,11 +23,24 @@
     
     .admin-panel {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 2rem;
+  grid-template-columns: 1fr; /* Une seule colonne par défaut */
+  gap: 1.5rem;
+  margin-bottom: 2rem;
     }
     
+@media (min-width: 1200px) {
+  .admin-panel {
+    grid-template-columns: 1fr 1fr; /* Deux colonnes de largeur égale */
+  }
+}
+
+/* Pour les écrans très larges, donner plus d'espace à la liste */
+@media (min-width: 1600px) {
+  .admin-panel {
+    grid-template-columns: 3fr 2fr; /* Ratio 60/40 */
+  }
+}
+
     .admin-card {
       background-color: white;
       border-radius: 0.5rem;
@@ -35,13 +48,21 @@
       padding: 1.5rem;
       width: 100%; /* Utiliser toute la largeur disponible */
       min-width: 800px; /* Définir une largeur minimale */
+      box-sizing: border-box;
+      overflow: visible; /* Éviter le chevauchement des contenus */
       overflow-x: auto; /* Permettre le défilement horizontal si nécessaire */
     }
     
     .admin-section {
-      margin-bottom: 1.5rem;
+      flex-direction: column;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
     }
     
+	.full-width {
+	  width: 100%;
+	}
+
     .admin-section:last-child {
       margin-bottom: 0;
     }
@@ -357,32 +378,57 @@
 #inspectors-table {
   width: 100%; /* Utiliser toute la largeur du conteneur */
   table-layout: fixed; /* Stabiliser la largeur des colonnes */
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+}
+
+#inspectors-table th {
+  background-color: #f3f4f6;
+  font-weight: 600;
+}
+
+#inspectors-table tr:nth-child(even) {
+  background-color: #f9fafb;
+}
+
+#inspectors-table tr:hover {
+  background-color: #f3f4f6;
 }
 
 /* Définir des largeurs pour les colonnes */
 #inspectors-table th:nth-child(1), 
 #inspectors-table td:nth-child(1) {
   width: 25%; /* Nom */
+  text-align: left;
+  padding: 0.75rem 1rem;
 }
 
 #inspectors-table th:nth-child(2), 
 #inspectors-table td:nth-child(2) {
   width: 25%; /* Email */
+  text-align: left;
+  padding: 0.75rem 1rem;
 }
 
 #inspectors-table th:nth-child(3), 
 #inspectors-table td:nth-child(3) {
   width: 15%; /* Téléphone */
+  text-align: left;
+  padding: 0.75rem 1rem;
 }
 
 #inspectors-table th:nth-child(4), 
 #inspectors-table td:nth-child(4) {
   width: 15%; /* Statut */
+  text-align: left;
+  padding: 0.75rem 1rem;
 }
 
 #inspectors-table th:nth-child(5), 
 #inspectors-table td:nth-child(5) {
   width: 20%; /* Actions */
+  text-align: left;
+  padding: 0.75rem 1rem;
 }
 
 
@@ -418,8 +464,8 @@
     console.log("Erreur complète:", error);
     
     // Afficher le contenu en cas d'erreur
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('main-content').style.display = 'block';
+//    document.getElementById('loading').style.display = 'none';
+//    document.getElementById('main-content').style.display = 'block';
     
     return true; // Empêche l'affichage de l'erreur dans la console
   };
@@ -451,7 +497,7 @@
     
     <div class="tab-content active" id="users-tab">
       <div class="admin-panel">
-        <div class="admin-card" style="min-width: 800px; overflow-x: auto;">
+        <div class="admin-card  full-width">
           <h2 class="admin-title">Liste des inspecteurs</h2>
           
           <table id="inspectors-table">
@@ -503,7 +549,7 @@
           </div>
         </div>
         
-        <div class="admin-card">
+        <div class="admin-card full-width">
           <h2 class="admin-title">Nouvel inspecteur</h2>
           
           <form id="user-form">
