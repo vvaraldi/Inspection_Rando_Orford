@@ -83,6 +83,21 @@
 
   
 </head>
+
+<script>
+  window.onerror = function(message, source, lineno, colno, error) {
+    console.log("Erreur JavaScript: ", message, "à la ligne", lineno, "colonne", colno);
+    console.log("Source:", source);
+    console.log("Erreur complète:", error);
+    
+    // Afficher le contenu en cas d'erreur
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+    
+    return true; // Empêche l'affichage de l'erreur dans la console
+  };
+</script>
+
 <body>
   <header>
 <!-- Pour les grands écrans -->

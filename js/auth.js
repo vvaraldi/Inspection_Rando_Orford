@@ -25,17 +25,32 @@ function checkAuthStatus() {
   const loading = document.getElementById('loading');
   const mainContent = document.getElementById('main-content');
   const loginLink = document.getElementById('login-link');
+  const mobileLoginLink = document.getElementById('mobile-login-link'); // Ajout du lien mobile
   const adminLink = document.getElementById('admin-link');
+  const mobileAdminLink = document.getElementById('mobile-admin-link'); // Ajout du lien mobile admin
   
   auth.onAuthStateChanged(function(user) {
     if (user) {
       // Utilisateur connecté
       console.log("Utilisateur connecté:", user.email);
-	
+      
       // Mettre à jour le lien de connexion pour afficher "Déconnexion"
       if (loginLink) {
         loginLink.textContent = 'Déconnexion';
         loginLink.onclick = function(e) {
+          e.preventDefault();
+          auth.signOut().then(() => {
+            window.location.reload();
+          }).catch(error => {
+            console.error("Erreur lors de la déconnexion:", error);
+          });
+        };
+      }
+      
+      // Faire de même pour le lien mobile
+      if (mobileLoginLink) {
+        mobileLoginLink.textContent = 'Déconnexion';
+        mobileLoginLink.onclick = function(e) {
           e.preventDefault();
           auth.signOut().then(() => {
             window.location.reload();
@@ -56,14 +71,22 @@ function checkAuthStatus() {
             }
             
             // Vérifier si l'utilisateur est admin
-            if (doc.data().role === 'admin' && adminLink) {
+            if (doc.data().role === 'admin') {
               console.log("L'utilisateur est administrateur");
-              adminLink.style.display = 'inline';
+              // Afficher le lien d'administration desktop
+              if (adminLink) {
+                adminLink.style.display = 'inline';
+              }
+              // Afficher le lien d'administration mobile
+              if (mobileAdminLink) {
+                mobileAdminLink.style.display = 'inline';
+              }
             }
           } else {
             console.warn("Document de l'utilisateur non trouvé dans Firestore");
           }
           
+          // IMPORTANT: Toujours exécuter cette partie, même en cas d'erreur de récupération des droits
           // Afficher le contenu principal et masquer l'indicateur de chargement
           if (loading) loading.style.display = 'none';
           if (mainContent) mainContent.style.display = 'block';
@@ -73,25 +96,37 @@ function checkAuthStatus() {
             loadMapData();
           }
           
-		  // Ajouter cette ligne pour charger l'historique des inspections
-		  if (typeof loadInspectionHistory === 'function') {
-		    loadInspectionHistory();
-		  }
           // Si une fonction de chargement du tableau de bord existe, l'appeler
           if (typeof loadDashboardData === 'function') {
             loadDashboardData();
+          }
+          
+          // Si une fonction de chargement de l'historique existe, l'appeler
+          if (typeof loadInspectionHistory === 'function') {
+            loadInspectionHistory();
           }
         })
         .catch((error) => {
           console.error("Erreur lors de la vérification des droits d'admin:", error);
           
-          // Afficher quand même le contenu principal en cas d'erreur
+          // IMPORTANT: Toujours exécuter cette partie, même en cas d'erreur
+          // Afficher le contenu principal en cas d'erreur
           if (loading) loading.style.display = 'none';
           if (mainContent) mainContent.style.display = 'block';
           
           // Charger les données quand même
           if (typeof loadMapData === 'function') {
             loadMapData();
+          }
+          
+          // Si une fonction de chargement du tableau de bord existe, l'appeler
+          if (typeof loadDashboardData === 'function') {
+            loadDashboardData();
+          }
+          
+          // Si une fonction de chargement de l'historique existe, l'appeler
+          if (typeof loadInspectionHistory === 'function') {
+            loadInspectionHistory();
           }
         });
     } else {
@@ -104,8 +139,19 @@ function checkAuthStatus() {
         window.location.href = window.location.pathname.includes('/pages/') 
           ? 'login.html' 
           : 'pages/login.html';
+      } else {
+        // Si on est déjà sur la page de login, on peut masquer le chargement
+        if (loading) loading.style.display = 'none';
+        if (mainContent) mainContent.style.display = 'block';
       }
     }
+  }, function(error) {
+    // Gestion des erreurs de Firebase Auth
+    console.error("Erreur d'authentification:", error);
+    
+    // En cas d'erreur, afficher le contenu quand même
+    if (loading) loading.style.display = 'none';
+    if (mainContent) mainContent.style.display = 'block';
   });
 }
 
