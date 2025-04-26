@@ -169,9 +169,6 @@ async function loadRecentInspections() {
         <td>${inspection.location}</td>
         <td>${inspection.inspector}</td>
         <td><span class="status-badge status-${inspection.condition}">${statusText}</span></td>
-        <td>
-          <button class="view-btn" onclick="show${inspection.type === 'trail' ? 'Trail' : 'Shelter'}Details('${inspection.locationId}')">Voir détails</button>
-        </td>
       `;
       
       recentInspectionsTable.appendChild(row);
