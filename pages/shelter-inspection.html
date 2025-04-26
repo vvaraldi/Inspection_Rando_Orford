@@ -5,45 +5,117 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SkiTrack - Inspection d'abri</title>
   <link rel="stylesheet" href="../css/styles.css">
+  
+  <!-- Ajoutez ce code dans la partie <head> de votre shelter-inspection.html -->
+<style>
+  /* Style pour le menu mobile */
+  .mobile-menu-btn {
+    display: none; /* Caché par défaut sur desktop */
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+  }
+  
+  .mobile-nav {
+    display: none; /* Caché par défaut */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #1a56db;
+    z-index: 1000;
+    flex-direction: column;
+  }
+  
+  .mobile-nav-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  .mobile-nav-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+  }
+  
+  .mobile-nav-links {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+  }
+  
+  .mobile-nav-links a {
+    color: white;
+    text-decoration: none;
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 1.2rem;
+  }
+  
+  .mobile-nav-links a.active {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+  
+  /* Media query pour mobile */
+  @media (max-width: 768px) {
+    .nav-links {
+      display: none; /* Cacher les liens de navigation standard */
+    }
+    
+    .mobile-menu-btn {
+      display: block; /* Afficher le bouton du menu mobile */
+    }
+    
+    .mobile-nav.open {
+      display: flex; /* Afficher le menu mobile quand il est ouvert */
+    }
+  }
+</style>
+
+  
 </head>
 <body>
   <header>
-<!-- Pour les grands écrans 
-    <nav>
-      <div class="logo">SkiTrack - Mont Orford</div>
-      <div class="nav-links">
-        <a href="../index.html">Tableau de bord</a>
-        <a href="trail-inspection.html">Inspection sentier</a>
-        <a href="shelter-inspection.html" class="active">Inspection abri</a>
-        <a href="inspection-history.html">Historique</a>
-        <a href="admin.html" id="admin-link" style="display: none;">Administration</a>
-        <a href="#" id="login-link">Connexion</a>
-      </div>
-    </nav>
-<!-- Pour les grands écrans (fins) -->
-
-	
-<!-- Pour les petits écrans -->
-	<button class="mobile-menu" id="mobile-menu-btn">
-	  <span class="menu-icon">☰</span>
-	</button>
-
-	<div class="mobile-nav" id="mobile-nav">
-	  <div class="mobile-nav-header">
-		<span class="logo">SkiTrack</span>
-		<button class="mobile-menu-close" id="mobile-menu-close">✕</button>
-	  </div>
-	  <div class="mobile-nav-links">
-		<a href="../index.html">Tableau de bord</a>
-		<a href="trail-inspection.html">Inspection sentier</a>
-		<a href="shelter-inspection.html">Inspection abri</a>
-		<a href="inspection-history.html">Historique</a>
-		<a href="#" id="mobile-login-link">Connexion</a>
-	  </div>
-	</div>
-	
-	
-	
+<!-- Pour les grands écrans -->
+  <nav>
+    <div class="logo">SkiTrack - Mont Orford</div>
+    <!-- Menu desktop -->
+    <div class="nav-links">
+      <a href="../index.html">Tableau de bord</a>
+      <a href="trail-inspection.html">Inspection sentier</a>
+      <a href="shelter-inspection.html" class="active">Inspection abri</a>
+      <a href="inspection-history.html">Historique</a>
+      <a href="admin.html" id="admin-link" style="display: none;">Administration</a>
+      <a href="#" id="login-link">Connexion</a>
+    </div>
+    <!-- Bouton du menu mobile -->
+    <button class="mobile-menu-btn" id="mobile-menu-btn">☰</button>
+  </nav>
+  
+  <!-- Menu mobile -->
+  <div class="mobile-nav" id="mobile-nav">
+    <div class="mobile-nav-header">
+      <div class="logo">SkiTrack</div>
+      <button class="mobile-nav-close" id="mobile-nav-close">✕</button>
+    </div>
+    <div class="mobile-nav-links">
+      <a href="../index.html">Tableau de bord</a>
+      <a href="trail-inspection.html">Inspection sentier</a>
+      <a href="shelter-inspection.html" class="active">Inspection abri</a>
+      <a href="inspection-history.html">Historique</a>
+      <a href="admin.html" id="mobile-admin-link" style="display: none;">Administration</a>
+      <a href="#" id="mobile-login-link">Connexion</a>
+    </div>
+  </div>
 	
   </header>
   
