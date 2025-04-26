@@ -218,7 +218,7 @@ function displayTrailMarkers(trails) {
       problemIndicator.style.right = '-10px';
       problemIndicator.style.fontSize = '12px';
       
-      marker.style.position = 'relative'; // S'assurer que le positionnement relatif fonctionne
+      problemIndicator.style.position = 'relative'; // S'assurer que le positionnement relatif fonctionne
       marker.appendChild(problemIndicator);
       
       // Ajouter un tooltip avec les problèmes si disponibles

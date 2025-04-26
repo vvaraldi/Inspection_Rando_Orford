@@ -266,7 +266,9 @@ p {
 }
 
 
+/*-------------------------*/
 /* Affichage des problèmes */
+/*-------------------------*/
 .problem-indicator {
   position: absolute;
   top: -8px;
