@@ -210,11 +210,11 @@ function displayTrailMarkers(trails) {
         problemIndicator.style.color = '#ef4444'; // Rouge
       } else if (trail.status === 'warning') {
         problemIndicator.innerHTML = '⚠'; // Emoji d'avertissement simple
-        problemIndicator.style.color = '#f59e0b'; // Orange
+        problemIndicator.style.color = '#ef4444'; // Rouge
       } else {
         // Même pour les sentiers en bon état, montrer un indicateur si des problèmes sont signalés
         problemIndicator.innerHTML = 'ℹ️'; // Emoji d'information
-        problemIndicator.style.color = '#3b82f6'; // Bleu
+        problemIndicator.style.color = '#ef4444'; // Rouge
       }
 
       
@@ -295,11 +295,11 @@ function displayShelterMarkers(shelters) {
         problemIndicator.style.color = '#ef4444'; // Rouge
       } else if (shelter.status === 'warning') {
         problemIndicator.innerHTML = '⚠'; // Emoji d'avertissement simple
-        problemIndicator.style.color = '#f59e0b'; // Orange
+        problemIndicator.style.color = '#ef4444'; // Rouge
       } else {
         // Même pour les sentiers en bon état, montrer un indicateur si des problèmes sont signalés
         problemIndicator.innerHTML = 'ℹ️'; // Emoji d'information
-        problemIndicator.style.color = '#3b82f6'; // Bleu
+        problemIndicator.style.color = '#ef4444'; // Rouge
       }
       
       problemIndicator.style.position = 'absolute';
