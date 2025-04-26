@@ -550,6 +550,47 @@ tbody tr {
     }
   }
 	
+.table-container table,
+.modal-content,
+.inspection-details,
+.detail-box,
+.popup-body,
+.detail-list li,
+.issue-item {
+  color: #1f2937 !important; /* Couleur de texte foncée pour tous les éléments importants */
+}
+
+/* Assurer que les cellules du tableau ont une couleur de texte correcte */
+.table-container th,
+.table-container td {
+  color: #1f2937 !important;
+}
+
+/* Correction pour les détails dans la modale */
+.modal-body {
+  color: #1f2937 !important;
+}
+
+.modal-body p,
+.modal-body h3,
+.detail-label,
+.detail-value,
+.popup-title {
+  color: #1f2937 !important;
+}
+
+/* Exceptions spécifiques pour les badges de statut */
+.status-badge,
+.type-badge {
+  /* Ces éléments ont leur propre couleur définie par leurs classes spécifiques */
+  color: inherit;
+}
+
+/* Effets de survol pour les lignes du tableau */
+tbody tr:hover {
+  background-color: #f9fafb !important;
+  color: #1f2937 !important;
+}
 	
   </style>
 </head>
@@ -1498,12 +1539,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         row.innerHTML = `
-          <td>${formattedDate}</td>
-          <td><span class="type-badge ${typeClass}">${typeText}</span></td>
-          <td>${inspection.location}</td>
-          <td>${inspection.inspector}</td>
-          <td><span class="status-badge status-${inspection.condition}">${statusText}</span></td>
-          <td><button class="view-btn" data-id="${inspection.id}" data-type="${inspection.type}">Voir détails</button></td>
+		  <td class="inspection-text">${formattedDate}</td>
+		  <td class="inspection-text"><span class="type-badge ${typeClass}">${typeText}</span></td>
+		  <td class="inspection-text">${inspection.location}</td>
+		  <td class="inspection-text">${inspection.inspector}</td>
+		  <td class="inspection-text"><span class="status-badge status-${inspection.condition}">${statusText}</span></td>
+		  <td><button class="view-btn" data-id="${inspection.id}" data-type="${inspection.type}">Voir détails</button></td>
         `;
         
         inspectionsTable.appendChild(row);
@@ -1735,52 +1776,52 @@ document.addEventListener('DOMContentLoaded', function() {
       
       // Construction du HTML de la modal
       modalContent.innerHTML = `
-        <div class="inspection-details">
-          <div class="detail-box">
-            <h3 class="detail-title">Informations générales</h3>
-            <ul class="detail-list">
-              <li>
-                <div class="detail-label">Type</div>
-                <div class="detail-value"><span class="type-badge ${type === 'trail' ? 'type-trail' : 'type-shelter'}">${locationTypeText}</span> ${locationName}</div>
-              </li>
-              <li>
-                <div class="detail-label">Date et heure</div>
-                <div class="detail-value">${formattedDate}</div>
-              </li>
-              <li>
-                <div class="detail-label">Inspecteur</div>
-                <div class="detail-value">${inspector ? inspector.name : 'Inspecteur inconnu'}</div>
-              </li>
-              <li>
-                <div class="detail-label">État général</div>
-                <div class="detail-value"><span class="status-badge status-${inspection.condition}">${statusText}</span></div>
-              </li>
-            </ul>
-          </div>
-          
-          <div class="detail-box">
-            <h3 class="detail-title">Problèmes signalés</h3>
-            <div class="issues-list">
-              ${issuesHTML}
-            </div>
-          </div>
-          
-          <div class="detail-box">
-            <h3 class="detail-title">Caractéristiques</h3>
-            <ul class="detail-list">
-              ${specificInfoHTML}
-            </ul>
-          </div>
-        </div>
-        
-        <div class="detail-box">
-          <h3 class="detail-title">Commentaires</h3>
-          <p style="padding: 0.5rem 0;">${comments}</p>
-        </div>
-        
-        <h3 class="detail-title" style="margin: 1.5rem 0 0.75rem;">Photos</h3>
-        ${photosHTML}
-      `;
+		  <div class="inspection-details">
+			<div class="detail-box">
+			  <h3 class="detail-title" style="color: #1f2937;">Informations générales</h3>
+			  <ul class="detail-list">
+				<li>
+				  <div class="detail-label" style="color: #4b5563;">Type</div>
+				  <div class="detail-value" style="color: #1f2937;"><span class="type-badge ${type === 'trail' ? 'type-trail' : 'type-shelter'}">${typeLabel}</span> ${locationName}</div>
+				</li>
+				<li>
+				  <div class="detail-label" style="color: #4b5563;">Date et heure</div>
+				  <div class="detail-value" style="color: #1f2937;">${formattedDate}</div>
+				</li>
+				<li>
+				  <div class="detail-label" style="color: #4b5563;">Inspecteur</div>
+				  <div class="detail-value" style="color: #1f2937;">${inspector ? inspector.name : 'Inspecteur inconnu'}</div>
+				</li>
+				<li>
+				  <div class="detail-label" style="color: #4b5563;">État général</div>
+				  <div class="detail-value" style="color: #1f2937;"><span class="status-badge status-${inspection.condition}">${statusText}</span></div>
+				</li>
+			  </ul>
+			</div>
+			
+			<div class="detail-box">
+			  <h3 class="detail-title" style="color: #1f2937;">Problèmes signalés</h3>
+			  <div class="issues-list" style="color: #1f2937;">
+				${issuesHTML}
+			  </div>
+			</div>
+			
+			<div class="detail-box">
+			  <h3 class="detail-title" style="color: #1f2937;">Caractéristiques</h3>
+			  <ul class="detail-list" style="color: #1f2937;">
+				${specificInfoHTML}
+			  </ul>
+			</div>
+		  </div>
+		  
+		  <div class="detail-box">
+			<h3 class="detail-title" style="color: #1f2937;">Commentaires</h3>
+			<p style="padding: 0.5rem 0; color: #1f2937;">${comments}</p>
+		  </div>
+		  
+		  <h3 class="detail-title" style="margin: 1.5rem 0 0.75rem; color: #1f2937;">Photos</h3>
+		  ${photosHTML}
+		`;
     }
 
     // Configurer l'exportation
