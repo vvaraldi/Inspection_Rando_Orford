@@ -53,7 +53,8 @@
               <div class="form-group">
                 <label for="inspector-name">Inspecteur</label>
                 <input type="text" id="inspector-name" readonly>
-              </div>
+			    <input type="hidden" id="inspector-id" name="inspector-id">
+			  </div>
             </div>
             
             <div class="dual-column">
@@ -154,17 +155,20 @@
     
     // Vérifier l'authentification spécifique à cette page
     document.addEventListener('DOMContentLoaded', function() {
-      // Initialiser la date et l'heure actuelles
-      setCurrentDateTime();
-      
-      // Charger les sentiers disponibles
-      loadTrails();
-      
-      // Configurer l'upload de photos
-      setupPhotoUpload();
-      
-      // Configurer le formulaire
-      setupForm();
+		// Initialiser la date et l'heure actuelles
+		setCurrentDateTime();
+	  
+		// Préremplir le champ inspecteur avec l'utilisateur connecté
+		fillInspectorField();
+
+		// Charger les sentiers disponibles
+		loadTrails();
+
+		// Configurer l'upload de photos
+		setupPhotoUpload();
+
+		// Configurer le formulaire
+		setupForm();
     });
     
     // Définir la date et l'heure actuelles
@@ -328,6 +332,7 @@
         try {
           // Récupérer les valeurs du formulaire
           const trailId = document.getElementById('trail-select').value;
+          const inspectorId = document.getElementById('inspector-id').value;
           const date = new Date(`${document.getElementById('inspection-date').value}T${document.getElementById('inspection-time').value}`);
           const condition = document.querySelector('input[name="condition"]:checked').value;
           const comments = document.getElementById('comments').value;
@@ -341,7 +346,8 @@
           // Créer le document d'inspection
           const inspectionData = {
             trail_id: trailId,
-            inspector_id: firebase.auth().currentUser.uid,
+            inspector_id: inspectorId, // Utiliser l'ID stocké
+//	        inspector_id: firebase.auth().currentUser.uid,
             date: firebase.firestore.Timestamp.fromDate(date),
             condition: condition,
             issues: issues,
@@ -418,6 +424,47 @@
       
       return photoUrls;
     }
+
+// Fonction pour préremplir le champ inspecteur
+async function fillInspectorField() {
+  try {
+    // Obtenir l'utilisateur actuellement connecté
+    const currentUser = firebase.auth().currentUser;
+    
+    if (currentUser) {
+      // Récupérer les informations de l'inspecteur depuis Firestore
+      const inspectorDoc = await db.collection('inspectors').doc(currentUser.uid).get();
+      
+      if (inspectorDoc.exists) {
+        const inspectorData = inspectorDoc.data();
+        const inspectorNameField = document.getElementById('inspector-name');
+        
+        // Préremplir le champ avec le nom de l'inspecteur
+        inspectorNameField.value = inspectorData.name || currentUser.email;
+        
+        // Stocker l'ID de l'inspecteur dans un champ caché pour le formulaire
+        // Vous pouvez ajouter ce champ caché dans votre HTML
+        const inspectorIdField = document.getElementById('inspector-id');
+        if (inspectorIdField) {
+          inspectorIdField.value = currentUser.uid;
+        } else {
+          // Si le champ n'existe pas, créez-le dynamiquement
+          const hiddenField = document.createElement('input');
+          hiddenField.type = 'hidden';
+          hiddenField.id = 'inspector-id';
+          hiddenField.name = 'inspector-id';
+          hiddenField.value = currentUser.uid;
+          document.getElementById('trailInspectionForm').appendChild(hiddenField); // ou shelterInspectionForm
+        }
+      } else {
+        console.warn("Aucune information d'inspecteur trouvée pour cet utilisateur");
+      }
+    }
+  } catch (error) {
+    console.error("Erreur lors du chargement des informations de l'inspecteur:", error);
+  }
+}
+
   </script>
 </body>
 </html>
