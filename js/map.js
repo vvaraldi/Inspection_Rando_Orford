@@ -206,7 +206,7 @@ function displayTrailMarkers(trails) {
     if (trail.lastInspection && trail.lastInspection.date) {
       const date = trail.lastInspection.date.toDate();
       const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
-      tooltipText += `\nInspection: ${formattedDate}`;
+      tooltipText += `\n${formattedDate}`;
     }
     
     // MODIFICATION: Vérifier s'il y a des problèmes signalés dans la dernière inspection
@@ -299,7 +299,7 @@ function displayShelterMarkers(shelters) {
     if (shelter.lastInspection && shelter.lastInspection.date) {
       const date = shelter.lastInspection.date.toDate();
       const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
-      tooltipText += `\nInspection: ${formattedDate}`;
+      tooltipText += `\n${formattedDate}`;
     }
 	
     // MODIFICATION: Vérifier s'il y a des problèmes signalés dans la dernière inspection
