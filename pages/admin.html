@@ -387,6 +387,27 @@
 
 
 
+/* Assurer la compatibilité mobile */
+@media (max-width: 768px) {
+  .admin-panel {
+    grid-template-columns: 1fr !important; /* Forcer une seule colonne */
+  }
+  
+  .admin-card {
+    min-width: 100% !important; /* Utiliser toute la largeur disponible */
+    overflow-x: auto; /* Permettre le défilement horizontal */
+  }
+  
+  /* Réduire la taille des polices et paddings pour le mobile */
+  .admin-card table {
+    font-size: 0.85rem;
+  }
+  
+  .admin-card th, .admin-card td {
+    padding: 0.5rem;
+  }
+}
+
   </style>
 </head>
 
