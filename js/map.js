@@ -1,6 +1,20 @@
 // Référence à Firestore - supposée être déjà initialisée dans auth.js
 //const db = firebase.firestore();
 
+// Fonction pour formater une date avec le mois en lettres
+function formatDateWithMonthName(date) {
+  const months = [
+    'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
+    'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
+  ];
+  
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = months[date.getMonth()];
+  const year = date.getFullYear();
+  
+  return `${day} ${month} ${year}`;
+}
+
 /**
  * Fonction principale pour charger les données de la carte
  * Récupère les sentiers, abris et leurs dernières inspections
@@ -205,7 +219,8 @@ function displayTrailMarkers(trails) {
     // Ajouter la date de dernière inspection si disponible
     if (trail.lastInspection && trail.lastInspection.date) {
       const date = trail.lastInspection.date.toDate();
-      const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+//      const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+      const formattedDate = formatDateWithMonthName(date);
       tooltipText += `\n${formattedDate}`;
     }
     
@@ -298,7 +313,8 @@ function displayShelterMarkers(shelters) {
     // Ajouter la date de dernière inspection si disponible
     if (shelter.lastInspection && shelter.lastInspection.date) {
       const date = shelter.lastInspection.date.toDate();
-      const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+//	  const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+	  const formattedDate = formatDateWithMonthName(date);
       tooltipText += `\n${formattedDate}`;
     }
 	
@@ -417,8 +433,8 @@ async function showTrailDetails(trail) {
         const date = trail.lastInspection.date.toDate ? 
                      trail.lastInspection.date.toDate() : 
                      new Date(trail.lastInspection.date);
-        
-        formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}, ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
+//        formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}, ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
+        formattedDate = `${formatDateWithMonthName(date)}, ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
       }
       
       // Mettre à jour la section d'inspection
@@ -538,8 +554,8 @@ async function showShelterDetails(shelter) {
         const date = shelter.lastInspection.date.toDate ? 
                      shelter.lastInspection.date.toDate() : 
                      new Date(shelter.lastInspection.date);
-        
-        formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}, ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
+//        formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}, ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
+        formattedDate = `${formatDateWithMonthName(date)}, ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
       }
       
       // Mettre à jour la section d'inspection
