@@ -15,25 +15,29 @@ function initMobileMenu() {
   const mobileAdminLink = document.getElementById('mobile-admin-link');
   const adminLink = document.getElementById('admin-link');
   
-  // Vérifier si les éléments nécessaires existent
-  if (!mobileNav || !mobileMenuBtn) {
-    console.warn("Éléments du menu mobile manquants. Vérifiez la structure HTML.");
-    return;
+  // Vérifier si les éléments essentiels du menu mobile existent
+  if (!mobileNav) {
+    console.debug("Menu mobile non trouvé dans cette page.");
+    return; // Sortir silencieusement si le menu n'est pas présent
   }
   
-  // Ouvrir le menu mobile
-  mobileMenuBtn.addEventListener('click', function() {
-    mobileNav.classList.add('open');
-  });
+  // Ouvrir le menu mobile (si le bouton existe)
+  if (mobileMenuBtn) {
+    mobileMenuBtn.addEventListener('click', function() {
+      mobileNav.classList.add('open');
+    });
+  } else {
+    console.debug("Bouton du menu mobile non trouvé.");
+  }
   
-  // Fermer le menu mobile
+  // Fermer le menu mobile (si le bouton existe)
   if (mobileNavClose) {
     mobileNavClose.addEventListener('click', function() {
       mobileNav.classList.remove('open');
     });
   }
   
-  // Synchroniser les liens de login
+  // Synchroniser les liens de login (si les deux existent)
   if (mobileLoginLink && loginLink) {
     mobileLoginLink.textContent = loginLink.textContent;
     mobileLoginLink.href = loginLink.href;
@@ -46,14 +50,14 @@ function initMobileMenu() {
     };
   }
   
-  // Synchroniser la visibilité du lien d'administration
+  // Synchroniser la visibilité du lien d'administration (si les deux existent)
   if (mobileAdminLink && adminLink) {
     mobileAdminLink.style.display = adminLink.style.display;
   }
   
   // Fermer le menu mobile quand on clique sur un lien
   const mobileLinks = document.querySelectorAll('.mobile-nav-links a');
-  if (mobileLinks.length > 0) {
+  if (mobileLinks && mobileLinks.length > 0) {
     mobileLinks.forEach(link => {
       link.addEventListener('click', function() {
         mobileNav.classList.remove('open');
@@ -65,12 +69,12 @@ function initMobileMenu() {
   document.addEventListener('click', function(e) {
     if (mobileNav.classList.contains('open') && 
         !mobileNav.contains(e.target) && 
-        e.target !== mobileMenuBtn) {
+        (!mobileMenuBtn || e.target !== mobileMenuBtn)) {
       mobileNav.classList.remove('open');
     }
   });
   
-  console.log('Menu mobile initialisé');
+  console.debug('Menu mobile initialisé');
 }
 
 // Initialiser le menu mobile quand le DOM est chargé
