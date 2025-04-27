@@ -947,23 +947,43 @@
       });
       
       // Boutons de suppression
-      document.querySelectorAll('.delete-user').forEach(button => {
-        button.addEventListener('click', function() {
-          const userId = this.getAttribute('data-id');
-          console.log('Supprimer utilisateur:', userId);
-          
-          // Ouvrir la modal de confirmation
-          const modal = document.getElementById('delete-modal');
-          modal.style.display = 'flex';
-          
-          // Configurer le bouton de confirmation
-          document.getElementById('confirm-delete').onclick = function() {
-            // Dans une implémentation réelle, supprimer l'utilisateur
-            modal.style.display = 'none';
-          };
-        });
-      });
+document.querySelectorAll('.delete-user').forEach(button => {
+  button.addEventListener('click', async function() {
+    const userId = this.getAttribute('data-id');
+    
+    // Confirmation avant suppression
+    if (confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur? Cette action est irréversible.')) {
+      const modal = document.getElementById('delete-modal');
+      
+      // Afficher l'indicateur de chargement si disponible
+      const loadingIndicator = document.querySelector('.loading-indicator');
+      if (loadingIndicator) loadingIndicator.style.display = 'block';
+      
+      // Désactiver le bouton
+      this.disabled = true;
+      
+      // Supprimer l'utilisateur
+      const result = await deleteUser(userId);
+      
+      // Masquer l'indicateur de chargement
+      if (loadingIndicator) loadingIndicator.style.display = 'none';
+      
+      // Afficher le résultat
+      if (result.success) {
+        alert(result.message);
+        
+        // Recharger la liste des inspecteurs
+        loadInspectors();
+        
+        // Fermer la modal si elle est ouverte
+        if (modal) modal.style.display = 'none';
+      } else {
+        alert(result.message);
+        this.disabled = false;
+      }
     }
+  });
+});
     
     // Gestion de la modal
     document.querySelector('.modal-close').addEventListener('click', function() {
@@ -1283,6 +1303,94 @@
         }, 5000);
       }
     }
+
+
+/**
+ * Supprime un utilisateur et ses données associées
+ * @param {string} userId - L'ID de l'utilisateur à supprimer
+ */
+async function deleteUser(userId) {
+  try {
+    // Récupérer les informations de l'utilisateur à supprimer
+    const userDoc = await db.collection('inspectors').doc(userId).get();
+    
+    if (!userDoc.exists) {
+      throw new Error("Utilisateur non trouvé dans la base de données");
+    }
+    
+    // Utilisation de l'API d'administration Firebase pour supprimer l'utilisateur
+    // Ceci doit normalement être fait côté serveur via une fonction Cloud
+    // Mais pour des besoins de démonstration, nous utilisons cette approche
+    
+    // 1. Supprimer les données de l'utilisateur dans Firestore
+    await db.collection('inspectors').doc(userId).delete();
+    
+    // 2. Si vous souhaitez également supprimer les inspections réalisées par cet utilisateur
+    // (Optionnel, selon vos besoins)
+    
+    // Pour les inspections de sentiers
+    const trailInspectionsSnapshot = await db.collection('trail_inspections')
+      .where('inspector_id', '==', userId)
+      .get();
+    
+    // Utiliser un batch pour supprimer plusieurs documents efficacement
+    const trailBatch = db.batch();
+    trailInspectionsSnapshot.forEach(doc => {
+      trailBatch.delete(doc.ref);
+    });
+    await trailBatch.commit();
+    
+    // Pour les inspections d'abris
+    const shelterInspectionsSnapshot = await db.collection('shelter_inspections')
+      .where('inspector_id', '==', userId)
+      .get();
+    
+    const shelterBatch = db.batch();
+    shelterInspectionsSnapshot.forEach(doc => {
+      shelterBatch.delete(doc.ref);
+    });
+    await shelterBatch.commit();
+    
+    // 3. ⚠️ IMPORTANT: En frontend, vous ne pouvez pas supprimer directement un utilisateur Firebase Auth
+    // Vous devez implémenter une fonction Cloud ou un backend sécurisé pour cette partie
+    // Voici comment l'appeler:
+    
+    // Appel à une fonction Firebase Cloud
+    /*
+    const deleteAuthUser = firebase.functions().httpsCallable('deleteUser');
+    await deleteAuthUser({ uid: userId });
+    */
+    
+    // OU faire une requête à votre API backend
+    /*
+    await fetch('/api/deleteUser', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + await firebase.auth().currentUser.getIdToken()
+      },
+      body: JSON.stringify({ uid: userId })
+    });
+    */
+    
+    
+    // Pour l'instant, nous affichons simplement un message de succès pour la partie Firestore
+    console.log("Utilisateur supprimé de Firestore avec succès");
+    
+    return {
+      success: true,
+      message: "Données utilisateur supprimées. Veuillez contacter l'administrateur pour compléter la suppression du compte."
+    };
+  } catch (error) {
+    console.error("Erreur lors de la suppression de l'utilisateur:", error);
+    
+    return {
+      success: false,
+      message: "Erreur lors de la suppression: " + error.message
+    };
+  }
+}
+
   </script>
 </body>
 </html>
