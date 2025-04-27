@@ -13,9 +13,9 @@
   padding: 1rem;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   width: 800px;
-  height: 700px; /* Hauteur fixe pour éviter les débordements */
+  height: 700px;
   position: relative;
-  overflow: hidden; /* Empêche tout défilement au niveau du conteneur principal */
+  overflow: hidden; /* Bloque tout défilement au niveau du conteneur principal */
 }
 
 #map-loading {
@@ -32,18 +32,20 @@
 }
 
 .map-bg {
-  height: 100%;
-  width: 100%;
-  position: relative;
-  display: flex;
-  justify-content: flex-start; /* Alignement à gauche */
-  align-items: flex-start; /* Alignement en haut */
-  overflow: auto; /* Permet le défilement seulement si nécessaire */
-  padding-left: 1rem; /* Aligner avec la marge */
+  position: absolute; /* Position absolue pour éviter les problèmes de padding/margin */
+  top: 1rem; /* Correspondre au padding du conteneur parent */
+  left: 1rem;
+  right: 1rem;
+  bottom: 1rem;
+  overflow: hidden; /* Bloquer tout défilement en mode desktop */
+  display: block; /* Changé pour éviter les comportements flex inattendus */
   }
 
 .map-image {
   display: block;
+  position: absolute; /* Position absolue pour contrôle total */
+  top: 0;
+  left: 0;
   width: auto !important;
   height: auto !important;
   max-width: none !important;
@@ -51,8 +53,9 @@
   min-height: 0 !important;
   object-fit: none !important;
   transform: none !important;
-  margin-left: 0;
-  margin-top: 0; /* S'assurer qu'il n'y a pas de marge en haut */
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
   }
 
 /* Styles pour les marqueurs */
@@ -236,19 +239,20 @@
   }
   
   .map-bg {
-    height: 100%;
-    width: 100%;
-    overflow: auto;
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    overflow: auto; /* Activer le défilement en mode mobile */
     -webkit-overflow-scrolling: touch;
-    justify-content: flex-start; /* S'assurer que c'est à gauche aussi en mobile */
-    padding-left: 1rem; /* Maintenir le padding en mode mobile */
   }
   
   .map-image {
-    /* Ne pas redimensionner l'image en mode mobile */
-    width: auto;
-    height: auto;
-    max-width: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    /* Garder les mêmes règles strictes en mobile */
   }
 
   .legend {
