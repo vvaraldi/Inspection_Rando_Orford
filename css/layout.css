@@ -2,20 +2,10 @@
 
 /* En-tête et navigation */
 header {
-  background-color: var(--alpine-blue);
-  box-shadow: 0 4px 6px rgba(13, 43, 66, 0.2);
-  position: relative;
-  overflow: hidden;
-}
-
-header::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, var(--piste-verte), var(--piste-bleue), var(--piste-rouge), var(--piste-noire));
+  background-color: #1a56db;
+  color: white;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 nav {
@@ -27,16 +17,6 @@ nav {
 .logo {
   font-size: 1.5rem;
   font-weight: bold;
-  letter-spacing: 1px;
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.logo::before {
-  content: "🏔️";
-  margin-right: 0.3rem;
-  font-size: 1.4rem;
 }
 
 .nav-links {
@@ -45,20 +25,11 @@ nav {
 }
 
 .nav-links a {
-  position: relative;
-  transition: all 0.3s ease;
-}
-
-.nav-links a::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 2px;
-  background-color: white;
-  transition: width 0.3s ease;
+  color: white;
+  text-decoration: none;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  transition: background-color 0.2s;
 }
 
 .nav-links a:hover {
@@ -68,15 +39,6 @@ nav {
 .nav-links a.active {
   background-color: rgba(255, 255, 255, 0.2);
   font-weight: 500;
-}
-
-.nav-links a:hover::after {
-  width: 80%;
-}
-
-.nav-links a.active::after {
-  width: 80%;
-  background-color: white;
 }
 
 /* Conteneur principal */
@@ -92,12 +54,6 @@ main {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
-}
-
-.dashboard-header h1::before {
-  content: "❄️";
-  margin-right: 0.5rem;
-  animation: snow-fall 3s infinite ease-in-out alternate;
 }
 
 .user-info {
@@ -139,8 +95,7 @@ main {
   font-size: 1.25rem;
   margin-bottom: 1rem;
   padding-bottom: 0.5rem;
-  color: var(--alpine-blue);
-  border-bottom: 1px solid var(--alpine-light-gray);
+  border-bottom: 1px solid #e5e7eb;
 }
 
 /* Système d'onglets */
@@ -148,21 +103,18 @@ main {
   display: flex;
   border-bottom: 1px solid #e5e7eb;
   margin-bottom: 1.5rem;
-  border-bottom-color: var(--alpine-light-gray);
 }
 
 .tab {
   padding: 0.75rem 1.5rem;
   cursor: pointer;
   border-bottom: 2px solid transparent;
-  transition: all 0.3s ease;
-  position: relative;
 }
 
 .tab.active {
-  border-bottom-color: var(--alpine-blue);
-  color: var(--alpine-blue);
-  font-weight: 600;
+  border-bottom-color: #1a56db;
+  color: #1a56db;
+  font-weight: 500;
 }
 
 .tab-content {
@@ -175,69 +127,25 @@ main {
 
 /* Page de login */
 .login-container {
-  padding: 2rem;
-  margin-top: 2rem;
-  background-color: white;
-  box-shadow: 0 10px 25px rgba(13, 43, 66, 0.1);
-  border-radius: 8px;
-  overflow: hidden;
   max-width: 400px;
-  margin: 3rem auto;
-  position: relative;
-}
-
-.login-container::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, var(--piste-verte), var(--piste-bleue), var(--piste-rouge), var(--piste-noire));
-}
-
-.login-container h1 {
-  color: var(--alpine-blue);
-  text-align: center;
-  margin-bottom: 1.5rem;
-  position: relative;
-}
-
-.login-container h1::before {
-  content: "🏔️";
-  position: absolute;
-  left: 50%;
-  top: -40px;
-  transform: translateX(-50%);
-  font-size: 2rem;
-}
-
-.login-container .form-group label {
-  color: var(--alpine-dark-gray);
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  margin-top: 2rem;
 }
 
 /* Page de changement de mot de passe */
 .password-container {
-  padding: 2rem;
-  margin-top: 2rem;
-  background-color: white;
-  box-shadow: 0 10px 25px rgba(13, 43, 66, 0.1);
-  border-radius: 8px;
-  overflow: hidden;
   max-width: 500px;
-  margin: 3rem auto;
-  position: relative;
-  }
-  
-.password-container::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, var(--piste-verte), var(--piste-bleue), var(--piste-rouge), var(--piste-noire));
-}  
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  margin-top: 2rem;
+}
 
 .password-strength {
   margin-top: 0.5rem;

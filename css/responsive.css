@@ -67,14 +67,6 @@
     display: block; /* Afficher le bouton du menu mobile */
   }
   
-  .mobile-nav {
-    background-color: var(--alpine-blue);
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="150" height="150" viewBox="0 0 150 150" opacity="0.05"><path d="M75 0 L150 150 L0 150 Z" fill="white"/></svg>');
-    background-size: 150px;
-    background-repeat: repeat;
-    background-attachment: fixed;
-  }
-
   .mobile-nav.open {
     display: flex; /* Afficher le menu mobile quand il est ouvert */
   }
@@ -107,15 +99,6 @@
   .filter-content {
     grid-template-columns: 1fr;
   }
-
-  .mobile-nav-header {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  }
-  
-  .map-view {
-    height: 350px;
-  }
-  
 }
 
 /* Spécifique aux très petits écrans */
