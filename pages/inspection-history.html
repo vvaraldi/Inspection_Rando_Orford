@@ -82,71 +82,68 @@
         </div>
       </div>
       
-		<div class="filter-container">
-		  <div class="filter-content">
-			<div class="filter-group">
-			  <label class="filter-label" for="period-filter">Période</label>
-			  <select class="filter-control" id="period-filter">
-				<option value="all">Toutes les dates</option>
-				<option value="today">Aujourd'hui</option>
-				<option value="week">Cette semaine</option>
-				<option value="month">Ce mois</option>
-				<option value="custom">Période personnalisée</option>
-			  </select>
-			</div>
-			
-			<div class="filter-group">
-			  <label class="filter-label" for="type-filter">Type</label>
-			  <select class="filter-control" id="type-filter">
-				<option value="all">Tous les types</option>
-				<option value="trail">Sentiers</option>
-				<option value="shelter">Abris</option>
-			  </select>
-			</div>
-			
-			<div class="filter-group">
-			  <label class="filter-label" for="location-filter">Sentier/Abri</label>
-			  <select class="filter-control" id="location-filter">
-				<option value="all">Tous</option>
-				<!-- Les options seront chargées dynamiquement -->
-			  </select>
-			</div>
-			
-			<div class="filter-group">
-			  <label class="filter-label" for="status-filter">État</label>
-			  <select class="filter-control" id="status-filter">
-				<option value="all">Tous les états</option>
-				<option value="good">Bon</option>
-				<option value="warning">Attention</option>
-				<option value="critical">Critique</option>
-			  </select>
-			</div>
-		  
-			<div class="filter-group">
-			  <label class="filter-label" for="inspector-filter">Inspecteur</label>
-			  <select class="filter-control" id="inspector-filter">
-				<option value="all">Tous les inspecteurs</option>
-				<!-- Les options seront chargées dynamiquement -->
-			  </select>
-			</div>
-			
-			<div class="filter-group">
-			  <label class="filter-label">Recherche</label>
-			  <div class="search-box">
-				<span class="search-icon">🔍</span>
-				<input type="text" class="search-input" id="search-input" placeholder="Rechercher...">
-			  </div>
-			</div>
-		  </div>
-		  
-		  <div class="filter-footer">
-			<span id="filter-counter">Affichage de 1 à 10 sur 0 entrées</span>
-			<div class="filter-actions">
-			  <button class="btn btn-secondary" id="reset-filters">Réinitialiser</button>
-			  <button class="btn" id="apply-filters">Appliquer</button>
-			</div>
-		  </div>
-		</div>
+      <div class="filter-container">
+        <div class="filter-row">
+          <div class="filter-group">
+            <label class="filter-label" for="period-filter">Période</label>
+            <select class="filter-control" id="period-filter">
+              <option value="all">Toutes les dates</option>
+              <option value="today">Aujourd'hui</option>
+              <option value="week">Cette semaine</option>
+              <option value="month">Ce mois</option>
+              <option value="custom">Période personnalisée</option>
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <label class="filter-label" for="type-filter">Type</label>
+            <select class="filter-control" id="type-filter">
+              <option value="all">Tous les types</option>
+              <option value="trail">Sentiers</option>
+              <option value="shelter">Abris</option>
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <label class="filter-label" for="location-filter">Sentier/Abri</label>
+            <select class="filter-control" id="location-filter">
+              <option value="all">Tous</option>
+              <!-- Les options seront chargées dynamiquement -->
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <label class="filter-label" for="status-filter">État</label>
+            <select class="filter-control" id="status-filter">
+              <option value="all">Tous les états</option>
+              <option value="good">Bon</option>
+              <option value="warning">Attention</option>
+              <option value="critical">Critique</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label" for="inspector-filter">Inspecteur</label>
+            <select class="filter-control" id="inspector-filter">
+              <option value="all">Tous les inspecteurs</option>
+              <!-- Les options seront chargées dynamiquement -->
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <label class="filter-label">Recherche</label>
+            <div class="search-box">
+              <span class="search-icon">🔍</span>
+              <input type="text" class="search-input" id="search-input" placeholder="Rechercher...">
+            </div>
+          </div>
+        </div>
+        
+        <div class="filter-buttons">
+          <button class="btn btn-secondary" id="reset-filters">Réinitialiser</button>
+          <button class="btn" id="apply-filters">Appliquer</button>
+        </div>
+      </div>
       
       <div class="table-container" style="position: relative;">
         <!-- Indicateur de chargement pour le tableau -->
