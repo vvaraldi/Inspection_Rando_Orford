@@ -451,3 +451,66 @@ input:focus, select:focus, textarea:focus {
   color: var(--alpine-blue);
   font-size: 0.9rem;
 }
+
+
+
+
+/* Améliorations spéciales pour la saison */
+.snowflake {
+  position: fixed;
+  color: white;
+  font-size: 1em;
+  opacity: 0.7;
+  z-index: -1;
+  pointer-events: none;
+}
+
+@keyframes fall {
+  0% {
+    opacity: 0;
+    transform: translate(0, -10vh) rotate(0deg);
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.7;
+    transform: translate(25vw, 100vh) rotate(360deg);
+  }
+}
+
+.winter-mode .card, 
+.winter-mode .info-panel, 
+.winter-mode .map-view {
+  border-top: 3px solid var(--alpine-blue);
+  background-color: rgba(255, 255, 255, 0.95);
+}
+
+.autumn-mode .card,
+.autumn-mode .form-container,
+.autumn-mode .info-panel {
+  border-top: 3px solid #e05d44;
+}
+
+/* Animation d'entrée */
+.animate-entrance {
+  animation: slideIn 0.5s ease-out forwards;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mode de réduction des animations */
+.reduce-motion * {
+  animation-duration: 0.001s !important;
+  transition-duration: 0.001s !important;
+}
+
