@@ -475,8 +475,8 @@ async function showTrailDetails(trail) {
      // Informations supplémentaires spécifiques aux abris
       let generalCommentText = "Sans commentaire";
       
-      if (trail.lastInspection.cleanliness) {
-        generalCommentText = getStatusText(trail.lastInspection.comments );
+      if (trail.lastInspection.comments) {
+        generalCommentText = trail.lastInspection.comments ;
       }
       
       // Ajouter ces informations à la section des détails
@@ -615,18 +615,18 @@ async function showShelterDetails(shelter) {
         cleanlinessText = getStatusText(shelter.lastInspection.cleanliness);
       }
       if (shelter.lastInspection.cleanliness_details ) {
-        cleanlinessText = cleanlinessText + "  -  " + getStatusText(shelter.lastInspection.cleanliness_details );
+        cleanlinessText = cleanlinessText + "  -  " + shelter.lastInspection.cleanliness_details;
       }
       
       if (shelter.lastInspection.accessibility) {
         accessibilityText = getStatusText(shelter.lastInspection.accessibility);
       }
       if (shelter.lastInspection.accessibility_details  ) {
-        accessibilityText = accessibilityText + "  -  " + getStatusText(shelter.lastInspection.accessibility_details  );
+        accessibilityText = accessibilityText + "  -  " + shelter.lastInspection.accessibility_details;
       }
       
-      if (shelter.lastInspection.cleanliness) {
-        generalCommentText = getStatusText(shelter.lastInspection.comments );
+      if (shelter.lastInspection.comments) {
+        generalCommentText = shelter.lastInspection.comments ;
       }
 
       // Ajouter ces informations à la section des détails
