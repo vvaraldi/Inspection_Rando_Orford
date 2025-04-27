@@ -232,14 +232,14 @@
   .map-view {
     height: 400px;
     width: 100%;
-    overflow: hidden;
+    overflow: hidden; /* Le conteneur parent bloque le défilement */
   }
   
   .map-bg {
     height: 100%;
     width: 100%;
-    overflow: auto;
-    -webkit-overflow-scrolling: touch;
+    overflow: auto; /* Permet le défilement dans les deux directions */
+    -webkit-overflow-scrolling: touch; /* Pour un défilement fluide sur iOS */
     justify-content: flex-start !important; /* Forcer l'alignement à gauche */
     align-items: flex-start !important; /* Forcer l'alignement en haut */
     padding-left: 1rem;
