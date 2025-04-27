@@ -234,6 +234,7 @@
   .map-view {
     height: 400px;
     width: 100%;
+    overflow: hidden; /* Conteneur parent sans défilement */
   }
   
   /* IMPORTANTE MODIFICATION: CSS spécifique pour mobile */
@@ -243,7 +244,7 @@
     left: 1rem;
     right: 1rem;
     bottom: 1rem;
-    overflow: scroll !important; /* Mode mobile: scroll sur les deux axes */
+    overflow: scroll !important; /* Force le défilement dans les deux directions */
     -webkit-overflow-scrolling: touch;
   }
   
