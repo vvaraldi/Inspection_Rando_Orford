@@ -39,7 +39,7 @@ function checkSeasonAndLoadEffects() {
   const month = currentDate.getMonth(); // 0 = Janvier, 11 = Décembre
   
   // Hiver dans l'hémisphère nord (novembre à mars)
-  if (month >= 10 || month <= 2) {
+  if (month >= 10 || month <= 4) {
     enableWinterEffects();
   } 
   // Automne (septembre-octobre)
