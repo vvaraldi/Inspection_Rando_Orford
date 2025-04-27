@@ -46,6 +46,27 @@ function checkAuthStatus() {
           });
         };
       }
+
+	  // Mettre à jour l'affichage du nom d'utilisateur dans le menu déroulant
+	  const userNameDisplay = document.getElementById('user-name-display');
+	  const userDropdown = document.getElementById('user-dropdown');
+	  
+	  if (userNameDisplay && userDropdown) {
+		userDropdown.style.display = 'block';
+		
+		db.collection('inspectors').doc(user.uid).get()
+		  .then((doc) => {
+			if (doc.exists && doc.data().name) {
+			  userNameDisplay.textContent = doc.data().name;
+			} else {
+			  userNameDisplay.textContent = user.email;
+			}
+		  })
+		  .catch((error) => {
+			console.error("Erreur lors de la récupération du nom d'utilisateur:", error);
+			userNameDisplay.textContent = user.email;
+		  });
+	  }
       
       // Faire de même pour le lien mobile
       if (mobileLoginLink) {
