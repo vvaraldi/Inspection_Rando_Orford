@@ -34,120 +34,32 @@ function checkAuthStatus() {
       // Utilisateur connecté
       console.log("Utilisateur connecté:", user.email);
       
-//      // Mettre à jour le lien de connexion pour afficher "Déconnexion"
-//	  if (loginLink) {
-//		loginLink.textContent = 'Déconnexion';
-//		loginLink.onclick = function(e) {
-//		  e.preventDefault();
-//		  auth.signOut().then(() => {
-//			window.location.reload();
-//		  }).catch(error => {
-//			console.error("Erreur lors de la déconnexion:", error);
-//		  });
-//		};
-//	  }
-	  
-	  if (loginLink) {
-		loginLink.style.display = 'none'; // Cacher le lien au lieu de changer son texte
-	  }	  
-	  
-
-	  // Mettre à jour l'affichage du nom d'utilisateur dans le menu déroulant
-	  const userNameDisplay = document.getElementById('user-name-display');
-	  const userDropdown = document.getElementById('user-dropdown');
-	  
-	  if (userNameDisplay && userDropdown) {
-		userDropdown.style.display = 'block';
-		
-		db.collection('inspectors').doc(user.uid).get()
-		  .then((doc) => {
-			if (doc.exists && doc.data().name) {
-			  userNameDisplay.textContent = doc.data().name;
-			} else {
-			  userNameDisplay.textContent = user.email;
-			}
-		  })
-		  .catch((error) => {
-			console.error("Erreur lors de la récupération du nom d'utilisateur:", error);
-			userNameDisplay.textContent = user.email;
-		  });
-		  // Configurer le lien de déconnexion
-		  setupUserDropdown();
-	  }
-      
-	  
-	  
-	  
-	  
-      // Faire de même pour le lien mobile
-//      if (mobileLoginLink) {
-//        mobileLoginLink.textContent = 'Déconnexion';
-//        mobileLoginLink.onclick = function(e) {
-//          e.preventDefault();
-//          auth.signOut().then(() => {
-//            window.location.reload();
-//          }).catch(error => {
-//            console.error("Erreur lors de la déconnexion:", error);
-//          });
-//        };
-//      }
-		if (mobileLoginLink) {
-		  mobileLoginLink.style.display = 'none';
-		}      
-      
-		// Afficher et configurer le lien de déconnexion mobile
-		if (mobileLogoutLink) {
-		mobileLogoutLink.style.display = 'block';
-		mobileLogoutLink.onclick = function(e) {
-		  e.preventDefault();
-		  auth.signOut().then(() => {
-			window.location.reload();
-		  }).catch(error => {
-			console.error("Erreur lors de la déconnexion:", error);
-		  });
-		};
-		}
-
-      // Mettre à jour l'affichage du menu utilisateur dropdown
-      const userDropdown = document.getElementById('user-dropdown');
-      if (userDropdown) {
-        userDropdown.style.display = 'block';
-        setupUserDropdown(); // Configurer les événements du dropdown
-      }
-      
-      // Reste du code pour l'utilisateur connecté...
-    } else {
-      // Utilisateur non connecté
-      console.log("Aucun utilisateur connecté");
-      
-      // Afficher le lien de connexion standard
+      // Mettre à jour le lien de connexion pour afficher "Déconnexion"
       if (loginLink) {
-        loginLink.style.display = 'inline-block';
+        loginLink.textContent = 'Déconnexion';
+        loginLink.onclick = function(e) {
+          e.preventDefault();
+          auth.signOut().then(() => {
+            window.location.reload();
+          }).catch(error => {
+            console.error("Erreur lors de la déconnexion:", error);
+          });
+        };
       }
       
-      // Afficher le lien de connexion mobile et cacher le lien de déconnexion
+      // Faire de même pour le lien mobile
       if (mobileLoginLink) {
-        mobileLoginLink.style.display = 'block';
+        mobileLoginLink.textContent = 'Déconnexion';
+        mobileLoginLink.onclick = function(e) {
+          e.preventDefault();
+          auth.signOut().then(() => {
+            window.location.reload();
+          }).catch(error => {
+            console.error("Erreur lors de la déconnexion:", error);
+          });
+        };
       }
       
-      if (mobileLogoutLink) {
-        mobileLogoutLink.style.display = 'none';
-      }
-      
-      // Cacher le menu dropdown
-      const userDropdown = document.getElementById('user-dropdown');
-      if (userDropdown) {
-        userDropdown.style.display = 'none';
-      }
-
-
-
-
-
-
-
-
-
       // Vérifier si l'utilisateur est admin
       db.collection('inspectors').doc(user.uid).get()
         .then((doc) => {
@@ -317,30 +229,6 @@ function createInitialAdmin(email, password, name) {
       console.error("Erreur lors de la création de l'administrateur:", error);
       alert("Erreur lors de la création de l'administrateur: " + error.message);
     });
-}
-
-// Setup le menu de dropdown
-function setupUserDropdown() {
-  const logoutLink = document.getElementById('logout-link');
-  
-  if (logoutLink) {
-    logoutLink.addEventListener('click', function(e) {
-      e.preventDefault();
-      
-      // Déconnecter l'utilisateur
-      firebase.auth().signOut()
-        .then(() => {
-          console.log("Déconnexion réussie");
-          // Rediriger vers la page de connexion
-          window.location.href = window.location.pathname.includes('/pages/') 
-            ? 'login.html' 
-            : 'pages/login.html';
-        })
-        .catch(error => {
-          console.error("Erreur lors de la déconnexion:", error);
-        });
-    });
-  }
 }
 
 // Écouter le chargement du document pour vérifier l'authentification

@@ -430,9 +430,6 @@
     
     return true; // Empêche l'affichage de l'erreur dans la console
   };
-  
-  
-  
 </script>
 
 <body>
@@ -448,36 +445,9 @@
         <!-- Lien d'administration - caché par défaut -->
         <a href="pages/admin.html" id="admin-link" style="display: none;">Administration</a>
         <a href="#" id="login-link">Connexion</a>
-		<div class="user-dropdown" id="user-dropdown" style="display: none;">
-		  <div class="dropdown-trigger" id="user-dropdown-trigger">
-			<span id="user-name-display">Utilisateur</span> ▼
-		  </div>
-		  <div class="dropdown-content">
-			<a href="pages/change-password.html">Changer le mot de passe</a>
-			<a href="#" id="logout-link">Déconnexion</a>
-		  </div>
-		</div>
       </div>
-      <!-- Bouton du menu mobile -->
-      <button class="mobile-menu-btn" id="mobile-menu-btn">☰</button>
     </nav>
 	
-	  <!-- Menu mobile -->
-	  <div class="mobile-nav" id="mobile-nav">
-		<div class="mobile-nav-header">
-		  <div class="logo">SkiTrack</div>
-		  <button class="mobile-nav-close" id="mobile-nav-close">✕</button>
-		</div>
-		<div class="mobile-nav-links">
-		  <a href="index.html" class="active">Tableau de bord</a>
-		  <a href="pages/trail-inspection.html">Inspection sentier</a>
-		  <a href="pages/shelter-inspection.html">Inspection abri</a>
-		  <a href="pages/inspection-history.html">Historique</a>
-		  <a href="pages/admin.html" id="mobile-admin-link" style="display: none;">Administration</a>
-		  <a href="#" id="mobile-login-link">Connexion</a>
-		  <a href="#" id="logout-link">Déconnexion</a>
-		</div>
-	  </div>
   </header>
   
   <!-- Indicateur de chargement principal -->
@@ -728,62 +698,5 @@
   <script src="js/map.js"></script>
   <script src="js/dashboard.js"></script>
 
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // Gestionnaire pour le menu mobile
-    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-    const mobileNavClose = document.getElementById('mobile-nav-close');
-    const mobileNav = document.getElementById('mobile-nav');
-    
-    if (mobileMenuBtn) {
-      mobileMenuBtn.addEventListener('click', function() {
-        console.log('Bouton de menu mobile cliqué');
-        if (mobileNav) {
-          mobileNav.classList.add('open');
-        }
-      });
-    } else {
-      console.error('Bouton de menu mobile non trouvé');
-    }
-    
-    if (mobileNavClose) {
-      mobileNavClose.addEventListener('click', function() {
-        if (mobileNav) {
-          mobileNav.classList.remove('open');
-        }
-      });
-    }
-    
-    // Fermer le menu quand on clique sur un lien
-    const mobileLinks = document.querySelectorAll('.mobile-nav-links a');
-    mobileLinks.forEach(link => {
-      link.addEventListener('click', function() {
-        if (mobileNav) {
-          mobileNav.classList.remove('open');
-        }
-      });
-    });
-    
-    // Synchroniser le lien de connexion mobile avec le lien principal
-    const loginLink = document.getElementById('login-link');
-    const mobileLoginLink = document.getElementById('mobile-login-link');
-    
-    if (loginLink && mobileLoginLink) {
-      mobileLoginLink.textContent = loginLink.textContent;
-      mobileLoginLink.onclick = function(e) {
-        e.preventDefault();
-        if (loginLink.onclick) {
-          loginLink.onclick(e);
-        }
-        if (mobileNav) {
-          mobileNav.classList.remove('open');
-        }
-      };
-    }
-  });
-</script>
-
-
 </body>
-
 </html>

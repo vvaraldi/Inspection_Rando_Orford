@@ -947,43 +947,43 @@
       });
       
       // Boutons de suppression
-	document.querySelectorAll('.delete-user').forEach(button => {
-	  button.addEventListener('click', async function() {
-		const userId = this.getAttribute('data-id');
-		
-		// Confirmation avant suppression
-		if (confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur? Cette action est irréversible.')) {
-		  const modal = document.getElementById('delete-modal');
-		  
-		  // Afficher l'indicateur de chargement si disponible
-		  const loadingIndicator = document.querySelector('.loading-indicator');
-		  if (loadingIndicator) loadingIndicator.style.display = 'block';
-		  
-		  // Désactiver le bouton
-		  this.disabled = true;
-		  
-		  // Supprimer l'utilisateur
-		  const result = await deleteUser(userId);
-		  
-		  // Masquer l'indicateur de chargement
-		  if (loadingIndicator) loadingIndicator.style.display = 'none';
-		  
-		  // Afficher le résultat
-		  if (result.success) {
-			alert(result.message);
-			
-			// Recharger la liste des inspecteurs
-			loadInspectors();
-			
-			// Fermer la modal si elle est ouverte
-			if (modal) modal.style.display = 'none';
-		  } else {
-			alert(result.message);
-			this.disabled = false;
-		  }
-		}
-	  });
-	});
+document.querySelectorAll('.delete-user').forEach(button => {
+  button.addEventListener('click', async function() {
+    const userId = this.getAttribute('data-id');
+    
+    // Confirmation avant suppression
+    if (confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur? Cette action est irréversible.')) {
+      const modal = document.getElementById('delete-modal');
+      
+      // Afficher l'indicateur de chargement si disponible
+      const loadingIndicator = document.querySelector('.loading-indicator');
+      if (loadingIndicator) loadingIndicator.style.display = 'block';
+      
+      // Désactiver le bouton
+      this.disabled = true;
+      
+      // Supprimer l'utilisateur
+      const result = await deleteUser(userId);
+      
+      // Masquer l'indicateur de chargement
+      if (loadingIndicator) loadingIndicator.style.display = 'none';
+      
+      // Afficher le résultat
+      if (result.success) {
+        alert(result.message);
+        
+        // Recharger la liste des inspecteurs
+        loadInspectors();
+        
+        // Fermer la modal si elle est ouverte
+        if (modal) modal.style.display = 'none';
+      } else {
+        alert(result.message);
+        this.disabled = false;
+      }
+    }
+  });
+});
     
     // Gestion de la modal
     document.querySelector('.modal-close').addEventListener('click', function() {
