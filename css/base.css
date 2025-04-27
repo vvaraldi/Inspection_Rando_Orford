@@ -1,0 +1,123 @@
+/* base.css - Styles de base (reset, typographie, etc.) */
+
+/* Reset et base */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background-color: #f0f4f8;
+  color: #333;
+  line-height: 1.5;
+}
+
+/* Typographie */
+h1 {
+  font-size: 1.875rem;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+h2 {
+  font-size: 1.5rem;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+h3 {
+  font-size: 1.25rem;
+  color: #1f2937;
+  margin-bottom: 0.75rem;
+}
+
+p {
+  margin-bottom: 1rem;
+}
+
+a {
+  color: #1a56db;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Couleurs de texte et de fond pour assurer la lisibilité */
+.table-container table,
+.modal-content,
+.inspection-details,
+.detail-box,
+.popup-body,
+.detail-list li,
+.issue-item {
+  color: #1f2937;
+}
+
+.table-container th,
+.table-container td {
+  color: #1f2937;
+}
+
+.modal-body {
+  color: #1f2937;
+}
+
+.modal-body p,
+.modal-body h3,
+.detail-label,
+.detail-value,
+.popup-title {
+  color: #1f2937;
+}
+
+/* Utilitaires de base */
+.error-message {
+  color: #e02424;
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  display: none;
+}
+
+.success-message {
+  color: #0e9f6e;
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  display: none;
+}
+
+.hidden {
+  display: none;
+}
+
+.text-center {
+  text-align: center;
+}
+
+/* Classes d'accessibilité */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Focus visible pour l'accessibilité */
+:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Effets de focus pour les boutons */
+button:focus, .btn:focus, a:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}

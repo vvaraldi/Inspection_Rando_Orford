@@ -1,0 +1,245 @@
+/* map.css - Styles pour la carte et les marqueurs */
+
+.map-container {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.map-view {
+  flex: 1;
+  background-color: white;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  width: 800px;
+  height: 700px;
+  position: relative;
+  overflow: hidden;
+}
+
+#map-loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.8);
+  z-index: 10;
+}
+
+.map-bg {
+  height: 100%;
+  position: relative;
+  overflow: auto;
+  display: flex;
+  justify-content: center;
+}
+
+.map-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Styles pour les marqueurs */
+.trail-marker {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;  
+  font-size: 1rem;
+  z-index: 10;
+}
+
+.marker-good {
+  background-color: #10b981;
+}
+
+.marker-warning {
+  background-color: #f59e0b;
+}
+
+.marker-critical {
+  background-color: #ef4444;
+}
+
+.marker-not-inspected {
+  background-color: #9ca3af;
+}
+
+.shelter-marker {
+  background-color: #8b5cf6;
+}
+
+/* Indicateur de problème sur marqueur */
+.problem-indicator {
+  position: relative;
+  top: -8px;
+  right: -5px;
+  font-size: 20px;
+  background-color: white;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: rgba(255, 0, 0, 0.5) 0px 54px 55px, rgba(255, 0, 0, 0.24) 0px -12px 30px, rgba(255, 0, 0, 0.24) 0px 4px 6px, rgba(255, 0, 0, 0.34) 0px 12px 13px, rgba(255, 0, 0, 0.18) 0px -3px 5px;
+}
+
+/* Légende de la carte */
+.legend {
+  width: 250px;
+  background-color: white;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.legend-title {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.legend-section {
+  margin-bottom: 1rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  margin-right: 0.5rem;
+  flex-shrink: 0;
+}
+
+/* Couleurs pour la légende */
+.green {
+  background-color: #10b981;
+}
+
+.orange {
+  background-color: #f59e0b;
+}
+
+.red {
+  background-color: #ef4444;
+}
+
+.gray {
+  background-color: #9ca3af;
+}
+
+.purple {
+  background-color: #8b5cf6;
+}
+
+.blue {
+  background-color: #0942ed;
+}
+
+.black {
+  background-color: #1f2937;
+}
+
+/* Panneau d'information */
+.info-panel {
+  background-color: white;
+  border-radius: 0.5rem;
+  padding: 1.25rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.selected-info {
+  display: none;
+}
+
+.show {
+  display: block;
+}
+
+.info-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.info-section {
+  margin-bottom: 1rem;
+}
+
+.info-title {
+  font-weight: 500;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+}
+
+.issue-item {
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  margin-bottom: 0.5rem;
+  background-color: #f9fafb;
+}
+
+/* Styles pour les problèmes dans le panneau de détails */
+.critical-issues {
+  border-left: 4px solid #ef4444;
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.warning-issues {
+  border-left: 4px solid #f59e0b;
+  background-color: rgba(245, 158, 11, 0.1);
+}
+
+/* Responsive design pour la carte */
+@media (max-width: 768px) {
+  .map-container {
+    flex-direction: column;
+  }
+  
+  .map-view {
+    height: 400px;
+    width: 100%;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch; /* Pour un défilement fluide sur iOS */
+  }
+  
+  .legend {
+    width: 100%;
+    margin-top: 1rem;
+  }
+  
+  .trail-marker {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .map-view {
+    height: 300px;
+  }
+}
