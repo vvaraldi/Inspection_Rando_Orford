@@ -788,11 +788,7 @@ tbody tr:hover {
     </div>
   </div>
   
-  <!-- Scripts Firebase nouveau 
-  <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore-compat.js"></script>-->
+<!-- Scripts Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
@@ -801,6 +797,8 @@ tbody tr:hover {
   
   <!-- Scripts de l'application -->
   <script src="../js/auth.js"></script>
+  <script src="../js/mobile-menu.js"></script>
+
 
   <script>
     // Variables pour la pagination et le tri
@@ -839,83 +837,24 @@ try {
   console.error("Erreur lors de l'initialisation de Firebase Storage:", error);
 }
     
-// Initialisation lors du chargement du document
-document.addEventListener('DOMContentLoaded', function() {
-
-    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-    const mobileNavClose = document.getElementById('mobile-nav-close');
-    const mobileNav = document.getElementById('mobile-nav');
-    const mobileLoginLink = document.getElementById('mobile-login-link');
-    const loginLink = document.getElementById('login-link');
-    const mobileAdminLink = document.getElementById('mobile-admin-link');
-    const adminLink = document.getElementById('admin-link');
-    
-    // Ouvrir le menu mobile
-    if (mobileMenuBtn) {
-      mobileMenuBtn.addEventListener('click', function() {
-        mobileNav.classList.add('open');
-      });
-    }
-    
-    // Fermer le menu mobile
-    if (mobileNavClose) {
-      mobileNavClose.addEventListener('click', function() {
-        mobileNav.classList.remove('open');
-      });
-    }
-    
-    // Synchroniser les liens de login
-    if (mobileLoginLink && loginLink) {
-      mobileLoginLink.textContent = loginLink.textContent;
-      mobileLoginLink.href = loginLink.href;
-      mobileLoginLink.onclick = function(e) {
-        e.preventDefault();
-        if (loginLink.onclick) {
-          loginLink.onclick(e);
-        }
-        mobileNav.classList.remove('open');  // Fermer le menu après clic
-      };
-    }
-    
-    // Synchroniser la visibilité du lien d'administration
-    if (mobileAdminLink && adminLink) {
-      mobileAdminLink.style.display = adminLink.style.display;
-    }
-    
-    // Fermer le menu mobile quand on clique sur un lien
-    document.querySelectorAll('.mobile-nav-links a').forEach(link => {
-      link.addEventListener('click', function() {
-        mobileNav.classList.remove('open');
-      });
+   // Initialisation lors du chargement du document
+    document.addEventListener('DOMContentLoaded', function() {
+      // Configurer les filtres
+      setupFilters();
+      
+      // Configurer le tri
+      setupTableSorting();
+      
+      // Configurer la pagination
+      setupPagination();
+      
+      // Configurer la modal
+      setupModal();
+      
+      // Configurer l'exportation
+      setupExport();
     });
-    
-    // Fermer le menu mobile quand on clique en dehors
-    document.addEventListener('click', function(e) {
-      if (mobileNav.classList.contains('open') && 
-          !mobileNav.contains(e.target) && 
-          e.target !== mobileMenuBtn) {
-        mobileNav.classList.remove('open');
-      }
-    });
-    
-    console.log('Menu mobile initialisé'); 
-
- // Configurer les filtres
-  setupFilters();
-  
-  // Configurer le tri
-  setupTableSorting();
-  
-  // Configurer la pagination
-  setupPagination();
-  
-  // Configurer la modal
-  setupModal();
-  
-  // Configurer l'exportation
-  setupExport();
-});
-
+	
 	// Déclarer loadInspectionHistory comme une fonction globale pour qu'elle soit accessible depuis auth.js
 	window.loadInspectionHistory = function() {
 	  try {

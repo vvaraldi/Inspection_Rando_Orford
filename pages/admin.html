@@ -844,91 +844,37 @@
     </div>
   </div>
   
-  <!-- Scripts Firebase -->
+<!-- Scripts Firebase -->
   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore-compat.js"></script>
 
+  <!-- Scripts de l'application -->
+  <script src="../js/mobile-menu.js"></script>
   <script src="../js/dashboard.js"></script>
 
   <script>
+    // Code d'admin mis à jour (sans la partie menu mobile)
+    // Configuration Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyDcBZrwGTskM7QUvanzLTACEJ_T-55j-DA",
+      authDomain: "trail-inspection.firebaseapp.com",
+      projectId: "trail-inspection",
+      storageBucket: "trail-inspection.firebasestorage.app",
+      messagingSenderId: "415995272058",
+      appId: "1:415995272058:web:dc476de8ffee052e2ad4c3",
+      measurementId: "G-EBLYWBM9YB"
+    };
 
-// Configuration Firebase
-const firebaseConfig = {
-  apiKey: "AIzaSyDcBZrwGTskM7QUvanzLTACEJ_T-55j-DA",
-  authDomain: "trail-inspection.firebaseapp.com",
-  projectId: "trail-inspection",
-  storageBucket: "trail-inspection.firebasestorage.app",
-  messagingSenderId: "415995272058",
-  appId: "1:415995272058:web:dc476de8ffee052e2ad4c3",
-  measurementId: "G-EBLYWBM9YB"
-};
-
-// Initialisation de Firebase
-firebase.initializeApp(firebaseConfig);
+    // Initialisation de Firebase
+    firebase.initializeApp(firebaseConfig);
 
 // Script principal pour la page d'administration
 document.addEventListener('DOMContentLoaded', function() {
   // Références Firebase
   const auth = firebase.auth();
   const db = firebase.firestore();
-  
-  // Éléments DOM du menu et de la navigation
-  const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-  const mobileNavClose = document.getElementById('mobile-nav-close');
-  const mobileNav = document.getElementById('mobile-nav');
-  const mobileLoginLink = document.getElementById('mobile-login-link');
-  const logout_link = document.getElementById('logout-link'); // Utiliser logout-link au lieu de login-link
-  const mobileAdminLink = document.getElementById('mobile-admin-link');
-  const adminLink = document.getElementById('admin-link');
-  
-  // Configuration du menu mobile
-  if (mobileMenuBtn) {
-    mobileMenuBtn.addEventListener('click', function() {
-      mobileNav.classList.add('open');
-    });
-  }
-  
-  if (mobileNavClose) {
-    mobileNavClose.addEventListener('click', function() {
-      mobileNav.classList.remove('open');
-    });
-  }
-  
-	// Synchroniser les liens de login
-	if (mobileLoginLink && loginLink) {
-	  mobileLoginLink.textContent = loginLink.textContent;
-	  mobileLoginLink.href = loginLink.href;
-	  mobileLoginLink.onclick = function(e) {
-		e.preventDefault();
-		if (loginLink.onclick) {
-		  loginLink.onclick(e);
-		}
-		mobileNav.classList.remove('open');  // Fermer le menu après clic
-	  };
-	}
-  
-  // Synchroniser la visibilité du lien d'administration
-  if (mobileAdminLink && adminLink) {
-    mobileAdminLink.style.display = adminLink.style.display;
-  }
-  
-  // Fermer le menu mobile quand on clique sur un lien
-  document.querySelectorAll('.mobile-nav-links a').forEach(link => {
-    link.addEventListener('click', function() {
-      mobileNav.classList.remove('open');
-    });
-  });
-  
-  // Fermer le menu mobile quand on clique en dehors
-  document.addEventListener('click', function(e) {
-    if (mobileNav.classList.contains('open') && 
-        !mobileNav.contains(e.target) && 
-        e.target !== mobileMenuBtn) {
-      mobileNav.classList.remove('open');
-    }
-  });
   
   // ===== VÉRIFICATION DE L'AUTHENTIFICATION =====
   auth.onAuthStateChanged(function(user) {
@@ -1377,7 +1323,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => {
           console.error("Erreur lors de la réinitialisation:", error);
           showStatus('reset-status', 'Erreur: ' + error.message, 'error');
-        });
+});
     }
   });
   
@@ -1408,17 +1354,19 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   
   // Fonction de déconnexion
-  document.getElementById('logout-link').addEventListener('click', function(e) {
-    e.preventDefault();
-    
-    auth.signOut()
-      .then(() => {
-        window.location.href = 'login.html';
-      })
-      .catch(error => {
-        console.error("Erreur lors de la déconnexion:", error);
-      });
-  });
+  if (document.getElementById('logout-link')) {
+    document.getElementById('logout-link').addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      auth.signOut()
+        .then(() => {
+          window.location.href = 'login.html';
+        })
+        .catch(error => {
+          console.error("Erreur lors de la déconnexion:", error);
+        });
+    });
+  }
   
   // ===== FONCTIONS UTILITAIRES =====
   // Fonction utilitaire pour afficher les messages de statut
@@ -1500,6 +1448,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   console.log('Script d\'administration initialisé');
 });
+
 
   </script>
 
