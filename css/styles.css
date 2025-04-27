@@ -7,6 +7,7 @@
 @import 'forms.css';
 @import 'map.css';
 @import 'responsive.css';
+@import 'alpine-theme.css'; /* Ajoutez cette ligne */
 
 /* Vous pouvez ajouter ici des styles globaux supplémentaires 
    qui ne correspondent à aucune des catégories ci-dessus */
