@@ -853,704 +853,653 @@
   <script src="../js/dashboard.js"></script>
 
   <script>
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
-    apiKey: "AIzaSyDcBZrwGTskM7QUvanzLTACEJ_T-55j-DA",
-    authDomain: "trail-inspection.firebaseapp.com",
-    projectId: "trail-inspection",
-    storageBucket: "trail-inspection.firebasestorage.app",
-    messagingSenderId: "415995272058",
-    appId: "1:415995272058:web:dc476de8ffee052e2ad4c3",
-    measurementId: "G-EBLYWBM9YB"
-  };
 
-  // Initialize Firebase
-  //const app = initializeApp(firebaseConfig);
-    firebase.initializeApp(firebaseConfig);
-  //const analytics = getAnalytics(app);
+// Configuration Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyDcBZrwGTskM7QUvanzLTACEJ_T-55j-DA",
+  authDomain: "trail-inspection.firebaseapp.com",
+  projectId: "trail-inspection",
+  storageBucket: "trail-inspection.firebasestorage.app",
+  messagingSenderId: "415995272058",
+  appId: "1:415995272058:web:dc476de8ffee052e2ad4c3",
+  measurementId: "G-EBLYWBM9YB"
+};
 
-    // Références Firebase
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-    
-    // Vérifier si l'utilisateur est connecté et est admin
-    auth.onAuthStateChanged(function(user) {
-      if (user) {
-        // Vérifier si l'utilisateur est admin
-        db.collection('inspectors').doc(user.uid).get()
-          .then(doc => {
-            if (doc.exists && doc.data().role === 'admin') {
-              // Utilisateur est admin, afficher son nom
-              document.getElementById('admin-name').textContent = doc.data().name;
-              
-              // Charger les données
-              loadInspectors();
-              loadStatistics();
-            } else {
-              // Rediriger vers la page principale si non admin
-              window.location.href = '../index.html';
-            }
-          })
-          .catch(error => {
-            console.error("Erreur lors de la vérification des privilèges:", error);
-            window.location.href = '../index.html';
-          });
-      } else {
-        // Rediriger vers la page de connexion
-        window.location.href = 'login.html';
-      }
-    });
-    
-    // Gestion des onglets
-    document.querySelectorAll('.tab').forEach(tab => {
-      tab.addEventListener('click', function() {
-        // Retirer la classe active de tous les onglets
-        document.querySelectorAll('.tab').forEach(t => {
-          t.classList.remove('active');
-        });
-        
-        // Ajouter la classe active à l'onglet cliqué
-        this.classList.add('active');
-        
-        // Masquer tous les contenus d'onglet
-        document.querySelectorAll('.tab-content').forEach(content => {
-          content.classList.remove('active');
-        });
-        
-        // Afficher le contenu correspondant à l'onglet
-        const tabId = this.getAttribute('data-tab') + '-tab';
-        document.getElementById(tabId).classList.add('active');
-      });
-    });
-    
-    // Fonction pour charger les inspecteurs
-    function loadInspectors() {
-      db.collection('inspectors').get()
-        .then(snapshot => {
-          const table = document.getElementById('inspectors-table').querySelector('tbody');
-          table.innerHTML = '';
-          
-          snapshot.forEach(doc => {
-            const data = doc.data();
-            const row = document.createElement('tr');
-            
-            row.innerHTML = `
-              <td>${data.name}</td>
-              <td>${data.email}</td>
-              <td>${data.phone || '-'}</td>
-              <td><span class="status-badge status-${data.status}">${data.status === 'active' ? 'Actif' : 'Inactif'}</span></td>
-              <td>
-                <button class="btn btn-danger btn-sm delete-user" data-id="${doc.id}">Supprimer</button>
-              </td>
-            `;
-                //<button class="btn btn-secondary btn-sm edit-user" data-id="${doc.id}">Modifier</button>
+// Initialisation de Firebase
+firebase.initializeApp(firebaseConfig);
 
-            
-            table.appendChild(row);
-          });
-          
-          // Ajouter les événements après avoir créé les éléments
-          setupUserActions();
-        })
-        .catch(error => {
-          console.error("Erreur lors du chargement des inspecteurs:", error);
-          showStatus('user-status-message', 'Erreur lors du chargement des inspecteurs.', 'error');
-        });
-    }
-    
-    // Configurer les actions pour les utilisateurs
-    function setupUserActions() {
-      // Bouton d'ajout d'utilisateur
-      document.getElementById('add-user-btn').addEventListener('click', function() {
-        // Réinitialiser le formulaire
-        document.getElementById('user-form').reset();
-        
-        // Afficher le formulaire
-        document.getElementById('user-form').style.display = 'block';
-      });
-      
-      // Bouton d'annulation du formulaire
-      document.getElementById('cancel-user-btn').addEventListener('click', function() {
-        document.getElementById('user-form').reset();
-      });
-      
-      // Soumission du formulaire
-      document.getElementById('user-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-		const name = document.getElementById('user-name').value;
-		const email = document.getElementById('user-email').value;
-		const phone = document.getElementById('user-phone').value;
-		const password = document.getElementById('user-password').value;
-		const status = document.getElementById('user-status').value;
-        
-		// Désactiver le bouton de soumission pour éviter les soumissions multiples
-		const submitBtn = this.querySelector('button[type="submit"]');
-		if (submitBtn) submitBtn.disabled = true;
-
-  // Créer l'utilisateur dans Firebase Auth
-  auth.createUserWithEmailAndPassword(email, password)
-    .then(userCredential => {
-      console.log("Utilisateur créé dans Auth:", userCredential.user.uid);
-      
-      // IMPORTANT: Ajouter les informations dans Firestore
-      return db.collection('inspectors').doc(userCredential.user.uid).set({
-        name: name,
-        email: email,
-        phone: phone || null,
-        status: status,
-        role: 'inspector', // Par défaut, rôle d'inspecteur
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-    })
-    .then(() => {
-      console.log("Inspecteur ajouté à Firestore avec succès");
-      
-      // Afficher un message de succès
-      showStatus('user-status-message', 'Inspecteur créé avec succès!', 'success');
-      
-      // Réinitialiser le formulaire
-      document.getElementById('user-form').reset();
-      
-      // Réactiver le bouton de soumission
-      if (submitBtn) submitBtn.disabled = false;
-      
-      // Recharger la liste des inspecteurs
-      loadInspectors();
-    })
-    .catch(error => {
-      console.error("Erreur lors de la création de l'inspecteur:", error);
-      
-      // Afficher l'erreur
-      showStatus('user-status-message', 'Erreur: ' + error.message, 'error');
-      
-      // Réactiver le bouton de soumission
-      if (submitBtn) submitBtn.disabled = false;
+// Script principal pour la page d'administration
+document.addEventListener('DOMContentLoaded', function() {
+  // Références Firebase
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+  
+  // Éléments DOM du menu et de la navigation
+  const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+  const mobileNavClose = document.getElementById('mobile-nav-close');
+  const mobileNav = document.getElementById('mobile-nav');
+  const mobileLoginLink = document.getElementById('mobile-login-link');
+  const logout_link = document.getElementById('logout-link'); // Utiliser logout-link au lieu de login-link
+  const mobileAdminLink = document.getElementById('mobile-admin-link');
+  const adminLink = document.getElementById('admin-link');
+  
+  // Configuration du menu mobile
+  if (mobileMenuBtn) {
+    mobileMenuBtn.addEventListener('click', function() {
+      mobileNav.classList.add('open');
     });
-});
-      
-      // Boutons de modification
-      document.querySelectorAll('.edit-user').forEach(button => {
-        button.addEventListener('click', function() {
-          const userId = this.getAttribute('data-id');
-          console.log('Modifier utilisateur:', userId);
-          
-          // Dans une implémentation réelle, charger les données de l'utilisateur
-          // et les afficher dans le formulaire
-        });
-      });
-      
-      // Boutons de suppression
-document.querySelectorAll('.delete-user').forEach(button => {
-  button.addEventListener('click', async function() {
-    const userId = this.getAttribute('data-id');
-    
-    // Confirmation avant suppression
-    if (confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur? Cette action est irréversible.')) {
-      const modal = document.getElementById('delete-modal');
-      
-      // Afficher l'indicateur de chargement si disponible
-      const loadingIndicator = document.querySelector('.loading-indicator');
-      if (loadingIndicator) loadingIndicator.style.display = 'block';
-      
-      // Désactiver le bouton
-      this.disabled = true;
-      
-      // Supprimer l'utilisateur
-      const result = await deleteUser(userId);
-      
-      // Masquer l'indicateur de chargement
-      if (loadingIndicator) loadingIndicator.style.display = 'none';
-      
-      // Afficher le résultat
-      if (result.success) {
-        alert(result.message);
-        
-        // Recharger la liste des inspecteurs
-        loadInspectors();
-        
-        // Fermer la modal si elle est ouverte
-        if (modal) modal.style.display = 'none';
-      } else {
-        alert(result.message);
-        this.disabled = false;
-      }
-    }
-  });
-});
-    
-    // Gestion de la modal
-    document.querySelector('.modal-close').addEventListener('click', function() {
-      document.getElementById('delete-modal').style.display = 'none';
+  }
+  
+  if (mobileNavClose) {
+    mobileNavClose.addEventListener('click', function() {
+      mobileNav.classList.remove('open');
     });
-    
-    document.querySelector('.modal-cancel').addEventListener('click', function() {
-      document.getElementById('delete-modal').style.display = 'none';
-    });
-    };
-
-    // Fonction pour charger les statistiques
-    function loadStatistics() {
-      // Dans une implémentation réelle, charger les statistiques depuis Firestore
-      console.log('Chargement des statistiques...');
-    }
-    
-    // Fonction pour initialiser les données des sentiers
-    document.getElementById('init-trails-btn').addEventListener('click', function() {
-      if (confirm('Êtes-vous sûr de vouloir initialiser les données des sentiers? Cela écrasera toutes les données existantes.')) {
-        showStatus('trails-status', 'Initialisation en cours...', 'info');
-        
-        // Les données des sentiers
-        const trailsData = [
-          {
-            id: 'trail_1',
-            name: "La tortue",
-            length: 1.1,
-            difficulty: "easy",
-            description: "Sentier facile idéal pour débutants",
-            coordinates: { top: 387, left: 454 }
-          },
-          {
-            id: 'trail_2',
-            name: "Tracé du lynx",
-            length: 0.6,
-            difficulty: "easy",
-            description: "Court sentier avec peu de dénivelé",
-            coordinates: { top: 316, left: 228 }
-          },
-          {
-            id: 'trail_3',
-            name: "Adams",
-            length: 0.6,
-            difficulty: "easy",
-            description: "Sentier familial accessible",
-            coordinates: { top: 500, left: 425 }
-          },
-          {
-            id: 'trail_4',
-            name: "Le renard",
-            length: 2.4,
-            difficulty: "easy",
-            description: "Sentier plus long mais avec pente douce",
-            coordinates: { top: 418, left: 73 }
-          },
-          {
-            id: 'trail_5',
-            name: "Le lièvre",
-            length: 1.3,
-            difficulty: "medium",
-            description: "Sentier intermédiaire avec quelques pentes",
-            coordinates: { top: 143, left: 298 }
-          },
-          {
-            id: 'trail_6',
-            name: "Le Campagnol",
-            length: 1.5,
-            difficulty: "hard",
-            description: "Sentier difficile pour randonneurs expérimentés",
-            coordinates: { top: 20, left: 426 }
-          },
-          {
-            id: 'trail_7',
-            name: "L'Hermine",
-            length: 1.8,
-            difficulty: "medium",
-            description: "Sentier intermédiaire avec belle vue",
-            coordinates: { top: 360, left: 533 }
-          },
-          {
-            id: 'trail_8',
-            name: "L'Alouette",
-            length: 2.4,
-            difficulty: "medium",
-            description: "Sentier avec dénivelé modéré",
-            coordinates: { top: 390, left: 664 }
-          },
-          {
-            id: 'trail_9',
-            name: "L'Urubu",
-            length: 1.2,
-            difficulty: "hard",
-            description: "Sentier technique et escarpé",
-            coordinates: { top: 485, left: 270 }
-          },
-          {
-            id: 'trail_10',
-            name: "La Carcajou",
-            length: 0.8,
-            difficulty: "hard",
-            description: "Court sentier mais très exigeant",
-            coordinates: { top: 455, left: 305 }
-          },
-          {
-            id: 'trail_11',
-            name: "La Mille-Pattes",
-            length: 1.5,
-            difficulty: "hard",
-            description: "Sentier avec plusieurs segments techniques",
-            coordinates: { top: 298, left: 523 }
-          }
-        ];
-        
-        // Initialiser les données des sentiers
-        const batch = db.batch();
-        
-        // D'abord, supprimer les données existantes
-        db.collection('trails').get()
-          .then(snapshot => {
-            snapshot.forEach(doc => {
-              batch.delete(doc.ref);
-            });
-            
-            // Ensuite, ajouter les nouvelles données
-            trailsData.forEach(trail => {
-              const docRef = db.collection('trails').doc(trail.id);
-              batch.set(docRef, {
-                name: trail.name,
-                length: trail.length,
-                difficulty: trail.difficulty,
-                description: trail.description,
-                coordinates: trail.coordinates,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-              });
-            });
-            
-            // Exécuter le batch
-            return batch.commit();
-          })
-          .then(() => {
-            showStatus('trails-status', 'Données des sentiers initialisées avec succès!', 'success');
-          })
-          .catch(error => {
-            console.error("Erreur lors de l'initialisation des sentiers:", error);
-            showStatus('trails-status', 'Erreur: ' + error.message, 'error');
-          });
-      }
-    });
-    
-    // Fonction pour initialiser les données des abris
-    document.getElementById('init-shelters-btn').addEventListener('click', function() {
-      if (confirm('Êtes-vous sûr de vouloir initialiser les données des abris? Cela écrasera toutes les données existantes.')) {
-        showStatus('shelters-status', 'Initialisation en cours...', 'info');
-        
-	  // Les données des abris
-        const sheltersData = [
-          {
-            id: 'shelter_1',
-            name: "Mont Giroux",
-            altitude: 650,
-            coordinates: { top: 437, left: 159 }
-          },
-          {
-            id: 'shelter_2',
-            name: "Mont Orford",
-            altitude: 850,
-            coordinates: { top: 39, left: 479 }
-          },
-          {
-            id: 'shelter_3',
-            name: "Mont Alfred-Desrochers",
-            altitude: 615,
-            coordinates: { top: 168, left: 622 }
-          }
-        ];
-        
-      console.log(sheltersData);
-
-        // Initialiser les données des abris
-        const batch = db.batch();
-        
-
-        // D'abord, supprimer les données existantes
-        db.collection('shelters').get()
-          .then(snapshot => {
-            snapshot.forEach(doc => {
-              batch.delete(doc.ref);
-            });
-            
-            // Ensuite, ajouter les nouvelles données
-            sheltersData.forEach(shelter => {
-              const docRef = db.collection('shelters').doc(shelter.id);
-              batch.set(docRef, {
-                name: shelter.name,
-                altitude: shelter.altitude,
-                coordinates: shelter.coordinates,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-              });
-            });
-            
-      console.log('04');
-
-            // Exécuter le batch
-            return batch.commit();
-          })
-          .then(() => {
-            showStatus('shelters-status', 'Données des abris initialisées avec succès!', 'success');
-          })
-          .catch(error => {
-            console.error("Erreur lors de l'initialisation des abris:", error);
-            showStatus('shelters-status', 'Erreur: ' + error.message, 'error');
-          });
-      }
-    });
-    
-    // Fonction pour créer des données de test
-    document.getElementById('create-sample-btn').addEventListener('click', function() {
-      if (confirm('Voulez-vous créer des données d\'inspection de test? Cela ajoutera plusieurs inspections fictives.')) {
-        showStatus('sample-status', 'Création des données de test en cours...', 'info');
-        
-        // Dans une implémentation réelle, créer des inspections de test
-        setTimeout(() => {
-          showStatus('sample-status', 'Données de test créées avec succès!', 'success');
-        }, 1500);
-      }
-    });
-    
-    // Fonction pour réinitialiser les inspections
-    document.getElementById('reset-inspections-btn').addEventListener('click', function() {
-      if (confirm('ATTENTION: Voulez-vous vraiment supprimer TOUTES les inspections? Cette action est irréversible.')) {
-        showStatus('reset-status', 'Réinitialisation en cours...', 'warning');
-        
-        // Supprimer toutes les inspections
-        const trailBatch = db.batch();
-        const shelterBatch = db.batch();
-        
-        // Supprimer les inspections de sentiers
-        db.collection('trail_inspections').get()
-          .then(snapshot => {
-            snapshot.forEach(doc => {
-              trailBatch.delete(doc.ref);
-            });
-            return trailBatch.commit();
-          })
-          .then(() => {
-            // Supprimer les inspections d'abris
-            return db.collection('shelter_inspections').get();
-          })
-          .then(snapshot => {
-            snapshot.forEach(doc => {
-              shelterBatch.delete(doc.ref);
-            });
-            return shelterBatch.commit();
-          })
-          .then(() => {
-            showStatus('reset-status', 'Toutes les inspections ont été supprimées.', 'success');
-            
-            // Mettre à jour les statistiques
-            loadStatistics();
-          })
-          .catch(error => {
-            console.error("Erreur lors de la réinitialisation:", error);
-            showStatus('reset-status', 'Erreur: ' + error.message, 'error');
-          });
-      }
-    });
-    
-    // Fonction d'exportation des données
-    document.getElementById('export-data-btn').addEventListener('click', function() {
-      // Dans une implémentation réelle, exporter toutes les données au format JSON
-      alert('Fonctionnalité d\'exportation en cours de développement.');
-    });
-    
-    // Fonctions de maintenance
-    document.getElementById('clear-cache-btn').addEventListener('click', function() {
-      // Simuler le nettoyage du cache
-      showStatus('maintenance-status', 'Nettoyage du cache en cours...', 'info');
-      
-      setTimeout(() => {
-        showStatus('maintenance-status', 'Cache nettoyé avec succès!', 'success');
-      }, 1000);
-    });
-    
-    document.getElementById('check-updates-btn').addEventListener('click', function() {
-      // Simuler la vérification des mises à jour
-      showStatus('maintenance-status', 'Vérification des mises à jour...', 'info');
-      
-      setTimeout(() => {
-        showStatus('maintenance-status', 'Votre système est à jour!', 'success');
-      }, 1500);
-    });
-    
-    // Fonction de déconnexion
-    document.getElementById('logout-link').addEventListener('click', function(e) {
+  }
+  
+  // Synchroniser les liens de login/logout
+  if (mobileLoginLink && logout_link) {
+    mobileLoginLink.textContent = logout_link.textContent;
+    mobileLoginLink.href = logout_link.href;
+    mobileLoginLink.onclick = function(e) {
       e.preventDefault();
-      
-      auth.signOut()
-        .then(() => {
-          window.location.href = 'login.html';
-        })
-        .catch(error => {
-          console.error("Erreur lors de la déconnexion:", error);
-        });
-    });
-    
-    // Fonction utilitaire pour afficher les messages de statut
-    function showStatus(elementId, message, type) {
-      const statusElement = document.getElementById(elementId);
-      statusElement.textContent = message;
-      statusElement.className = 'status-message status-' + type;
-      statusElement.style.display = 'block';
-      
-      // Faire disparaître le message après un certain temps, sauf pour les erreurs
-      if (type !== 'error') {
-        setTimeout(() => {
-          statusElement.style.display = 'none';
-        }, 5000);
+      if (logout_link.onclick) {
+        logout_link.onclick(e);
       }
-    }
-
-
-/**
- * Supprime un utilisateur et ses données associées
- * @param {string} userId - L'ID de l'utilisateur à supprimer
- */
-async function deleteUser(userId) {
-  try {
-    // Récupérer les informations de l'utilisateur à supprimer
-    const userDoc = await db.collection('inspectors').doc(userId).get();
-    
-    if (!userDoc.exists) {
-      throw new Error("Utilisateur non trouvé dans la base de données");
-    }
-    
-    // Utilisation de l'API d'administration Firebase pour supprimer l'utilisateur
-    // Ceci doit normalement être fait côté serveur via une fonction Cloud
-    // Mais pour des besoins de démonstration, nous utilisons cette approche
-    
-    // 1. Supprimer les données de l'utilisateur dans Firestore
-    await db.collection('inspectors').doc(userId).delete();
-    
-    // 2. Si vous souhaitez également supprimer les inspections réalisées par cet utilisateur
-    // (Optionnel, selon vos besoins)
-    
-    // Pour les inspections de sentiers
-    const trailInspectionsSnapshot = await db.collection('trail_inspections')
-      .where('inspector_id', '==', userId)
-      .get();
-    
-    // Utiliser un batch pour supprimer plusieurs documents efficacement
-    const trailBatch = db.batch();
-    trailInspectionsSnapshot.forEach(doc => {
-      trailBatch.delete(doc.ref);
-    });
-    await trailBatch.commit();
-    
-    // Pour les inspections d'abris
-    const shelterInspectionsSnapshot = await db.collection('shelter_inspections')
-      .where('inspector_id', '==', userId)
-      .get();
-    
-    const shelterBatch = db.batch();
-    shelterInspectionsSnapshot.forEach(doc => {
-      shelterBatch.delete(doc.ref);
-    });
-    await shelterBatch.commit();
-    
-    // 3. ⚠️ IMPORTANT: En frontend, vous ne pouvez pas supprimer directement un utilisateur Firebase Auth
-    // Vous devez implémenter une fonction Cloud ou un backend sécurisé pour cette partie
-    // Voici comment l'appeler:
-    
-    // Appel à une fonction Firebase Cloud
-    /*
-    const deleteAuthUser = firebase.functions().httpsCallable('deleteUser');
-    await deleteAuthUser({ uid: userId });
-    */
-    
-    // OU faire une requête à votre API backend
-    /*
-    await fetch('/api/deleteUser', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + await firebase.auth().currentUser.getIdToken()
-      },
-      body: JSON.stringify({ uid: userId })
-    });
-    */
-    
-    
-    // Pour l'instant, nous affichons simplement un message de succès pour la partie Firestore
-    console.log("Utilisateur supprimé de Firestore avec succès");
-    
-    return {
-      success: true,
-      message: "Données utilisateur supprimées. Veuillez contacter l'administrateur pour compléter la suppression du compte."
-    };
-  } catch (error) {
-    console.error("Erreur lors de la suppression de l'utilisateur:", error);
-    
-    return {
-      success: false,
-      message: "Erreur lors de la suppression: " + error.message
+      mobileNav.classList.remove('open');
     };
   }
-}
-
-    // Vérifier l'authentification spécifique à cette page
-    document.addEventListener('DOMContentLoaded', function() {
-
-    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-    const mobileNavClose = document.getElementById('mobile-nav-close');
-    const mobileNav = document.getElementById('mobile-nav');
-    const mobileLoginLink = document.getElementById('mobile-login-link');
-    const loginLink = document.getElementById('login-link');
-    const mobileAdminLink = document.getElementById('mobile-admin-link');
-    const adminLink = document.getElementById('admin-link');
-    
-    // Ouvrir le menu mobile
-    if (mobileMenuBtn) {
-      mobileMenuBtn.addEventListener('click', function() {
-        mobileNav.classList.add('open');
-      });
+  
+  // Synchroniser la visibilité du lien d'administration
+  if (mobileAdminLink && adminLink) {
+    mobileAdminLink.style.display = adminLink.style.display;
+  }
+  
+  // Fermer le menu mobile quand on clique sur un lien
+  document.querySelectorAll('.mobile-nav-links a').forEach(link => {
+    link.addEventListener('click', function() {
+      mobileNav.classList.remove('open');
+    });
+  });
+  
+  // Fermer le menu mobile quand on clique en dehors
+  document.addEventListener('click', function(e) {
+    if (mobileNav.classList.contains('open') && 
+        !mobileNav.contains(e.target) && 
+        e.target !== mobileMenuBtn) {
+      mobileNav.classList.remove('open');
     }
-    
-    // Fermer le menu mobile
-    if (mobileNavClose) {
-      mobileNavClose.addEventListener('click', function() {
-        mobileNav.classList.remove('open');
-      });
+  });
+  
+  // ===== VÉRIFICATION DE L'AUTHENTIFICATION =====
+  auth.onAuthStateChanged(function(user) {
+    if (user) {
+      // Vérifier si l'utilisateur est admin
+      db.collection('inspectors').doc(user.uid).get()
+        .then(doc => {
+          if (doc.exists && doc.data().role === 'admin') {
+            // Utilisateur est admin, afficher son nom
+            document.getElementById('admin-name').textContent = doc.data().name;
+            
+            // Charger les données
+            loadInspectors();
+            loadStatistics();
+          } else {
+            // Rediriger vers la page principale si non admin
+            window.location.href = '../index.html';
+          }
+        })
+        .catch(error => {
+          console.error("Erreur lors de la vérification des privilèges:", error);
+          window.location.href = '../index.html';
+        });
+    } else {
+      // Rediriger vers la page de connexion
+      window.location.href = 'login.html';
     }
+  });
+  
+  // ===== GESTION DES ONGLETS =====
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+      // Retirer la classe active de tous les onglets
+      document.querySelectorAll('.tab').forEach(t => {
+        t.classList.remove('active');
+      });
+      
+      // Ajouter la classe active à l'onglet cliqué
+      this.classList.add('active');
+      
+      // Masquer tous les contenus d'onglet
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+      });
+      
+      // Afficher le contenu correspondant à l'onglet
+      const tabId = this.getAttribute('data-tab') + '-tab';
+      document.getElementById(tabId).classList.add('active');
+    });
+  });
+  
+  // ===== GESTION DES INSPECTEURS =====
+  // Fonction pour charger les inspecteurs
+  function loadInspectors() {
+    db.collection('inspectors').get()
+      .then(snapshot => {
+        const table = document.getElementById('inspectors-table').querySelector('tbody');
+        table.innerHTML = '';
+        
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const row = document.createElement('tr');
+          
+          row.innerHTML = `
+            <td>${data.name}</td>
+            <td>${data.email}</td>
+            <td>${data.phone || '-'}</td>
+            <td><span class="status-badge status-${data.status}">${data.status === 'active' ? 'Actif' : 'Inactif'}</span></td>
+            <td>
+              <button class="btn btn-danger btn-sm delete-user" data-id="${doc.id}">Supprimer</button>
+            </td>
+          `;
+          
+          table.appendChild(row);
+        });
+        
+        // Ajouter les événements après avoir créé les éléments
+        setupUserActions();
+      })
+      .catch(error => {
+        console.error("Erreur lors du chargement des inspecteurs:", error);
+        showStatus('user-status-message', 'Erreur lors du chargement des inspecteurs.', 'error');
+      });
+  }
+  
+  // Configurer les actions pour les utilisateurs
+  function setupUserActions() {
+    // Soumission du formulaire
+    document.getElementById('user-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const name = document.getElementById('user-name').value;
+      const email = document.getElementById('user-email').value;
+      const phone = document.getElementById('user-phone').value;
+      const password = document.getElementById('user-password').value;
+      const status = document.getElementById('user-status').value;
+      
+      // Désactiver le bouton de soumission pour éviter les soumissions multiples
+      const submitBtn = this.querySelector('button[type="submit"]');
+      if (submitBtn) submitBtn.disabled = true;
+
+      // Créer l'utilisateur dans Firebase Auth
+      auth.createUserWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          console.log("Utilisateur créé dans Auth:", userCredential.user.uid);
+          
+          // IMPORTANT: Ajouter les informations dans Firestore
+          return db.collection('inspectors').doc(userCredential.user.uid).set({
+            name: name,
+            email: email,
+            phone: phone || null,
+            status: status,
+            role: 'inspector', // Par défaut, rôle d'inspecteur
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        })
+        .then(() => {
+          console.log("Inspecteur ajouté à Firestore avec succès");
+          
+          // Afficher un message de succès
+          showStatus('user-status-message', 'Inspecteur créé avec succès!', 'success');
+          
+          // Réinitialiser le formulaire
+          document.getElementById('user-form').reset();
+          
+          // Réactiver le bouton de soumission
+          if (submitBtn) submitBtn.disabled = false;
+          
+          // Recharger la liste des inspecteurs
+          loadInspectors();
+        })
+        .catch(error => {
+          console.error("Erreur lors de la création de l'inspecteur:", error);
+          
+          // Afficher l'erreur
+          showStatus('user-status-message', 'Erreur: ' + error.message, 'error');
+          
+          // Réactiver le bouton de soumission
+          if (submitBtn) submitBtn.disabled = false;
+        });
+    });
+  
+    // Bouton d'annulation du formulaire
+    document.getElementById('cancel-user-btn').addEventListener('click', function() {
+      document.getElementById('user-form').reset();
+    });
     
-    // Synchroniser les liens de login
-    if (mobileLoginLink && loginLink) {
-      mobileLoginLink.textContent = loginLink.textContent;
-      mobileLoginLink.href = loginLink.href;
-      mobileLoginLink.onclick = function(e) {
-        e.preventDefault();
-        if (loginLink.onclick) {
-          loginLink.onclick(e);
+    // Boutons de suppression
+    document.querySelectorAll('.delete-user').forEach(button => {
+      button.addEventListener('click', async function() {
+        const userId = this.getAttribute('data-id');
+        
+        // Confirmation avant suppression
+        if (confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur? Cette action est irréversible.')) {
+          // Afficher l'indicateur de chargement si disponible
+          const loadingIndicator = document.querySelector('.loading-indicator');
+          if (loadingIndicator) loadingIndicator.style.display = 'block';
+          
+          // Désactiver le bouton
+          this.disabled = true;
+          
+          // Supprimer l'utilisateur
+          const result = await deleteUser(userId);
+          
+          // Masquer l'indicateur de chargement
+          if (loadingIndicator) loadingIndicator.style.display = 'none';
+          
+          // Afficher le résultat
+          if (result.success) {
+            alert(result.message);
+            
+            // Recharger la liste des inspecteurs
+            loadInspectors();
+          } else {
+            alert(result.message);
+            this.disabled = false;
+          }
         }
-        mobileNav.classList.remove('open');  // Fermer le menu après clic
+      });
+    });
+    
+    // Gestion de la modal
+    const closeModalBtn = document.querySelector('.modal-close');
+    const cancelModalBtn = document.querySelector('.modal-cancel');
+    
+    if (closeModalBtn) {
+      closeModalBtn.addEventListener('click', function() {
+        document.getElementById('delete-modal').style.display = 'none';
+      });
+    }
+    
+    if (cancelModalBtn) {
+      cancelModalBtn.addEventListener('click', function() {
+        document.getElementById('delete-modal').style.display = 'none';
+      });
+    }
+  }
+
+  // ===== GESTION DES STATISTIQUES =====
+  function loadStatistics() {
+    // Dans une implémentation réelle, charger les statistiques depuis Firestore
+    console.log('Chargement des statistiques...');
+  }
+  
+  // ===== INITIALISATION DES DONNÉES =====
+  // Fonction pour initialiser les données des sentiers
+  document.getElementById('init-trails-btn').addEventListener('click', function() {
+    if (confirm('Êtes-vous sûr de vouloir initialiser les données des sentiers? Cela écrasera toutes les données existantes.')) {
+      showStatus('trails-status', 'Initialisation en cours...', 'info');
+      
+      // Les données des sentiers
+      const trailsData = [
+        {
+          id: 'trail_1',
+          name: "La tortue",
+          length: 1.1,
+          difficulty: "easy",
+          description: "Sentier facile idéal pour débutants",
+          coordinates: { top: 387, left: 454 }
+        },
+        {
+          id: 'trail_2',
+          name: "Tracé du lynx",
+          length: 0.6,
+          difficulty: "easy",
+          description: "Court sentier avec peu de dénivelé",
+          coordinates: { top: 316, left: 228 }
+        },
+        {
+          id: 'trail_3',
+          name: "Adams",
+          length: 0.6,
+          difficulty: "easy",
+          description: "Sentier familial accessible",
+          coordinates: { top: 500, left: 425 }
+        },
+        {
+          id: 'trail_4',
+          name: "Le renard",
+          length: 2.4,
+          difficulty: "easy",
+          description: "Sentier plus long mais avec pente douce",
+          coordinates: { top: 418, left: 73 }
+        },
+        {
+          id: 'trail_5',
+          name: "Le lièvre",
+          length: 1.3,
+          difficulty: "medium",
+          description: "Sentier intermédiaire avec quelques pentes",
+          coordinates: { top: 143, left: 298 }
+        },
+        {
+          id: 'trail_6',
+          name: "Le Campagnol",
+          length: 1.5,
+          difficulty: "hard",
+          description: "Sentier difficile pour randonneurs expérimentés",
+          coordinates: { top: 20, left: 426 }
+        },
+        {
+          id: 'trail_7',
+          name: "L'Hermine",
+          length: 1.8,
+          difficulty: "medium",
+          description: "Sentier intermédiaire avec belle vue",
+          coordinates: { top: 360, left: 533 }
+        },
+        {
+          id: 'trail_8',
+          name: "L'Alouette",
+          length: 2.4,
+          difficulty: "medium",
+          description: "Sentier avec dénivelé modéré",
+          coordinates: { top: 390, left: 664 }
+        },
+        {
+          id: 'trail_9',
+          name: "L'Urubu",
+          length: 1.2,
+          difficulty: "hard",
+          description: "Sentier technique et escarpé",
+          coordinates: { top: 485, left: 270 }
+        },
+        {
+          id: 'trail_10',
+          name: "La Carcajou",
+          length: 0.8,
+          difficulty: "hard",
+          description: "Court sentier mais très exigeant",
+          coordinates: { top: 455, left: 305 }
+        },
+        {
+          id: 'trail_11',
+          name: "La Mille-Pattes",
+          length: 1.5,
+          difficulty: "hard",
+          description: "Sentier avec plusieurs segments techniques",
+          coordinates: { top: 298, left: 523 }
+        }
+      ];
+      
+      // Initialiser les données des sentiers
+      const batch = db.batch();
+      
+      // D'abord, supprimer les données existantes
+      db.collection('trails').get()
+        .then(snapshot => {
+          snapshot.forEach(doc => {
+            batch.delete(doc.ref);
+          });
+          
+          // Ensuite, ajouter les nouvelles données
+          trailsData.forEach(trail => {
+            const docRef = db.collection('trails').doc(trail.id);
+            batch.set(docRef, {
+              name: trail.name,
+              length: trail.length,
+              difficulty: trail.difficulty,
+              description: trail.description,
+              coordinates: trail.coordinates,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+          });
+          
+          // Exécuter le batch
+          return batch.commit();
+        })
+        .then(() => {
+          showStatus('trails-status', 'Données des sentiers initialisées avec succès!', 'success');
+        })
+        .catch(error => {
+          console.error("Erreur lors de l'initialisation des sentiers:", error);
+          showStatus('trails-status', 'Erreur: ' + error.message, 'error');
+        });
+    }
+  });
+  
+  // Fonction pour initialiser les données des abris
+  document.getElementById('init-shelters-btn').addEventListener('click', function() {
+    if (confirm('Êtes-vous sûr de vouloir initialiser les données des abris? Cela écrasera toutes les données existantes.')) {
+      showStatus('shelters-status', 'Initialisation en cours...', 'info');
+      
+      // Les données des abris
+      const sheltersData = [
+        {
+          id: 'shelter_1',
+          name: "Mont Giroux",
+          altitude: 650,
+          coordinates: { top: 437, left: 159 }
+        },
+        {
+          id: 'shelter_2',
+          name: "Mont Orford",
+          altitude: 850,
+          coordinates: { top: 39, left: 479 }
+        },
+        {
+          id: 'shelter_3',
+          name: "Mont Alfred-Desrochers",
+          altitude: 615,
+          coordinates: { top: 168, left: 622 }
+        }
+      ];
+      
+      // Initialiser les données des abris
+      const batch = db.batch();
+      
+      // D'abord, supprimer les données existantes
+      db.collection('shelters').get()
+        .then(snapshot => {
+          snapshot.forEach(doc => {
+            batch.delete(doc.ref);
+          });
+          
+          // Ensuite, ajouter les nouvelles données
+          sheltersData.forEach(shelter => {
+            const docRef = db.collection('shelters').doc(shelter.id);
+            batch.set(docRef, {
+              name: shelter.name,
+              altitude: shelter.altitude,
+              coordinates: shelter.coordinates,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+          });
+          
+          // Exécuter le batch
+          return batch.commit();
+        })
+        .then(() => {
+          showStatus('shelters-status', 'Données des abris initialisées avec succès!', 'success');
+        })
+        .catch(error => {
+          console.error("Erreur lors de l'initialisation des abris:", error);
+          showStatus('shelters-status', 'Erreur: ' + error.message, 'error');
+        });
+    }
+  });
+  
+  // ===== GESTION DES DONNÉES DE TEST ET RÉINITIALISATION =====
+  // Fonction pour créer des données de test
+  document.getElementById('create-sample-btn').addEventListener('click', function() {
+    if (confirm('Voulez-vous créer des données d\'inspection de test? Cela ajoutera plusieurs inspections fictives.')) {
+      showStatus('sample-status', 'Création des données de test en cours...', 'info');
+      
+      // Dans une implémentation réelle, créer des inspections de test
+      setTimeout(() => {
+        showStatus('sample-status', 'Données de test créées avec succès!', 'success');
+      }, 1500);
+    }
+  });
+  
+  // Fonction pour réinitialiser les inspections
+  document.getElementById('reset-inspections-btn').addEventListener('click', function() {
+    if (confirm('ATTENTION: Voulez-vous vraiment supprimer TOUTES les inspections? Cette action est irréversible.')) {
+      showStatus('reset-status', 'Réinitialisation en cours...', 'warning');
+      
+      // Supprimer toutes les inspections
+      const trailBatch = db.batch();
+      const shelterBatch = db.batch();
+      
+      // Supprimer les inspections de sentiers
+      db.collection('trail_inspections').get()
+        .then(snapshot => {
+          snapshot.forEach(doc => {
+            trailBatch.delete(doc.ref);
+          });
+          return trailBatch.commit();
+        })
+        .then(() => {
+          // Supprimer les inspections d'abris
+          return db.collection('shelter_inspections').get();
+        })
+        .then(snapshot => {
+          snapshot.forEach(doc => {
+            shelterBatch.delete(doc.ref);
+          });
+          return shelterBatch.commit();
+        })
+        .then(() => {
+          showStatus('reset-status', 'Toutes les inspections ont été supprimées.', 'success');
+          
+          // Mettre à jour les statistiques
+          loadStatistics();
+        })
+        .catch(error => {
+          console.error("Erreur lors de la réinitialisation:", error);
+          showStatus('reset-status', 'Erreur: ' + error.message, 'error');
+        });
+    }
+  });
+  
+  // ===== AUTRES FONCTIONNALITÉS =====
+  // Fonction d'exportation des données
+  document.getElementById('export-data-btn').addEventListener('click', function() {
+    // Dans une implémentation réelle, exporter toutes les données au format JSON
+    alert('Fonctionnalité d\'exportation en cours de développement.');
+  });
+  
+  // Fonctions de maintenance
+  document.getElementById('clear-cache-btn').addEventListener('click', function() {
+    // Simuler le nettoyage du cache
+    showStatus('maintenance-status', 'Nettoyage du cache en cours...', 'info');
+    
+    setTimeout(() => {
+      showStatus('maintenance-status', 'Cache nettoyé avec succès!', 'success');
+    }, 1000);
+  });
+  
+  document.getElementById('check-updates-btn').addEventListener('click', function() {
+    // Simuler la vérification des mises à jour
+    showStatus('maintenance-status', 'Vérification des mises à jour...', 'info');
+    
+    setTimeout(() => {
+      showStatus('maintenance-status', 'Votre système est à jour!', 'success');
+    }, 1500);
+  });
+  
+  // Fonction de déconnexion
+  document.getElementById('logout-link').addEventListener('click', function(e) {
+    e.preventDefault();
+    
+    auth.signOut()
+      .then(() => {
+        window.location.href = 'login.html';
+      })
+      .catch(error => {
+        console.error("Erreur lors de la déconnexion:", error);
+      });
+  });
+  
+  // ===== FONCTIONS UTILITAIRES =====
+  // Fonction utilitaire pour afficher les messages de statut
+  function showStatus(elementId, message, type) {
+    const statusElement = document.getElementById(elementId);
+    if (!statusElement) return;
+    
+    statusElement.textContent = message;
+    statusElement.className = 'status-message status-' + type;
+    statusElement.style.display = 'block';
+    
+    // Faire disparaître le message après un certain temps, sauf pour les erreurs
+    if (type !== 'error') {
+      setTimeout(() => {
+        statusElement.style.display = 'none';
+      }, 5000);
+    }
+  }
+
+  /**
+   * Supprime un utilisateur et ses données associées
+   * @param {string} userId - L'ID de l'utilisateur à supprimer
+   */
+  async function deleteUser(userId) {
+    try {
+      // Récupérer les informations de l'utilisateur à supprimer
+      const userDoc = await db.collection('inspectors').doc(userId).get();
+      
+      if (!userDoc.exists) {
+        throw new Error("Utilisateur non trouvé dans la base de données");
+      }
+      
+      // 1. Supprimer les données de l'utilisateur dans Firestore
+      await db.collection('inspectors').doc(userId).delete();
+      
+      // 2. Supprimer les inspections associées (optionnel)
+      // Pour les inspections de sentiers
+      const trailInspectionsSnapshot = await db.collection('trail_inspections')
+        .where('inspector_id', '==', userId)
+        .get();
+      
+      // Utiliser un batch pour supprimer plusieurs documents efficacement
+      if (!trailInspectionsSnapshot.empty) {
+        const trailBatch = db.batch();
+        trailInspectionsSnapshot.forEach(doc => {
+          trailBatch.delete(doc.ref);
+        });
+        await trailBatch.commit();
+      }
+      
+      // Pour les inspections d'abris
+      const shelterInspectionsSnapshot = await db.collection('shelter_inspections')
+        .where('inspector_id', '==', userId)
+        .get();
+      
+      if (!shelterInspectionsSnapshot.empty) {
+        const shelterBatch = db.batch();
+        shelterInspectionsSnapshot.forEach(doc => {
+          shelterBatch.delete(doc.ref);
+        });
+        await shelterBatch.commit();
+      }
+      
+      console.log("Utilisateur supprimé de Firestore avec succès");
+      
+      return {
+        success: true,
+        message: "Données utilisateur supprimées. Veuillez contacter l'administrateur pour compléter la suppression du compte."
+      };
+    } catch (error) {
+      console.error("Erreur lors de la suppression de l'utilisateur:", error);
+      
+      return {
+        success: false,
+        message: "Erreur lors de la suppression: " + error.message
       };
     }
-    
-    // Synchroniser la visibilité du lien d'administration
-    if (mobileAdminLink && adminLink) {
-      mobileAdminLink.style.display = adminLink.style.display;
-    }
-    
-    // Fermer le menu mobile quand on clique sur un lien
-    document.querySelectorAll('.mobile-nav-links a').forEach(link => {
-      link.addEventListener('click', function() {
-        mobileNav.classList.remove('open');
-      });
-    });
-    
-    // Fermer le menu mobile quand on clique en dehors
-    document.addEventListener('click', function(e) {
-      if (mobileNav.classList.contains('open') && 
-          !mobileNav.contains(e.target) && 
-          e.target !== mobileMenuBtn) {
-        mobileNav.classList.remove('open');
-      }
-    });
-    
-    console.log('Menu mobile initialisé');
+  }
 
-    });
-    
-
+  console.log('Script d\'administration initialisé');
+});
 
   </script>
 
