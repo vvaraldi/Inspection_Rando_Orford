@@ -13,9 +13,9 @@
   padding: 1rem;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   width: 800px;
-  height: 700px;
+  height: 700px; /* Hauteur fixe pour éviter les débordements */
   position: relative;
-  overflow: hidden; /* Bloque tout défilement au niveau du conteneur principal */
+  overflow: hidden; /* Empêche tout défilement au niveau du conteneur principal */
 }
 
 #map-loading {
@@ -32,20 +32,18 @@
 }
 
 .map-bg {
-  position: absolute; /* Position absolue pour éviter les problèmes de padding/margin */
-  top: 1rem; /* Correspondre au padding du conteneur parent */
-  left: 1rem;
-  right: 1rem;
-  bottom: 1rem;
-  overflow: hidden; /* Bloquer tout défilement en mode desktop */
-  display: block; /* Changé pour éviter les comportements flex inattendus */
+  height: 100%;
+  width: 100%;
+  position: relative;
+  display: flex;
+  justify-content: flex-start; /* Alignement à gauche */
+  align-items: flex-start; /* Alignement en haut */
+  overflow: hidden; /* Pas de défilement en desktop */
+  padding-left: 1rem; /* Aligner avec la marge */
   }
 
 .map-image {
   display: block;
-  position: absolute; /* Position absolue pour contrôle total */
-  top: 0;
-  left: 0;
   width: auto !important;
   height: auto !important;
   max-width: none !important;
@@ -53,9 +51,8 @@
   min-height: 0 !important;
   object-fit: none !important;
   transform: none !important;
-  border: none !important;
-  padding: 0 !important;
   margin: 0 !important;
+  padding: 0 !important;
   }
 
 /* Styles pour les marqueurs */
@@ -239,20 +236,19 @@
   }
   
   .map-bg {
-    position: absolute;
-    top: 1rem;
-    left: 1rem;
-    right: 1rem;
-    bottom: 1rem;
-    overflow: auto; /* Activer le défilement en mode mobile */
-    -webkit-overflow-scrolling: touch;
+    height: 100%;
+    width: 100%;
+    overflow: auto; /* Permet le défilement en mode mobile */
+    -webkit-overflow-scrolling: touch; /* Pour un défilement fluide sur iOS */
+    justify-content: flex-start;
+    padding-left: 1rem;
   }
   
   .map-image {
-    position: absolute;
-    top: 0;
-    left: 0;
-    /* Garder les mêmes règles strictes en mobile */
+    /* Mêmes propriétés qu'en mode desktop */
+    width: auto !important;
+    height: auto !important;
+    max-width: none !important;
   }
 
   .legend {
@@ -269,6 +265,6 @@
 
 @media (max-width: 480px) {
   .map-view {
-    height: 300px;
+    height: 300px; /* Hauteur plus petite pour les très petits écrans */
   }
 }
