@@ -40,9 +40,10 @@
 }
 
 .map-image {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+  width: auto;
+  height: auto;
+  max-width: none; /* Empêcher le redimensionnement automatique */
+/*  object-fit: contain;*/
 }
 
 /* Styles pour les marqueurs */
@@ -226,6 +227,20 @@
     -webkit-overflow-scrolling: touch; /* Pour un défilement fluide sur iOS */
   }
   
+  .map-bg {
+    height: 100%;
+    width: 100%;
+    justify-content: flex-start; /* Aligner le contenu au début plutôt qu'au centre */
+    align-items: flex-start; /* Aligner le contenu au début plutôt qu'au centre */
+  }
+  
+  .map-image {
+    /* Ne pas redimensionner l'image en mode mobile */
+    width: auto;
+    height: auto;
+    max-width: none;
+  }
+
   .legend {
     width: 100%;
     margin-top: 1rem;
