@@ -1,5 +1,6 @@
 /* map.css - Styles pour la carte et les marqueurs */
 
+/* Conteneurs principaux */
 .map-container {
   display: flex;
   gap: 1.5rem;
@@ -13,11 +14,12 @@
   padding: 1rem;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   width: 800px;
-  height: 700px; /* Hauteur fixe pour éviter les débordements */
+  height: 700px;
   position: relative;
-  overflow: hidden; /* Empêche tout défilement au niveau du conteneur principal */
+  overflow: hidden;
 }
 
+/* Indicateur de chargement */
 #map-loading {
   position: absolute;
   top: 0;
@@ -31,17 +33,17 @@
   z-index: 10;
 }
 
+/* Conteneur de la carte avec scroll */
 .map-bg {
-  height: 100%;
-  width: 100%;
-  position: relative;
-  display: flex;
-  justify-content: flex-start; /* Alignement à gauche */
-  align-items: flex-start; /* Alignement en haut */
-  overflow: hidden; /* Pas de défilement en desktop */
-  padding-left: 1rem; /* Aligner avec la marge */
-  }
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  right: 1rem;
+  bottom: 1rem;
+  overflow: hidden; /* Mode desktop: pas de scroll */
+}
 
+/* Image de la carte */
 .map-image {
   display: block;
   width: auto !important;
@@ -53,7 +55,7 @@
   transform: none !important;
   margin: 0 !important;
   padding: 0 !important;
-  }
+}
 
 /* Styles pour les marqueurs */
 .trail-marker {
@@ -68,7 +70,7 @@
   color: white;
   font-weight: bold;
   cursor: pointer;
-  box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;  
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   font-size: 1rem;
   z-index: 10;
 }
@@ -232,25 +234,19 @@
   .map-view {
     height: 400px;
     width: 100%;
-    overflow: hidden; /* Le conteneur parent bloque le défilement */
   }
   
+  /* IMPORTANTE MODIFICATION: CSS spécifique pour mobile */
   .map-bg {
-    height: 100%;
-    /* CHANGEMENT CRUCIAL: modifier la largeur */
-    width: auto; /* Au lieu de 100% */
-    min-width: 100%; /* Assure que le conteneur utilise au moins toute la largeur disponible */
-    overflow: auto; /* Permet le défilement */
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    overflow: scroll !important; /* Mode mobile: scroll sur les deux axes */
     -webkit-overflow-scrolling: touch;
-    padding-left: 1rem;
   }
   
-  .map-image {
-    /* Mêmes règles que pour desktop */
-    width: auto !important;
-    height: auto !important;
-  }
-
   .legend {
     width: 100%;
     margin-top: 1rem;
@@ -259,7 +255,7 @@
   .trail-marker {
     width: 36px;
     height: 36px;
-    font-size: 1rem;
+    font-size: 0.9rem;
   }
 }
 
