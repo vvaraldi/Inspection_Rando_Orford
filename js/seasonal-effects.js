@@ -1,4 +1,4 @@
-// js/visual-effects.js
+// js/seasonal-effects.js
 
 // Exécuter après le chargement du contenu principal
 document.addEventListener('DOMContentLoaded', function() {
