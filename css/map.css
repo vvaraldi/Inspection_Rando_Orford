@@ -40,10 +40,14 @@
 }
 
 .map-image {
+  display: block; /* Important pour éviter le comportement inline */
   width: auto;
   height: auto;
-  max-width: none; /* Empêcher le redimensionnement automatique */
-/*  object-fit: contain;*/
+  max-width: none !important; /* Force à ignorer toute autre règle */
+  min-width: 0 !important; /* Empêche la compression */
+  min-height: 0 !important;
+  object-fit: none !important; /* Empêche complètement le redimensionnement */
+  transform: none !important; /* Empêche toute transformation */
 }
 
 /* Styles pour les marqueurs */
@@ -223,24 +227,24 @@
   .map-view {
     height: 400px;
     width: 100%;
-    overflow: auto;
-    -webkit-overflow-scrolling: touch; /* Pour un défilement fluide sur iOS */
+    overflow: hidden;
   }
   
   .map-bg {
     height: 100%;
     width: 100%;
-    justify-content: flex-start; /* Aligner le contenu au début plutôt qu'au centre */
-    align-items: flex-start; /* Aligner le contenu au début plutôt qu'au centre */
+    overflow: auto; /* Garde le défilement ici */
+    -webkit-overflow-scrolling: touch; /* Pour un défilement fluide sur iOS */
   }
   
   .map-image {
-    /* Ne pas redimensionner l'image en mode mobile */
-    width: auto;
-    height: auto;
-    max-width: none;
+    /* Aucun changement pour l'image en mode mobile, on garde les mêmes règles strictes */
+    width: auto !important;
+    height: auto !important;
+    max-width: none !important;
+    object-fit: none !important;
   }
-
+  
   .legend {
     width: 100%;
     margin-top: 1rem;
