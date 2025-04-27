@@ -66,8 +66,14 @@ function checkAuthStatus() {
 			console.error("Erreur lors de la récupération du nom d'utilisateur:", error);
 			userNameDisplay.textContent = user.email;
 		  });
+		  // Configurer le lien de déconnexion
+		  setupUserDropdown();
 	  }
       
+	  
+	  
+	  
+	  
       // Faire de même pour le lien mobile
       if (mobileLoginLink) {
         mobileLoginLink.textContent = 'Déconnexion';
@@ -250,6 +256,30 @@ function createInitialAdmin(email, password, name) {
       console.error("Erreur lors de la création de l'administrateur:", error);
       alert("Erreur lors de la création de l'administrateur: " + error.message);
     });
+}
+
+// Setup le menu de dropdown
+function setupUserDropdown() {
+  const logoutLink = document.getElementById('logout-link');
+  
+  if (logoutLink) {
+    logoutLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      // Déconnecter l'utilisateur
+      firebase.auth().signOut()
+        .then(() => {
+          console.log("Déconnexion réussie");
+          // Rediriger vers la page de connexion
+          window.location.href = window.location.pathname.includes('/pages/') 
+            ? 'login.html' 
+            : 'pages/login.html';
+        })
+        .catch(error => {
+          console.error("Erreur lors de la déconnexion:", error);
+        });
+    });
+  }
 }
 
 // Écouter le chargement du document pour vérifier l'authentification
