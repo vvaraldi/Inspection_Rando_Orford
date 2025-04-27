@@ -468,9 +468,22 @@ async function showTrailDetails(trail) {
       // Mettre à jour la section d'historique (peut être personnalisée)
       const historySection = infoPanel.querySelector('.info-section:nth-child(4)');
       historySection.innerHTML = `
-        <div class="info-title">Historique</div>
+        <div class="info-title">Détails</div>
         <p>Dernière inspection: ${formattedDate}</p>
       `;
+	 
+     // Informations supplémentaires spécifiques aux abris
+      let generalCommentText = "Sans commentaire";
+      
+      if (trail.lastInspection.cleanliness) {
+        generalCommentText = getStatusText(trail.lastInspection.comments );
+      }
+      
+      // Ajouter ces informations à la section des détails
+      historySection.innerHTML += `
+        <p>Commentaire général: ${generalCommentText}</p>
+      `;
+	  
     } catch (error) {
       console.error("Erreur lors de l'affichage des détails du sentier:", error);
     }
@@ -490,8 +503,8 @@ async function showTrailDetails(trail) {
     
     const historySection = infoPanel.querySelector('.info-section:nth-child(4)');
     historySection.innerHTML = `
-      <div class="info-title">Historique</div>
-      <p>Aucune inspection enregistrée</p>
+      <div class="info-title">Détails</div>
+      <p>Aucun détails enregistré</p>
     `;
   }
   
@@ -586,30 +599,43 @@ async function showShelterDetails(shelter) {
         ${issuesHTML}
       `;
       
-      // Mettre à jour la section d'historique (peut être personnalisée)
+      // Mettre à jour la section des détails (peut être personnalisée)
       const historySection = infoPanel.querySelector('.info-section:nth-child(4)');
       historySection.innerHTML = `
-        <div class="info-title">Historique</div>
+        <div class="info-title">détails</div>
         <p>Dernière inspection: ${formattedDate}</p>
       `;
       
       // Informations supplémentaires spécifiques aux abris
       let cleanlinessText = "Inconnue";
       let accessibilityText = "Inconnue";
+      let generalCommentText = "Sans commentaire";
       
       if (shelter.lastInspection.cleanliness) {
         cleanlinessText = getStatusText(shelter.lastInspection.cleanliness);
+      }
+      if (shelter.lastInspection.cleanliness_details ) {
+        cleanlinessText = cleanlinessText + "  -  " + getStatusText(shelter.lastInspection.cleanliness_details );
       }
       
       if (shelter.lastInspection.accessibility) {
         accessibilityText = getStatusText(shelter.lastInspection.accessibility);
       }
+      if (shelter.lastInspection.accessibility_details  ) {
+        accessibilityText = accessibilityText + "  -  " + getStatusText(shelter.lastInspection.accessibility_details  );
+      }
       
-      // Ajouter ces informations à la section d'historique
+      if (shelter.lastInspection.cleanliness) {
+        generalCommentText = getStatusText(shelter.lastInspection.comments );
+      }
+
+      // Ajouter ces informations à la section des détails
       historySection.innerHTML += `
         <p>Propreté: ${cleanlinessText}</p>
         <p>Accessibilité: ${accessibilityText}</p>
+        <p>Commentaire général: ${generalCommentText}</p>
       `;
+	  
     } catch (error) {
       console.error("Erreur lors de l'affichage des détails de l'abri:", error);
     }
@@ -629,8 +655,8 @@ async function showShelterDetails(shelter) {
     
     const historySection = infoPanel.querySelector('.info-section:nth-child(4)');
     historySection.innerHTML = `
-      <div class="info-title">Historique</div>
-      <p>Aucune inspection enregistrée</p>
+      <div class="info-title">Détails</div>
+      <p>Aucun détails enregistré</p>
     `;
   }
   
