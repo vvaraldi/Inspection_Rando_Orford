@@ -13,9 +13,9 @@
   padding: 1rem;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   width: 800px;
-  height: 700px;
+  height: 700px; /* Hauteur fixe pour éviter les débordements */
   position: relative;
-  overflow: hidden;
+  overflow: hidden; /* Empêche tout défilement au niveau du conteneur principal */
 }
 
 #map-loading {
@@ -35,22 +35,24 @@
   height: 100%;
   width: 100%;
   position: relative;
-  overflow: auto;
   display: flex;
-  justify-content: flex-start; /* Alignement à gauche au lieu de center */
+  justify-content: flex-start; /* Alignement à gauche */
   align-items: flex-start; /* Alignement en haut */
-  padding-left: 1rem; /* Ajouter un padding gauche pour correspondre à la marge */}
+  overflow: auto; /* Permet le défilement seulement si nécessaire */
+  padding-left: 1rem; /* Aligner avec la marge */
+  }
 
 .map-image {
+  display: block;
   width: auto !important;
   height: auto !important;
   max-width: none !important;
-  display: block;
   min-width: 0 !important;
   min-height: 0 !important;
   object-fit: none !important;
   transform: none !important;
-  margin-left: 0; /* S'assurer qu'il n'y a pas de marge gauche sur l'image */
+  margin-left: 0;
+  margin-top: 0; /* S'assurer qu'il n'y a pas de marge en haut */
   }
 
 /* Styles pour les marqueurs */
