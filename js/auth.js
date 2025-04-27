@@ -91,9 +91,63 @@ function checkAuthStatus() {
 //          });
 //        };
 //      }
-	if (mobileLoginLink) {
-	  mobileLoginLink.style.display = 'none';
-	}      
+		if (mobileLoginLink) {
+		  mobileLoginLink.style.display = 'none';
+		}      
+      
+		// Afficher et configurer le lien de déconnexion mobile
+		if (mobileLogoutLink) {
+		mobileLogoutLink.style.display = 'block';
+		mobileLogoutLink.onclick = function(e) {
+		  e.preventDefault();
+		  auth.signOut().then(() => {
+			window.location.reload();
+		  }).catch(error => {
+			console.error("Erreur lors de la déconnexion:", error);
+		  });
+		};
+		}
+
+      // Mettre à jour l'affichage du menu utilisateur dropdown
+      const userDropdown = document.getElementById('user-dropdown');
+      if (userDropdown) {
+        userDropdown.style.display = 'block';
+        setupUserDropdown(); // Configurer les événements du dropdown
+      }
+      
+      // Reste du code pour l'utilisateur connecté...
+    } else {
+      // Utilisateur non connecté
+      console.log("Aucun utilisateur connecté");
+      
+      // Afficher le lien de connexion standard
+      if (loginLink) {
+        loginLink.style.display = 'inline-block';
+      }
+      
+      // Afficher le lien de connexion mobile et cacher le lien de déconnexion
+      if (mobileLoginLink) {
+        mobileLoginLink.style.display = 'block';
+      }
+      
+      if (mobileLogoutLink) {
+        mobileLogoutLink.style.display = 'none';
+      }
+      
+      // Cacher le menu dropdown
+      const userDropdown = document.getElementById('user-dropdown');
+      if (userDropdown) {
+        userDropdown.style.display = 'none';
+      }
+
+
+
+
+
+
+
+
+
       // Vérifier si l'utilisateur est admin
       db.collection('inspectors').doc(user.uid).get()
         .then((doc) => {
