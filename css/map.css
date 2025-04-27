@@ -281,6 +281,18 @@ overflow: scroll !important;
 
 @media (max-width: 480px) {
   .map-view {
-    height: 300px; /* Hauteur plus petite pour les très petits écrans */
+    height: 300px; /* Hauteur fixe plus petite mais suffisante */
+    min-height: 300px; /* Force une hauteur minimale */
+  }
+  
+  .map-bg {
+    /* Garder les mêmes styles que pour les mobiles standard */
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    overflow: scroll !important;
+    -webkit-overflow-scrolling: touch;
   }
 }
