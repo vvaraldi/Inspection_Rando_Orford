@@ -62,26 +62,29 @@
   border-radius: 9999px;
   font-size: 0.75rem;
   font-weight: 500;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  padding: 0.3rem 0.7rem;
 }
 
 .status-good {
-  background-color: #def7ec;
-  color: #0e9f6e;
+ background-color: rgba(44, 122, 93, 0.15);
+  color: var(--alpine-green);
 }
 
 .status-warning {
-  background-color: #feecdc;
-  color: #ff5a1f;
+  background-color: rgba(221, 107, 32, 0.15);
+  color: var(--alpine-orange);
 }
 
 .status-critical {
-  background-color: #fde8e8;
-  color: #e02424;
+  background-color: rgba(197, 48, 48, 0.15);
+  color: var(--alpine-red);
 }
 
 .status-not-inspected {
-  background-color: #f3f4f6;
-  color: #6b7280;
+  background-color: rgba(160, 174, 192, 0.2);
+  color: var(--alpine-dark-gray);
 }
 
 .status-active {
@@ -99,18 +102,18 @@
   padding: 0.125rem 0.5rem;
   border-radius: 0.25rem;
   font-size: 0.75rem;
-  font-weight: 500;
+  font-weight: 600;
   margin-right: 0.5rem;
 }
 
 .type-trail {
-  background-color: #dbeafe;
-  color: #1e40af;
+  background-color: rgba(29, 78, 216, 0.15);
+  color: var(--alpine-blue);
 }
 
 .type-shelter {
-  background-color: #f3e8ff;
-  color: #5b21b6;
+  background-color: rgba(107, 70, 193, 0.15);
+  color: var(--alpine-purple);
 }
 
 /* Cartes et conteneurs */
@@ -177,6 +180,17 @@ tbody tr:hover {
   border-radius: 0.5rem;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   overflow: hidden;
+}
+
+/* Tableau */
+table thead th {
+  background-color: var(--alpine-light-gray);
+  color: var(--alpine-dark-gray);
+  font-weight: 600;
+}
+
+table tbody tr:hover {
+  background-color: var(--alpine-light-gray);
 }
 
 /* Pagination */
@@ -262,9 +276,10 @@ tbody tr:hover {
 .filter-group label {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #4b5563;
   margin-bottom: 0.375rem;
-}
+  color: var(--alpine-dark-gray);
+  font-weight: 600;
+  }
 
 .filter-select {
   padding: 0.5rem;
@@ -288,7 +303,7 @@ tbody tr:hover {
   align-items: center;
   padding: 0.75rem 1.25rem;
   border-top: 1px solid #e5e7eb;
-  background-color: #f9fafb;
+  background-color: var(--alpine-light-gray);
 }
 
 #filter-counter {
@@ -320,6 +335,26 @@ tbody tr:hover {
   gap: 1rem;
   padding-top: 1rem;
   border-top: 1px solid #e5e7eb;
+}
+
+.filter-footer {
+  background-color: var(--alpine-light-gray);
+}
+
+.filter-group label {
+  color: var(--alpine-dark-gray);
+  font-weight: 600;
+}
+
+.filter-select, .filter-control, .search-box {
+  border: 1px solid var(--alpine-light-gray);
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.filter-select:focus, .filter-control:focus, .search-input:focus {
+  border-color: var(--alpine-blue);
+  box-shadow: 0 0 0 3px rgba(27, 75, 114, 0.2);
 }
 
 .search-box {
@@ -501,7 +536,7 @@ tbody tr:hover {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  border-left-color: #1a56db;
+  border-left-color: var(--alpine-blue);
   animation: spin 1s linear infinite;
   margin-right: 10px;
 }

@@ -61,22 +61,30 @@
   box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;  
   font-size: 1rem;
   z-index: 10;
+  border: 2px solid white;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+}
+
+.trail-marker:hover {
+  transform: translate(-50%, -50%) scale(1.1);
+  z-index: 20;
 }
 
 .marker-good {
-  background-color: #10b981;
+  background-color: var(--alpine-green);
 }
 
 .marker-warning {
-  background-color: #f59e0b;
+  background-color: var(--alpine-orange);
 }
 
 .marker-critical {
-  background-color: #ef4444;
+  background-color: var(--alpine-red);
 }
 
 .marker-not-inspected {
-  background-color: #9ca3af;
+  background-color: var(--alpine-gray);
 }
 
 .shelter-marker {
@@ -97,6 +105,8 @@
   justify-content: center;
   align-items: center;
   box-shadow: rgba(255, 0, 0, 0.5) 0px 54px 55px, rgba(255, 0, 0, 0.24) 0px -12px 30px, rgba(255, 0, 0, 0.24) 0px 4px 6px, rgba(255, 0, 0, 0.34) 0px 12px 13px, rgba(255, 0, 0, 0.18) 0px -3px 5px;
+  border: 2px solid white;
+  transition: all 0.2s ease;
 }
 
 /* Légende de la carte */
@@ -109,8 +119,10 @@
 }
 
 .legend-title {
-  font-weight: bold;
-  margin-bottom: 0.5rem;
+  color: var(--alpine-blue);
+  font-weight: 600;
+  border-bottom: 1px solid var(--alpine-light-gray);
+  padding-bottom: 0.5rem;
 }
 
 .legend-section {
@@ -159,6 +171,24 @@
 .black {
   background-color: #1f2937;
 }
+
+/* Éléments spécifiques pour les niveaux de difficulté des pistes */
+.difficulty-easy, .green {
+  background-color: var(--piste-verte);
+}
+
+.difficulty-medium, .blue {
+  background-color: var(--piste-bleue);
+}
+
+.difficulty-hard, .red {
+  background-color: var(--piste-rouge);
+}
+
+.difficulty-expert, .black {
+  background-color: var(--piste-noire);
+}
+
 
 /* Panneau d'information */
 .info-panel {
@@ -242,4 +272,15 @@
   .map-view {
     height: 300px;
   }
+}
+
+
+
+.info-header, .page-header, .dashboard-header {
+  border-bottom: 1px solid var(--alpine-light-gray);
+}
+
+.info-title {
+  color: var(--alpine-blue);
+  font-weight: 600;
 }

@@ -1,5 +1,25 @@
 /* styles.css - Point d'entrée pour tous les styles */
 
+:root {
+  --alpine-blue: #1b4b72; /* Bleu profond pour l'en-tête, remplace #1a56db */
+  --alpine-light-blue: #5d8db3; /* Bleu clair pour les accents */
+  --alpine-dark-blue: #0d2b42; /* Bleu foncé pour le contraste */
+  --alpine-white: #f8f9fb; /* Blanc neige pour le fond, légèrement plus chaud que le blanc pur */
+  --alpine-light-gray: #edf2f7; /* Gris clair pour les panneaux, comme la neige fraîche */
+  --alpine-gray: #a0aec0; /* Gris moyen, comme les rochers enneigés */
+  --alpine-dark-gray: #4a5568; /* Gris foncé pour le texte, comme les sapins en hiver */
+  --alpine-green: #2c7a5d; /* Vert sapin pour les statuts positifs */
+  --alpine-red: #c53030; /* Rouge pour les alertes, comme les signalisations des pistes */
+  --alpine-orange: #dd6b20; /* Orange pour les avertissements, comme la signalisation intermédiaire */
+  --alpine-purple: #6b46c1; /* Violet pour les éléments d'abri, comme les chalets */
+  
+  /* Couleurs pour les niveaux de difficulté - codes de pistes */
+  --piste-verte: #43a047; /* Piste facile */
+  --piste-bleue: #2196f3; /* Piste intermédiaire */
+  --piste-rouge: #f44336; /* Piste difficile */
+  --piste-noire: #212121; /* Piste très difficile */
+}
+
 /* Importation des modules CSS */
 @import 'base.css';
 @import 'layout.css';

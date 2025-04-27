@@ -9,9 +9,13 @@
 }
 
 body {
-  background-color: #f0f4f8;
-  color: #333;
-  line-height: 1.5;
+  background-color: var(--alpine-white);
+  color: var(--alpine-dark-gray);
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200" opacity="0.05"><path d="M100 0 L200 200 L0 200 Z" fill="%231b4b72"/></svg>');
+  background-size: 200px;
+  background-repeat: repeat;
+  background-attachment: fixed;
 }
 
 /* Typographie */
@@ -120,4 +124,19 @@ a:hover {
 button:focus, .btn:focus, a:focus {
   outline: 2px solid #3b82f6;
   outline-offset: 2px;
+}
+
+/* Animations et transitions */
+@keyframes snow-fall {
+  0% {
+    transform: translateY(-10px) translateX(-10px);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(10px) translateX(10px);
+    opacity: 0;
+  }
 }

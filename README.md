@@ -1,8 +1,8 @@
 # Inspection_Rando_Orford
 
 Must :
-- Travail sur les download d'image
-- Les filtres dans la page d'historique devrait être sur la même ligne sur un grand écran
+1 - Travail sur les download d'image
+2 - Export des inspections...
 
 
 
