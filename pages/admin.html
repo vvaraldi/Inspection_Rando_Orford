@@ -896,18 +896,18 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
-  // Synchroniser les liens de login/logout
-  if (mobileLoginLink && logout_link) {
-    mobileLoginLink.textContent = logout_link.textContent;
-    mobileLoginLink.href = logout_link.href;
-    mobileLoginLink.onclick = function(e) {
-      e.preventDefault();
-      if (logout_link.onclick) {
-        logout_link.onclick(e);
-      }
-      mobileNav.classList.remove('open');
-    };
-  }
+	// Synchroniser les liens de login
+	if (mobileLoginLink && loginLink) {
+	  mobileLoginLink.textContent = loginLink.textContent;
+	  mobileLoginLink.href = loginLink.href;
+	  mobileLoginLink.onclick = function(e) {
+		e.preventDefault();
+		if (loginLink.onclick) {
+		  loginLink.onclick(e);
+		}
+		mobileNav.classList.remove('open');  // Fermer le menu après clic
+	  };
+	}
   
   // Synchroniser la visibilité du lien d'administration
   if (mobileAdminLink && adminLink) {
