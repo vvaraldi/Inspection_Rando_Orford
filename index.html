@@ -729,70 +729,58 @@
   <script src="js/dashboard.js"></script>
 
 <script>
-    // Vérifier l'authentification spécifique à cette page
-    document.addEventListener('DOMContentLoaded', function() {
-
+  document.addEventListener('DOMContentLoaded', function() {
+    // Gestionnaire pour le menu mobile
     const mobileMenuBtn = document.getElementById('mobile-menu-btn');
     const mobileNavClose = document.getElementById('mobile-nav-close');
     const mobileNav = document.getElementById('mobile-nav');
-    const mobileLoginLink = document.getElementById('mobile-login-link');
-    const loginLink = document.getElementById('login-link');
-    const mobileAdminLink = document.getElementById('mobile-admin-link');
-    const adminLink = document.getElementById('admin-link');
     
-    // Ouvrir le menu mobile
     if (mobileMenuBtn) {
       mobileMenuBtn.addEventListener('click', function() {
-        mobileNav.classList.add('open');
+        console.log('Bouton de menu mobile cliqué');
+        if (mobileNav) {
+          mobileNav.classList.add('open');
+        }
       });
+    } else {
+      console.error('Bouton de menu mobile non trouvé');
     }
     
-    // Fermer le menu mobile
     if (mobileNavClose) {
       mobileNavClose.addEventListener('click', function() {
-        mobileNav.classList.remove('open');
+        if (mobileNav) {
+          mobileNav.classList.remove('open');
+        }
       });
     }
     
-    // Synchroniser les liens de login
-    if (mobileLoginLink && loginLink) {
+    // Fermer le menu quand on clique sur un lien
+    const mobileLinks = document.querySelectorAll('.mobile-nav-links a');
+    mobileLinks.forEach(link => {
+      link.addEventListener('click', function() {
+        if (mobileNav) {
+          mobileNav.classList.remove('open');
+        }
+      });
+    });
+    
+    // Synchroniser le lien de connexion mobile avec le lien principal
+    const loginLink = document.getElementById('login-link');
+    const mobileLoginLink = document.getElementById('mobile-login-link');
+    
+    if (loginLink && mobileLoginLink) {
       mobileLoginLink.textContent = loginLink.textContent;
-      mobileLoginLink.href = loginLink.href;
       mobileLoginLink.onclick = function(e) {
         e.preventDefault();
         if (loginLink.onclick) {
           loginLink.onclick(e);
         }
-        mobileNav.classList.remove('open');  // Fermer le menu après clic
+        if (mobileNav) {
+          mobileNav.classList.remove('open');
+        }
       };
     }
-    
-    // Synchroniser la visibilité du lien d'administration
-    if (mobileAdminLink && adminLink) {
-      mobileAdminLink.style.display = adminLink.style.display;
-    }
-    
-    // Fermer le menu mobile quand on clique sur un lien
-    document.querySelectorAll('.mobile-nav-links a').forEach(link => {
-      link.addEventListener('click', function() {
-        mobileNav.classList.remove('open');
-      });
-    });
-    
-    // Fermer le menu mobile quand on clique en dehors
-    document.addEventListener('click', function(e) {
-      if (mobileNav.classList.contains('open') && 
-          !mobileNav.contains(e.target) && 
-          e.target !== mobileMenuBtn) {
-        mobileNav.classList.remove('open');
-      }
-    });
-    
-    console.log('Menu mobile initialisé');
-    });
-    
-  
-  
+  });
 </script>
 
 
