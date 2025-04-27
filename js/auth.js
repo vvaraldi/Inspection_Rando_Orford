@@ -34,18 +34,23 @@ function checkAuthStatus() {
       // Utilisateur connecté
       console.log("Utilisateur connecté:", user.email);
       
-      // Mettre à jour le lien de connexion pour afficher "Déconnexion"
-      if (loginLink) {
-        loginLink.textContent = 'Déconnexion';
-        loginLink.onclick = function(e) {
-          e.preventDefault();
-          auth.signOut().then(() => {
-            window.location.reload();
-          }).catch(error => {
-            console.error("Erreur lors de la déconnexion:", error);
-          });
-        };
-      }
+//      // Mettre à jour le lien de connexion pour afficher "Déconnexion"
+//	  if (loginLink) {
+//		loginLink.textContent = 'Déconnexion';
+//		loginLink.onclick = function(e) {
+//		  e.preventDefault();
+//		  auth.signOut().then(() => {
+//			window.location.reload();
+//		  }).catch(error => {
+//			console.error("Erreur lors de la déconnexion:", error);
+//		  });
+//		};
+//	  }
+	  
+	  if (loginLink) {
+		loginLink.style.display = 'none'; // Cacher le lien au lieu de changer son texte
+	  }	  
+	  
 
 	  // Mettre à jour l'affichage du nom d'utilisateur dans le menu déroulant
 	  const userNameDisplay = document.getElementById('user-name-display');
@@ -75,18 +80,20 @@ function checkAuthStatus() {
 	  
 	  
       // Faire de même pour le lien mobile
-      if (mobileLoginLink) {
-        mobileLoginLink.textContent = 'Déconnexion';
-        mobileLoginLink.onclick = function(e) {
-          e.preventDefault();
-          auth.signOut().then(() => {
-            window.location.reload();
-          }).catch(error => {
-            console.error("Erreur lors de la déconnexion:", error);
-          });
-        };
-      }
-      
+//      if (mobileLoginLink) {
+//        mobileLoginLink.textContent = 'Déconnexion';
+//        mobileLoginLink.onclick = function(e) {
+//          e.preventDefault();
+//          auth.signOut().then(() => {
+//            window.location.reload();
+//          }).catch(error => {
+//            console.error("Erreur lors de la déconnexion:", error);
+//          });
+//        };
+//      }
+	if (mobileLoginLink) {
+	  mobileLoginLink.style.display = 'none';
+	}      
       // Vérifier si l'utilisateur est admin
       db.collection('inspectors').doc(user.uid).get()
         .then((doc) => {
