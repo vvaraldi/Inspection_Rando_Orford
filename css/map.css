@@ -238,17 +238,20 @@
   .map-bg {
     height: 100%;
     width: 100%;
-    overflow: auto; /* Permet le défilement en mode mobile */
-    -webkit-overflow-scrolling: touch; /* Pour un défilement fluide sur iOS */
-    justify-content: flex-start;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    justify-content: flex-start !important; /* Forcer l'alignement à gauche */
+    align-items: flex-start !important; /* Forcer l'alignement en haut */
     padding-left: 1rem;
+    text-align: left !important; /* Pour contrer tout alignement de texte */
   }
   
   .map-image {
-    /* Mêmes propriétés qu'en mode desktop */
-    width: auto !important;
-    height: auto !important;
-    max-width: none !important;
+    margin-left: 0 !important; /* Forcer l'absence de marge gauche */
+    margin-right: auto !important; /* Empêcher le centrage auto */
+    float: left !important; /* Forcer l'alignement à gauche */
+    position: relative !important; /* S'assurer que la position est respectée */
+    left: 0 !important; /* Forcer la position à gauche */
   }
 
   .legend {
