@@ -40,7 +40,7 @@
   left: 1rem;
   right: 1rem;
   bottom: 1rem;
-  overflow: hidden; /* Mode desktop: pas de scroll */
+overflow: scroll !important;
 }
 
 /* Image de la carte */
