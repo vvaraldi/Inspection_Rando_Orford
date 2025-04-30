@@ -1059,7 +1059,8 @@ try {
         
         if (inspection.cleanliness) {
           let cleanlinessText = '';
-          switch (inspection.cleanliness) {
+          let cleanlinessTextDetails = '';
+		  switch (inspection.cleanliness) {
             case 'good':
               cleanlinessText = 'Propre';
               break;
@@ -1071,10 +1072,14 @@ try {
               break;
           }
           
+		  if (inspection.cleanliness_details) {
+			cleanlinessTextDetails = inspection.cleanliness_details;
+		  }
+
           specificInfoHTML += `
             <li>
               <div class="detail-label">Propreté</div>
-              <div class="detail-value">${cleanlinessText}</div>
+              <div class="detail-value">${cleanlinessText}  ${cleanlinessTextDetails}</div>
             </li>
           `;
         }
