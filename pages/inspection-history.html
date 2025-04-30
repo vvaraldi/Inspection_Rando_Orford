@@ -1071,21 +1071,20 @@ try {
               cleanlinessText = 'Sale';
               break;
           }
-          
 		  if (inspection.cleanliness_details) {
 			cleanlinessTextDetails = inspection.cleanliness_details;
 		  }
-
           specificInfoHTML += `
             <li>
               <div class="detail-label">Propreté</div>
-              <div class="detail-value">${cleanlinessText}  ${cleanlinessTextDetails}</div>
+              <div class="detail-value">${cleanlinessText} --- ${cleanlinessTextDetails}</div>
             </li>
           `;
         }
         
         if (inspection.accessibility) {
           let accessibilityText = '';
+          let accessibilityTextDetails = '';
           switch (inspection.accessibility) {
             case 'good':
               accessibilityText = 'Dégagé';
@@ -1097,11 +1096,14 @@ try {
               accessibilityText = 'Bloqué';
               break;
           }
+		  if (inspection.accessibility_details) {
+			accessibilityTextDetails = inspection.accessibility_details;
+		  }
           
           specificInfoHTML += `
             <li>
               <div class="detail-label">Accessibilité</div>
-              <div class="detail-value">${accessibilityText}</div>
+              <div class="detail-value">${accessibilityText} --- ${accessibilityTextDetails}</div>
             </li>
           `;
         }
