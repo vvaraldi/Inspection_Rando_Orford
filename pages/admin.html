@@ -578,7 +578,12 @@ document.addEventListener('DOMContentLoaded', function() {
   // ===== INITIALISATION DES DONNÉES =====
   // Fonction pour initialiser les données des sentiers
   document.getElementById('init-trails-btn').addEventListener('click', function() {
-    if (confirm('Êtes-vous sûr de vouloir initialiser les données des sentiers? Cela écrasera toutes les données existantes.')) {
+  // Don't proceed if the button is disabled
+  if (this.disabled) {
+    e.preventDefault();
+    return;
+  }
+  if (confirm('Êtes-vous sûr de vouloir initialiser les données des sentiers? Cela écrasera toutes les données existantes.')) {
       showStatus('trails-status', 'Initialisation en cours...', 'info');
       
       // Les données des sentiers
