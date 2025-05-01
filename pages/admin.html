@@ -175,7 +175,7 @@
             <h3>Sentiers</h3>
             <p>Initialiser les données des sentiers de randonnée alpine du Mont Orford.</p>
             <div class="actions">
-              <button id="init-trails-btn" class="btn btn-warning">Initialiser les sentiers</button>
+              <button id="init-trails-btn" class="btn btn-warning" disabled>Initialiser les sentiers</button>
             </div>
             <div id="trails-status" class="status-message" style="display: none;"></div>
           </div>
@@ -184,7 +184,7 @@
             <h3>Abris</h3>
             <p>Initialiser les données des abris des sommets du Mont Orford.</p>
             <div class="actions">
-              <button id="init-shelters-btn" class="btn btn-warning">Initialiser les abris</button>
+              <button id="init-shelters-btn" class="btn btn-warning" disabled>Initialiser les abris</button>
             </div>
             <div id="shelters-status" class="status-message" style="display: none;"></div>
           </div>
@@ -193,7 +193,7 @@
             <h3>Données de test</h3>
             <p>Créer des inspections de test pour simuler l'utilisation du système.</p>
             <div class="actions">
-              <button id="create-sample-btn" class="btn">Créer des données de test</button>
+              <button id="create-sample-btn" class="btn" disabled>Créer des données de test</button>
             </div>
             <div id="sample-status" class="status-message" style="display: none;"></div>
           </div>
@@ -206,7 +206,7 @@
             <h3>Sauvegarde</h3>
             <p>Exporter toutes les données du système en format JSON.</p>
             <div class="actions">
-              <button id="export-data-btn" class="btn">Exporter les données</button>
+              <button id="export-data-btn" class="btn" disabled>Exporter les données</button>
             </div>
           </div>
           
@@ -214,7 +214,7 @@
             <h3>Réinitialisation</h3>
             <p>Attention: Cette action supprimera toutes les données d'inspection.</p>
             <div class="actions">
-              <button id="reset-inspections-btn" class="btn btn-danger">Réinitialiser les inspections</button>
+              <button id="reset-inspections-btn" class="btn btn-danger" disabled>Réinitialiser les inspections</button>
             </div>
             <div id="reset-status" class="status-message" style="display: none;"></div>
           </div>
@@ -228,7 +228,7 @@
           <h2 class="admin-title">Statistiques d'utilisation</h2>
           
           <div class="admin-section">
-            <h3>Résumé des inspections</h3>
+            <h3>Résumé des inspections  (examples seulement... pas actif encore)</h3>
             <table>
               <tbody>
                 <tr>
@@ -312,8 +312,8 @@
           <div class="admin-section">
             <h3>Maintenance</h3>
             <div class="actions">
-              <button id="clear-cache-btn" class="btn">Vider le cache</button>
-              <button id="check-updates-btn" class="btn">Vérifier les mises à jour</button>
+              <button id="clear-cache-btn" class="btn" disabled>Vider le cache</button>
+              <button id="check-updates-btn" class="btn" disabled>Vérifier les mises à jour</button>
             </div>
             <div id="maintenance-status" class="status-message" style="display: none;"></div>
           </div>
