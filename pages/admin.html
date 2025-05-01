@@ -716,6 +716,11 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Fonction pour initialiser les données des abris
   document.getElementById('init-shelters-btn').addEventListener('click', function() {
+  // Don't proceed if the button is disabled
+  if (this.disabled) {
+    e.preventDefault();
+    return;
+  }
     if (confirm('Êtes-vous sûr de vouloir initialiser les données des abris? Cela écrasera toutes les données existantes.')) {
       showStatus('shelters-status', 'Initialisation en cours...', 'info');
       
@@ -778,6 +783,11 @@ document.addEventListener('DOMContentLoaded', function() {
   // ===== GESTION DES DONNÉES DE TEST ET RÉINITIALISATION =====
   // Fonction pour créer des données de test
   document.getElementById('create-sample-btn').addEventListener('click', function() {
+  // Don't proceed if the button is disabled
+  if (this.disabled) {
+    e.preventDefault();
+    return;
+  }
     if (confirm('Voulez-vous créer des données d\'inspection de test? Cela ajoutera plusieurs inspections fictives.')) {
       showStatus('sample-status', 'Création des données de test en cours...', 'info');
       
@@ -790,6 +800,11 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Fonction pour réinitialiser les inspections
   document.getElementById('reset-inspections-btn').addEventListener('click', function() {
+  // Don't proceed if the button is disabled
+  if (this.disabled) {
+    e.preventDefault();
+    return;
+  }
     if (confirm('ATTENTION: Voulez-vous vraiment supprimer TOUTES les inspections? Cette action est irréversible.')) {
       showStatus('reset-status', 'Réinitialisation en cours...', 'warning');
       
@@ -831,12 +846,22 @@ document.addEventListener('DOMContentLoaded', function() {
   // ===== AUTRES FONCTIONNALITÉS =====
   // Fonction d'exportation des données
   document.getElementById('export-data-btn').addEventListener('click', function() {
+  // Don't proceed if the button is disabled
+  if (this.disabled) {
+    e.preventDefault();
+    return;
+  }
     // Dans une implémentation réelle, exporter toutes les données au format JSON
     alert('Fonctionnalité d\'exportation en cours de développement.');
   });
   
   // Fonctions de maintenance
   document.getElementById('clear-cache-btn').addEventListener('click', function() {
+  // Don't proceed if the button is disabled
+  if (this.disabled) {
+    e.preventDefault();
+    return;
+  }
     // Simuler le nettoyage du cache
     showStatus('maintenance-status', 'Nettoyage du cache en cours...', 'info');
     
@@ -846,6 +871,11 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   
   document.getElementById('check-updates-btn').addEventListener('click', function() {
+  // Don't proceed if the button is disabled
+  if (this.disabled) {
+    e.preventDefault();
+    return;
+  }
     // Simuler la vérification des mises à jour
     showStatus('maintenance-status', 'Vérification des mises à jour...', 'info');
     
