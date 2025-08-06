@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Status des Sentiers - Mont Orford</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    /* Styles spécifiques pour l'interface de status */
+    .status-dashboard {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    
+    .status-header {
+      text-align: center;
+      margin-bottom: 2rem;
+      padding: 2rem;
+      background: linear-gradient(135deg, var(--alpine-blue), var(--alpine-light-blue));
+      color: white;
+      border-radius: 12px;
+    }
+    
+    .last-update {
+      font-size: 0.9rem;
+      opacity: 0.9;
+      margin-top: 1rem;
+    }
+    
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .status-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      border-top: 4px solid var(--alpine-blue);
+    }
+    
+    .status-card h3 {
+      margin: 0 0 1rem 0;
+      color: var(--alpine-blue);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .status-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .status-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .status-item:last-child {
+      border-bottom: none;
+    }
+    
+    .status-name {
+      font-weight: 500;
+      color: var(--alpine-dark-gray);
+    }
+    
+    .status-indicator {
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    
+    .status-good {
+      background: #dcfce7;
+      color: #166534;
+    }
+    
+    .status-warning {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    
+    .status-critical {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    
+    .status-not-inspected {
+      background: #f3f4f6;
+      color: #6b7280;
+    }
+    
+    .summary-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .stat-number {
+      font-size: 2rem;
+      font-weight: bold;
+      color: var(--alpine-blue);
+    }
+    
+    .stat-label {
+      color: var(--alpine-dark-gray);
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+    }
+    
+    .legend-section {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+    
+    .legend-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    
+    .disclaimer {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+      color: #64748b;
+      font-size: 0.9rem;
+      margin-top: 2rem;
+    }
+    
+    .admin-link {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--alpine-blue);
+      color: white;
+      padding: 0.75rem 1rem;
+      border-radius: 25px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      transition: all 0.3s ease;
+    }
+    
+    .admin-link:hover {
+      background: var(--alpine-dark-blue);
+      transform: translateY(-2px);
+    }
+    
+    @media (max-width: 768px) {
+      .status-header {
+        padding: 1.5rem;
+      }
+      
+      .status-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .summary-stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .legend-items {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="status-dashboard">
+    <!-- En-tête -->
+    <div class="status-header">
+      <h1>🏔️ Status des Sentiers - Mont Orford</h1>
+      <p>Conditions actuelles des sentiers de randonnée et des abris</p>
+      <div class="last-update">
+        Dernière mise à jour : <span id="last-update-time">Chargement...</span>
+      </div>
+    </div>
+
+    <!-- Statistiques résumées -->
+    <div class="summary-stats">
+      <div class="stat-card">
+        <div class="stat-number" id="total-trails">--</div>
+        <div class="stat-label">Sentiers</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="total-shelters">--</div>
+        <div class="stat-label">Abris</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="good-count">--</div>
+        <div class="stat-label">En bon état</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="issues-count">--</div>
+        <div class="stat-label">Avec problèmes</div>
+      </div>
+    </div>
+
+    <!-- Légende -->
+    <div class="legend-section">
+      <h3 style="text-align: center; margin-bottom: 1rem; color: var(--alpine-blue);">
+        Légende des états
+      </h3>
+      <div class="legend-items">
+        <div class="legend-item">
+          <div class="legend-dot" style="background: #22c55e;"></div>
+          <span>Bon état</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background: #f59e0b;"></div>
+          <span>Attention requise</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background: #ef4444;"></div>
+          <span>État critique</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background: #9ca3af;"></div>
+          <span>Non inspecté</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grille de status -->
+    <div class="status-grid">
+      <!-- Sentiers -->
+      <div class="status-card">
+        <h3>🥾 Sentiers de randonnée</h3>
+        <ul class="status-list" id="trails-status">
+          <li style="text-align: center; padding: 2rem;">Chargement...</li>
+        </ul>
+      </div>
+
+      <!-- Abris -->
+      <div class="status-card">
+        <h3>🏠 Abris et refuges</h3>
+        <ul class="status-list" id="shelters-status">
+          <li style="text-align: center; padding: 2rem;">Chargement...</li>
+        </ul>
+      </div>
+
+      <!-- Alertes importantes -->
+      <div class="status-card">
+        <h3>⚠️ Alertes importantes</h3>
+        <ul class="status-list" id="alerts-list">
+          <li style="text-align: center; padding: 2rem;">Chargement...</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Disclaimer -->
+    <div class="disclaimer">
+      <p>
+        <strong>Information :</strong> Ces données sont mises à jour en temps réel par notre équipe d'inspection. 
+        En cas de conditions météorologiques défavorables, veuillez vérifier les conditions avant votre randonnée.
+      </p>
+    </div>
+  </div>
+
+  <!-- Lien administration (caché par défaut) -->
+  <a href="index.html" class="admin-link" style="display: none;" id="admin-access">
+    🔧 Administration
+  </a>
+
+  <!-- Scripts Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+
+  <script>
+    // Configuration Firebase (même que votre config existante)
+    const firebaseConfig = {
+      apiKey: "AIzaSyDcBZrwGTskM7QUvanzLTACEJ_T-55j-DA",
+      authDomain: "trail-inspection.firebaseapp.com",
+      projectId: "trail-inspection",
+      storageBucket: "trail-inspection.firebasestorage.app",
+      messagingSenderId: "415995272058",
+      appId: "1:415995272058:web:dc476de8ffee052e2ad4c3",
+      measurementId: "G-EBLYWBM9YB"
+    };
+
+    // Initialisation Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // Fonction pour formater la date
+    function formatDate(date) {
+      const options = {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      };
+      return date.toLocaleDateString('fr-FR', options);
+    }
+
+    // Fonction pour obtenir le texte de statut
+    function getStatusText(status) {
+      switch (status) {
+        case 'good': return 'Bon état';
+        case 'warning': return 'Attention';
+        case 'critical': return 'Critique';
+        default: return 'Non inspecté';
+      }
+    }
+
+    // Fonction pour obtenir la classe CSS du statut
+    function getStatusClass(status) {
+      switch (status) {
+        case 'good': return 'status-good';
+        case 'warning': return 'status-warning';
+        case 'critical': return 'status-critical';
+        default: return 'status-not-inspected';
+      }
+    }
+
+    // Charger les données de status
+    async function loadStatusData() {
+      try {
+        // Charger les sentiers avec leur dernier statut
+        const trailsWithStatus = await getTrailsWithStatus();
+        
+        // Charger les abris avec leur dernier statut
+        const sheltersWithStatus = await getSheltersWithStatus();
+        
+        // Mettre à jour l'interface
+        updateTrailsDisplay(trailsWithStatus);
+        updateSheltersDisplay(sheltersWithStatus);
+        updateSummaryStats(trailsWithStatus, sheltersWithStatus);
+        updateAlerts(trailsWithStatus, sheltersWithStatus);
+        updateLastUpdateTime();
+        
+      } catch (error) {
+        console.error("Erreur lors du chargement des données:", error);
+        showError("Erreur lors du chargement des données de status");
+      }
+    }
+
+    // Récupérer les sentiers avec leur statut
+    async function getTrailsWithStatus() {
+      const trails = [];
+      
+      // Récupérer tous les sentiers
+      const trailsSnapshot = await db.collection('trails').orderBy('name').get();
+      
+      for (const trailDoc of trailsSnapshot.docs) {
+        const trailData = trailDoc.data();
+        
+        // Récupérer la dernière inspection
+        const inspectionSnapshot = await db.collection('trail_inspections')
+          .where('trail_id', '==', trailDoc.id)
+          .orderBy('date', 'desc')
+          .limit(1)
+          .get();
+        
+        let status = 'not-inspected';
+        let lastInspection = null;
+        
+        if (!inspectionSnapshot.empty) {
+          lastInspection = inspectionSnapshot.docs[0].data();
+          status = lastInspection.condition;
+        }
+        
+        trails.push({
+          id: trailDoc.id,
+          name: trailData.name,
+          length: trailData.length,
+          difficulty: trailData.difficulty,
+          status: status,
+          lastInspection: lastInspection
+        });
+      }
+      
+      return trails;
+    }
+
+    // Récupérer les abris avec leur statut
+    async function getSheltersWithStatus() {
+      const shelters = [];
+      
+      // Récupérer tous les abris
+      const sheltersSnapshot = await db.collection('shelters').orderBy('name').get();
+      
+      for (const shelterDoc of sheltersSnapshot.docs) {
+        const shelterData = shelterDoc.data();
+        
+        // Récupérer la dernière inspection
+        const inspectionSnapshot = await db.collection('shelter_inspections')
+          .where('shelter_id', '==', shelterDoc.id)
+          .orderBy('date', 'desc')
+          .limit(1)
+          .get();
+        
+        let status = 'not-inspected';
+        let lastInspection = null;
+        
+        if (!inspectionSnapshot.empty) {
+          lastInspection = inspectionSnapshot.docs[0].data();
+          status = lastInspection.condition;
+        }
+        
+        shelters.push({
+          id: shelterDoc.id,
+          name: shelterData.name,
+          altitude: shelterData.altitude,
+          status: status,
+          lastInspection: lastInspection
+        });
+      }
+      
+      return shelters;
+    }
+
+    // Mettre à jour l'affichage des sentiers
+    function updateTrailsDisplay(trails) {
+      const container = document.getElementById('trails-status');
+      container.innerHTML = '';
+      
+      if (trails.length === 0) {
+        container.innerHTML = '<li style="text-align: center; padding: 2rem;">Aucun sentier disponible</li>';
+        return;
+      }
+      
+      trails.forEach(trail => {
+        const li = document.createElement('li');
+        li.className = 'status-item';
+        
+        li.innerHTML = `
+          <div class="status-name">
+            ${trail.name}
+            <small style="color: #6b7280; display: block;">${trail.length} km</small>
+          </div>
+          <div class="status-indicator ${getStatusClass(trail.status)}">
+            ${getStatusText(trail.status)}
+          </div>
+        `;
+        
+        container.appendChild(li);
+      });
+    }
+
+    // Mettre à jour l'affichage des abris
+    function updateSheltersDisplay(shelters) {
+      const container = document.getElementById('shelters-status');
+      container.innerHTML = '';
+      
+      if (shelters.length === 0) {
+        container.innerHTML = '<li style="text-align: center; padding: 2rem;">Aucun abri disponible</li>';
+        return;
+      }
+      
+      shelters.forEach(shelter => {
+        const li = document.createElement('li');
+        li.className = 'status-item';
+        
+        li.innerHTML = `
+          <div class="status-name">
+            ${shelter.name}
+            <small style="color: #6b7280; display: block;">${shelter.altitude} m</small>
+          </div>
+          <div class="status-indicator ${getStatusClass(shelter.status)}">
+            ${getStatusText(shelter.status)}
+          </div>
+        `;
+        
+        container.appendChild(li);
+      });
+    }
+
+    // Mettre à jour les statistiques résumées
+    function updateSummaryStats(trails, shelters) {
+      document.getElementById('total-trails').textContent = trails.length;
+      document.getElementById('total-shelters').textContent = shelters.length;
+      
+      const allItems = [...trails, ...shelters];
+      const goodCount = allItems.filter(item => item.status === 'good').length;
+      const issuesCount = allItems.filter(item => 
+        item.status === 'warning' || item.status === 'critical'
+      ).length;
+      
+      document.getElementById('good-count').textContent = goodCount;
+      document.getElementById('issues-count').textContent = issuesCount;
+    }
+
+    // Mettre à jour les alertes importantes
+    function updateAlerts(trails, shelters) {
+      const container = document.getElementById('alerts-list');
+      container.innerHTML = '';
+      
+      const allItems = [...trails, ...shelters];
+      const criticalItems = allItems.filter(item => item.status === 'critical');
+      const warningItems = allItems.filter(item => item.status === 'warning');
+      
+      if (criticalItems.length === 0 && warningItems.length === 0) {
+        container.innerHTML = '<li style="text-align: center; padding: 2rem; color: #22c55e;">✅ Aucune alerte</li>';
+        return;
+      }
+      
+      // Alertes critiques
+      criticalItems.forEach(item => {
+        const li = document.createElement('li');
+        li.className = 'status-item';
+        li.innerHTML = `
+          <div class="status-name" style="color: #ef4444;">
+            🚨 ${item.name}
+            <small style="display: block;">État critique</small>
+          </div>
+        `;
+        container.appendChild(li);
+      });
+      
+      // Alertes d'attention (maximum 3 pour ne pas surcharger)
+      warningItems.slice(0, 3).forEach(item => {
+        const li = document.createElement('li');
+        li.className = 'status-item';
+        li.innerHTML = `
+          <div class="status-name" style="color: #f59e0b;">
+            ⚠️ ${item.name}
+            <small style="display: block;">Attention requise</small>
+          </div>
+        `;
+        container.appendChild(li);
+      });
+      
+      if (warningItems.length > 3) {
+        const li = document.createElement('li');
+        li.innerHTML = `
+          <div style="text-align: center; padding: 1rem; color: #6b7280;">
+            ... et ${warningItems.length - 3} autre(s) alerte(s)
+          </div>
+        `;
+        container.appendChild(li);
+      }
+    }
+
+    // Mettre à jour l'heure de dernière mise à jour
+    function updateLastUpdateTime() {
+      const now = new Date();
+      document.getElementById('last-update-time').textContent = formatDate(now);
+    }
+
+    // Afficher une erreur
+    function showError(message) {
+      document.getElementById('trails-status').innerHTML = 
+        `<li style="text-align: center; padding: 2rem; color: #ef4444;">${message}</li>`;
+      document.getElementById('shelters-status').innerHTML = 
+        `<li style="text-align: center; padding: 2rem; color: #ef4444;">${message}</li>`;
+      document.getElementById('alerts-list').innerHTML = 
+        `<li style="text-align: center; padding: 2rem; color: #ef4444;">${message}</li>`;
+    }
+
+    // Easter egg pour l'accès admin
+    let clickCount = 0;
+    document.querySelector('.status-header h1').addEventListener('click', function() {
+      clickCount++;
+      if (clickCount >= 5) {
+        document.getElementById('admin-access').style.display = 'block';
+        clickCount = 0;
+      }
+      setTimeout(() => clickCount = 0, 3000);
+    });
+
+    // Charger les données au démarrage
+    document.addEventListener('DOMContentLoaded', function() {
+      loadStatusData();
+      
+      // Actualiser les données toutes les 5 minutes
+      setInterval(loadStatusData, 5 * 60 * 1000);
+    });
+  </script>
+</body>
+</html>
