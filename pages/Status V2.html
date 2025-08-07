@@ -202,15 +202,40 @@
     }
     
     .list-view-container.active {
-      display: block;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
     }
     
-    .status-table {
-      width: 100%;
+    .list-section {
       background: white;
       border-radius: 12px;
       overflow: hidden;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .list-section-header {
+      background: #f9fafb;
+      padding: 1rem;
+      border-bottom: 2px solid #e5e7eb;
+      text-align: center;
+      font-weight: 600;
+      color: #1f2937;
+      font-size: 1.1rem;
+    }
+    
+    .list-section-header.trails {
+      background: linear-gradient(135deg, #f0f9ff 0%, #dbeafe 100%);
+      color: #1e40af;
+    }
+    
+    .list-section-header.shelters {
+      background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+      color: #5b21b6;
+    }
+    
+    .status-table {
+      width: 100%;
     }
     
     .status-table table {
@@ -220,17 +245,19 @@
     
     .status-table th {
       background: #f9fafb;
-      padding: 1rem;
+      padding: 0.75rem;
       text-align: left;
       font-weight: 600;
       color: #4b5563;
-      border-bottom: 2px solid #e5e7eb;
+      font-size: 0.85rem;
+      border-bottom: 1px solid #e5e7eb;
     }
     
     .status-table td {
-      padding: 1rem;
+      padding: 0.75rem;
       border-bottom: 1px solid #e5e7eb;
       color: #1f2937;
+      font-size: 0.9rem;
     }
     
     .status-table tbody tr:hover {
@@ -406,6 +433,10 @@
         font-size: 0.85rem;
       }
       
+      .list-view-container.active {
+        grid-template-columns: 1fr;
+      }
+      
       .status-table th,
       .status-table td {
         padding: 0.5rem;
@@ -461,22 +492,50 @@
     
     <!-- Vue liste -->
     <div class="list-view-container" id="list-view">
-      <div class="status-table">
-        <table>
-          <thead>
-            <tr>
-              <th>Type</th>
-              <th>Nom</th>
-              <th>État</th>
-              <th>Dernière inspection</th>
-            </tr>
-          </thead>
-          <tbody id="status-tbody">
-            <tr>
-              <td colspan="4" style="text-align: center;">Chargement des données...</td>
-            </tr>
-          </tbody>
-        </table>
+      <!-- Section Sentiers -->
+      <div class="list-section">
+        <div class="list-section-header trails">
+          🥾 Sentiers
+        </div>
+        <div class="status-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Nom</th>
+                <th>État</th>
+                <th>Dernière inspection</th>
+              </tr>
+            </thead>
+            <tbody id="trails-tbody">
+              <tr>
+                <td colspan="3" style="text-align: center;">Chargement...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <!-- Section Abris -->
+      <div class="list-section">
+        <div class="list-section-header shelters">
+          🏠 Abris
+        </div>
+        <div class="status-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Nom</th>
+                <th>État</th>
+                <th>Dernière inspection</th>
+              </tr>
+            </thead>
+            <tbody id="shelters-tbody">
+              <tr>
+                <td colspan="3" style="text-align: center;">Chargement...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -768,57 +827,73 @@
     
     // Afficher les éléments dans la liste
     function displayListItems(data) {
-      const tbody = document.getElementById('status-tbody');
+      const trailsTbody = document.getElementById('trails-tbody');
+      const sheltersTbody = document.getElementById('shelters-tbody');
       
-      if (data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Aucun élément ne correspond aux critères.</td></tr>';
-        return;
+      // Séparer les sentiers et les abris
+      const trails = data.filter(item => item.type === 'trail');
+      const shelters = data.filter(item => item.type === 'shelter');
+      
+      // Afficher les sentiers
+      if (trails.length === 0) {
+        trailsTbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #6b7280;">Aucun sentier à afficher</td></tr>';
+      } else {
+        trailsTbody.innerHTML = '';
+        trails.forEach(item => {
+          const row = createListRow(item);
+          trailsTbody.appendChild(row);
+        });
       }
       
-      tbody.innerHTML = '';
+      // Afficher les abris
+      if (shelters.length === 0) {
+        sheltersTbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #6b7280;">Aucun abri à afficher</td></tr>';
+      } else {
+        sheltersTbody.innerHTML = '';
+        shelters.forEach(item => {
+          const row = createListRow(item);
+          sheltersTbody.appendChild(row);
+        });
+      }
+    }
+    
+    // Créer une ligne pour la liste
+    function createListRow(item) {
+      const row = document.createElement('tr');
       
-      data.forEach(item => {
-        const row = document.createElement('tr');
-        
-        // Type
-        const typeText = item.type === 'trail' ? 'Sentier' : 'Abri';
-        const typeClass = item.type === 'trail' ? 'type-trail' : 'type-shelter';
-        
-        // Nom avec difficulté si sentier
-        let nameHtml = item.name;
-        if (item.type === 'trail' && item.difficulty) {
-          const difficultyText = {
-            'easy': 'Facile',
-            'medium': 'Inter.',
-            'hard': 'Difficile'
-          }[item.difficulty];
-          nameHtml += `<span class="difficulty-badge difficulty-${item.difficulty}">${difficultyText}</span>`;
-        }
-        
-        // État
-        const statusText = {
-          'good': 'Bon',
-          'warning': 'Attention',
-          'critical': 'Critique',
-          'not-inspected': 'Non inspecté'
-        }[item.status];
-        
-        // Date de dernière inspection
-        let inspectionDate = 'Jamais';
-        if (item.lastInspection && item.lastInspection.date) {
-          const date = item.lastInspection.date.toDate();
-          inspectionDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
-        }
-        
-        row.innerHTML = `
-          <td><span class="type-badge ${typeClass}">${typeText}</span></td>
-          <td>${nameHtml}</td>
-          <td><span class="status-badge status-${item.status}">${statusText}</span></td>
-          <td>${inspectionDate}</td>
-        `;
-        
-        tbody.appendChild(row);
-      });
+      // Nom avec difficulté si sentier
+      let nameHtml = item.name;
+      if (item.type === 'trail' && item.difficulty) {
+        const difficultyText = {
+          'easy': 'Facile',
+          'medium': 'Inter.',
+          'hard': 'Difficile'
+        }[item.difficulty];
+        nameHtml += `<span class="difficulty-badge difficulty-${item.difficulty}">${difficultyText}</span>`;
+      }
+      
+      // État
+      const statusText = {
+        'good': 'Bon',
+        'warning': 'Attention',
+        'critical': 'Critique',
+        'not-inspected': 'Non inspecté'
+      }[item.status];
+      
+      // Date de dernière inspection
+      let inspectionDate = 'Jamais';
+      if (item.lastInspection && item.lastInspection.date) {
+        const date = item.lastInspection.date.toDate();
+        inspectionDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+      }
+      
+      row.innerHTML = `
+        <td>${nameHtml}</td>
+        <td><span class="status-badge status-${item.status}">${statusText}</span></td>
+        <td>${inspectionDate}</td>
+      `;
+      
+      return row;
     }
     
     // Afficher le tooltip
