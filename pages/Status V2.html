@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mont Orford - État des sentiers</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  
+  <style>
+    /* Styles spécifiques pour la page publique */
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    
+    .public-header {
+      background: linear-gradient(135deg, #1b4b72 0%, #2c7a5d 100%);
+      color: white;
+      padding: 1.5rem 1rem;
+      text-align: center;
+      position: relative;
+    }
+    
+    .public-header::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #43a047, #2196f3, #f44336, #212121);
+    }
+    
+    .public-header h1 {
+      color: white;
+      margin: 0;
+      font-size: 1.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    
+    .last-update-public {
+      margin-top: 0.5rem;
+      opacity: 0.9;
+      font-size: 0.9rem;
+    }
+    
+    /* Section des filtres */
+    .filters-section {
+      background: white;
+      padding: 1rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .view-toggle {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .toggle-btn {
+      padding: 0.5rem 1.5rem;
+      border: 2px solid #1b4b72;
+      background: white;
+      color: #1b4b72;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    
+    .toggle-btn:hover {
+      background: #f8f9fb;
+    }
+    
+    .toggle-btn.active {
+      background: #1b4b72;
+      color: white;
+    }
+    
+    .filter-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+    
+    .filter-btn {
+      padding: 0.4rem 0.8rem;
+      border: 1px solid #e5e7eb;
+      background: white;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.85rem;
+    }
+    
+    .filter-btn:hover {
+      border-color: #1b4b72;
+      background: #f8f9fb;
+    }
+    
+    .filter-btn.active {
+      background: #1b4b72;
+      color: white;
+      border-color: #1b4b72;
+    }
+    
+    /* Contenu principal */
+    .main-content {
+      flex: 1;
+      padding: 1.5rem;
+      background: #f8f9fb;
+      overflow: auto;
+    }
+    
+    /* Vue carte */
+    .map-view-container {
+      display: none;
+      background: white;
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      max-width: 1200px;
+      margin: 0 auto;
+      height: 600px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .map-view-container.active {
+      display: block;
+    }
+    
+    .map-wrapper {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      overflow: auto;
+    }
+    
+    .map-image {
+      display: block;
+      width: auto !important;
+      height: auto !important;
+      max-width: none !important;
+    }
+    
+    /* Marqueurs sur la carte */
+    .trail-marker {
+      position: absolute;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      font-size: 0.9rem;
+      z-index: 10;
+      border: 2px solid white;
+      transition: transform 0.2s;
+    }
+    
+    .trail-marker:hover {
+      transform: translate(-50%, -50%) scale(1.1);
+      z-index: 20;
+    }
+    
+    .marker-good {
+      background-color: #10b981;
+    }
+    
+    .marker-warning {
+      background-color: #f59e0b;
+    }
+    
+    .marker-critical {
+      background-color: #ef4444;
+    }
+    
+    .marker-not-inspected {
+      background-color: #9ca3af;
+    }
+    
+    /* Vue liste */
+    .list-view-container {
+      display: none;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .list-view-container.active {
+      display: block;
+    }
+    
+    .status-table {
+      width: 100%;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .status-table table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .status-table th {
+      background: #f9fafb;
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      color: #4b5563;
+      border-bottom: 2px solid #e5e7eb;
+    }
+    
+    .status-table td {
+      padding: 1rem;
+      border-bottom: 1px solid #e5e7eb;
+      color: #1f2937;
+    }
+    
+    .status-table tbody tr:hover {
+      background: #f9fafb;
+    }
+    
+    .status-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+    
+    .type-badge {
+      display: inline-block;
+      padding: 0.25rem 0.6rem;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    
+    .type-trail {
+      background: rgba(29, 78, 216, 0.1);
+      color: #1e40af;
+    }
+    
+    .type-shelter {
+      background: rgba(107, 70, 193, 0.1);
+      color: #5b21b6;
+    }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 0.3rem 0.7rem;
+      border-radius: 15px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    
+    .status-good {
+      background: rgba(44, 122, 93, 0.15);
+      color: #2c7a5d;
+    }
+    
+    .status-warning {
+      background: rgba(221, 107, 32, 0.15);
+      color: #dd6b20;
+    }
+    
+    .status-critical {
+      background: rgba(197, 48, 48, 0.15);
+      color: #c53030;
+    }
+    
+    .status-not-inspected {
+      background: rgba(160, 174, 192, 0.2);
+      color: #4a5568;
+    }
+    
+    .difficulty-badge {
+      display: inline-block;
+      padding: 0.2rem 0.5rem;
+      border-radius: 10px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      margin-left: 0.5rem;
+    }
+    
+    .difficulty-easy {
+      background: #43a047;
+      color: white;
+    }
+    
+    .difficulty-medium {
+      background: #2196f3;
+      color: white;
+    }
+    
+    .difficulty-hard {
+      background: #212121;
+      color: white;
+    }
+    
+    /* Légende */
+    .legend-section {
+      background: white;
+      padding: 1.5rem;
+      box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      bottom: 0;
+    }
+    
+    .legend-title {
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    
+    .legend-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      justify-content: center;
+    }
+    
+    .legend-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .legend-group-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #6b7280;
+      margin-bottom: 0.25rem;
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+    }
+    
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    
+    .no-results {
+      text-align: center;
+      padding: 3rem;
+      color: #6b7280;
+      background: white;
+      border-radius: 12px;
+      margin: 2rem auto;
+      max-width: 600px;
+    }
+    
+    /* Tooltip pour la carte */
+    .map-tooltip {
+      position: absolute;
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      pointer-events: none;
+      z-index: 1000;
+      display: none;
+      white-space: nowrap;
+    }
+    
+    @media (max-width: 768px) {
+      .public-header h1 {
+        font-size: 1.3rem;
+      }
+      
+      .filter-buttons {
+        gap: 0.3rem;
+      }
+      
+      .filter-btn {
+        font-size: 0.75rem;
+        padding: 0.3rem 0.6rem;
+      }
+      
+      .toggle-btn {
+        padding: 0.4rem 1rem;
+        font-size: 0.9rem;
+      }
+      
+      .map-view-container {
+        height: 400px;
+      }
+      
+      .status-table {
+        font-size: 0.85rem;
+      }
+      
+      .status-table th,
+      .status-table td {
+        padding: 0.5rem;
+      }
+      
+      .legend-items {
+        flex-direction: column;
+        gap: 1rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏔️</text></svg>">
+  
+  <!-- En-tête -->
+  <div class="public-header">
+    <h1>🏔️ Mont Orford - État des sentiers</h1>
+    <div class="last-update-public">
+      Dernière mise à jour: <span id="last-update-time">--:--</span>
+    </div>
+  </div>
+  
+  <!-- Section des filtres -->
+  <div class="filters-section">
+    <div class="view-toggle">
+      <button class="toggle-btn active" data-view="map">📍 Vue carte</button>
+      <button class="toggle-btn" data-view="list">📋 Vue liste</button>
+    </div>
+    
+    <div class="filter-buttons">
+      <button class="filter-btn active" data-filter="all">Tout afficher</button>
+      <button class="filter-btn" data-filter="trails">Sentiers</button>
+      <button class="filter-btn" data-filter="shelters">Abris</button>
+      <button class="filter-btn" data-filter="good">✓ Bon état</button>
+      <button class="filter-btn" data-filter="warning">⚠ Attention</button>
+      <button class="filter-btn" data-filter="critical">⚠️ Critique</button>
+      <button class="filter-btn" data-filter="not-inspected">? Non inspecté</button>
+    </div>
+  </div>
+  
+  <!-- Contenu principal -->
+  <div class="main-content">
+    <!-- Vue carte -->
+    <div class="map-view-container active" id="map-view">
+      <div class="map-wrapper">
+        <img src="../assets/map3.png" alt="Carte du Mont Orford" class="map-image">
+        <!-- Les marqueurs seront ajoutés dynamiquement ici -->
+      </div>
+      <div class="map-tooltip" id="map-tooltip"></div>
+    </div>
+    
+    <!-- Vue liste -->
+    <div class="list-view-container" id="list-view">
+      <div class="status-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Nom</th>
+              <th>État</th>
+              <th>Dernière inspection</th>
+            </tr>
+          </thead>
+          <tbody id="status-tbody">
+            <tr>
+              <td colspan="4" style="text-align: center;">Chargement des données...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Légende -->
+  <div class="legend-section">
+    <div class="legend-title">Légende</div>
+    <div class="legend-items">
+      <div class="legend-group">
+        <div class="legend-group-title">États</div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background: #10b981;"></div>
+          <span>Bon état</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background: #f59e0b;"></div>
+          <span>Attention</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background: #ef4444;"></div>
+          <span>Critique</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background: #9ca3af;"></div>
+          <span>Non inspecté</span>
+        </div>
+      </div>
+      
+      <div class="legend-group">
+        <div class="legend-group-title">Types</div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background: #1e40af;"></div>
+          <span>Sentiers</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background: #8b5cf6;"></div>
+          <span>Abris (A)</span>
+        </div>
+      </div>
+      
+      <div class="legend-group">
+        <div class="legend-group-title">Difficulté</div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background: #43a047;"></div>
+          <span>Facile</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background: #2196f3;"></div>
+          <span>Intermédiaire</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background: #212121;"></div>
+          <span>Difficile</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Scripts Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+  
+  <script>
+    // Configuration Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyDcBZrwGTskM7QUvanzLTACEJ_T-55j-DA",
+      authDomain: "trail-inspection.firebaseapp.com",
+      projectId: "trail-inspection",
+      storageBucket: "trail-inspection.firebasestorage.app",
+      messagingSenderId: "415995272058",
+      appId: "1:415995272058:web:dc476de8ffee052e2ad4c3",
+      measurementId: "G-EBLYWBM9YB"
+    };
+    
+    // Initialisation de Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    
+    // Variables globales
+    let allData = [];
+    let currentFilter = 'all';
+    let currentView = 'map';
+    
+    // Chargement des données au démarrage
+    document.addEventListener('DOMContentLoaded', function() {
+      loadPublicData();
+      setupViewToggle();
+      setupFilters();
+      
+      // Actualisation automatique toutes les 5 minutes
+      setInterval(loadPublicData, 5 * 60 * 1000);
+    });
+    
+    // Configuration du toggle vue carte/liste
+    function setupViewToggle() {
+      document.querySelectorAll('.toggle-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          // Mettre à jour l'état actif
+          document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          // Changer la vue
+          currentView = this.dataset.view;
+          
+          if (currentView === 'map') {
+            document.getElementById('map-view').classList.add('active');
+            document.getElementById('list-view').classList.remove('active');
+          } else {
+            document.getElementById('map-view').classList.remove('active');
+            document.getElementById('list-view').classList.add('active');
+          }
+        });
+      });
+    }
+    
+    // Configuration des filtres
+    function setupFilters() {
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          // Mettre à jour l'état actif
+          document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          // Appliquer le filtre
+          currentFilter = this.dataset.filter;
+          displayData();
+        });
+      });
+    }
+    
+    // Charger les données publiques
+    async function loadPublicData() {
+      try {
+        allData = [];
+        
+        // Charger les sentiers
+        const trailsSnapshot = await db.collection('trails').get();
+        const trails = new Map();
+        trailsSnapshot.forEach(doc => {
+          trails.set(doc.id, { id: doc.id, ...doc.data() });
+        });
+        
+        // Charger les abris
+        const sheltersSnapshot = await db.collection('shelters').get();
+        const shelters = new Map();
+        sheltersSnapshot.forEach(doc => {
+          shelters.set(doc.id, { id: doc.id, ...doc.data() });
+        });
+        
+        // Charger les dernières inspections de sentiers
+        for (const [trailId, trail] of trails) {
+          const inspectionSnapshot = await db.collection('trail_inspections')
+            .where('trail_id', '==', trailId)
+            .orderBy('date', 'desc')
+            .limit(1)
+            .get();
+          
+          let status = 'not-inspected';
+          let lastInspection = null;
+          
+          if (!inspectionSnapshot.empty) {
+            const doc = inspectionSnapshot.docs[0];
+            lastInspection = doc.data();
+            status = lastInspection.condition || 'not-inspected';
+          }
+          
+          allData.push({
+            type: 'trail',
+            ...trail,
+            status,
+            lastInspection
+          });
+        }
+        
+        // Charger les dernières inspections d'abris
+        for (const [shelterId, shelter] of shelters) {
+          const inspectionSnapshot = await db.collection('shelter_inspections')
+            .where('shelter_id', '==', shelterId)
+            .orderBy('date', 'desc')
+            .limit(1)
+            .get();
+          
+          let status = 'not-inspected';
+          let lastInspection = null;
+          
+          if (!inspectionSnapshot.empty) {
+            const doc = inspectionSnapshot.docs[0];
+            lastInspection = doc.data();
+            status = lastInspection.condition || 'not-inspected';
+          }
+          
+          allData.push({
+            type: 'shelter',
+            ...shelter,
+            status,
+            lastInspection
+          });
+        }
+        
+        // Trier par nom
+        allData.sort((a, b) => a.name.localeCompare(b.name));
+        
+        // Mettre à jour l'heure de dernière mise à jour
+        const now = new Date();
+        document.getElementById('last-update-time').textContent = 
+          `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()} à ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+        
+        // Afficher les données
+        displayData();
+        
+      } catch (error) {
+        console.error("Erreur lors du chargement des données:", error);
+        document.getElementById('status-tbody').innerHTML = 
+          '<tr><td colspan="4" style="text-align: center; color: #e02424;">Erreur lors du chargement des données.</td></tr>';
+      }
+    }
+    
+    // Afficher les données filtrées
+    function displayData() {
+      // Filtrer les données
+      let filteredData = allData;
+      
+      switch (currentFilter) {
+        case 'trails':
+          filteredData = allData.filter(item => item.type === 'trail');
+          break;
+        case 'shelters':
+          filteredData = allData.filter(item => item.type === 'shelter');
+          break;
+        case 'good':
+          filteredData = allData.filter(item => item.status === 'good');
+          break;
+        case 'warning':
+          filteredData = allData.filter(item => item.status === 'warning');
+          break;
+        case 'critical':
+          filteredData = allData.filter(item => item.status === 'critical');
+          break;
+        case 'not-inspected':
+          filteredData = allData.filter(item => item.status === 'not-inspected');
+          break;
+      }
+      
+      // Afficher dans la vue carte
+      displayMapMarkers(filteredData);
+      
+      // Afficher dans la vue liste
+      displayListItems(filteredData);
+    }
+    
+    // Afficher les marqueurs sur la carte
+    function displayMapMarkers(data) {
+      const mapWrapper = document.querySelector('.map-wrapper');
+      
+      // Supprimer les marqueurs existants
+      mapWrapper.querySelectorAll('.trail-marker').forEach(marker => marker.remove());
+      
+      // Créer les nouveaux marqueurs
+      data.forEach(item => {
+        if (!item.coordinates) return;
+        
+        const marker = document.createElement('div');
+        marker.className = `trail-marker marker-${item.status}`;
+        
+        // Texte du marqueur
+        if (item.type === 'shelter') {
+          marker.innerHTML = 'A' + item.id.replace('shelter_', '');
+          marker.style.backgroundColor = '#8b5cf6';
+        } else {
+          marker.textContent = item.id.replace('trail_', '');
+        }
+        
+        // Position
+        marker.style.top = `${item.coordinates.top}px`;
+        marker.style.left = `${item.coordinates.left}px`;
+        
+        // Tooltip au survol
+        marker.addEventListener('mouseenter', function(e) {
+          showTooltip(e, item);
+        });
+        
+        marker.addEventListener('mouseleave', function() {
+          hideTooltip();
+        });
+        
+        mapWrapper.appendChild(marker);
+      });
+    }
+    
+    // Afficher les éléments dans la liste
+    function displayListItems(data) {
+      const tbody = document.getElementById('status-tbody');
+      
+      if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Aucun élément ne correspond aux critères.</td></tr>';
+        return;
+      }
+      
+      tbody.innerHTML = '';
+      
+      data.forEach(item => {
+        const row = document.createElement('tr');
+        
+        // Type
+        const typeText = item.type === 'trail' ? 'Sentier' : 'Abri';
+        const typeClass = item.type === 'trail' ? 'type-trail' : 'type-shelter';
+        
+        // Nom avec difficulté si sentier
+        let nameHtml = item.name;
+        if (item.type === 'trail' && item.difficulty) {
+          const difficultyText = {
+            'easy': 'Facile',
+            'medium': 'Inter.',
+            'hard': 'Difficile'
+          }[item.difficulty];
+          nameHtml += `<span class="difficulty-badge difficulty-${item.difficulty}">${difficultyText}</span>`;
+        }
+        
+        // État
+        const statusText = {
+          'good': 'Bon',
+          'warning': 'Attention',
+          'critical': 'Critique',
+          'not-inspected': 'Non inspecté'
+        }[item.status];
+        
+        // Date de dernière inspection
+        let inspectionDate = 'Jamais';
+        if (item.lastInspection && item.lastInspection.date) {
+          const date = item.lastInspection.date.toDate();
+          inspectionDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+        }
+        
+        row.innerHTML = `
+          <td><span class="type-badge ${typeClass}">${typeText}</span></td>
+          <td>${nameHtml}</td>
+          <td><span class="status-badge status-${item.status}">${statusText}</span></td>
+          <td>${inspectionDate}</td>
+        `;
+        
+        tbody.appendChild(row);
+      });
+    }
+    
+    // Afficher le tooltip
+    function showTooltip(event, item) {
+      const tooltip = document.getElementById('map-tooltip');
+      const marker = event.target;
+      
+      // Contenu du tooltip
+      let content = `<strong>${item.name}</strong><br>`;
+      
+      // État
+      const statusText = {
+        'good': 'Bon état',
+        'warning': 'Attention',
+        'critical': 'Critique',
+        'not-inspected': 'Non inspecté'
+      }[item.status];
+      content += `État: ${statusText}<br>`;
+      
+      // Date d'inspection
+      if (item.lastInspection && item.lastInspection.date) {
+        const date = item.lastInspection.date.toDate();
+        content += `Inspecté: ${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+      } else {
+        content += 'Jamais inspecté';
+      }
+      
+      tooltip.innerHTML = content;
+      tooltip.style.display = 'block';
+      
+      // Position du tooltip
+      const rect = marker.getBoundingClientRect();
+      const mapRect = marker.parentElement.getBoundingClientRect();
+      
+      tooltip.style.left = (rect.left - mapRect.left + rect.width / 2) + 'px';
+      tooltip.style.top = (rect.top - mapRect.top - 40) + 'px';
+    }
+    
+    // Cacher le tooltip
+    function hideTooltip() {
+      document.getElementById('map-tooltip').style.display = 'none';
+    }
+  </script>
+</body>
+</html>
