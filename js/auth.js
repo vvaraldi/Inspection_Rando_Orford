@@ -31,7 +31,17 @@ function checkAuthStatus() {
   
   auth.onAuthStateChanged(function(user) {
     if (user) {
-      // Utilisateur connecté
+		const inspectorDoc = await db.collection('inspectors').doc(user.uid).get();
+		if (inspectorDoc.exists) {
+		  const userData = inspectorDoc.data();
+		  
+		  // Vérifier si l'utilisateur est actif
+		  if (userData.status !== 'active') {
+			alert('Votre compte a été désactivé. Contactez l'administrateur.');
+			auth.signOut();
+			return;
+		  }
+		  // Utilisateur connecté
       console.log("Utilisateur connecté:", user.email);
       
       // Mettre à jour le lien de connexion pour afficher "Déconnexion"
