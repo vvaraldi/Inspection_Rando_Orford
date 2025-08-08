@@ -437,6 +437,113 @@ tbody tr:hover {
   z-index: 100;
 }
 
+/* Styles pour les boutons de basculement de statut */
+.status-toggle-btn {
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  min-width: 60px;
+  position: relative;
+}
+
+.status-toggle-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.status-toggle-btn:active {
+  transform: translateY(0);
+}
+
+.status-toggle-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  transform: none;
+}
+
+/* Styles spécifiques pour les différents états */
+.status-toggle-btn.status-active {
+  background-color: #def7ec;
+  color: #0e9f6e;
+  border: 1px solid #a7f3d0;
+}
+
+.status-toggle-btn.status-active:hover {
+  background-color: #bcf5d1;
+  border-color: #6ee7b7;
+}
+
+.status-toggle-btn.status-inactive {
+  background-color: #f3f4f6;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
+}
+
+.status-toggle-btn.status-inactive:hover {
+  background-color: #e5e7eb;
+  border-color: #9ca3af;
+}
+
+/* Animation pour les messages temporaires */
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* Style pour les messages temporaires */
+.temporary-message {
+  font-weight: 500;
+  border: 1px solid;
+}
+
+.temporary-message.status-success {
+  background-color: #def7ec;
+  color: #0e9f6e;
+  border-color: #a7f3d0;
+}
+
+.temporary-message.status-error {
+  background-color: #fde8e8;
+  color: #e02424;
+  border-color: #fca5a5;
+}
+
+/* Responsive : ajustements pour mobile */
+@media (max-width: 768px) {
+  .status-toggle-btn {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
+    min-width: 50px;
+  }
+  
+  .temporary-message {
+    right: 10px;
+    left: 10px;
+    font-size: 0.875rem;
+  }
+}
+
 /* Modales */
 .modal {
   display: none;

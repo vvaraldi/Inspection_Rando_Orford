@@ -309,5 +309,34 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
+function checkUserActiveStatus(user) {
+  return db.collection('inspectors').doc(user.uid).get()
+    .then(doc => {
+      if (doc.exists) {
+        const userData = doc.data();
+        
+        // Vérifier si l'utilisateur est actif
+        if (userData.status !== 'active') {
+          // Déconnecter l'utilisateur
+          auth.signOut();
+          
+          // Afficher un message d'erreur
+          alert('Votre compte a été désactivé. Contactez l'administrateur.');
+          
+          // Rediriger vers la page de connexion
+          window.location.href = window.location.pathname.includes('/pages/') 
+            ? 'login.html' 
+            : 'pages/login.html';
+          
+          return false; // Utilisateur inactif
+        }
+        
+        return true; // Utilisateur actif
+      }
+      
+      return false; // Document utilisateur non trouvé
+    });
+}
+
 // Décommentez la ligne suivante uniquement pour créer un admin initial, puis recommentez-la
 // createInitialAdmin('admin@example.com', 'MotDePasse123', 'Administrateur');

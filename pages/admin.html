@@ -395,13 +395,11 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // ===== GESTION DES INSPECTEURS =====
   // Fonction pour charger les inspecteurs
-  function loadInspectors() {
-  
+function loadInspectors() {
   db.collection('inspectors').get()
     .then(snapshot => {
-      
       const table = document.getElementById('inspectors-table').querySelector('tbody');
-      table.innerHTML = ''; // Vider complètement le tbody
+      table.innerHTML = '';
       
       if (snapshot.empty) {
         table.innerHTML = '<tr><td colspan="6" style="text-align: center;">Aucun utilisateur trouvé</td></tr>';
@@ -416,12 +414,23 @@ document.addEventListener('DOMContentLoaded', function() {
         const roleText = data.role === 'admin' ? 'Administrateur' : 'Inspecteur';
         const roleClass = data.role === 'admin' ? 'role-admin' : 'role-inspector';
         
+        // Créer le bouton de statut cliquable
+        const statusText = data.status === 'active' ? 'Actif' : 'Inactif';
+        const statusClass = data.status === 'active' ? 'status-active' : 'status-inactive';
+        
         row.innerHTML = `
           <td>${data.name}</td>
           <td>${data.email}</td>
           <td>${data.phone || '-'}</td>
           <td><span class="role-badge ${roleClass}">${roleText}</span></td>
-          <td><span class="status-badge status-${data.status}">${data.status === 'active' ? 'Actif' : 'Inactif'}</span></td>
+          <td>
+            <button class="status-toggle-btn status-badge ${statusClass}" 
+                    data-user-id="${doc.id}" 
+                    data-current-status="${data.status}"
+                    title="Cliquer pour changer le statut">
+              ${statusText}
+            </button>
+          </td>
           <td>
             <button class="btn btn-danger btn-sm delete-user" data-id="${doc.id}">Supprimer</button>
           </td>
@@ -429,15 +438,95 @@ document.addEventListener('DOMContentLoaded', function() {
         
         table.appendChild(row);
       });
-            
-      // Ajouter les événements après avoir créé les éléments
+      
+      // Configurer les événements après création des éléments
       setupUserActions();
-      })
-      .catch(error => {
-        console.error("Erreur lors du chargement des inspecteurs:", error);
-        showStatus('user-status-message', 'Erreur lors du chargement des inspecteurs.', 'error');
-      });
-  }
+      setupStatusToggle(); // Nouvelle fonction pour gérer les boutons de statut
+    })
+    .catch(error => {
+      console.error("Erreur lors du chargement des inspecteurs:", error);
+      showStatus('user-status-message', 'Erreur lors du chargement des inspecteurs.', 'error');
+    });
+}
+
+// Nouvelle fonction pour gérer les boutons de basculement de statut
+function setupStatusToggle() {
+  document.querySelectorAll('.status-toggle-btn').forEach(button => {
+    button.addEventListener('click', async function() {
+      const userId = this.getAttribute('data-user-id');
+      const currentStatus = this.getAttribute('data-current-status');
+      const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+      
+      // Désactiver le bouton pendant la requête
+      this.disabled = true;
+      this.textContent = 'Modification...';
+      
+      try {
+        // Mettre à jour le statut dans Firestore
+        await db.collection('inspectors').doc(userId).update({
+          status: newStatus,
+          lastModified: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        // Mettre à jour l'affichage du bouton
+        const newStatusText = newStatus === 'active' ? 'Actif' : 'Inactif';
+        const newStatusClass = newStatus === 'active' ? 'status-active' : 'status-inactive';
+        
+        this.textContent = newStatusText;
+        this.className = `status-toggle-btn status-badge ${newStatusClass}`;
+        this.setAttribute('data-current-status', newStatus);
+        
+        // Afficher un message de succès temporaire
+        showTemporaryMessage(`Statut mis à jour : ${newStatusText}`, 'success');
+        
+      } catch (error) {
+        console.error('Erreur lors de la mise à jour du statut:', error);
+        
+        // Restaurer l'état original en cas d'erreur
+        const originalText = currentStatus === 'active' ? 'Actif' : 'Inactif';
+        const originalClass = currentStatus === 'active' ? 'status-active' : 'status-inactive';
+        
+        this.textContent = originalText;
+        this.className = `status-toggle-btn status-badge ${originalClass}`;
+        
+        showTemporaryMessage('Erreur lors de la mise à jour du statut', 'error');
+      } finally {
+        // Réactiver le bouton
+        this.disabled = false;
+      }
+    });
+  });
+}
+
+// Fonction utilitaire pour afficher un message temporaire
+function showTemporaryMessage(message, type) {
+  // Créer un élément de message temporaire
+  const messageDiv = document.createElement('div');
+  messageDiv.className = `status-message status-${type} temporary-message`;
+  messageDiv.textContent = message;
+  messageDiv.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.375rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    animation: slideIn 0.3s ease-out;
+  `;
+  
+  document.body.appendChild(messageDiv);
+  
+  // Supprimer le message après 3 secondes
+  setTimeout(() => {
+    messageDiv.style.animation = 'slideOut 0.3s ease-out';
+    setTimeout(() => {
+      if (messageDiv.parentNode) {
+        messageDiv.parentNode.removeChild(messageDiv);
+      }
+    }, 300);
+  }, 3000);
+}
   
   // Configurer les actions pour les utilisateurs
   function setupUserActions() {
