@@ -409,35 +409,47 @@ document.addEventListener('DOMContentLoaded', function() {
   // ===== GESTION DES INSPECTEURS =====
   // Fonction pour charger les inspecteurs
   function loadInspectors() {
-    db.collection('inspectors').get()
-      .then(snapshot => {
-        const table = document.getElementById('inspectors-table').querySelector('tbody');
-        table.innerHTML = '';
+  console.log("Début du chargement des inspecteurs...");
+  
+  db.collection('inspectors').get()
+    .then(snapshot => {
+      console.log("Nombre d'inspecteurs trouvés:", snapshot.size);
+      
+      const table = document.getElementById('inspectors-table').querySelector('tbody');
+      table.innerHTML = ''; // Vider complètement le tbody
+      
+      if (snapshot.empty) {
+        table.innerHTML = '<tr><td colspan="6" style="text-align: center;">Aucun utilisateur trouvé</td></tr>';
+        return;
+      }
+      
+      snapshot.forEach(doc => {
+        console.log("Traitement de l'inspecteur:", doc.id, doc.data());
+        const data = doc.data();
+        const row = document.createElement('tr');
         
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          const row = document.createElement('tr');
-          
-          // Déterminer le texte et la classe CSS pour le rôle
-          const roleText = data.role === 'admin' ? 'Administrateur' : 'Inspecteur';
-          const roleClass = data.role === 'admin' ? 'role-admin' : 'role-inspector';
-
-          row.innerHTML = `
-            <td>${data.name}</td>
-            <td>${data.email}</td>
-            <td>${data.phone || '-'}</td>
-            <td><span class="role-badge ${roleClass}">${roleText}</span></td>
-            <td><span class="status-badge status-${data.status}">${data.status === 'active' ? 'Actif' : 'Inactif'}</span></td>
-            <td>
-              <button class="btn btn-danger btn-sm delete-user" data-id="${doc.id}">Supprimer</button>
-            </td>
-          `;
-          
-          table.appendChild(row);
-        });
+        // Déterminer le texte et la classe CSS pour le rôle
+        const roleText = data.role === 'admin' ? 'Administrateur' : 'Inspecteur';
+        const roleClass = data.role === 'admin' ? 'role-admin' : 'role-inspector';
         
-        // Ajouter les événements après avoir créé les éléments
-        setupUserActions();
+        row.innerHTML = `
+          <td>${data.name}</td>
+          <td>${data.email}</td>
+          <td>${data.phone || '-'}</td>
+          <td><span class="role-badge ${roleClass}">${roleText}</span></td>
+          <td><span class="status-badge status-${data.status}">${data.status === 'active' ? 'Actif' : 'Inactif'}</span></td>
+          <td>
+            <button class="btn btn-danger btn-sm delete-user" data-id="${doc.id}">Supprimer</button>
+          </td>
+        `;
+        
+        table.appendChild(row);
+      });
+      
+      console.log("Chargement des inspecteurs terminé");
+      
+      // Ajouter les événements après avoir créé les éléments
+      setupUserActions();
       })
       .catch(error => {
         console.error("Erreur lors du chargement des inspecteurs:", error);
