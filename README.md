@@ -1,9 +1,10 @@
 # Inspection_Rando_Orford
 
 Must :
-
+0 - Tout comme actif, peut-on basculer un utilisateur de inspecteur a admin et inversement
 1 - Travail sur les download d'image
-2 - Export des inspections... (marche en mode CSV)
+2 - supression d'une inspections par un admin ou par le créateur lui même
+3 - Export des inspections... (marche en mode CSV)
 
 
 Bug fix :
