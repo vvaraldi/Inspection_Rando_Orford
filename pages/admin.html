@@ -72,7 +72,7 @@
     <div class="tab-content active" id="users-tab">
       <div class="admin-panel">
         <div class="admin-card  full-width">
-          <h2 class="admin-title">Liste des inspecteurs</h2>
+          <h2 class="admin-title">Liste des utilisateurs</h2>
           
           <table id="inspectors-table">
             <thead>
@@ -80,19 +80,20 @@
                 <th>Nom</th>
                 <th>Email</th>
                 <th>Téléphone</th>
-                <th>Statut</th>
+				<th>Rôle</th>
+				<th>Statut</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
+<!--               <tr>
                 <td>Pierre Martin</td>
                 <td>pierre.martin@example.com</td>
                 <td>06 12 34 56 78</td>
                 <td><span class="status-badge status-active">Actif</span></td>
                 <td>
                   <!-- <button class="btn btn-secondary btn-sm edit-user" data-id="user1">Modifier</button>-->
-                  <button class="btn btn-danger btn-sm delete-user" data-id="user1">Supprimer</button>
+<!--                   <button class="btn btn-danger btn-sm delete-user" data-id="user1">Supprimer</button>
                 </td>
               </tr>
               <tr>
@@ -102,7 +103,7 @@
                 <td><span class="status-badge status-active">Actif</span></td>
                 <td>
                   <!-- <button class="btn btn-secondary btn-sm edit-user" data-id="user2">Modifier</button>-->
-                  <button class="btn btn-danger btn-sm delete-user" data-id="user2">Supprimer</button>
+<!--                   <button class="btn btn-danger btn-sm delete-user" data-id="user2">Supprimer</button>
                 </td>
               </tr>
               <tr>
@@ -112,9 +113,9 @@
                 <td><span class="status-badge status-active">Actif</span></td>
                 <td>
                   <!-- <button class="btn btn-secondary btn-sm edit-user" data-id="user3">Modifier</button>-->
-                  <button class="btn btn-danger btn-sm delete-user" data-id="user3">Supprimer</button>
+<!--                   <button class="btn btn-danger btn-sm delete-user" data-id="user3">Supprimer</button>
                 </td>
-              </tr>
+              </tr>-->
             </tbody>
           </table>
             <!-- Modal de confirmation pour la suppression d'utilisateur 
@@ -124,7 +125,7 @@
         </div>
         
         <div class="admin-card full-width">
-          <h2 class="admin-title">Nouvel inspecteur</h2>
+          <h2 class="admin-title">Nouvel utilisateur</h2>
           
           <form id="user-form">
             <div class="form-group">
@@ -147,6 +148,14 @@
               <input type="password" id="user-password" required>
             </div>
             
+			<div class="form-group">
+			  <label for="user-role">Rôle</label>
+			  <select id="user-role">
+				<option value="inspector">Inspecteur</option>
+				<option value="admin">Administrateur</option>
+			  </select>
+			</div>
+
             <div class="form-group">
               <label for="user-status">Statut</label>
               <select id="user-status">
@@ -435,10 +444,15 @@ document.addEventListener('DOMContentLoaded', function() {
           const data = doc.data();
           const row = document.createElement('tr');
           
+          // Déterminer le texte et la classe CSS pour le rôle
+          const roleText = data.role === 'admin' ? 'Administrateur' : 'Inspecteur';
+          const roleClass = data.role === 'admin' ? 'role-admin' : 'role-inspector';
+
           row.innerHTML = `
             <td>${data.name}</td>
             <td>${data.email}</td>
             <td>${data.phone || '-'}</td>
+            <td><span class="role-badge ${roleClass}">${roleText}</span></td>
             <td><span class="status-badge status-${data.status}">${data.status === 'active' ? 'Actif' : 'Inactif'}</span></td>
             <td>
               <button class="btn btn-danger btn-sm delete-user" data-id="${doc.id}">Supprimer</button>
@@ -467,6 +481,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const email = document.getElementById('user-email').value;
       const phone = document.getElementById('user-phone').value;
       const password = document.getElementById('user-password').value;
+	  const role = document.getElementById('user-role').value;
       const status = document.getElementById('user-status').value;
       
       // Désactiver le bouton de soumission pour éviter les soumissions multiples
@@ -484,7 +499,7 @@ document.addEventListener('DOMContentLoaded', function() {
             email: email,
             phone: phone || null,
             status: status,
-            role: 'inspector', // Par défaut, rôle d'inspecteur
+            role: role, //'inspector', // Par défaut, rôle d'inspecteur
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
           });
         })

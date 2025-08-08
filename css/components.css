@@ -113,6 +113,25 @@
   color: #5b21b6;
 }
 
+/* Badges de rôle */
+.role-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.role-admin {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.role-inspector {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
 /* Cartes et conteneurs */
 .card {
   background-color: white;
