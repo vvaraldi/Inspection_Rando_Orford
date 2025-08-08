@@ -43,13 +43,29 @@ function checkAuthStatus() {
           
           // Vérifier si l'utilisateur est actif
           if (userData.status !== 'active') {
+            console.log("Compte utilisateur désactivé");
+            
+            // Afficher le message AVANT de déconnecter
             alert('Votre compte a été désactivé. Contactez l\'administrateur.');
-            await auth.signOut();
-            // Recharger la page pour déclencher la redirection vers login
-            window.location.reload();
-            return; // Important: sortir complètement de la fonction
+            
+            // Déconnecter l'utilisateur
+            try {
+              await auth.signOut();
+              console.log("Utilisateur déconnecté car compte inactif");
+            } catch (signOutError) {
+              console.error("Erreur lors de la déconnexion:", signOutError);
+            }
+            
+            // Rediriger vers la page de connexion sans recharger
+            const loginUrl = window.location.pathname.includes('/pages/') 
+              ? 'login.html' 
+              : 'pages/login.html';
+            window.location.href = loginUrl;
+            
+            return; // Sortir de la fonction
           }
           
+          // Utilisateur actif - continuer normalement
           // Mettre à jour le nom affiché
           const userName = document.getElementById('user-name');
           if (userName && userData.name) {
@@ -64,8 +80,8 @@ function checkAuthStatus() {
           }
         } else {
           console.warn("Document de l'utilisateur non trouvé dans Firestore");
-          // Optionnel : créer un document minimal pour l'utilisateur
-          // await createBasicUserDocument(user);
+          // Créer un document utilisateur de base si nécessaire
+          await createBasicUserDocument(user);
         }
         
         // Mettre à jour les liens de connexion/déconnexion
@@ -98,13 +114,35 @@ function checkAuthStatus() {
 }
 
 /**
+ * Crée un document utilisateur de base si nécessaire
+ */
+async function createBasicUserDocument(user) {
+  try {
+    await db.collection('inspectors').doc(user.uid).set({
+      name: user.email.split('@')[0], // Utiliser la partie avant @ comme nom par défaut
+      email: user.email,
+      role: 'inspector',
+      status: 'active',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    console.log("Document utilisateur de base créé");
+  } catch (error) {
+    console.error("Erreur lors de la création du document utilisateur:", error);
+  }
+}
+
+/**
  * Configure les liens de déconnexion
  */
 function setupLogoutLinks(loginLink, mobileLoginLink) {
   const logoutHandler = function(e) {
     e.preventDefault();
     auth.signOut().then(() => {
-      window.location.reload();
+      // Rediriger vers la page de connexion
+      const loginUrl = window.location.pathname.includes('/pages/') 
+        ? 'login.html' 
+        : 'pages/login.html';
+      window.location.href = loginUrl;
     }).catch(error => {
       console.error("Erreur lors de la déconnexion:", error);
     });
@@ -169,8 +207,21 @@ function redirectToLogin(loading, mainContent) {
  */
 function loginUser(email, password) {
   return auth.signInWithEmailAndPassword(email, password)
-    .then((userCredential) => {
+    .then(async (userCredential) => {
       console.log("Connexion réussie pour:", email);
+      
+      // Vérifier le statut de l'utilisateur immédiatement après la connexion
+      const userDoc = await db.collection('inspectors').doc(userCredential.user.uid).get();
+      
+      if (userDoc.exists) {
+        const userData = userDoc.data();
+        if (userData.status !== 'active') {
+          // Déconnecter immédiatement si le compte est inactif
+          await auth.signOut();
+          throw new Error('account-disabled');
+        }
+      }
+      
       return userCredential.user;
     });
 }
@@ -270,21 +321,25 @@ document.addEventListener('DOMContentLoaded', function() {
           if (errorMessage) {
             errorMessage.style.display = 'block';
             
-            switch(error.code) {
-              case 'auth/user-not-found':
-                errorMessage.textContent = 'Aucun utilisateur ne correspond à cette adresse email.';
-                break;
-              case 'auth/wrong-password':
-                errorMessage.textContent = 'Mot de passe incorrect.';
-                break;
-              case 'auth/invalid-email':
-                errorMessage.textContent = 'Adresse email invalide.';
-                break;
-              case 'auth/too-many-requests':
-                errorMessage.textContent = 'Trop de tentatives infructueuses. Veuillez réessayer plus tard.';
-                break;
-              default:
-                errorMessage.textContent = 'Erreur de connexion: ' + error.message;
+            if (error.message === 'account-disabled') {
+              errorMessage.textContent = 'Votre compte a été désactivé. Contactez l\'administrateur.';
+            } else {
+              switch(error.code) {
+                case 'auth/user-not-found':
+                  errorMessage.textContent = 'Aucun utilisateur ne correspond à cette adresse email.';
+                  break;
+                case 'auth/wrong-password':
+                  errorMessage.textContent = 'Mot de passe incorrect.';
+                  break;
+                case 'auth/invalid-email':
+                  errorMessage.textContent = 'Adresse email invalide.';
+                  break;
+                case 'auth/too-many-requests':
+                  errorMessage.textContent = 'Trop de tentatives infructueuses. Veuillez réessayer plus tard.';
+                  break;
+                default:
+                  errorMessage.textContent = 'Erreur de connexion: ' + error.message;
+              }
             }
           }
         });
@@ -309,32 +364,15 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
+// Fonction utilitaire pour vérifier rapidement le statut actif
 function checkUserActiveStatus(user) {
   return db.collection('inspectors').doc(user.uid).get()
     .then(doc => {
       if (doc.exists) {
         const userData = doc.data();
-        
-        // Vérifier si l'utilisateur est actif
-        if (userData.status !== 'active') {
-          // Déconnecter l'utilisateur
-          auth.signOut();
-          
-          // Afficher un message d'erreur
-          alert('Votre compte a été désactivé. Contactez l'administrateur.');
-          
-          // Rediriger vers la page de connexion
-          window.location.href = window.location.pathname.includes('/pages/') 
-            ? 'login.html' 
-            : 'pages/login.html';
-          
-          return false; // Utilisateur inactif
-        }
-        
-        return true; // Utilisateur actif
+        return userData.status === 'active';
       }
-      
-      return false; // Document utilisateur non trouvé
+      return false;
     });
 }
 

@@ -7,12 +7,9 @@ Must :
 
 
 Bug fix :
-- Quel est le principe d'actif pour un utilisateur ?
 - Confirmer l'action de supression des inspections.
 - Créer un role de super admin pour la gestion des données systèmes (initialisation, reinit des inspections....)
 - Que fait la touche créer des données de test ? Peut-on mettre un flag pour supprimer les données de test a tout moment
-- Cacher la page de statistique
-
 
 
 Pas sûr !
