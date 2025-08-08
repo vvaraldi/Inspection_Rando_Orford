@@ -25,151 +25,140 @@ function checkAuthStatus() {
   const loading = document.getElementById('loading');
   const mainContent = document.getElementById('main-content');
   const loginLink = document.getElementById('login-link');
-  const mobileLoginLink = document.getElementById('mobile-login-link'); // Ajout du lien mobile
+  const mobileLoginLink = document.getElementById('mobile-login-link');
   const adminLink = document.getElementById('admin-link');
-  const mobileAdminLink = document.getElementById('mobile-admin-link'); // Ajout du lien mobile admin
+  const mobileAdminLink = document.getElementById('mobile-admin-link');
   
   auth.onAuthStateChanged(async function(user) {
     if (user) {
-
-
-    const inspectorDoc = await db.collection('inspectors').doc(user.uid).get();
-    if (inspectorDoc.exists) {
-      const userData = inspectorDoc.data();
-      
-      // Vérifier si l'utilisateur est actif
-      if (userData.status !== 'active') {
-        alert('Votre compte a été désactivé. Contactez l'administrateur.');
-        auth.signOut();
-        return;
-      }
-
-      }
-
-
-
       // Utilisateur connecté
       console.log("Utilisateur connecté:", user.email);
       
-      // Mettre à jour le lien de connexion pour afficher "Déconnexion"
-      if (loginLink) {
-        loginLink.textContent = 'Déconnexion';
-        loginLink.onclick = function(e) {
-          e.preventDefault();
-          auth.signOut().then(() => {
+      try {
+        // Récupérer une seule fois les informations de l'utilisateur
+        const inspectorDoc = await db.collection('inspectors').doc(user.uid).get();
+        
+        if (inspectorDoc.exists) {
+          const userData = inspectorDoc.data();
+          
+          // Vérifier si l'utilisateur est actif
+          if (userData.status !== 'active') {
+            alert('Votre compte a été désactivé. Contactez l\'administrateur.');
+            await auth.signOut();
+            // Recharger la page pour déclencher la redirection vers login
             window.location.reload();
-          }).catch(error => {
-            console.error("Erreur lors de la déconnexion:", error);
-          });
-        };
+            return; // Important: sortir complètement de la fonction
+          }
+          
+          // Mettre à jour le nom affiché
+          const userName = document.getElementById('user-name');
+          if (userName && userData.name) {
+            userName.textContent = userData.name;
+          }
+          
+          // Vérifier si l'utilisateur est admin
+          if (userData.role === 'admin') {
+            console.log("L'utilisateur est administrateur");
+            if (adminLink) adminLink.style.display = 'inline';
+            if (mobileAdminLink) mobileAdminLink.style.display = 'inline';
+          }
+        } else {
+          console.warn("Document de l'utilisateur non trouvé dans Firestore");
+          // Optionnel : créer un document minimal pour l'utilisateur
+          // await createBasicUserDocument(user);
+        }
+        
+        // Mettre à jour les liens de connexion/déconnexion
+        setupLogoutLinks(loginLink, mobileLoginLink);
+        
+        // Afficher le contenu et charger les données
+        showContentAndLoadData(loading, mainContent);
+        
+      } catch (error) {
+        console.error("Erreur lors de la vérification de l'utilisateur:", error);
+        
+        // En cas d'erreur, afficher quand même le contenu mais sans les privilèges admin
+        setupLogoutLinks(loginLink, mobileLoginLink);
+        showContentAndLoadData(loading, mainContent);
       }
       
-      // Faire de même pour le lien mobile
-      if (mobileLoginLink) {
-        mobileLoginLink.textContent = 'Déconnexion';
-        mobileLoginLink.onclick = function(e) {
-          e.preventDefault();
-          auth.signOut().then(() => {
-            window.location.reload();
-          }).catch(error => {
-            console.error("Erreur lors de la déconnexion:", error);
-          });
-        };
-      }
-      
-      // Vérifier si l'utilisateur est admin
-      db.collection('inspectors').doc(user.uid).get()
-        .then((doc) => {
-          if (doc.exists) {
-            // Mettre à jour le nom affiché si disponible
-            const userName = document.getElementById('user-name');
-            if (userName && doc.data().name) {
-              userName.textContent = doc.data().name;
-            }
-            
-            // Vérifier si l'utilisateur est admin
-            if (doc.data().role === 'admin') {
-              console.log("L'utilisateur est administrateur");
-              // Afficher le lien d'administration desktop
-              if (adminLink) {
-                adminLink.style.display = 'inline';
-              }
-              // Afficher le lien d'administration mobile
-              if (mobileAdminLink) {
-                mobileAdminLink.style.display = 'inline';
-              }
-            }
-          } else {
-            console.warn("Document de l'utilisateur non trouvé dans Firestore");
-          }
-          
-          // IMPORTANT: Toujours exécuter cette partie, même en cas d'erreur de récupération des droits
-          // Afficher le contenu principal et masquer l'indicateur de chargement
-          if (loading) loading.style.display = 'none';
-          if (mainContent) mainContent.style.display = 'block';
-          
-          // Charger les données du tableau de bord
-          if (typeof loadMapData === 'function') {
-            loadMapData();
-          }
-          
-          // Si une fonction de chargement du tableau de bord existe, l'appeler
-          if (typeof loadDashboardData === 'function') {
-            loadDashboardData();
-          }
-          
-          // Si une fonction de chargement de l'historique existe, l'appeler
-          if (typeof loadInspectionHistory === 'function') {
-            loadInspectionHistory();
-          }
-        })
-        .catch((error) => {
-          console.error("Erreur lors de la vérification des droits d'admin:", error);
-          
-          // IMPORTANT: Toujours exécuter cette partie, même en cas d'erreur
-          // Afficher le contenu principal en cas d'erreur
-          if (loading) loading.style.display = 'none';
-          if (mainContent) mainContent.style.display = 'block';
-          
-          // Charger les données quand même
-          if (typeof loadMapData === 'function') {
-            loadMapData();
-          }
-          
-          // Si une fonction de chargement du tableau de bord existe, l'appeler
-          if (typeof loadDashboardData === 'function') {
-            loadDashboardData();
-          }
-          
-          // Si une fonction de chargement de l'historique existe, l'appeler
-          if (typeof loadInspectionHistory === 'function') {
-            loadInspectionHistory();
-          }
-        });
     } else {
       // Utilisateur non connecté
       console.log("Aucun utilisateur connecté");
-      
-      // Rediriger vers la page de connexion
-      const currentPage = window.location.pathname.split('/').pop();
-      if (currentPage !== 'login.html') {
-        window.location.href = window.location.pathname.includes('/pages/') 
-          ? 'login.html' 
-          : 'pages/login.html';
-      } else {
-        // Si on est déjà sur la page de login, on peut masquer le chargement
-        if (loading) loading.style.display = 'none';
-        if (mainContent) mainContent.style.display = 'block';
-      }
+      redirectToLogin(loading, mainContent);
     }
   }, function(error) {
     // Gestion des erreurs de Firebase Auth
     console.error("Erreur d'authentification:", error);
     
-    // En cas d'erreur, afficher le contenu quand même
+    // En cas d'erreur critique, afficher le contenu quand même
     if (loading) loading.style.display = 'none';
     if (mainContent) mainContent.style.display = 'block';
   });
+}
+
+/**
+ * Configure les liens de déconnexion
+ */
+function setupLogoutLinks(loginLink, mobileLoginLink) {
+  const logoutHandler = function(e) {
+    e.preventDefault();
+    auth.signOut().then(() => {
+      window.location.reload();
+    }).catch(error => {
+      console.error("Erreur lors de la déconnexion:", error);
+    });
+  };
+  
+  if (loginLink) {
+    loginLink.textContent = 'Déconnexion';
+    loginLink.onclick = logoutHandler;
+  }
+  
+  if (mobileLoginLink) {
+    mobileLoginLink.textContent = 'Déconnexion';
+    mobileLoginLink.onclick = logoutHandler;
+  }
+}
+
+/**
+ * Affiche le contenu principal et charge les données
+ */
+function showContentAndLoadData(loading, mainContent) {
+  // Afficher le contenu principal et masquer l'indicateur de chargement
+  if (loading) loading.style.display = 'none';
+  if (mainContent) mainContent.style.display = 'block';
+  
+  // Charger les données selon la page
+  if (typeof loadMapData === 'function') {
+    loadMapData();
+  }
+  
+  if (typeof loadDashboardData === 'function') {
+    loadDashboardData();
+  }
+  
+  if (typeof loadInspectionHistory === 'function') {
+    loadInspectionHistory();
+  }
+}
+
+/**
+ * Redirige vers la page de connexion
+ */
+function redirectToLogin(loading, mainContent) {
+  const currentPage = window.location.pathname.split('/').pop();
+  
+  if (currentPage !== 'login.html') {
+    // Rediriger vers la page de connexion
+    window.location.href = window.location.pathname.includes('/pages/') 
+      ? 'login.html' 
+      : 'pages/login.html';
+  } else {
+    // Si on est déjà sur la page de login, masquer le chargement
+    if (loading) loading.style.display = 'none';
+    if (mainContent) mainContent.style.display = 'block';
+  }
 }
 
 /**
