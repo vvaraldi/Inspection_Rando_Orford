@@ -280,22 +280,17 @@
     let selectedFiles = [];
     
     // Vérifier l'authentification spécifique à cette page
-    document.addEventListener('DOMContentLoaded', function() {
-      // Initialiser la date et l'heure actuelles
+document.addEventListener('DOMContentLoaded', function() {
+  firebase.auth().onAuthStateChanged(function(user) {
+    if (user) {
       setCurrentDateTime();
-
-      // Préremplir le champ inspecteur avec l'utilisateur connecté
       fillInspectorField();
-  
-      // Charger les abris disponibles
-      loadShelters();
-      
-      // Configurer l'upload de photos
+      loadShelters(); // Maintenant appelé après l'auth
       setupPhotoUpload();
-      
-      // Configurer le formulaire
       setupForm();
-    });
+    }
+  });
+});
     
     // Définir la date et l'heure actuelles
     function setCurrentDateTime() {
@@ -316,26 +311,52 @@
     }
     
     // Charger la liste des abris depuis Firestore
-    async function loadShelters() {
-      try {
-        const sheltersSnapshot = await db.collection('shelters').orderBy('name').get();
-        const shelterSelect = document.getElementById('shelter-select');
-        
-        // Vider les options existantes
-        shelterSelect.innerHTML = '<option value="">Sélectionner un abri</option>';
-        
-        // Ajouter les nouveaux abris
-        sheltersSnapshot.forEach(doc => {
-          const shelter = doc.data();
-          const option = document.createElement('option');
-          option.value = doc.id;
-          option.textContent = `${shelter.name} (${shelter.altitude} m)`;
-          shelterSelect.appendChild(option);
-        });
-      } catch (error) {
-        console.error("Erreur lors du chargement des abris:", error);
-      }
-    }
+	// Fonction loadShelters améliorée avec gestion d'erreur
+	async function loadShelters() {
+	  try {
+		console.log("Début du chargement des abris...");
+		
+		// Vérifier que db est disponible
+		if (!db) {
+		  console.error("Firebase Firestore n'est pas initialisé");
+		  return;
+		}
+		
+		const sheltersSnapshot = await db.collection('shelters').orderBy('name').get();
+		const shelterSelect = document.getElementById('shelter-select');
+		
+		if (!shelterSelect) {
+		  console.error("Élément shelter-select non trouvé");
+		  return;
+		}
+		
+		console.log(`${sheltersSnapshot.size} abris trouvés`);
+		
+		// Vider les options existantes
+		shelterSelect.innerHTML = '<option value="">Sélectionner un abri</option>';
+		
+		// Ajouter les nouveaux abris
+		sheltersSnapshot.forEach(doc => {
+		  const shelter = doc.data();
+		  const option = document.createElement('option');
+		  option.value = doc.id;
+		  option.textContent = `${shelter.name} (${shelter.altitude} m)`;
+		  shelterSelect.appendChild(option);
+		  console.log(`Abri ajouté: ${shelter.name}`);
+		});
+		
+		console.log("Chargement des abris terminé");
+		
+	  } catch (error) {
+		console.error("Erreur lors du chargement des abris:", error);
+		
+		// Afficher un message d'erreur dans la liste déroulante
+		const shelterSelect = document.getElementById('shelter-select');
+		if (shelterSelect) {
+		  shelterSelect.innerHTML = '<option value="">Erreur lors du chargement des abris</option>';
+		}
+	  }
+	}
     
     // Configurer l'upload de photos
     function setupPhotoUpload() {

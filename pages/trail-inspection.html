@@ -207,22 +207,17 @@
     let selectedFiles = [];
     
     // Vérifier l'authentification spécifique à cette page
-    document.addEventListener('DOMContentLoaded', function() {
-		// Initialiser la date et l'heure actuelles
-		setCurrentDateTime();
-	  
-		// Préremplir le champ inspecteur avec l'utilisateur connecté
-		fillInspectorField();
-
-		// Charger les sentiers disponibles
-		loadTrails();
-
-		// Configurer l'upload de photos
-		setupPhotoUpload();
-
-		// Configurer le formulaire
-		setupForm();
-    });   
+	document.addEventListener('DOMContentLoaded', function() {
+	  firebase.auth().onAuthStateChanged(function(user) {
+		if (user) {
+		  setCurrentDateTime();
+		  fillInspectorField();
+		  loadTrails(); // Maintenant appelé après l'auth
+		  setupPhotoUpload();
+		  setupForm();
+		}
+	  });
+	});
 
     // Définir la date et l'heure actuelles
     function setCurrentDateTime() {
@@ -243,26 +238,52 @@
     }
     
     // Charger la liste des sentiers depuis Firestore
-    async function loadTrails() {
-      try {
-        const trailsSnapshot = await db.collection('trails').orderBy('name').get();
-        const trailSelect = document.getElementById('trail-select');
-        
-        // Vider les options existantes
-        trailSelect.innerHTML = '<option value="">Sélectionner un sentier</option>';
-        
-        // Ajouter les nouveaux sentiers
-        trailsSnapshot.forEach(doc => {
-          const trail = doc.data();
-          const option = document.createElement('option');
-          option.value = doc.id;
-          option.textContent = `${trail.name} (${trail.length} km)`;
-          trailSelect.appendChild(option);
-        });
-      } catch (error) {
-        console.error("Erreur lors du chargement des sentiers:", error);
-      }
-    }
+	// Fonction loadTrails améliorée avec gestion d'erreur
+	async function loadTrails() {
+	  try {
+		console.log("Début du chargement des sentiers...");
+		
+		// Vérifier que db est disponible
+		if (!db) {
+		  console.error("Firebase Firestore n'est pas initialisé");
+		  return;
+		}
+		
+		const trailsSnapshot = await db.collection('trails').orderBy('name').get();
+		const trailSelect = document.getElementById('trail-select');
+		
+		if (!trailSelect) {
+		  console.error("Élément trail-select non trouvé");
+		  return;
+		}
+		
+		console.log(`${trailsSnapshot.size} sentiers trouvés`);
+		
+		// Vider les options existantes
+		trailSelect.innerHTML = '<option value="">Sélectionner un sentier</option>';
+		
+		// Ajouter les nouveaux sentiers
+		trailsSnapshot.forEach(doc => {
+		  const trail = doc.data();
+		  const option = document.createElement('option');
+		  option.value = doc.id;
+		  option.textContent = `${trail.name} (${trail.length} km)`;
+		  trailSelect.appendChild(option);
+		  console.log(`Sentier ajouté: ${trail.name}`);
+		});
+		
+		console.log("Chargement des sentiers terminé");
+		
+	  } catch (error) {
+		console.error("Erreur lors du chargement des sentiers:", error);
+		
+		// Afficher un message d'erreur dans la liste déroulante
+		const trailSelect = document.getElementById('trail-select');
+		if (trailSelect) {
+		  trailSelect.innerHTML = '<option value="">Erreur lors du chargement des sentiers</option>';
+		}
+	  }
+	}
     
     // Configurer l'upload de photos
     function setupPhotoUpload() {
