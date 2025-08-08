@@ -186,480 +186,426 @@
   <script src="../js/mobile-menu.js"></script>
 
 
-  <script>
-	// 1. D'abord, vérifier l'initialisation du Storage en haut du script
-	let storage = null;
-	try {
-	  if (typeof firebase !== 'undefined' && firebase.storage) {
-		storage = firebase.storage();
-		console.log("Firebase Storage initialisé avec succès");
-	  } else {
-		console.error("Firebase Storage n'est pas disponible");
-	  }
-	} catch (error) {
-	  console.error("Erreur lors de l'initialisation de Firebase Storage:", error);
-	}
+// Structure complète pour le script dans trail-inspection.html
+<script>
+// 1. Variables globales en haut
+let storage = null;
+let selectedFiles = [];
 
-    // Référence à Storage
-    const storage = firebase.storage();
-    
-    // Tableau pour stocker les photos téléchargées
-    let selectedFiles = [];
-    
-    // Vérifier l'authentification spécifique à cette page
-	document.addEventListener('DOMContentLoaded', function() {
-	  firebase.auth().onAuthStateChanged(function(user) {
-		if (user) {
-		  setCurrentDateTime();
-		  fillInspectorField();
-		  loadTrails(); // Maintenant appelé après l'auth
-		  setupPhotoUpload();
-		  setupForm();
-		}
-	  });
-	});
+// 2. Initialisation du Storage
+try {
+  if (typeof firebase !== 'undefined' && firebase.storage) {
+    storage = firebase.storage();
+    console.log("Firebase Storage initialisé avec succès");
+  } else {
+    console.error("Firebase Storage n'est pas disponible");
+  }
+} catch (error) {
+  console.error("Erreur lors de l'initialisation de Firebase Storage:", error);
+}
 
-    // Définir la date et l'heure actuelles
-    function setCurrentDateTime() {
-      const now = new Date();
-      const dateField = document.getElementById('inspection-date');
-      const timeField = document.getElementById('inspection-time');
-      
-      // Format de la date YYYY-MM-DD
-      const year = now.getFullYear();
-      const month = String(now.getMonth() + 1).padStart(2, '0');
-      const day = String(now.getDate()).padStart(2, '0');
-      dateField.value = `${year}-${month}-${day}`;
-      
-      // Format de l'heure HH:MM
-      const hours = String(now.getHours()).padStart(2, '0');
-      const minutes = String(now.getMinutes()).padStart(2, '0');
-      timeField.value = `${hours}:${minutes}`;
-    }
-    
-    // Charger la liste des sentiers depuis Firestore
-	// Fonction loadTrails améliorée avec gestion d'erreur
-	async function loadTrails() {
-	  try {
-		console.log("Début du chargement des sentiers...");
-		
-		// Vérifier que db est disponible
-		if (!db) {
-		  console.error("Firebase Firestore n'est pas initialisé");
-		  return;
-		}
-		
-		const trailsSnapshot = await db.collection('trails').orderBy('name').get();
-		const trailSelect = document.getElementById('trail-select');
-		
-		if (!trailSelect) {
-		  console.error("Élément trail-select non trouvé");
-		  return;
-		}
-		
-		console.log(`${trailsSnapshot.size} sentiers trouvés`);
-		
-		// Vider les options existantes
-		trailSelect.innerHTML = '<option value="">Sélectionner un sentier</option>';
-		
-		// Ajouter les nouveaux sentiers
-		trailsSnapshot.forEach(doc => {
-		  const trail = doc.data();
-		  const option = document.createElement('option');
-		  option.value = doc.id;
-		  option.textContent = `${trail.name} (${trail.length} km)`;
-		  trailSelect.appendChild(option);
-		  console.log(`Sentier ajouté: ${trail.name}`);
-		});
-		
-		console.log("Chargement des sentiers terminé");
-		
-	  } catch (error) {
-		console.error("Erreur lors du chargement des sentiers:", error);
-		
-		// Afficher un message d'erreur dans la liste déroulante
-		const trailSelect = document.getElementById('trail-select');
-		if (trailSelect) {
-		  trailSelect.innerHTML = '<option value="">Erreur lors du chargement des sentiers</option>';
-		}
-	  }
-	}
-    
-    // Configurer l'upload de photos
-    function setupPhotoUpload() {
-      const photoUpload = document.getElementById('photo-upload');
-      const fileInput = document.getElementById('file-input');
-      const previewContainer = document.getElementById('preview-container');
-      
-      photoUpload.addEventListener('click', () => {
-        fileInput.click();
-      });
-      
-      photoUpload.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        photoUpload.style.backgroundColor = '#f3f4f6';
-      });
-      
-      photoUpload.addEventListener('dragleave', () => {
-        photoUpload.style.backgroundColor = '';
-      });
-      
-      photoUpload.addEventListener('drop', (e) => {
-        e.preventDefault();
-        photoUpload.style.backgroundColor = '';
-        if (e.dataTransfer.files.length) {
-          fileInput.files = e.dataTransfer.files;
-          handleFileSelect(e.dataTransfer.files);
-        }
-      });
-      
-      fileInput.addEventListener('change', () => {
-        handleFileSelect(fileInput.files);
-      });
-    }
-    
-    // Traiter les fichiers sélectionnés
-	function handleFileSelect(files) {
-	  if (!files.length) return;
-	  
-	  const previewContainer = document.getElementById('preview-container');
-	  
-	  [...files].forEach(file => {
-		// Vérifier le type de fichier
-		if (!file.type.startsWith('image/')) {
-		  alert(`Le fichier "${file.name}" n'est pas une image et sera ignoré.`);
-		  return;
-		}
-		
-		// Vérifier la taille (max 10MB)
-		if (file.size > 10 * 1024 * 1024) {
-		  alert(`Le fichier "${file.name}" est trop volumineux (${(file.size / 1024 / 1024).toFixed(2)}MB). Taille maximum: 10MB.`);
-		  return;
-		}
-		
-		selectedFiles.push(file);
-		
-		const reader = new FileReader();
-		reader.onload = function(event) {
-		  const previewWrapper = document.createElement('div');
-		  previewWrapper.style.position = 'relative';
-		  
-		  const img = document.createElement('img');
-		  img.src = event.target.result;
-		  img.style.width = '100px';
-		  img.style.height = '100px';
-		  img.style.objectFit = 'cover';
-		  img.style.borderRadius = '4px';
-		  
-		  const removeBtn = document.createElement('button');
-		  removeBtn.innerHTML = '&times;';
-		  removeBtn.style.position = 'absolute';
-		  removeBtn.style.top = '2px';
-		  removeBtn.style.right = '2px';
-		  removeBtn.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
-		  removeBtn.style.border = 'none';
-		  removeBtn.style.borderRadius = '50%';
-		  removeBtn.style.width = '20px';
-		  removeBtn.style.height = '20px';
-		  removeBtn.style.cursor = 'pointer';
-		  removeBtn.style.display = 'flex';
-		  removeBtn.style.justifyContent = 'center';
-		  removeBtn.style.alignItems = 'center';
-		  
-		  removeBtn.addEventListener('click', (e) => {
-			e.preventDefault();
-			const index = selectedFiles.indexOf(file);
-			if (index !== -1) {
-			  selectedFiles.splice(index, 1);
-			}
-			previewWrapper.remove();
-		  });
-		  
-		  previewWrapper.appendChild(img);
-		  previewWrapper.appendChild(removeBtn);
-		  previewContainer.appendChild(previewWrapper);
-		};
-		
-		reader.readAsDataURL(file);
-	  });
-	}
-    
-    // Configurer le formulaire d'inspection
-    function setupForm() {
-      // Gérer l'ajout de problèmes
-      document.getElementById('add-issue-btn').addEventListener('click', function() {
-        addIssue();
-      });
-      
-      // Gérer l'annulation du formulaire
-      document.getElementById('cancel-btn').addEventListener('click', function() {
-        if (confirm('Êtes-vous sûr de vouloir annuler cette inspection? Les données non enregistrées seront perdues.')) {
-          window.location.href = '../index.html';
-        }
-      });
-      
-      // Gérer la soumission du formulaire
-	document.getElementById('trailInspectionForm').addEventListener('submit', async function(e) {
-	  e.preventDefault();
-	  
-	  // Vérifier que l'utilisateur est connecté
-	  if (!firebase.auth().currentUser) {
-		alert('Vous devez être connecté pour soumettre une inspection.');
-		return;
-	  }
-	  
-	  // Désactiver le bouton de soumission pour éviter les soumissions multiples
-	  const submitBtn = this.querySelector('button[type="submit"]');
-	  const originalText = submitBtn.textContent;
-	  submitBtn.disabled = true;
-	  submitBtn.textContent = 'Envoi en cours...';
-	  
-	  try {
-		// Récupérer les valeurs du formulaire
-		const trailId = document.getElementById('trail-select').value;
-		const inspectorId = document.getElementById('inspector-id').value;
-		const date = new Date(`${document.getElementById('inspection-date').value}T${document.getElementById('inspection-time').value}`);
-		const condition = document.querySelector('input[name="condition"]:checked').value;
-		const comments = document.getElementById('comments').value;
-		
-		// Récupérer les problèmes
-		const issues = [];
-		document.querySelectorAll('#issues-container .issue-text').forEach(item => {
-		  issues.push(item.textContent);
-		});
-		
-		// Créer le document d'inspection SANS les photos d'abord
-		const inspectionData = {
-		  trail_id: trailId,
-		  inspector_id: inspectorId,
-		  date: firebase.firestore.Timestamp.fromDate(date),
-		  condition: condition,
-		  issues: issues,
-		  comments: comments,
-		  photos: [], // Sera mis à jour après l'upload des photos
-		  createdAt: firebase.firestore.FieldValue.serverTimestamp()
-		};
-		
-		console.log("Ajout de l'inspection à Firestore...");
-		
-		// Ajouter l'inspection à Firestore
-		const docRef = await db.collection('trail_inspections').add(inspectionData);
-		
-		console.log("Inspection ajoutée avec l'ID:", docRef.id);
-		
-		// Télécharger les photos si présentes
-		if (selectedFiles.length > 0) {
-		  console.log(`Début de l'upload de ${selectedFiles.length} photos...`);
-		  submitBtn.textContent = `Upload des photos (${selectedFiles.length})...`;
-		  
-		  try {
-			const photoUrls = await uploadPhotos(docRef.id, selectedFiles);
-			
-			console.log(`${photoUrls.length} photos uploadées, mise à jour du document...`);
-			
-			// Mettre à jour le document avec les URLs des photos
-			if (photoUrls.length > 0) {
-			  await docRef.update({
-				photos: photoUrls
-			  });
-			  console.log("Document mis à jour avec les URLs des photos");
-			}
-			
-		  } catch (photoError) {
-			console.error("Erreur lors de l'upload des photos:", photoError);
-			
-			// L'inspection est déjà sauvegardée, on informe juste l'utilisateur du problème avec les photos
-			if (confirm(`Inspection sauvegardée avec succès, mais erreur lors de l'upload des photos: ${photoError.message}\n\nVoulez-vous continuer sans les photos ?`)) {
-			  // Continuer sans les photos
-			} else {
-			  // Optionnel : supprimer l'inspection si l'utilisateur ne veut pas continuer
-			  await docRef.delete();
-			  throw new Error("Upload annulé par l'utilisateur");
-			}
-		  }
-		}
-		
-		// Rediriger vers la page d'accueil après succès
-		alert('Inspection enregistrée avec succès!');
-		window.location.href = '../index.html';
-		
-	  } catch (error) {
-		console.error("Erreur lors de l'enregistrement de l'inspection:", error);
-		alert(`Erreur lors de l'enregistrement de l'inspection: ${error.message}`);
-		
-		// Réactiver le bouton de soumission
-		submitBtn.disabled = false;
-		submitBtn.textContent = originalText;
-	  }
-	});
-    }
-    
-    // Ajouter un problème à la liste
-    function addIssue() {
-      const issue = prompt('Décrivez le problème:');
-      if (issue && issue.trim() !== '') {
-        const issuesContainer = document.getElementById('issues-container');
-        const issueItem = document.createElement('div');
-        issueItem.className = 'issue-item';
-        issueItem.innerHTML = `
-          <span class="issue-text">${issue.trim()}</span>
-          <button type="button" class="remove-issue">&times;</button>
-        `;
-        
-        // Ajouter l'événement pour supprimer ce problème
-        issueItem.querySelector('.remove-issue').addEventListener('click', function() {
-          issueItem.remove();
-        });
-        
-        issuesContainer.appendChild(issueItem);
-      }
-    }
-    
-    // Télécharger les photos vers Firebase Storage
-	async function uploadPhotos(inspectionId, files) {
-	  const photoUrls = [];
-	  
-	  // Vérifier que Storage est disponible
-	  if (!storage) {
-		console.error("Firebase Storage n'est pas initialisé");
-		throw new Error("Service de stockage non disponible");
-	  }
-	  
-	  console.log(`Début de l'upload de ${files.length} photos pour l'inspection ${inspectionId}`);
-	  
-	  try {
-		for (let i = 0; i < files.length; i++) {
-		  const file = files[i];
-		  console.log(`Upload de la photo ${i + 1}/${files.length}: ${file.name}`);
-		  
-		  // Vérifier le type de fichier
-		  if (!file.type.startsWith('image/')) {
-			console.warn(`Fichier ignoré (pas une image): ${file.name}`);
-			continue;
-		  }
-		  
-		  // Vérifier la taille (max 10MB)
-		  if (file.size > 10 * 1024 * 1024) {
-			console.warn(`Fichier trop volumineux (${(file.size / 1024 / 1024).toFixed(2)}MB): ${file.name}`);
-			continue;
-		  }
-		  
-		  // Créer un nom de fichier unique
-		  const timestamp = Date.now();
-		  const extension = file.name.split('.').pop().toLowerCase();
-		  const filename = `${timestamp}-${i}.${extension}`;
-		  
-		  // Déterminer le type d'inspection pour le chemin
-		  const inspectionType = window.location.pathname.includes('trail-inspection') ? 'trails' : 'shelters';
-		  
-		  // Référence vers le fichier dans Storage
-		  const photoRef = storage.ref(`inspections/${inspectionType}/${inspectionId}/${filename}`);
-		  
-		  console.log(`Upload vers: inspections/${inspectionType}/${inspectionId}/${filename}`);
-		  
-		  try {
-			// Upload du fichier avec métadonnées
-			const uploadTask = await photoRef.put(file, {
-			  contentType: file.type,
-			  customMetadata: {
-				originalName: file.name,
-				uploadedAt: new Date().toISOString()
-			  }
-			});
-			
-			console.log(`Photo ${i + 1} uploadée avec succès`);
-			
-			// Récupérer l'URL de téléchargement
-			const url = await photoRef.getDownloadURL();
-			photoUrls.push(url);
-			
-			console.log(`URL obtenue pour la photo ${i + 1}: ${url}`);
-			
-		  } catch (uploadError) {
-			console.error(`Erreur lors de l'upload de la photo ${i + 1}:`, uploadError);
-			
-			// Si c'est une erreur de permissions, on l'affiche clairement
-			if (uploadError.code === 'storage/unauthorized') {
-			  throw new Error("Permissions insuffisantes pour uploader les photos. Contactez l'administrateur.");
-			}
-			
-			// Pour d'autres erreurs, on continue avec les autres photos
-			console.warn(`Photo ${i + 1} ignorée à cause de l'erreur`);
-		  }
-		}
-		
-		console.log(`Upload terminé. ${photoUrls.length} photos uploadées sur ${files.length}`);
-		return photoUrls;
-		
-	  } catch (error) {
-		console.error("Erreur lors de l'upload des photos:", error);
-		throw error;
-	  }
-	}
+// 3. Fonction globale appelée par auth.js - PLACER ICI
+window.loadTrailInspectionData = function() {
+  console.log("Chargement des données pour l'inspection de sentier...");
+  fillInspectorField();
+  loadTrails();
+};
 
-// Fonction pour préremplir le champ inspecteur
+// 4. Initialisation au chargement de la page
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialiser immédiatement les éléments qui ne dépendent pas de l'auth
+  setCurrentDateTime();
+  setupPhotoUpload();
+  setupForm();
+  
+  // Les données nécessitant l'auth seront chargées par auth.js
+});
+
+// 5. Toutes les autres fonctions après
+function setCurrentDateTime() {
+  const now = new Date();
+  const dateField = document.getElementById('inspection-date');
+  const timeField = document.getElementById('inspection-time');
+  
+  // Format de la date YYYY-MM-DD
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  dateField.value = `${year}-${month}-${day}`;
+  
+  // Format de l'heure HH:MM
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  timeField.value = `${hours}:${minutes}`;
+}
+
+async function loadTrails() {
+  try {
+    console.log("Début du chargement des sentiers...");
+    
+    if (!db) {
+      console.error("Firebase Firestore n'est pas initialisé");
+      return;
+    }
+    
+    const trailsSnapshot = await db.collection('trails').orderBy('name').get();
+    const trailSelect = document.getElementById('trail-select');
+    
+    if (!trailSelect) {
+      console.error("Élément trail-select non trouvé");
+      return;
+    }
+    
+    console.log(`${trailsSnapshot.size} sentiers trouvés`);
+    
+    // Vider les options existantes
+    trailSelect.innerHTML = '<option value="">Sélectionner un sentier</option>';
+    
+    // Ajouter les nouveaux sentiers
+    trailsSnapshot.forEach(doc => {
+      const trail = doc.data();
+      const option = document.createElement('option');
+      option.value = doc.id;
+      option.textContent = `${trail.name} (${trail.length} km)`;
+      trailSelect.appendChild(option);
+    });
+    
+    console.log("Chargement des sentiers terminé");
+    
+  } catch (error) {
+    console.error("Erreur lors du chargement des sentiers:", error);
+    const trailSelect = document.getElementById('trail-select');
+    if (trailSelect) {
+      trailSelect.innerHTML = '<option value="">Erreur lors du chargement des sentiers</option>';
+    }
+  }
+}
+
 function fillInspectorField() {
-  // Utilisons onAuthStateChanged pour s'assurer que l'état d'authentification est bien chargé
-  firebase.auth().onAuthStateChanged(async function(user) {
-    if (user) {
-      try {
-        // Récupérer les informations de l'inspecteur depuis Firestore
-        const inspectorDoc = await db.collection('inspectors').doc(user.uid).get();
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    console.warn("Aucun utilisateur connecté");
+    return;
+  }
+
+  console.log("Remplissage du champ inspecteur pour:", user.uid);
+  
+  db.collection('inspectors').doc(user.uid).get()
+    .then(inspectorDoc => {
+      if (inspectorDoc.exists) {
+        const inspectorData = inspectorDoc.data();
+        const inspectorNameField = document.getElementById('inspector-name');
+        let inspectorIdField = document.getElementById('inspector-id');
         
-        if (inspectorDoc.exists) {
-          const inspectorData = inspectorDoc.data();
-          const inspectorNameField = document.getElementById('inspector-name');
-          
-          // Préremplir le champ avec le nom de l'inspecteur
-          if (inspectorNameField) {
-            inspectorNameField.value = inspectorData.name || user.email;
-          }
-          
-          // Stocker l'ID de l'inspecteur dans un champ caché pour le formulaire
-          const formId = window.location.pathname.includes('trail-inspection') ? 
-                         'trailInspectionForm' : 'shelterInspectionForm';
-          
-          const form = document.getElementById(formId);
-          if (form) {
-            // Chercher si le champ existe déjà
-            let inspectorIdField = document.getElementById('inspector-id');
-            
-            if (!inspectorIdField) {
-              // Créer le champ s'il n'existe pas
-              inspectorIdField = document.createElement('input');
-              inspectorIdField.type = 'hidden';
-              inspectorIdField.id = 'inspector-id';
-              inspectorIdField.name = 'inspector-id';
-              form.appendChild(inspectorIdField);
-            }
-            
-            // Définir la valeur
-            inspectorIdField.value = user.uid;
-          }
-        } else {
-          console.warn("Aucune information d'inspecteur trouvée pour cet utilisateur");
+        // Préremplir le champ avec le nom de l'inspecteur
+        if (inspectorNameField) {
+          inspectorNameField.value = inspectorData.name || user.email;
+          console.log("Nom inspecteur défini:", inspectorData.name);
         }
-      } catch (error) {
-        console.error("Erreur lors du chargement des informations de l'inspecteur:", error);
+        
+        // Stocker l'ID de l'inspecteur
+        if (!inspectorIdField) {
+          // Créer le champ s'il n'existe pas
+          const form = document.getElementById('trailInspectionForm');
+          if (form) {
+            inspectorIdField = document.createElement('input');
+            inspectorIdField.type = 'hidden';
+            inspectorIdField.id = 'inspector-id';
+            inspectorIdField.name = 'inspector-id';
+            form.appendChild(inspectorIdField);
+          }
+        }
+        
+        if (inspectorIdField) {
+          inspectorIdField.value = user.uid;
+          console.log("ID inspecteur défini:", user.uid);
+        }
+      } else {
+        console.warn("Aucune information d'inspecteur trouvée pour cet utilisateur");
       }
-    } else {
-      console.warn("Aucun utilisateur connecté");
+    })
+    .catch(error => {
+      console.error("Erreur lors du chargement des informations de l'inspecteur:", error);
+    });
+}
+
+function setupPhotoUpload() {
+  const photoUpload = document.getElementById('photo-upload');
+  const fileInput = document.getElementById('file-input');
+  const previewContainer = document.getElementById('preview-container');
+  
+  photoUpload.addEventListener('click', () => {
+    fileInput.click();
+  });
+  
+  photoUpload.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    photoUpload.style.backgroundColor = '#f3f4f6';
+  });
+  
+  photoUpload.addEventListener('dragleave', () => {
+    photoUpload.style.backgroundColor = '';
+  });
+  
+  photoUpload.addEventListener('drop', (e) => {
+    e.preventDefault();
+    photoUpload.style.backgroundColor = '';
+    if (e.dataTransfer.files.length) {
+      fileInput.files = e.dataTransfer.files;
+      handleFileSelect(e.dataTransfer.files);
+    }
+  });
+  
+  fileInput.addEventListener('change', () => {
+    handleFileSelect(fileInput.files);
+  });
+}
+
+function handleFileSelect(files) {
+  if (!files.length) return;
+  
+  const previewContainer = document.getElementById('preview-container');
+  
+  [...files].forEach(file => {
+    // Vérifier le type de fichier
+    if (!file.type.startsWith('image/')) {
+      alert(`Le fichier "${file.name}" n'est pas une image et sera ignoré.`);
+      return;
+    }
+    
+    // Vérifier la taille (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      alert(`Le fichier "${file.name}" est trop volumineux (${(file.size / 1024 / 1024).toFixed(2)}MB). Taille maximum: 10MB.`);
+      return;
+    }
+    
+    selectedFiles.push(file);
+    
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      const previewWrapper = document.createElement('div');
+      previewWrapper.style.position = 'relative';
+      
+      const img = document.createElement('img');
+      img.src = event.target.result;
+      img.style.width = '100px';
+      img.style.height = '100px';
+      img.style.objectFit = 'cover';
+      img.style.borderRadius = '4px';
+      
+      const removeBtn = document.createElement('button');
+      removeBtn.innerHTML = '&times;';
+      removeBtn.style.position = 'absolute';
+      removeBtn.style.top = '2px';
+      removeBtn.style.right = '2px';
+      removeBtn.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
+      removeBtn.style.border = 'none';
+      removeBtn.style.borderRadius = '50%';
+      removeBtn.style.width = '20px';
+      removeBtn.style.height = '20px';
+      removeBtn.style.cursor = 'pointer';
+      removeBtn.style.display = 'flex';
+      removeBtn.style.justifyContent = 'center';
+      removeBtn.style.alignItems = 'center';
+      
+      removeBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const index = selectedFiles.indexOf(file);
+        if (index !== -1) {
+          selectedFiles.splice(index, 1);
+        }
+        previewWrapper.remove();
+      });
+      
+      previewWrapper.appendChild(img);
+      previewWrapper.appendChild(removeBtn);
+      previewContainer.appendChild(previewWrapper);
+    };
+    
+    reader.readAsDataURL(file);
+  });
+}
+
+function setupForm() {
+  // Gérer l'ajout de problèmes
+  document.getElementById('add-issue-btn').addEventListener('click', function() {
+    addIssue();
+  });
+  
+  // Gérer l'annulation du formulaire
+  document.getElementById('cancel-btn').addEventListener('click', function() {
+    if (confirm('Êtes-vous sûr de vouloir annuler cette inspection? Les données non enregistrées seront perdues.')) {
+      window.location.href = '../index.html';
+    }
+  });
+  
+  // Gérer la soumission du formulaire
+  document.getElementById('trailInspectionForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    // Vérifier que l'utilisateur est connecté
+    if (!firebase.auth().currentUser) {
+      alert('Vous devez être connecté pour soumettre une inspection.');
+      return;
+    }
+    
+    // Désactiver le bouton de soumission
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Envoi en cours...';
+    
+    try {
+      // Récupérer les valeurs du formulaire
+      const trailId = document.getElementById('trail-select').value;
+      const inspectorId = document.getElementById('inspector-id').value;
+      const date = new Date(`${document.getElementById('inspection-date').value}T${document.getElementById('inspection-time').value}`);
+      const condition = document.querySelector('input[name="condition"]:checked').value;
+      const comments = document.getElementById('comments').value;
+      
+      // Récupérer les problèmes
+      const issues = [];
+      document.querySelectorAll('#issues-container .issue-text').forEach(item => {
+        issues.push(item.textContent);
+      });
+      
+      // Créer le document d'inspection
+      const inspectionData = {
+        trail_id: trailId,
+        inspector_id: inspectorId,
+        date: firebase.firestore.Timestamp.fromDate(date),
+        condition: condition,
+        issues: issues,
+        comments: comments,
+        photos: [],
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      
+      console.log("Ajout de l'inspection à Firestore...");
+      
+      // Ajouter l'inspection à Firestore
+      const docRef = await db.collection('trail_inspections').add(inspectionData);
+      
+      console.log("Inspection ajoutée avec l'ID:", docRef.id);
+      
+      // Télécharger les photos si présentes
+      if (selectedFiles.length > 0) {
+        console.log(`Début de l'upload de ${selectedFiles.length} photos...`);
+        submitBtn.textContent = `Upload des photos (${selectedFiles.length})...`;
+        
+        try {
+          const photoUrls = await uploadPhotos(docRef.id, selectedFiles);
+          
+          if (photoUrls.length > 0) {
+            await docRef.update({
+              photos: photoUrls
+            });
+          }
+          
+        } catch (photoError) {
+          console.error("Erreur lors de l'upload des photos:", photoError);
+          
+          if (confirm(`Inspection sauvegardée avec succès, mais erreur lors de l'upload des photos: ${photoError.message}\n\nVoulez-vous continuer sans les photos ?`)) {
+            // Continuer sans les photos
+          } else {
+            await docRef.delete();
+            throw new Error("Upload annulé par l'utilisateur");
+          }
+        }
+      }
+      
+      // Rediriger vers la page d'accueil
+      alert('Inspection enregistrée avec succès!');
+      window.location.href = '../index.html';
+      
+    } catch (error) {
+      console.error("Erreur lors de l'enregistrement de l'inspection:", error);
+      alert(`Erreur lors de l'enregistrement de l'inspection: ${error.message}`);
+      
+      // Réactiver le bouton
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalText;
     }
   });
 }
 
+function addIssue() {
+  const issue = prompt('Décrivez le problème:');
+  if (issue && issue.trim() !== '') {
+    const issuesContainer = document.getElementById('issues-container');
+    const issueItem = document.createElement('div');
+    issueItem.className = 'issue-item';
+    issueItem.innerHTML = `
+      <span class="issue-text">${issue.trim()}</span>
+      <button type="button" class="remove-issue">&times;</button>
+    `;
+    
+    issueItem.querySelector('.remove-issue').addEventListener('click', function() {
+      issueItem.remove();
+    });
+    
+    issuesContainer.appendChild(issueItem);
+  }
+}
 
-// Adapter les listes déroulantes pour être plus faciles à utiliser sur mobile
+async function uploadPhotos(inspectionId, files) {
+  const photoUrls = [];
+  
+  if (!storage) {
+    console.error("Firebase Storage n'est pas initialisé");
+    throw new Error("Service de stockage non disponible");
+  }
+  
+  try {
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      
+      if (!file.type.startsWith('image/')) continue;
+      if (file.size > 10 * 1024 * 1024) continue;
+      
+      const timestamp = Date.now();
+      const extension = file.name.split('.').pop().toLowerCase();
+      const filename = `${timestamp}-${i}.${extension}`;
+      
+      const photoRef = storage.ref(`inspections/trails/${inspectionId}/${filename}`);
+      
+      try {
+        await photoRef.put(file, {
+          contentType: file.type,
+          customMetadata: {
+            originalName: file.name,
+            uploadedAt: new Date().toISOString()
+          }
+        });
+        
+        const url = await photoRef.getDownloadURL();
+        photoUrls.push(url);
+        
+      } catch (uploadError) {
+        console.error(`Erreur lors de l'upload de la photo ${i + 1}:`, uploadError);
+        
+        if (uploadError.code === 'storage/unauthorized') {
+          throw new Error("Permissions insuffisantes pour uploader les photos.");
+        }
+      }
+    }
+    
+    return photoUrls;
+    
+  } catch (error) {
+    console.error("Erreur lors de l'upload des photos:", error);
+    throw error;
+  }
+}
+
+// Adapter les listes déroulantes pour mobile
 document.querySelectorAll('select').forEach(select => {
-  // Augmenter la taille des options sur mobile
   select.addEventListener('focus', function() {
     if (window.innerWidth <= 768) {
-      this.style.fontSize = '16px'; // Évite le zoom automatique sur iOS
+      this.style.fontSize = '16px';
     }
   });
 });
-
-
-  </script>
+</script>
 </body>
 </html>

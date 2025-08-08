@@ -162,6 +162,9 @@ function setupLogoutLinks(loginLink, mobileLoginLink) {
 /**
  * Affiche le contenu principal et charge les données
  */
+/**
+ * Affiche le contenu principal et charge les données
+ */
 function showContentAndLoadData(loading, mainContent) {
   // Afficher le contenu principal et masquer l'indicateur de chargement
   if (loading) loading.style.display = 'none';
@@ -169,15 +172,29 @@ function showContentAndLoadData(loading, mainContent) {
   
   // Charger les données selon la page
   if (typeof loadMapData === 'function') {
+    console.log("Chargement des données de la carte...");
     loadMapData();
   }
   
   if (typeof loadDashboardData === 'function') {
+    console.log("Chargement des données du tableau de bord...");
     loadDashboardData();
   }
   
   if (typeof loadInspectionHistory === 'function') {
+    console.log("Chargement de l'historique des inspections...");
     loadInspectionHistory();
+  }
+  
+  // NOUVELLES LIGNES - Charger les données spécifiques aux pages d'inspection
+  if (typeof window.loadTrailInspectionData === 'function') {
+    console.log("Chargement des données pour trail-inspection");
+    window.loadTrailInspectionData();
+  }
+  
+  if (typeof window.loadShelterInspectionData === 'function') {
+    console.log("Chargement des données pour shelter-inspection");
+    window.loadShelterInspectionData();
   }
 }
 
