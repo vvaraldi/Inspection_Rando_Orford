@@ -335,20 +335,7 @@
   <script src="../js/dashboard.js"></script>
 
   <script>
-    // Code d'admin mis à jour (sans la partie menu mobile)
-    // Configuration Firebase
-//    const firebaseConfig = {
-//      apiKey: "AIzaSyDcBZrwGTskM7QUvanzLTACEJ_T-55j-DA",
-//      authDomain: "trail-inspection.firebaseapp.com",
-//      projectId: "trail-inspection",
-//      storageBucket: "trail-inspection.firebasestorage.app",
-//      messagingSenderId: "415995272058",
-//      appId: "1:415995272058:web:dc476de8ffee052e2ad4c3",
-//      measurementId: "G-EBLYWBM9YB"
-//    };
-
-    // Initialisation de Firebase
-//    firebase.initializeApp(firebaseConfig);
+// Code d'admin mis à jour (sans la partie menu mobile)
 
 // Script principal pour la page d'administration
 document.addEventListener('DOMContentLoaded', function() {
@@ -409,11 +396,9 @@ document.addEventListener('DOMContentLoaded', function() {
   // ===== GESTION DES INSPECTEURS =====
   // Fonction pour charger les inspecteurs
   function loadInspectors() {
-  console.log("Début du chargement des inspecteurs...");
   
   db.collection('inspectors').get()
     .then(snapshot => {
-      console.log("Nombre d'inspecteurs trouvés:", snapshot.size);
       
       const table = document.getElementById('inspectors-table').querySelector('tbody');
       table.innerHTML = ''; // Vider complètement le tbody
@@ -424,7 +409,6 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       
       snapshot.forEach(doc => {
-        console.log("Traitement de l'inspecteur:", doc.id, doc.data());
         const data = doc.data();
         const row = document.createElement('tr');
         
@@ -445,9 +429,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         table.appendChild(row);
       });
-      
-      console.log("Chargement des inspecteurs terminé");
-      
+            
       // Ajouter les événements après avoir créé les éléments
       setupUserActions();
       })

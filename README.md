@@ -6,13 +6,8 @@ Must :
 2 - Export des inspections... (marche en mode CSV)
 
 
-
 Bug fix :
-- Pourquoi sur la page administration l'action Déconnexion ne se mets pas comme pour les autres pages et reste en mode Connexion ?
-- Ajouter le role dans la liste des inspecteurs.
-- CHanger le nom de la liste d'inspecteur pour utilisateur
-- QUel est le principe d'actif pour un utilisateur ?
-- dans Admin a quoi sert le sauvegarde en format JSON ?
+- Quel est le principe d'actif pour un utilisateur ?
 - Confirmer l'action de supression des inspections.
 - Créer un role de super admin pour la gestion des données systèmes (initialisation, reinit des inspections....)
 - Que fait la touche créer des données de test ? Peut-on mettre un flag pour supprimer les données de test a tout moment
