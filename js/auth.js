@@ -29,40 +29,40 @@ function checkAuthStatus() {
   const adminLink = document.getElementById('admin-link');
   const mobileAdminLink = document.getElementById('mobile-admin-link'); // Ajout du lien mobile admin
   
-  auth.onAuthStateChanged(function(user) {
+  auth.onAuthStateChanged(async function(user) {
     if (user) {
 
 
     const inspectorDoc = await db.collection('inspectors').doc(user.uid).get();
     if (inspectorDoc.exists) {
-		  const userData = inspectorDoc.data();
-		  
-		  // Vérifier si l'utilisateur est actif
-		  if (userData.status !== 'active') {
-			alert('Votre compte a été désactivé. Contactez l'administrateur.');
-			auth.signOut();
-			return;
-		  }
+      const userData = inspectorDoc.data();
+      
+      // Vérifier si l'utilisateur est actif
+      if (userData.status !== 'active') {
+        alert('Votre compte a été désactivé. Contactez l'administrateur.');
+        auth.signOut();
+        return;
+      }
+
+      }
 
 
 
-
-		  // Utilisateur connecté
-		  console.log("Utilisateur connecté:", user.email);
-		  
-		  // Mettre à jour le lien de connexion pour afficher "Déconnexion"
-		  if (loginLink) {
-			loginLink.textContent = 'Déconnexion';
-			loginLink.onclick = function(e) {
-			  e.preventDefault();
-			  auth.signOut().then(() => {
-				window.location.reload();
-			  }).catch(error => {
-				console.error("Erreur lors de la déconnexion:", error);
-			  });
-			};
-		  }
-	  }
+      // Utilisateur connecté
+      console.log("Utilisateur connecté:", user.email);
+      
+      // Mettre à jour le lien de connexion pour afficher "Déconnexion"
+      if (loginLink) {
+        loginLink.textContent = 'Déconnexion';
+        loginLink.onclick = function(e) {
+          e.preventDefault();
+          auth.signOut().then(() => {
+            window.location.reload();
+          }).catch(error => {
+            console.error("Erreur lors de la déconnexion:", error);
+          });
+        };
+      }
       
       // Faire de même pour le lien mobile
       if (mobileLoginLink) {
