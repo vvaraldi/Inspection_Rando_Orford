@@ -159,13 +159,14 @@
               <th data-sort="location">Sentier/Abri</th>
               <th data-sort="inspector">Inspecteur</th>
               <th data-sort="condition">État</th>
+              <th>Photos</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody id="inspections-table">
             <!-- Les données seront chargées dynamiquement -->
             <tr>
-              <td colspan="6" style="text-align: center;">Chargement des données...</td>
+              <td colspan="7" style="text-align: center;">Chargement des données...</td>
             </tr>
           </tbody>
         </table>
@@ -228,6 +229,7 @@
       inspector: 'all',
       search: ''
     };
+    let isAdmin = false; // Variable pour stocker le statut admin
 
     // Éléments du DOM
     const loadingOverlay = document.getElementById('loading-overlay');
@@ -237,16 +239,16 @@
     const modal = document.getElementById('inspection-modal');
     
     // Référence à Storage
-let storage = null;
-try {
-  if (typeof firebase !== 'undefined' && firebase.storage) {
-    storage = firebase.storage();
-  } else {
-    console.warn("Firebase Storage n'est pas disponible");
-  }
-} catch (error) {
-  console.error("Erreur lors de l'initialisation de Firebase Storage:", error);
-}
+    let storage = null;
+    try {
+      if (typeof firebase !== 'undefined' && firebase.storage) {
+        storage = firebase.storage();
+      } else {
+        console.warn("Firebase Storage n'est pas disponible");
+      }
+    } catch (error) {
+      console.error("Erreur lors de l'initialisation de Firebase Storage:", error);
+    }
     
    // Initialisation lors du chargement du document
     document.addEventListener('DOMContentLoaded', function() {
@@ -271,8 +273,13 @@ try {
 	  try {
 		showLoading(true);
 		
-		// Charger les données des emplacements pour les filtres
-		loadLocationsForFilter().then(() => {
+		// Vérifier si l'utilisateur est admin
+		checkAdminStatus().then(adminStatus => {
+		  isAdmin = adminStatus;
+		  
+		  // Charger les données des emplacements pour les filtres
+		  return loadLocationsForFilter();
+		}).then(() => {
 		  // Charger les données des inspecteurs pour les filtres
 		  return loadInspectorsForFilter();
 		}).then(() => {
@@ -290,7 +297,7 @@ try {
 		  if (table) {
 			table.innerHTML = `
 			  <tr>
-				<td colspan="6" style="text-align: center; color: #e02424;">
+				<td colspan="7" style="text-align: center; color: #e02424;">
 				  Erreur lors du chargement des données. Veuillez réessayer.
 				</td>
 			  </tr>
@@ -307,6 +314,10 @@ try {
     async function loadInspectionHistory() {
       try {
         showLoading(true);
+        
+        // Vérifier si l'utilisateur est admin
+        const adminStatus = await checkAdminStatus();
+        isAdmin = adminStatus;
         
         // Charger les données des emplacements pour les filtres
         await loadLocationsForFilter();
@@ -327,11 +338,29 @@ try {
         // Afficher un message d'erreur
         inspectionsTable.innerHTML = `
           <tr>
-            <td colspan="6" style="text-align: center; color: #e02424;">
+            <td colspan="7" style="text-align: center; color: #e02424;">
               Erreur lors du chargement des données. Veuillez réessayer.
             </td>
           </tr>
         `;
+      }
+    }
+
+    // Vérifier si l'utilisateur est admin
+    async function checkAdminStatus() {
+      try {
+        const user = firebase.auth().currentUser;
+        if (!user) return false;
+        
+        const inspectorDoc = await db.collection('inspectors').doc(user.uid).get();
+        if (inspectorDoc.exists) {
+          const userData = inspectorDoc.data();
+          return userData.role === 'admin';
+        }
+        return false;
+      } catch (error) {
+        console.error("Erreur lors de la vérification du statut admin:", error);
+        return false;
       }
     }
 
@@ -858,7 +887,7 @@ try {
       if (pageInspections.length === 0) {
         inspectionsTable.innerHTML = `
           <tr>
-            <td colspan="6" style="text-align: center;">Aucune inspection ne correspond à vos critères.</td>
+            <td colspan="7" style="text-align: center;">Aucune inspection ne correspond à vos critères.</td>
           </tr>
         `;
         return;
@@ -892,13 +921,28 @@ try {
             statusText = 'Non inspecté';
         }
         
+        // Indicateur de photos
+        const hasPhotos = inspection.photos && inspection.photos.length > 0;
+        const photoIndicator = hasPhotos 
+          ? `<span title="${inspection.photos.length} photo(s)" style="cursor: help;">📷 (${inspection.photos.length})</span>` 
+          : '<span style="color: #9ca3af;">-</span>';
+        
+        // Boutons d'action
+        let actionButtons = `<button class="view-btn" data-id="${inspection.id}" data-type="${inspection.type}">Voir détails</button>`;
+        
+        // Ajouter le bouton de suppression si l'utilisateur est admin
+        if (isAdmin) {
+          actionButtons += ` <button class="btn btn-danger btn-sm delete-inspection" data-id="${inspection.id}" data-type="${inspection.type}" style="margin-left: 0.5rem;">Supprimer</button>`;
+        }
+        
         row.innerHTML = `
 		  <td class="inspection-text">${formattedDate}</td>
 		  <td class="inspection-text"><span class="type-badge ${typeClass}">${typeText}</span></td>
 		  <td class="inspection-text">${inspection.location}</td>
 		  <td class="inspection-text">${inspection.inspector}</td>
 		  <td class="inspection-text"><span class="status-badge status-${inspection.condition}">${statusText}</span></td>
-		  <td><button class="view-btn" data-id="${inspection.id}" data-type="${inspection.type}">Voir détails</button></td>
+		  <td class="inspection-text" style="text-align: center;">${photoIndicator}</td>
+		  <td>${actionButtons}</td>
         `;
         
         inspectionsTable.appendChild(row);
@@ -912,6 +956,17 @@ try {
           showInspectionDetails(id, type);
         });
       });
+      
+      // Ajouter les événements aux boutons de suppression
+      if (isAdmin) {
+        document.querySelectorAll('.delete-inspection').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            const type = this.getAttribute('data-type');
+            deleteInspection(id, type);
+          });
+        });
+      }
     }
 
     // Configurer la modal
@@ -1186,6 +1241,59 @@ try {
 		`;
     }
 
+    // Supprimer une inspection
+    async function deleteInspection(inspectionId, type) {
+      if (!confirm('Êtes-vous sûr de vouloir supprimer cette inspection? Cette action est irréversible.')) {
+        return;
+      }
+      
+      showLoading(true);
+      
+      try {
+        // Déterminer la collection selon le type
+        const collectionName = type === 'trail' ? 'trail_inspections' : 'shelter_inspections';
+        
+        // Récupérer l'inspection pour obtenir les URLs des photos
+        const inspectionDoc = await db.collection(collectionName).doc(inspectionId).get();
+        
+        if (inspectionDoc.exists) {
+          const inspectionData = inspectionDoc.data();
+          
+          // Supprimer les photos du Storage si elles existent
+          if (inspectionData.photos && inspectionData.photos.length > 0 && storage) {
+            for (const photoUrl of inspectionData.photos) {
+              try {
+                // Extraire le chemin du fichier de l'URL
+                const photoRef = storage.refFromURL(photoUrl);
+                await photoRef.delete();
+                console.log(`Photo supprimée: ${photoUrl}`);
+              } catch (photoError) {
+                console.error(`Erreur lors de la suppression de la photo: ${photoUrl}`, photoError);
+                // Continuer même si une photo ne peut pas être supprimée
+              }
+            }
+          }
+          
+          // Supprimer le document de l'inspection
+          await db.collection(collectionName).doc(inspectionId).delete();
+          
+          alert('Inspection supprimée avec succès.');
+          
+          // Recharger les données
+          await loadAllInspections();
+          applyFilters();
+          
+        } else {
+          alert('Inspection non trouvée.');
+        }
+      } catch (error) {
+        console.error('Erreur lors de la suppression de l\'inspection:', error);
+        alert(`Erreur lors de la suppression: ${error.message}`);
+      } finally {
+        showLoading(false);
+      }
+    }
+
     // Configurer l'exportation
     function setupExport() {
       // Exportation en PDF
@@ -1295,4 +1403,3 @@ try {
   </script>
 </body>
 </html>
-    }

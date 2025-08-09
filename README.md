@@ -1,10 +1,14 @@
 # Inspection_Rando_Orford
 
 Must :
-0 - Tout comme actif, peut-on basculer un utilisateur de inspecteur a admin et inversement
 1 - Travail sur les download d'image
+The upload of the picture seams not to be working. COuld it be that Firebase is not ready to take images ? Do I need to have a special plan for it ?
+
 2 - supression d'une inspections par un admin ou par le créateur lui même
-3 - Export des inspections... (marche en mode CSV)
+
+3 - Créer une inspection avec un lieu en cliquant sur l'image.
+
+4 - Export des inspections... (marche en mode CSV)
 
 
 Bug fix :
