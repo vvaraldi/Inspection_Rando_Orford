@@ -173,23 +173,45 @@
         
         <div class="admin-card">
           <h2 class="admin-title">Gestion des données</h2>
+
+			<div class="admin-section">
+			  <h3>Suppression des anciennes inspections</h3>
+			  <p>Supprimer toutes les inspections antérieures à une date spécifique.</p>
+			  
+			  <div class="form-group" style="margin-bottom: 1rem;">
+				<label for="cutoff-date" style="display: block; margin-bottom: 0.5rem;">Date limite (supprimer avant cette date) :</label>
+				<input 
+				  type="date" 
+				  id="cutoff-date" 
+				  style="padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.375rem; font-size: 0.875rem;"
+				>
+			  </div>
+			  
+			  <div class="actions">
+				<button id="delete-old-inspections-btn" class="btn btn-danger">
+				  Supprimer les anciennes inspections
+				</button>
+			  </div>
+			  
+			  <div id="delete-old-status" class="status-message" style="display: none;"></div>
+			</div>
           
-          <div class="admin-section">
-            <h3>Sauvegarde</h3>
-            <p>Exporter toutes les données du système en format JSON.</p>
-            <div class="actions">
-              <button id="export-data-btn" class="btn" disabled>Exporter les données</button>
-            </div>
-          </div>
-          
-          <div class="admin-section">
-            <h3>Réinitialisation</h3>
-            <p>Attention: Cette action supprimera toutes les données d'inspection.</p>
-            <div class="actions">
-              <button id="reset-inspections-btn" class="btn btn-danger" disabled>Réinitialiser les inspections</button>
-            </div>
-            <div id="reset-status" class="status-message" style="display: none;"></div>
-          </div>
+			<div class="admin-section">
+			  <h3>Sauvegarde</h3>
+			  <p>Exporter toutes les données du système en format JSON.</p>
+			  <div class="actions">
+			    <button id="export-data-btn" class="btn" disabled>Exporter les données</button>
+			  </div>
+			</div>
+
+			<div class="admin-section">
+			  <h3>Réinitialisation</h3>
+			  <p>Attention: Cette action supprimera toutes les données d'inspection.</p>
+			  <div class="actions">
+			    <button id="reset-inspections-btn" class="btn btn-danger" disabled>Réinitialiser les inspections</button>
+			  </div>
+			<div id="reset-status" class="status-message" style="display: none;"></div>
+			</div>
         </div>
       </div>
     </div>
@@ -1041,7 +1063,181 @@ document.addEventListener('DOMContentLoaded', function() {
 
   console.log('Script d\'administration initialisé');
 });
+
+
+	// ===== SUPPRESSION DES ANCIENNES INSPECTIONS =====
+
+	// Initialiser la date par défaut (7 mois avant aujourd'hui)
+	document.addEventListener('DOMContentLoaded', function() {
+	  const cutoffDateInput = document.getElementById('cutoff-date');
+	  if (cutoffDateInput) {
+		const today = new Date();
+		const sevenMonthsAgo = new Date(today);
+		sevenMonthsAgo.setMonth(sevenMonthsAgo.getMonth() - 7);
+		
+		// Formater la date pour l'input (YYYY-MM-DD)
+		const year = sevenMonthsAgo.getFullYear();
+		const month = String(sevenMonthsAgo.getMonth() + 1).padStart(2, '0');
+		const day = String(sevenMonthsAgo.getDate()).padStart(2, '0');
+		cutoffDateInput.value = `${year}-${month}-${day}`;
+	  }
+	});
+
+	// Gestionnaire pour le bouton de suppression des anciennes inspections
+	document.getElementById('delete-old-inspections-btn').addEventListener('click', async function() {
+	  const cutoffDateInput = document.getElementById('cutoff-date');
+	  
+	  if (!cutoffDateInput.value) {
+		alert('Veuillez sélectionner une date limite.');
+		return;
+	  }
+	  
+	  // Convertir la date sélectionnée en timestamp Firebase
+	  const cutoffDate = new Date(cutoffDateInput.value + 'T00:00:00');
+	  const cutoffTimestamp = firebase.firestore.Timestamp.fromDate(cutoffDate);
+	  
+	  // Désactiver le bouton pendant le traitement
+	  this.disabled = true;
+	  const originalText = this.textContent;
+	  this.textContent = 'Comptage des inspections...';
+	  
+	  try {
+		// Compter les inspections qui seront supprimées
+		let trailInspectionsToDelete = 0;
+		let shelterInspectionsToDelete = 0;
+		
+		// Compter les inspections de sentiers
+		const trailSnapshot = await db.collection('trail_inspections')
+		  .where('date', '<', cutoffTimestamp)
+		  .get();
+		trailInspectionsToDelete = trailSnapshot.size;
+		
+		// Compter les inspections d'abris
+		const shelterSnapshot = await db.collection('shelter_inspections')
+		  .where('date', '<', cutoffTimestamp)
+		  .get();
+		shelterInspectionsToDelete = shelterSnapshot.size;
+		
+		const totalToDelete = trailInspectionsToDelete + shelterInspectionsToDelete;
+		
+		if (totalToDelete === 0) {
+		  showStatus('delete-old-status', 'Aucune inspection trouvée avant cette date.', 'info');
+		  this.disabled = false;
+		  this.textContent = originalText;
+		  return;
+		}
+		
+		// Formater la date pour l'affichage
+		const formattedDate = cutoffDate.toLocaleDateString('fr-FR', {
+		  day: '2-digit',
+		  month: 'long',
+		  year: 'numeric'
+		});
+		
+		// Demander confirmation avec le nombre d'inspections
+		const confirmMessage = `ATTENTION: Vous êtes sur le point de supprimer ${totalToDelete} inspection(s) antérieure(s) au ${formattedDate}:\n\n` +
+		  `- ${trailInspectionsToDelete} inspection(s) de sentiers\n` +
+		  `- ${shelterInspectionsToDelete} inspection(s) d'abris\n\n` +
+		  `Cette action est IRRÉVERSIBLE. Voulez-vous continuer?`;
+		
+		if (!confirm(confirmMessage)) {
+		  this.disabled = false;
+		  this.textContent = originalText;
+		  return;
+		}
+		
+		// Procéder à la suppression
+		this.textContent = 'Suppression en cours...';
+		showStatus('delete-old-status', 'Suppression des inspections en cours...', 'warning');
+		
+		let deletedCount = 0;
+		
+		// Supprimer les inspections de sentiers
+		if (trailInspectionsToDelete > 0) {
+		  const trailBatch = db.batch();
+		  let batchCount = 0;
+		  
+		  for (const doc of trailSnapshot.docs) {
+			trailBatch.delete(doc.ref);
+			batchCount++;
+			
+			// Firebase limite à 500 opérations par batch
+			if (batchCount === 500) {
+			  await trailBatch.commit();
+			  deletedCount += batchCount;
+			  this.textContent = `Suppression... (${deletedCount}/${totalToDelete})`;
+			  batchCount = 0;
+			}
+		  }
+		  
+		  // Commit du dernier batch s'il reste des documents
+		  if (batchCount > 0) {
+			await trailBatch.commit();
+			deletedCount += batchCount;
+		  }
+		}
+		
+		// Supprimer les inspections d'abris
+		if (shelterInspectionsToDelete > 0) {
+		  const shelterBatch = db.batch();
+		  let batchCount = 0;
+		  
+		  for (const doc of shelterSnapshot.docs) {
+			shelterBatch.delete(doc.ref);
+			batchCount++;
+			
+			// Firebase limite à 500 opérations par batch
+			if (batchCount === 500) {
+			  await shelterBatch.commit();
+			  deletedCount += batchCount;
+			  this.textContent = `Suppression... (${deletedCount}/${totalToDelete})`;
+			  batchCount = 0;
+			}
+		  }
+		  
+		  // Commit du dernier batch s'il reste des documents
+		  if (batchCount > 0) {
+			await shelterBatch.commit();
+			deletedCount += batchCount;
+		  }
+		}
+		
+		// Suppression des photos associées (optionnel - peut prendre du temps)
+		// Note: Cette partie nécessiterait d'itérer sur toutes les photos dans Storage
+		// ce qui peut être long. Pour l'instant, on affiche juste un message.
+		
+		showStatus('delete-old-status', 
+		  `✓ ${totalToDelete} inspection(s) supprimée(s) avec succès.\n` +
+		  `Note: Les photos associées peuvent nécessiter une suppression manuelle dans Firebase Storage.`, 
+		  'success');
+		
+		// Recharger les statistiques si la fonction existe
+		if (typeof loadStatistics === 'function') {
+		  loadStatistics();
+		}
+		
+	  } catch (error) {
+		console.error("Erreur lors de la suppression des anciennes inspections:", error);
+		showStatus('delete-old-status', 'Erreur lors de la suppression: ' + error.message, 'error');
+	  } finally {
+		// Réactiver le bouton
+		this.disabled = false;
+		this.textContent = originalText;
+	  }
+	});
+
+	// Fonction utilitaire pour formater les dates (si elle n'existe pas déjà)
+	function formatDateForDisplay(date) {
+	  return date.toLocaleDateString('fr-FR', {
+		day: '2-digit',
+		month: 'long',
+		year: 'numeric'
+	  });
+	}
+
+
 </script>
+
 
 </body>
 </html> 
