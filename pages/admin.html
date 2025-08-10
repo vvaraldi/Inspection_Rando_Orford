@@ -343,10 +343,24 @@
 <script src="../js/dashboard.js"></script>
 
 <script>
-// Script principal pour la page d'administration
+// =====================================================
+// SCRIPT PRINCIPAL - PAGE D'ADMINISTRATION
+// =====================================================
+
 document.addEventListener('DOMContentLoaded', function() {
+  // ===== INITIALISATION DES SERVICES FIREBASE =====
   const auth = firebase.auth();
   const db = firebase.firestore();
+  
+  // IMPORTANT: Initialisation globale de Firebase Storage
+  let storage = null;
+  try {
+    storage = firebase.storage();
+    console.log("✓ Firebase Storage initialisé avec succès");
+  } catch (error) {
+    console.warn("⚠ Firebase Storage n'est pas disponible:", error);
+    console.warn("Les fonctionnalités de suppression de photos seront limitées");
+  }
   
   // Variable pour stocker l'ID de l'utilisateur actuellement connecté
   let currentUserId = null;
@@ -1065,8 +1079,12 @@ document.addEventListener('DOMContentLoaded', function() {
   console.log('Script d\'administration initialisé');
 
 	// ===== SUPPRESSION DES ANCIENNES INSPECTIONS =====
-
-	// Initialiser la date par défaut (7 mois avant aujourd'hui)
+	// ===================================================
+	
+	/**
+	 * Initialise la date par défaut pour la suppression
+	 * Définit la date à 7 mois avant aujourd'hui
+	 */
 	const cutoffDateInput = document.getElementById('cutoff-date');
 	if (cutoffDateInput) {
 	  const today = new Date();
@@ -1080,6 +1098,10 @@ document.addEventListener('DOMContentLoaded', function() {
 	  cutoffDateInput.value = `${year}-${month}-${day}`;
 	}
 
+	/**
+	 * Gestionnaire pour le bouton de suppression des anciennes inspections
+	 * Supprime les inspections et leurs photos associées
+	 */
 	const deleteOldBtn = document.getElementById('delete-old-inspections-btn');
 	if (deleteOldBtn) {
 	  deleteOldBtn.addEventListener('click', async function() {
@@ -1152,21 +1174,20 @@ document.addEventListener('DOMContentLoaded', function() {
 		  let photosDeleted = 0;
 		  let photosFailed = 0;
 		  
-		  // Vérifier si Firebase Storage est disponible
-		  let storage = null;
-		  let canDeletePhotos = false;
+		  // Vérifier si Firebase Storage est disponible (utiliser la variable globale)
+		  const canDeletePhotos = storage !== null;
 		  
-		  try {
-			if (typeof firebase !== 'undefined' && firebase.storage) {
-			  storage = firebase.storage();
-			  canDeletePhotos = true;
-			  console.log('Firebase Storage initialisé pour la suppression des photos');
-			}
-		  } catch (error) {
-			console.warn('Firebase Storage non disponible, les photos ne seront pas supprimées:', error);
+		  if (!canDeletePhotos) {
+			console.warn('⚠ Firebase Storage non disponible - les photos ne seront pas supprimées');
 		  }
 		  
-		  // Fonction pour supprimer les photos d'une inspection
+		  /**
+		   * Fonction helper pour supprimer les photos d'une inspection
+		   * @param {Object} inspectionData - Données de l'inspection
+		   * @param {string} inspectionId - ID de l'inspection
+		   * @param {string} inspectionType - Type d'inspection ('trails' ou 'shelters')
+		   * @returns {Object} Nombre de photos supprimées et échouées
+		   */
 		  async function deleteInspectionPhotos(inspectionData, inspectionId, inspectionType) {
 			if (!canDeletePhotos || !inspectionData.photos || inspectionData.photos.length === 0) {
 			  return { deleted: 0, failed: 0 };
@@ -1177,12 +1198,13 @@ document.addEventListener('DOMContentLoaded', function() {
 			
 			for (const photoUrl of inspectionData.photos) {
 			  try {
+				// IMPORTANT: Utiliser la variable storage globale au lieu de firebase.storage()
 				const photoRef = storage.refFromURL(photoUrl);
 				await photoRef.delete();
 				deleted++;
-				console.log('Photo supprimée:', photoUrl);
+				console.log('✓ Photo supprimée:', photoUrl);
 			  } catch (error) {
-				console.error('Erreur lors de la suppression de la photo:', photoUrl, error);
+				console.error('✗ Erreur lors de la suppression de la photo:', photoUrl, error);
 				failed++;
 			  }
 			}
@@ -1245,7 +1267,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			  }
 			}
 		  } else {
-			statusMessage += '\nNote: Les photos n\'ont pas pu être supprimées (Firebase Storage non configuré).';
+			statusMessage += '\n⚠ Note: Les photos n\'ont pas pu être supprimées (Firebase Storage non configuré).';
 		  }
 		  
 		  showStatus('delete-old-status', statusMessage, 'success');
@@ -1272,4 +1294,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 </body>
-</html> 
+</html>
