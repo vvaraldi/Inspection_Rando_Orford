@@ -7,33 +7,26 @@
   <link rel="stylesheet" href="../css/styles.css">
 </head>
 
-<script>
-  window.onerror = function(message, source, lineno, colno, error) {
-    console.log("Erreur JavaScript: ", message, "à la ligne", lineno, "colonne", colno);
-    console.log("Source:", source);
-    console.log("Erreur complète:", error);
-    
-    return true;
-  };
-</script>
-
 <body>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏔️</text></svg>">
-<header>
+  
+  <!-- ===== HEADER ===== -->
+  <header>
     <nav>
       <div class="logo">Ski-Track</div>
       <div class="nav-links">
-		<a href="../index.html">Tableau de bord</a>
-		<a href="trail-inspection.html">Inspection sentier</a>
-		<a href="shelter-inspection.html">Inspection abri</a>
-		<a href="inspection-history.html">Historique</a>
-		<a href="admin.html" class="active" >Administration</a>
-		<a href="change-password.html">Mot de passe</a>
-		<a href="#" id="login-link">Connexion</a>
+        <a href="../index.html">Tableau de bord</a>
+        <a href="trail-inspection.html">Inspection sentier</a>
+        <a href="shelter-inspection.html">Inspection abri</a>
+        <a href="inspection-history.html">Historique</a>
+        <a href="admin.html" class="active">Administration</a>
+        <a href="change-password.html">Mot de passe</a>
+        <a href="#" id="login-link">Connexion</a>
       </div>
       <button class="mobile-menu-btn" id="mobile-menu-btn">☰</button>
     </nav>
     
+    <!-- Menu mobile -->
     <div class="mobile-nav" id="mobile-nav">
       <div class="mobile-nav-header">
         <div class="logo">Ski-Track</div>
@@ -45,27 +38,33 @@
         <a href="shelter-inspection.html">Inspection abri</a>
         <a href="inspection-history.html">Historique</a>
         <a href="admin.html" class="active" id="mobile-admin-link">Administration</a>
-		<a href="change-password.html" id="mobile-password-link">Mot de passe</a>
+        <a href="change-password.html" id="mobile-password-link">Mot de passe</a>
         <a href="#" id="mobile-login-link">Connexion</a>
       </div>
     </div>
   </header>
   
+  <!-- ===== CONTENU PRINCIPAL ===== -->
   <main>
+    <!-- En-tête de la page -->
     <div class="page-header">
       <h1>Panneau d'administration</h1>
       <div id="user-info">Connecté en tant que: <span id="admin-name">Administrateur</span></div>
     </div>
     
+    <!-- Navigation par onglets -->
     <div class="tabs">
       <div class="tab active" data-tab="users">Gestion des utilisateurs</div>
       <div class="tab" data-tab="data">Données du système</div>
-      <div class="tab" data-tab="stats">Statistiques (pas encore actif)</div>
+      <div class="tab" data-tab="stats">Statistiques</div>
     </div>
     
+    <!-- ===== ONGLET: GESTION DES UTILISATEURS ===== -->
     <div class="tab-content active" id="users-tab">
       <div class="admin-panel">
-        <div class="admin-card  full-width">
+        
+        <!-- Liste des utilisateurs -->
+        <div class="admin-card full-width">
           <h2 class="admin-title">Liste des utilisateurs</h2>
           
           <table id="inspectors-table">
@@ -74,19 +73,20 @@
                 <th>Nom</th>
                 <th>Email</th>
                 <th>Téléphone</th>
-				<th>Rôle</th>
-				<th>Statut</th>
+                <th>Rôle</th>
+                <th>Statut</th>
                 <th>Actions</th>
               </tr>
             </thead>
-			<tbody>
-			  <tr>
-				<td colspan="6" style="text-align: center;">Chargement des utilisateurs...</td>
-			  </tr>
-			</tbody>
+            <tbody>
+              <tr>
+                <td colspan="6" style="text-align: center;">Chargement des utilisateurs...</td>
+              </tr>
+            </tbody>
           </table>
         </div>
         
+        <!-- Formulaire de création d'utilisateur -->
         <div class="admin-card full-width">
           <h2 class="admin-title">Nouvel utilisateur</h2>
           
@@ -111,13 +111,13 @@
               <input type="password" id="user-password" required>
             </div>
             
-			<div class="form-group">
-			  <label for="user-role">Rôle</label>
-			  <select id="user-role">
-				<option value="inspector">Inspecteur</option>
-				<option value="admin">Administrateur</option>
-			  </select>
-			</div>
+            <div class="form-group">
+              <label for="user-role">Rôle</label>
+              <select id="user-role">
+                <option value="inspector">Inspecteur</option>
+                <option value="admin">Administrateur</option>
+              </select>
+            </div>
 
             <div class="form-group">
               <label for="user-status">Statut</label>
@@ -138,112 +138,137 @@
       </div>
     </div>
     
+    <!-- ===== ONGLET: DONNÉES DU SYSTÈME ===== -->
     <div class="tab-content" id="data-tab">
       <div class="admin-panel">
+        
+        <!-- Initialisation des données -->
         <div class="admin-card">
           <h2 class="admin-title">Initialisation des données</h2>
           
+          <!-- Sentiers -->
           <div class="admin-section">
             <h3>Sentiers</h3>
             <p>Initialiser les données des sentiers de randonnée alpine du Mont Orford.</p>
             <div class="actions">
-              <button id="init-trails-btn" class="btn btn-warning" disabled>Initialiser les sentiers</button>
+              <button id="init-trails-btn" class="btn btn-warning" disabled>
+                Initialiser les sentiers
+              </button>
             </div>
             <div id="trails-status" class="status-message" style="display: none;"></div>
           </div>
           
+          <!-- Abris -->
           <div class="admin-section">
             <h3>Abris</h3>
             <p>Initialiser les données des abris des sommets du Mont Orford.</p>
             <div class="actions">
-              <button id="init-shelters-btn" class="btn btn-warning" disabled>Initialiser les abris</button>
+              <button id="init-shelters-btn" class="btn btn-warning" disabled>
+                Initialiser les abris
+              </button>
             </div>
             <div id="shelters-status" class="status-message" style="display: none;"></div>
           </div>
           
+          <!-- Données de test -->
           <div class="admin-section">
             <h3>Données de test</h3>
             <p>Créer des inspections de test pour simuler l'utilisation du système.</p>
             <div class="actions">
-              <button id="create-sample-btn" class="btn" disabled>Créer des données de test</button>
+              <button id="create-sample-btn" class="btn" disabled>
+                Créer des données de test
+              </button>
             </div>
             <div id="sample-status" class="status-message" style="display: none;"></div>
           </div>
         </div>
         
+        <!-- Gestion des données -->
         <div class="admin-card">
           <h2 class="admin-title">Gestion des données</h2>
 
-			<div class="admin-section">
-			  <h3>Suppression des anciennes inspections</h3>
-			  <p>Supprimer toutes les inspections antérieures à une date spécifique.</p>
-			  
-			  <div class="form-group" style="margin-bottom: 1rem;">
-				<label for="cutoff-date" style="display: block; margin-bottom: 0.5rem;">Date limite (supprimer avant cette date) :</label>
-				<input 
-				  type="date" 
-				  id="cutoff-date" 
-				  style="padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.375rem; font-size: 0.875rem;"
-				>
-			  </div>
-			  
-			  <div class="actions">
-				<button id="delete-old-inspections-btn" class="btn btn-danger">
-				  Supprimer les anciennes inspections
-				</button>
-			  </div>
-			  
-			  <div id="delete-old-status" class="status-message" style="display: none;"></div>
-			</div>
+          <!-- Suppression des anciennes inspections -->
+          <div class="admin-section">
+            <h3>Suppression des anciennes inspections</h3>
+            <p>Supprimer toutes les inspections antérieures à une date spécifique.</p>
+            
+            <div class="form-group" style="margin-bottom: 1rem;">
+              <label for="cutoff-date" style="display: block; margin-bottom: 0.5rem;">
+                Date limite (supprimer avant cette date) :
+              </label>
+              <input 
+                type="date" 
+                id="cutoff-date" 
+                style="padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.375rem; font-size: 0.875rem;"
+              >
+            </div>
+            
+            <div class="actions">
+              <button id="delete-old-inspections-btn" class="btn btn-danger">
+                Supprimer les anciennes inspections
+              </button>
+            </div>
+            
+            <div id="delete-old-status" class="status-message" style="display: none;"></div>
+          </div>
           
-			<div class="admin-section">
-			  <h3>Sauvegarde</h3>
-			  <p>Exporter toutes les données du système en format JSON.</p>
-			  <div class="actions">
-			    <button id="export-data-btn" class="btn" disabled>Exporter les données</button>
-			  </div>
-			</div>
+          <!-- Sauvegarde -->
+          <div class="admin-section">
+            <h3>Sauvegarde</h3>
+            <p>Exporter toutes les données du système en format JSON.</p>
+            <div class="actions">
+              <button id="export-data-btn" class="btn" disabled>
+                Exporter les données
+              </button>
+            </div>
+          </div>
 
-			<div class="admin-section">
-			  <h3>Réinitialisation</h3>
-			  <p>Attention: Cette action supprimera toutes les données d'inspection.</p>
-			  <div class="actions">
-			    <button id="reset-inspections-btn" class="btn btn-danger" disabled>Réinitialiser les inspections</button>
-			  </div>
-			<div id="reset-status" class="status-message" style="display: none;"></div>
-			</div>
+          <!-- Réinitialisation -->
+          <div class="admin-section">
+            <h3>Réinitialisation</h3>
+            <p>Attention: Cette action supprimera toutes les données d'inspection.</p>
+            <div class="actions">
+              <button id="reset-inspections-btn" class="btn btn-danger" disabled>
+                Réinitialiser les inspections
+              </button>
+            </div>
+            <div id="reset-status" class="status-message" style="display: none;"></div>
+          </div>
         </div>
       </div>
     </div>
     
+    <!-- ===== ONGLET: STATISTIQUES ===== -->
     <div class="tab-content" id="stats-tab">
       <div class="admin-panel">
+        
+        <!-- Statistiques d'utilisation -->
         <div class="admin-card">
           <h2 class="admin-title">Statistiques d'utilisation</h2>
           
           <div class="admin-section">
-            <h3>Résumé des inspections  (examples seulement... pas actif encore)</h3>
+            <h3>Résumé des inspections</h3>
             <table>
               <tbody>
                 <tr>
                   <td>Nombre total d'inspections</td>
-                  <td><strong id="total-inspections">42</strong></td>
+                  <td><strong id="total-inspections">--</strong></td>
                 </tr>
                 <tr>
                   <td>Inspections cette semaine</td>
-                  <td><strong id="week-inspections">12</strong></td>
+                  <td><strong id="week-inspections">--</strong></td>
                 </tr>
                 <tr>
                   <td>Inspections sentiers</td>
-                  <td><strong id="trail-inspections">32</strong></td>
+                  <td><strong id="trail-inspections">--</strong></td>
                 </tr>
                 <tr>
                   <td>Inspections abris</td>
-                  <td><strong id="shelter-inspections">10</strong></td>
+                  <td><strong id="shelter-inspections">--</strong></td>
                 </tr>
                 <tr>
                   <td>Problèmes signalés non résolus</td>
-                  <td><strong id="open-issues">7</strong></td>
+                  <td><strong id="open-issues">--</strong></td>
                 </tr>
               </tbody>
             </table>
@@ -251,35 +276,13 @@
           
           <div class="admin-section">
             <h3>Activité des inspecteurs</h3>
-            <table>
-              <thead>
-                <tr>
-                  <th>Inspecteur</th>
-                  <th>Inspections</th>
-                  <th>Dernière activité</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Pierre Martin</td>
-                  <td>15</td>
-                  <td>14/04/2025</td>
-                </tr>
-                <tr>
-                  <td>Sophie Legrand</td>
-                  <td>18</td>
-                  <td>13/04/2025</td>
-                </tr>
-                <tr>
-                  <td>Marc Dubois</td>
-                  <td>9</td>
-                  <td>12/04/2025</td>
-                </tr>
-              </tbody>
-            </table>
+            <p style="color: #6b7280; font-style: italic;">
+              Fonctionnalité en cours de développement...
+            </p>
           </div>
         </div>
         
+        <!-- État du système -->
         <div class="admin-card">
           <h2 class="admin-title">État du système</h2>
           
@@ -289,15 +292,15 @@
               <tbody>
                 <tr>
                   <td>Stockage utilisé</td>
-                  <td><strong id="storage-used">12.5 MB</strong></td>
+                  <td><strong id="storage-used">--</strong></td>
                 </tr>
                 <tr>
                   <td>Requêtes Firestore ce mois</td>
-                  <td><strong id="firestore-requests">1,253</strong></td>
+                  <td><strong id="firestore-requests">--</strong></td>
                 </tr>
                 <tr>
                   <td>Utilisateurs actifs</td>
-                  <td><strong id="active-users">3</strong></td>
+                  <td><strong id="active-users">--</strong></td>
                 </tr>
               </tbody>
             </table>
@@ -305,17 +308,16 @@
           
           <div class="admin-section">
             <h3>Maintenance</h3>
-            <div class="actions">
-              <button disabled id="clear-cache-btn" class="btn">Vider le cache</button>
-              <button id="check-updates-btn" class="btn" disabled>Vérifier les mises à jour</button>
-            </div>
-            <div id="maintenance-status" class="status-message" style="display: none;"></div>
+            <p style="color: #6b7280; font-style: italic;">
+              Fonctionnalités de maintenance en cours de développement...
+            </p>
           </div>
         </div>
       </div>
     </div>
   </main>
   
+  <!-- ===== MODAL DE SUPPRESSION ===== -->
   <div id="delete-modal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
@@ -333,965 +335,19 @@
     </div>
   </div>
   
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage-compat.js"></script>
+  <!-- ===== SCRIPTS ===== -->
+  <!-- Firebase Libraries -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage-compat.js"></script>
 
-<script src="../js/auth.js"></script>
-<script src="../js/mobile-menu.js"></script>
-<script src="../js/dashboard.js"></script>
-
-<script>
-// =====================================================
-// SCRIPT PRINCIPAL - PAGE D'ADMINISTRATION
-// =====================================================
-
-document.addEventListener('DOMContentLoaded', function() {
-  // ===== INITIALISATION DES SERVICES FIREBASE =====
-  const auth = firebase.auth();
-  const db = firebase.firestore();
+  <!-- Application Scripts -->
+  <script src="../js/auth.js"></script>
+  <script src="../js/mobile-menu.js"></script>
   
-  // IMPORTANT: Initialisation globale de Firebase Storage
-  let storage = null;
-  try {
-    storage = firebase.storage();
-    console.log("✓ Firebase Storage initialisé avec succès");
-  } catch (error) {
-    console.warn("⚠ Firebase Storage n'est pas disponible:", error);
-    console.warn("Les fonctionnalités de suppression de photos seront limitées");
-  }
-  
-  // Variable pour stocker l'ID de l'utilisateur actuellement connecté
-  let currentUserId = null;
-  
-  // ===== VÉRIFICATION DE L'AUTHENTIFICATION =====
-  auth.onAuthStateChanged(function(user) {
-    if (user) {
-      currentUserId = user.uid; // Stocker l'ID de l'utilisateur connecté
-      
-      // Vérifier si l'utilisateur est admin
-      db.collection('inspectors').doc(user.uid).get()
-        .then(doc => {
-          if (doc.exists && doc.data().role === 'admin') {
-            document.getElementById('admin-name').textContent = doc.data().name;
-            loadInspectors();
-            loadStatistics();
-          } else {
-            window.location.href = '../index.html';
-          }
-        })
-        .catch(error => {
-          console.error("Erreur lors de la vérification des privilèges:", error);
-          window.location.href = '../index.html';
-        });
-    } else {
-      window.location.href = 'login.html';
-    }
-  });
-  
-  // ===== GESTION DES ONGLETS =====
-  document.querySelectorAll('.tab').forEach(tab => {
-    tab.addEventListener('click', function() {
-      document.querySelectorAll('.tab').forEach(t => {
-        t.classList.remove('active');
-      });
-      this.classList.add('active');
-      
-      document.querySelectorAll('.tab-content').forEach(content => {
-        content.classList.remove('active');
-      });
-      
-      const tabId = this.getAttribute('data-tab') + '-tab';
-      document.getElementById(tabId).classList.add('active');
-    });
-  });
-  
-  // ===== GESTION DES INSPECTEURS =====
-  function loadInspectors() {
-    db.collection('inspectors').get()
-      .then(snapshot => {
-        const table = document.getElementById('inspectors-table').querySelector('tbody');
-        table.innerHTML = '';
-        
-        if (snapshot.empty) {
-          table.innerHTML = '<tr><td colspan="6" style="text-align: center;">Aucun utilisateur trouvé</td></tr>';
-          return;
-        }
-        
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          const row = document.createElement('tr');
-          
-          // Déterminer si c'est l'utilisateur connecté
-          const isCurrentUser = (doc.id === currentUserId);
-          
-          // Créer le bouton de rôle (désactivé si c'est l'utilisateur connecté)
-          const roleText = data.role === 'admin' ? 'Administrateur' : 'Inspecteur';
-          const roleClass = data.role === 'admin' ? 'role-admin' : 'role-inspector';
-          
-          let roleButtonHtml = '';
-          if (isCurrentUser) {
-            // Si c'est l'utilisateur connecté, afficher juste un badge non cliquable
-            roleButtonHtml = `<span class="role-badge ${roleClass}" title="Vous ne pouvez pas modifier votre propre rôle">${roleText}</span>`;
-          } else {
-            // Sinon, créer un bouton cliquable
-            roleButtonHtml = `
-              <button class="role-toggle-btn role-badge ${roleClass}" 
-                      data-user-id="${doc.id}" 
-                      data-current-role="${data.role}"
-                      title="Cliquer pour changer le rôle">
-                ${roleText}
-              </button>
-            `;
-          }
-          
-          // Créer le bouton de statut (désactivé si c'est l'utilisateur connecté)
-          const statusText = data.status === 'active' ? 'Actif' : 'Inactif';
-          const statusClass = data.status === 'active' ? 'status-active' : 'status-inactive';
-          
-          let statusButtonHtml = '';
-          if (isCurrentUser) {
-            // Si c'est l'utilisateur connecté, afficher juste un badge non cliquable
-            statusButtonHtml = `<span class="status-badge ${statusClass}" title="Vous ne pouvez pas modifier votre propre statut">${statusText}</span>`;
-          } else {
-            // Sinon, créer un bouton cliquable
-            statusButtonHtml = `
-              <button class="status-toggle-btn status-badge ${statusClass}" 
-                      data-user-id="${doc.id}" 
-                      data-current-status="${data.status}"
-                      title="Cliquer pour changer le statut">
-                ${statusText}
-              </button>
-            `;
-          }
-          
-          // Désactiver le bouton de suppression si c'est l'utilisateur connecté
-          const deleteButtonHtml = isCurrentUser 
-            ? '<button class="btn btn-secondary btn-sm" disabled title="Vous ne pouvez pas supprimer votre propre compte">Supprimer</button>'
-            : `<button class="btn btn-danger btn-sm delete-user" data-id="${doc.id}">Supprimer</button>`;
-          
-          row.innerHTML = `
-            <td>${data.name}${isCurrentUser ? ' <span style="color: #1a56db;">(Vous)</span>' : ''}</td>
-            <td>${data.email}</td>
-            <td>${data.phone || '-'}</td>
-            <td>${roleButtonHtml}</td>
-            <td>${statusButtonHtml}</td>
-            <td>${deleteButtonHtml}</td>
-          `;
-          
-          table.appendChild(row);
-        });
-        
-        // Configurer les événements après création des éléments
-        setupUserActions();
-        setupStatusToggle();
-        setupRoleToggle(); // Nouvelle fonction pour gérer les boutons de rôle
-      })
-      .catch(error => {
-        console.error("Erreur lors du chargement des inspecteurs:", error);
-        showStatus('user-status-message', 'Erreur lors du chargement des inspecteurs.', 'error');
-      });
-  }
-
-  // Nouvelle fonction pour gérer les boutons de basculement de rôle
-  function setupRoleToggle() {
-    document.querySelectorAll('.role-toggle-btn').forEach(button => {
-      button.addEventListener('click', async function() {
-        const userId = this.getAttribute('data-user-id');
-        const currentRole = this.getAttribute('data-current-role');
-        const newRole = currentRole === 'admin' ? 'inspector' : 'admin';
-        
-        // Confirmation pour les changements de rôle sensibles
-        const confirmMessage = newRole === 'admin' 
-          ? 'Êtes-vous sûr de vouloir donner les droits administrateur à cet utilisateur?'
-          : 'Êtes-vous sûr de vouloir retirer les droits administrateur à cet utilisateur?';
-        
-        if (!confirm(confirmMessage)) {
-          return;
-        }
-        
-        // Désactiver le bouton pendant la requête
-        this.disabled = true;
-        this.textContent = 'Modification...';
-        
-        try {
-          // Mettre à jour le rôle dans Firestore
-          await db.collection('inspectors').doc(userId).update({
-            role: newRole,
-            lastModified: firebase.firestore.FieldValue.serverTimestamp()
-          });
-          
-          // Mettre à jour l'affichage du bouton
-          const newRoleText = newRole === 'admin' ? 'Administrateur' : 'Inspecteur';
-          const newRoleClass = newRole === 'admin' ? 'role-admin' : 'role-inspector';
-          
-          this.textContent = newRoleText;
-          this.className = `role-toggle-btn role-badge ${newRoleClass}`;
-          this.setAttribute('data-current-role', newRole);
-          
-          // Afficher un message de succès temporaire
-          showTemporaryMessage(`Rôle mis à jour : ${newRoleText}`, 'success');
-          
-        } catch (error) {
-          console.error('Erreur lors de la mise à jour du rôle:', error);
-          
-          // Restaurer l'état original en cas d'erreur
-          const originalText = currentRole === 'admin' ? 'Administrateur' : 'Inspecteur';
-          const originalClass = currentRole === 'admin' ? 'role-admin' : 'role-inspector';
-          
-          this.textContent = originalText;
-          this.className = `role-toggle-btn role-badge ${originalClass}`;
-          
-          showTemporaryMessage('Erreur lors de la mise à jour du rôle', 'error');
-        } finally {
-          // Réactiver le bouton
-          this.disabled = false;
-        }
-      });
-    });
-  }
-
-  // Fonction pour gérer les boutons de basculement de statut
-  function setupStatusToggle() {
-    document.querySelectorAll('.status-toggle-btn').forEach(button => {
-      button.addEventListener('click', async function() {
-        const userId = this.getAttribute('data-user-id');
-        const currentStatus = this.getAttribute('data-current-status');
-        const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
-        
-        // Désactiver le bouton pendant la requête
-        this.disabled = true;
-        this.textContent = 'Modification...';
-        
-        try {
-          // Mettre à jour le statut dans Firestore
-          await db.collection('inspectors').doc(userId).update({
-            status: newStatus,
-            lastModified: firebase.firestore.FieldValue.serverTimestamp()
-          });
-          
-          // Mettre à jour l'affichage du bouton
-          const newStatusText = newStatus === 'active' ? 'Actif' : 'Inactif';
-          const newStatusClass = newStatus === 'active' ? 'status-active' : 'status-inactive';
-          
-          this.textContent = newStatusText;
-          this.className = `status-toggle-btn status-badge ${newStatusClass}`;
-          this.setAttribute('data-current-status', newStatus);
-          
-          showTemporaryMessage(`Statut mis à jour : ${newStatusText}`, 'success');
-          
-        } catch (error) {
-          console.error('Erreur lors de la mise à jour du statut:', error);
-          
-          const originalText = currentStatus === 'active' ? 'Actif' : 'Inactif';
-          const originalClass = currentStatus === 'active' ? 'status-active' : 'status-inactive';
-          
-          this.textContent = originalText;
-          this.className = `status-toggle-btn status-badge ${originalClass}`;
-          
-          showTemporaryMessage('Erreur lors de la mise à jour du statut', 'error');
-        } finally {
-          this.disabled = false;
-        }
-      });
-    });
-  }
-
-  // Fonction utilitaire pour afficher un message temporaire
-  function showTemporaryMessage(message, type) {
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `status-message status-${type} temporary-message`;
-    messageDiv.textContent = message;
-    messageDiv.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 1000;
-      padding: 0.75rem 1.5rem;
-      border-radius: 0.375rem;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      animation: slideIn 0.3s ease-out;
-    `;
-    
-    document.body.appendChild(messageDiv);
-    
-    setTimeout(() => {
-      messageDiv.style.animation = 'slideOut 0.3s ease-out';
-      setTimeout(() => {
-        if (messageDiv.parentNode) {
-          messageDiv.parentNode.removeChild(messageDiv);
-        }
-      }, 300);
-    }, 3000);
-  }
-  
-  // Configurer les actions pour les utilisateurs
-  function setupUserActions() {
-    // Soumission du formulaire
-    document.getElementById('user-form').addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      const name = document.getElementById('user-name').value;
-      const email = document.getElementById('user-email').value;
-      const phone = document.getElementById('user-phone').value;
-      const password = document.getElementById('user-password').value;
-      const role = document.getElementById('user-role').value;
-      const status = document.getElementById('user-status').value;
-      
-      const submitBtn = this.querySelector('button[type="submit"]');
-      if (submitBtn) submitBtn.disabled = true;
-
-      auth.createUserWithEmailAndPassword(email, password)
-        .then(userCredential => {
-          console.log("Utilisateur créé dans Auth:", userCredential.user.uid);
-          
-          return db.collection('inspectors').doc(userCredential.user.uid).set({
-            name: name,
-            email: email,
-            phone: phone || null,
-            status: status,
-            role: role,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          });
-        })
-        .then(() => {
-          console.log("Inspecteur ajouté à Firestore avec succès");
-          showStatus('user-status-message', 'Inspecteur créé avec succès!', 'success');
-          document.getElementById('user-form').reset();
-          if (submitBtn) submitBtn.disabled = false;
-          loadInspectors();
-        })
-        .catch(error => {
-          console.error("Erreur lors de la création de l'inspecteur:", error);
-          showStatus('user-status-message', 'Erreur: ' + error.message, 'error');
-          if (submitBtn) submitBtn.disabled = false;
-        });
-    });
-  
-    // Bouton d'annulation du formulaire
-    document.getElementById('cancel-user-btn').addEventListener('click', function() {
-      document.getElementById('user-form').reset();
-    });
-    
-    // Boutons de suppression
-    document.querySelectorAll('.delete-user').forEach(button => {
-      button.addEventListener('click', async function() {
-        const userId = this.getAttribute('data-id');
-        
-        if (confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur? Cette action est irréversible.')) {
-          const loadingIndicator = document.querySelector('.loading-indicator');
-          if (loadingIndicator) loadingIndicator.style.display = 'block';
-          
-          this.disabled = true;
-          
-          const result = await deleteUser(userId);
-          
-          if (loadingIndicator) loadingIndicator.style.display = 'none';
-          
-          if (result.success) {
-            alert(result.message);
-            loadInspectors();
-          } else {
-            alert(result.message);
-            this.disabled = false;
-          }
-        }
-      });
-    });
-    
-    // Gestion de la modal
-    const closeModalBtn = document.querySelector('.modal-close');
-    const cancelModalBtn = document.querySelector('.modal-cancel');
-    
-    if (closeModalBtn) {
-      closeModalBtn.addEventListener('click', function() {
-        document.getElementById('delete-modal').style.display = 'none';
-      });
-    }
-    
-    if (cancelModalBtn) {
-      cancelModalBtn.addEventListener('click', function() {
-        document.getElementById('delete-modal').style.display = 'none';
-      });
-    }
-  }
-
-  // ===== GESTION DES STATISTIQUES =====
-  function loadStatistics() {
-    console.log('Chargement des statistiques...');
-  }
-  
-  // ===== INITIALISATION DES DONNÉES =====
-  document.getElementById('init-trails-btn').addEventListener('click', function() {
-    if (this.disabled) {
-      e.preventDefault();
-      return;
-    }
-    if (confirm('Êtes-vous sûr de vouloir initialiser les données des sentiers? Cela écrasera toutes les données existantes.')) {
-      showStatus('trails-status', 'Initialisation en cours...', 'info');
-      
-      const trailsData = [
-        {
-          id: 'trail_1',
-          name: "La tortue",
-          length: 1.1,
-          difficulty: "easy",
-          description: "Sentier facile idéal pour débutants",
-          coordinates: { top: 394, left: 450 }
-        },
-        {
-          id: 'trail_2',
-          name: "Tracé du lynx",
-          length: 0.6,
-          difficulty: "easy",
-          description: "Court sentier avec peu de dénivelé",
-          coordinates: { top: 323, left: 210 }
-        },
-        {
-          id: 'trail_3',
-          name: "Adams",
-          length: 0.6,
-          difficulty: "easy",
-          description: "Sentier familial accessible",
-          coordinates: { top: 520, left: 420 }
-        },
-        {
-          id: 'trail_4',
-          name: "Le renard",
-          length: 2.4,
-          difficulty: "easy",
-          description: "Sentier plus long mais avec pente douce",
-          coordinates: { top: 430, left: 45 }
-        },
-        {
-          id: 'trail_5',
-          name: "Le lièvre",
-          length: 1.3,
-          difficulty: "medium",
-          description: "Sentier intermédiaire avec quelques pentes",
-          coordinates: { top: 145, left: 283 }
-        },
-        {
-          id: 'trail_6',
-          name: "Le Campagnol",
-          length: 1.5,
-          difficulty: "hard",
-          description: "Sentier difficile pour randonneurs expérimentés",
-          coordinates: { top: 20, left: 426 }
-        },
-        {
-          id: 'trail_7',
-          name: "L'Hermine",
-          length: 1.8,
-          difficulty: "medium",
-          description: "Sentier intermédiaire avec belle vue",
-          coordinates: { top: 372, left: 530 }
-        },
-        {
-          id: 'trail_8',
-          name: "L'Alouette",
-          length: 2.4,
-          difficulty: "medium",
-          description: "Sentier avec dénivelé modéré",
-          coordinates: { top: 410, left: 661 }
-        },
-        {
-          id: 'trail_9',
-          name: "L'Urubu",
-          length: 1.2,
-          difficulty: "hard",
-          description: "Sentier technique et escarpé",
-          coordinates: { top: 504, left: 255 }
-        },
-        {
-          id: 'trail_10',
-          name: "La Carcajou",
-          length: 0.8,
-          difficulty: "hard",
-          description: "Court sentier mais très exigeant",
-          coordinates: { top: 470, left: 288 }
-        },
-        {
-          id: 'trail_11',
-          name: "La Mille-Pattes",
-          length: 1.5,
-          difficulty: "hard",
-          description: "Sentier avec plusieurs segments techniques",
-          coordinates: { top: 308, left: 518 }
-        }
-      ];
-      
-      const batch = db.batch();
-      
-      db.collection('trails').get()
-        .then(snapshot => {
-          snapshot.forEach(doc => {
-            batch.delete(doc.ref);
-          });
-          
-          trailsData.forEach(trail => {
-            const docRef = db.collection('trails').doc(trail.id);
-            batch.set(docRef, {
-              name: trail.name,
-              length: trail.length,
-              difficulty: trail.difficulty,
-              description: trail.description,
-              coordinates: trail.coordinates,
-              createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-          });
-          
-          return batch.commit();
-        })
-        .then(() => {
-          showStatus('trails-status', 'Données des sentiers initialisées avec succès!', 'success');
-        })
-        .catch(error => {
-          console.error("Erreur lors de l'initialisation des sentiers:", error);
-          showStatus('trails-status', 'Erreur: ' + error.message, 'error');
-        });
-    }
-  });
-  
-  document.getElementById('init-shelters-btn').addEventListener('click', function() {
-    if (this.disabled) {
-      e.preventDefault();
-      return;
-    }
-    if (confirm('Êtes-vous sûr de vouloir initialiser les données des abris? Cela écrasera toutes les données existantes.')) {
-      showStatus('shelters-status', 'Initialisation en cours...', 'info');
-      
-      const sheltersData = [
-        {
-          id: 'shelter_1',
-          name: "Mont Giroux",
-          altitude: 650,
-          coordinates: { top: 457, left: 134 }
-        },
-        {
-          id: 'shelter_2',
-          name: "Mont Orford",
-          altitude: 850,
-          coordinates: { top: 41, left: 470 }
-        },
-        {
-          id: 'shelter_3',
-          name: "Mont Alfred-Desrochers",
-          altitude: 615,
-          coordinates: { top: 176, left: 621 }
-        }
-      ];
-      
-      const batch = db.batch();
-      
-      db.collection('shelters').get()
-        .then(snapshot => {
-          snapshot.forEach(doc => {
-            batch.delete(doc.ref);
-          });
-          
-          sheltersData.forEach(shelter => {
-            const docRef = db.collection('shelters').doc(shelter.id);
-            batch.set(docRef, {
-              name: shelter.name,
-              altitude: shelter.altitude,
-              coordinates: shelter.coordinates,
-              createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-          });
-          
-          return batch.commit();
-        })
-        .then(() => {
-          showStatus('shelters-status', 'Données des abris initialisées avec succès!', 'success');
-        })
-        .catch(error => {
-          console.error("Erreur lors de l'initialisation des abris:", error);
-          showStatus('shelters-status', 'Erreur: ' + error.message, 'error');
-        });
-    }
-  });
-  
-  document.getElementById('create-sample-btn').addEventListener('click', function() {
-    if (this.disabled) {
-      e.preventDefault();
-      return;
-    }
-    if (confirm('Voulez-vous créer des données d\'inspection de test? Cela ajoutera plusieurs inspections fictives.')) {
-      showStatus('sample-status', 'Création des données de test en cours...', 'info');
-      
-      setTimeout(() => {
-        showStatus('sample-status', 'Données de test créées avec succès!', 'success');
-      }, 1500);
-    }
-  });
-  
-  document.getElementById('reset-inspections-btn').addEventListener('click', function() {
-    if (this.disabled) {
-      e.preventDefault();
-      return;
-    }
-    if (confirm('ATTENTION: Voulez-vous vraiment supprimer TOUTES les inspections? Cette action est irréversible.')) {
-      showStatus('reset-status', 'Réinitialisation en cours...', 'warning');
-      
-      const trailBatch = db.batch();
-      const shelterBatch = db.batch();
-      
-      db.collection('trail_inspections').get()
-        .then(snapshot => {
-          snapshot.forEach(doc => {
-            trailBatch.delete(doc.ref);
-          });
-          return trailBatch.commit();
-        })
-        .then(() => {
-          return db.collection('shelter_inspections').get();
-        })
-        .then(snapshot => {
-          snapshot.forEach(doc => {
-            shelterBatch.delete(doc.ref);
-          });
-          return shelterBatch.commit();
-        })
-        .then(() => {
-          showStatus('reset-status', 'Toutes les inspections ont été supprimées.', 'success');
-          loadStatistics();
-        })
-        .catch(error => {
-          console.error("Erreur lors de la réinitialisation:", error);
-          showStatus('reset-status', 'Erreur: ' + error.message, 'error');
-        });
-    }
-  });
-  
-  document.getElementById('export-data-btn').addEventListener('click', function() {
-    if (this.disabled) {
-      e.preventDefault();
-      return;
-    }
-    alert('Fonctionnalité d\'exportation en cours de développement.');
-  });
-  
-  document.getElementById('clear-cache-btn').addEventListener('click', function() {
-    if (this.disabled) {
-      e.preventDefault();
-      return;
-    }
-    showStatus('maintenance-status', 'Nettoyage du cache en cours...', 'info');
-    
-    setTimeout(() => {
-      showStatus('maintenance-status', 'Cache nettoyé avec succès!', 'success');
-    }, 1000);
-  });
-  
-  document.getElementById('check-updates-btn').addEventListener('click', function() {
-    if (this.disabled) {
-      e.preventDefault();
-      return;
-    }
-    showStatus('maintenance-status', 'Vérification des mises à jour...', 'info');
-    
-    setTimeout(() => {
-      showStatus('maintenance-status', 'Votre système est à jour!', 'success');
-    }, 1500);
-  });
-  
-  if (document.getElementById('logout-link')) {
-    document.getElementById('logout-link').addEventListener('click', function(e) {
-      e.preventDefault();
-      
-      auth.signOut()
-        .then(() => {
-          window.location.href = 'login.html';
-        })
-        .catch(error => {
-          console.error("Erreur lors de la déconnexion:", error);
-        });
-    });
-  }
-  
-  function showStatus(elementId, message, type) {
-    const statusElement = document.getElementById(elementId);
-    if (!statusElement) return;
-    
-    statusElement.textContent = message;
-    statusElement.className = 'status-message status-' + type;
-    statusElement.style.display = 'block';
-    
-    if (type !== 'error') {
-      setTimeout(() => {
-        statusElement.style.display = 'none';
-      }, 5000);
-    }
-  }
-
-  async function deleteUser(userId) {
-    try {
-      const userDoc = await db.collection('inspectors').doc(userId).get();
-      
-      if (!userDoc.exists) {
-        throw new Error("Utilisateur non trouvé dans la base de données");
-      }
-      
-      await db.collection('inspectors').doc(userId).delete();
-      
-      const trailInspectionsSnapshot = await db.collection('trail_inspections')
-        .where('inspector_id', '==', userId)
-        .get();
-      
-      if (!trailInspectionsSnapshot.empty) {
-        const trailBatch = db.batch();
-        trailInspectionsSnapshot.forEach(doc => {
-          trailBatch.delete(doc.ref);
-        });
-        await trailBatch.commit();
-      }
-      
-      const shelterInspectionsSnapshot = await db.collection('shelter_inspections')
-        .where('inspector_id', '==', userId)
-        .get();
-      
-      if (!shelterInspectionsSnapshot.empty) {
-        const shelterBatch = db.batch();
-        shelterInspectionsSnapshot.forEach(doc => {
-          shelterBatch.delete(doc.ref);
-        });
-        await shelterBatch.commit();
-      }
-      
-      console.log("Utilisateur supprimé de Firestore avec succès");
-      
-      return {
-        success: true,
-        message: "Données utilisateur supprimées. Veuillez contacter l'administrateur pour compléter la suppression du compte."
-      };
-    } catch (error) {
-      console.error("Erreur lors de la suppression de l'utilisateur:", error);
-      
-      return {
-        success: false,
-        message: "Erreur lors de la suppression: " + error.message
-      };
-    }
-  }
-
-  console.log('Script d\'administration initialisé');
-
-	// ===== SUPPRESSION DES ANCIENNES INSPECTIONS =====
-	// ===================================================
-	
-	/**
-	 * Initialise la date par défaut pour la suppression
-	 * Définit la date à 7 mois avant aujourd'hui
-	 */
-	const cutoffDateInput = document.getElementById('cutoff-date');
-	if (cutoffDateInput) {
-	  const today = new Date();
-	  const sevenMonthsAgo = new Date(today);
-	  sevenMonthsAgo.setMonth(sevenMonthsAgo.getMonth() - 7);
-	  
-	  // Formater la date pour l'input (YYYY-MM-DD)
-	  const year = sevenMonthsAgo.getFullYear();
-	  const month = String(sevenMonthsAgo.getMonth() + 1).padStart(2, '0');
-	  const day = String(sevenMonthsAgo.getDate()).padStart(2, '0');
-	  cutoffDateInput.value = `${year}-${month}-${day}`;
-	}
-
-	/**
-	 * Gestionnaire pour le bouton de suppression des anciennes inspections
-	 * Supprime les inspections et leurs photos associées
-	 */
-	const deleteOldBtn = document.getElementById('delete-old-inspections-btn');
-	if (deleteOldBtn) {
-	  deleteOldBtn.addEventListener('click', async function() {
-		const cutoffDateInput = document.getElementById('cutoff-date');
-		
-		if (!cutoffDateInput.value) {
-		  alert('Veuillez sélectionner une date limite.');
-		  return;
-		}
-		
-		// Convertir la date sélectionnée en timestamp Firebase
-		const cutoffDate = new Date(cutoffDateInput.value + 'T00:00:00');
-		const cutoffTimestamp = firebase.firestore.Timestamp.fromDate(cutoffDate);
-		
-		// Désactiver le bouton pendant le traitement
-		this.disabled = true;
-		const originalText = this.textContent;
-		this.textContent = 'Comptage des inspections...';
-		
-		try {
-		  // Compter les inspections qui seront supprimées
-		  let trailInspectionsToDelete = 0;
-		  let shelterInspectionsToDelete = 0;
-		  
-		  // Compter les inspections de sentiers
-		  const trailSnapshot = await db.collection('trail_inspections')
-			.where('date', '<', cutoffTimestamp)
-			.get();
-		  trailInspectionsToDelete = trailSnapshot.size;
-		  
-		  // Compter les inspections d'abris
-		  const shelterSnapshot = await db.collection('shelter_inspections')
-			.where('date', '<', cutoffTimestamp)
-			.get();
-		  shelterInspectionsToDelete = shelterSnapshot.size;
-		  
-		  const totalToDelete = trailInspectionsToDelete + shelterInspectionsToDelete;
-		  
-		  if (totalToDelete === 0) {
-			showStatus('delete-old-status', 'Aucune inspection trouvée avant cette date.', 'info');
-			this.disabled = false;
-			this.textContent = originalText;
-			return;
-		  }
-		  
-		  // Formater la date pour l'affichage
-		  const formattedDate = cutoffDate.toLocaleDateString('fr-FR', {
-			day: '2-digit',
-			month: 'long',
-			year: 'numeric'
-		  });
-		  
-		  // Demander confirmation avec le nombre d'inspections
-		  const confirmMessage = `ATTENTION: Vous êtes sur le point de supprimer ${totalToDelete} inspection(s) antérieure(s) au ${formattedDate}:\n\n` +
-			`- ${trailInspectionsToDelete} inspection(s) de sentiers\n` +
-			`- ${shelterInspectionsToDelete} inspection(s) d'abris\n\n` +
-			`Cette action est IRRÉVERSIBLE. Voulez-vous continuer?`;
-		  
-		  if (!confirm(confirmMessage)) {
-			this.disabled = false;
-			this.textContent = originalText;
-			return;
-		  }
-		  
-		  // Procéder à la suppression
-		  this.textContent = 'Suppression en cours...';
-		  showStatus('delete-old-status', 'Suppression des inspections en cours...', 'warning');
-		  
-		  let deletedCount = 0;
-		  let photosDeleted = 0;
-		  let photosFailed = 0;
-		  
-		  // Vérifier si Firebase Storage est disponible (utiliser la variable globale)
-		  const canDeletePhotos = storage !== null;
-		  
-		  if (!canDeletePhotos) {
-			console.warn('⚠ Firebase Storage non disponible - les photos ne seront pas supprimées');
-		  }
-		  
-		  /**
-		   * Fonction helper pour supprimer les photos d'une inspection
-		   * @param {Object} inspectionData - Données de l'inspection
-		   * @param {string} inspectionId - ID de l'inspection
-		   * @param {string} inspectionType - Type d'inspection ('trails' ou 'shelters')
-		   * @returns {Object} Nombre de photos supprimées et échouées
-		   */
-		  async function deleteInspectionPhotos(inspectionData, inspectionId, inspectionType) {
-			if (!canDeletePhotos || !inspectionData.photos || inspectionData.photos.length === 0) {
-			  return { deleted: 0, failed: 0 };
-			}
-			
-			let deleted = 0;
-			let failed = 0;
-			
-			for (const photoUrl of inspectionData.photos) {
-			  try {
-				// IMPORTANT: Utiliser la variable storage globale au lieu de firebase.storage()
-				const photoRef = storage.refFromURL(photoUrl);
-				await photoRef.delete();
-				deleted++;
-				console.log('✓ Photo supprimée:', photoUrl);
-			  } catch (error) {
-				console.error('✗ Erreur lors de la suppression de la photo:', photoUrl, error);
-				failed++;
-			  }
-			}
-			
-			return { deleted, failed };
-		  }
-		  
-		  // Supprimer les inspections de sentiers
-		  if (trailInspectionsToDelete > 0) {
-			this.textContent = `Suppression des inspections de sentiers...`;
-			
-			for (const doc of trailSnapshot.docs) {
-			  const inspectionData = doc.data();
-			  
-			  // Supprimer les photos si possible
-			  if (canDeletePhotos && inspectionData.photos && inspectionData.photos.length > 0) {
-				this.textContent = `Suppression des photos... (${deletedCount + 1}/${totalToDelete})`;
-				const photoResult = await deleteInspectionPhotos(inspectionData, doc.id, 'trails');
-				photosDeleted += photoResult.deleted;
-				photosFailed += photoResult.failed;
-			  }
-			  
-			  // Supprimer le document d'inspection
-			  await doc.ref.delete();
-			  deletedCount++;
-			  this.textContent = `Suppression... (${deletedCount}/${totalToDelete})`;
-			}
-		  }
-		  
-		  // Supprimer les inspections d'abris
-		  if (shelterInspectionsToDelete > 0) {
-			this.textContent = `Suppression des inspections d'abris...`;
-			
-			for (const doc of shelterSnapshot.docs) {
-			  const inspectionData = doc.data();
-			  
-			  // Supprimer les photos si possible
-			  if (canDeletePhotos && inspectionData.photos && inspectionData.photos.length > 0) {
-				this.textContent = `Suppression des photos... (${deletedCount + 1}/${totalToDelete})`;
-				const photoResult = await deleteInspectionPhotos(inspectionData, doc.id, 'shelters');
-				photosDeleted += photoResult.deleted;
-				photosFailed += photoResult.failed;
-			  }
-			  
-			  // Supprimer le document d'inspection
-			  await doc.ref.delete();
-			  deletedCount++;
-			  this.textContent = `Suppression... (${deletedCount}/${totalToDelete})`;
-			}
-		  }
-		  
-		  // Message de succès avec détails
-		  let statusMessage = `✓ ${totalToDelete} inspection(s) supprimée(s) avec succès.`;
-		  
-		  if (canDeletePhotos) {
-			if (photosDeleted > 0 || photosFailed > 0) {
-			  statusMessage += ` ${photosDeleted} photo(s) supprimée(s).`;
-			  if (photosFailed > 0) {
-				statusMessage += ` ${photosFailed} photo(s) n'ont pas pu être supprimées.`;
-			  }
-			}
-		  } else {
-			statusMessage += '\n⚠ Note: Les photos n\'ont pas pu être supprimées (Firebase Storage non configuré).';
-		  }
-		  
-		  showStatus('delete-old-status', statusMessage, 'success');
-		  
-		  // Recharger les statistiques si la fonction existe
-		  if (typeof loadStatistics === 'function') {
-			loadStatistics();
-		  }
-		  
-		} catch (error) {
-		  console.error("Erreur lors de la suppression des anciennes inspections:", error);
-		  showStatus('delete-old-status', 'Erreur lors de la suppression: ' + error.message, 'error');
-		} finally {
-		  // Réactiver le bouton
-		  this.disabled = false;
-		  this.textContent = originalText;
-		}
-	  });
-	}
-
-});
-
-</script>
-
+  <!-- Admin Script - Tout le JavaScript est maintenant dans ce fichier séparé -->
+  <script src="../js/admin.js"></script>
 
 </body>
 </html>
