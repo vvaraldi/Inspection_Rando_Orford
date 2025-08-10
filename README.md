@@ -2,6 +2,18 @@
 
 Must :
 
+0 - 
+I still have an issue :
+
+Erreur lors de la suppression des anciennes inspections: TypeError: firebase.storage is not a function
+
+    <anonymous> https://vvaraldi.github.io/Inspection_Rando_Orford/pages/admin.html:1156
+
+    async* https://vvaraldi.github.io/Inspection_Rando_Orford/pages/admin.html:1085
+
+    EventListener.handleEvent* https://vvaraldi.github.io/Inspection_Rando_Orford/pages/admin.html:346
+
+
 1 - Créer une inspection avec un lieu en cliquant sur l'image.
 
 
