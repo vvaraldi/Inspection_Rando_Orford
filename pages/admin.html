@@ -1062,215 +1062,196 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   console.log('Script d\'administration initialisé');
-});
-
 
 	// ===== SUPPRESSION DES ANCIENNES INSPECTIONS =====
 
 	// Initialiser la date par défaut (7 mois avant aujourd'hui)
-	document.addEventListener('DOMContentLoaded', function() {
-	  const cutoffDateInput = document.getElementById('cutoff-date');
-	  if (cutoffDateInput) {
-		const today = new Date();
-		const sevenMonthsAgo = new Date(today);
-		sevenMonthsAgo.setMonth(sevenMonthsAgo.getMonth() - 7);
-		
-		// Formater la date pour l'input (YYYY-MM-DD)
-		const year = sevenMonthsAgo.getFullYear();
-		const month = String(sevenMonthsAgo.getMonth() + 1).padStart(2, '0');
-		const day = String(sevenMonthsAgo.getDate()).padStart(2, '0');
-		cutoffDateInput.value = `${year}-${month}-${day}`;
-	  }
-	});
+	const cutoffDateInput = document.getElementById('cutoff-date');
+	if (cutoffDateInput) {
+	  const today = new Date();
+	  const sevenMonthsAgo = new Date(today);
+	  sevenMonthsAgo.setMonth(sevenMonthsAgo.getMonth() - 7);
+	  
+	  // Formater la date pour l'input (YYYY-MM-DD)
+	  const year = sevenMonthsAgo.getFullYear();
+	  const month = String(sevenMonthsAgo.getMonth() + 1).padStart(2, '0');
+	  const day = String(sevenMonthsAgo.getDate()).padStart(2, '0');
+	  cutoffDateInput.value = `${year}-${month}-${day}`;
+	}
 
 	// Gestionnaire pour le bouton de suppression des anciennes inspections
-	document.getElementById('delete-old-inspections-btn').addEventListener('click', async function() {
-	  const cutoffDateInput = document.getElementById('cutoff-date');
-	  
-	  if (!cutoffDateInput.value) {
-		alert('Veuillez sélectionner une date limite.');
-		return;
-	  }
-	  
-	  // Convertir la date sélectionnée en timestamp Firebase
-	  const cutoffDate = new Date(cutoffDateInput.value + 'T00:00:00');
-	  const cutoffTimestamp = firebase.firestore.Timestamp.fromDate(cutoffDate);
-	  
-	  // Désactiver le bouton pendant le traitement
-	  this.disabled = true;
-	  const originalText = this.textContent;
-	  this.textContent = 'Comptage des inspections...';
-	  
-	  try {
-		// Compter les inspections qui seront supprimées
-		let trailInspectionsToDelete = 0;
-		let shelterInspectionsToDelete = 0;
+	const deleteOldBtn = document.getElementById('delete-old-inspections-btn');
+	if (deleteOldBtn) {
+	  deleteOldBtn.addEventListener('click', async function() {
+		const cutoffDateInput = document.getElementById('cutoff-date');
 		
-		// Compter les inspections de sentiers
-		const trailSnapshot = await db.collection('trail_inspections')
-		  .where('date', '<', cutoffTimestamp)
-		  .get();
-		trailInspectionsToDelete = trailSnapshot.size;
-		
-		// Compter les inspections d'abris
-		const shelterSnapshot = await db.collection('shelter_inspections')
-		  .where('date', '<', cutoffTimestamp)
-		  .get();
-		shelterInspectionsToDelete = shelterSnapshot.size;
-		
-		const totalToDelete = trailInspectionsToDelete + shelterInspectionsToDelete;
-		
-		if (totalToDelete === 0) {
-		  showStatus('delete-old-status', 'Aucune inspection trouvée avant cette date.', 'info');
-		  this.disabled = false;
-		  this.textContent = originalText;
+		if (!cutoffDateInput.value) {
+		  alert('Veuillez sélectionner une date limite.');
 		  return;
 		}
 		
-		// Formater la date pour l'affichage
-		const formattedDate = cutoffDate.toLocaleDateString('fr-FR', {
-		  day: '2-digit',
-		  month: 'long',
-		  year: 'numeric'
-		});
+		// Convertir la date sélectionnée en timestamp Firebase
+		const cutoffDate = new Date(cutoffDateInput.value + 'T00:00:00');
+		const cutoffTimestamp = firebase.firestore.Timestamp.fromDate(cutoffDate);
 		
-		// Demander confirmation avec le nombre d'inspections
-		const confirmMessage = `ATTENTION: Vous êtes sur le point de supprimer ${totalToDelete} inspection(s) antérieure(s) au ${formattedDate}:\n\n` +
-		  `- ${trailInspectionsToDelete} inspection(s) de sentiers\n` +
-		  `- ${shelterInspectionsToDelete} inspection(s) d'abris\n\n` +
-		  `Cette action est IRRÉVERSIBLE. Voulez-vous continuer?`;
+		// Désactiver le bouton pendant le traitement
+		this.disabled = true;
+		const originalText = this.textContent;
+		this.textContent = 'Comptage des inspections...';
 		
-		if (!confirm(confirmMessage)) {
-		  this.disabled = false;
-		  this.textContent = originalText;
-		  return;
-		}
-		
-		// Procéder à la suppression
-		this.textContent = 'Suppression en cours...';
-		showStatus('delete-old-status', 'Suppression des inspections et photos en cours...', 'warning');
-		
-		let deletedCount = 0;
-		let photosDeleted = 0;
-		let photosFailed = 0;
-		
-		// Initialiser Firebase Storage si ce n'est pas déjà fait
-		const storage = firebase.storage();
-		
-		// Fonction pour supprimer les photos d'une inspection
-		async function deleteInspectionPhotos(inspectionData, inspectionId, inspectionType) {
-		  if (!inspectionData.photos || inspectionData.photos.length === 0) {
-			return { deleted: 0, failed: 0 };
+		try {
+		  // Compter les inspections qui seront supprimées
+		  let trailInspectionsToDelete = 0;
+		  let shelterInspectionsToDelete = 0;
+		  
+		  // Compter les inspections de sentiers
+		  const trailSnapshot = await db.collection('trail_inspections')
+			.where('date', '<', cutoffTimestamp)
+			.get();
+		  trailInspectionsToDelete = trailSnapshot.size;
+		  
+		  // Compter les inspections d'abris
+		  const shelterSnapshot = await db.collection('shelter_inspections')
+			.where('date', '<', cutoffTimestamp)
+			.get();
+		  shelterInspectionsToDelete = shelterSnapshot.size;
+		  
+		  const totalToDelete = trailInspectionsToDelete + shelterInspectionsToDelete;
+		  
+		  if (totalToDelete === 0) {
+			showStatus('delete-old-status', 'Aucune inspection trouvée avant cette date.', 'info');
+			this.disabled = false;
+			this.textContent = originalText;
+			return;
 		  }
 		  
-		  let deleted = 0;
-		  let failed = 0;
+		  // Formater la date pour l'affichage
+		  const formattedDate = cutoffDate.toLocaleDateString('fr-FR', {
+			day: '2-digit',
+			month: 'long',
+			year: 'numeric'
+		  });
 		  
-		  for (const photoUrl of inspectionData.photos) {
-			try {
-			  // Extraire le chemin de stockage de l'URL
-			  // L'URL ressemble à: https://firebasestorage.googleapis.com/v0/b/[bucket]/o/[encoded-path]?alt=media&token=[token]
-			  const decodedUrl = decodeURIComponent(photoUrl);
-			  const pathMatch = decodedUrl.match(/\/o\/(.+?)\?/);
-			  
-			  if (pathMatch && pathMatch[1]) {
-				const storagePath = pathMatch[1];
-				const photoRef = storage.ref(storagePath);
+		  // Demander confirmation avec le nombre d'inspections
+		  const confirmMessage = `ATTENTION: Vous êtes sur le point de supprimer ${totalToDelete} inspection(s) antérieure(s) au ${formattedDate}:\n\n` +
+			`- ${trailInspectionsToDelete} inspection(s) de sentiers\n` +
+			`- ${shelterInspectionsToDelete} inspection(s) d'abris\n\n` +
+			`Cette action est IRRÉVERSIBLE. Voulez-vous continuer?`;
+		  
+		  if (!confirm(confirmMessage)) {
+			this.disabled = false;
+			this.textContent = originalText;
+			return;
+		  }
+		  
+		  // Procéder à la suppression
+		  this.textContent = 'Suppression en cours...';
+		  showStatus('delete-old-status', 'Suppression des inspections et photos en cours...', 'warning');
+		  
+		  let deletedCount = 0;
+		  let photosDeleted = 0;
+		  let photosFailed = 0;
+		  
+		  // Initialiser Firebase Storage si ce n'est pas déjà fait
+		  const storage = firebase.storage();
+		  
+		  // Fonction pour supprimer les photos d'une inspection
+		  async function deleteInspectionPhotos(inspectionData, inspectionId, inspectionType) {
+			if (!inspectionData.photos || inspectionData.photos.length === 0) {
+			  return { deleted: 0, failed: 0 };
+			}
+			
+			let deleted = 0;
+			let failed = 0;
+			
+			for (const photoUrl of inspectionData.photos) {
+			  try {
+				// Utiliser refFromURL pour obtenir la référence directement
+				const photoRef = storage.refFromURL(photoUrl);
 				await photoRef.delete();
 				deleted++;
-			  } else {
-				// Tentative alternative: essayer de construire le chemin à partir de l'ID
-				// Format attendu: inspections/[trails|shelters]/[inspectionId]/[filename]
-				console.warn('Impossible d\'extraire le chemin de l\'URL:', photoUrl);
+				console.log('Photo supprimée:', photoUrl);
+			  } catch (error) {
+				console.error('Erreur lors de la suppression de la photo:', photoUrl, error);
 				failed++;
 			  }
-			} catch (error) {
-			  console.error('Erreur lors de la suppression de la photo:', error);
-			  failed++;
+			}
+			
+			return { deleted, failed };
+		  }
+		  
+		  // Supprimer les inspections de sentiers avec leurs photos
+		  if (trailInspectionsToDelete > 0) {
+			this.textContent = `Suppression des inspections de sentiers...`;
+			
+			for (const doc of trailSnapshot.docs) {
+			  const inspectionData = doc.data();
+			  
+			  // Supprimer les photos d'abord
+			  if (inspectionData.photos && inspectionData.photos.length > 0) {
+				this.textContent = `Suppression des photos... (${deletedCount + 1}/${totalToDelete})`;
+				const photoResult = await deleteInspectionPhotos(inspectionData, doc.id, 'trails');
+				photosDeleted += photoResult.deleted;
+				photosFailed += photoResult.failed;
+			  }
+			  
+			  // Supprimer le document d'inspection
+			  await doc.ref.delete();
+			  deletedCount++;
+			  this.textContent = `Suppression... (${deletedCount}/${totalToDelete})`;
 			}
 		  }
 		  
-		  return { deleted, failed };
-		}
-		
-		// Supprimer les inspections de sentiers avec leurs photos
-		if (trailInspectionsToDelete > 0) {
-		  this.textContent = `Suppression des inspections de sentiers...`;
-		  
-		  for (const doc of trailSnapshot.docs) {
-			const inspectionData = doc.data();
+		  // Supprimer les inspections d'abris avec leurs photos
+		  if (shelterInspectionsToDelete > 0) {
+			this.textContent = `Suppression des inspections d'abris...`;
 			
-			// Supprimer les photos d'abord
-			if (inspectionData.photos && inspectionData.photos.length > 0) {
-			  this.textContent = `Suppression des photos... (${deletedCount + 1}/${totalToDelete})`;
-			  const photoResult = await deleteInspectionPhotos(inspectionData, doc.id, 'trails');
-			  photosDeleted += photoResult.deleted;
-			  photosFailed += photoResult.failed;
+			for (const doc of shelterSnapshot.docs) {
+			  const inspectionData = doc.data();
+			  
+			  // Supprimer les photos d'abord
+			  if (inspectionData.photos && inspectionData.photos.length > 0) {
+				this.textContent = `Suppression des photos... (${deletedCount + 1}/${totalToDelete})`;
+				const photoResult = await deleteInspectionPhotos(inspectionData, doc.id, 'shelters');
+				photosDeleted += photoResult.deleted;
+				photosFailed += photoResult.failed;
+			  }
+			  
+			  // Supprimer le document d'inspection
+			  await doc.ref.delete();
+			  deletedCount++;
+			  this.textContent = `Suppression... (${deletedCount}/${totalToDelete})`;
 			}
-			
-			// Supprimer le document d'inspection
-			await doc.ref.delete();
-			deletedCount++;
-			this.textContent = `Suppression... (${deletedCount}/${totalToDelete})`;
 		  }
-		}
-		
-		// Supprimer les inspections d'abris avec leurs photos
-		if (shelterInspectionsToDelete > 0) {
-		  this.textContent = `Suppression des inspections d'abris...`;
 		  
-		  for (const doc of shelterSnapshot.docs) {
-			const inspectionData = doc.data();
-			
-			// Supprimer les photos d'abord
-			if (inspectionData.photos && inspectionData.photos.length > 0) {
-			  this.textContent = `Suppression des photos... (${deletedCount + 1}/${totalToDelete})`;
-			  const photoResult = await deleteInspectionPhotos(inspectionData, doc.id, 'shelters');
-			  photosDeleted += photoResult.deleted;
-			  photosFailed += photoResult.failed;
+		  // Message de succès avec détails sur les photos
+		  let statusMessage = `✓ ${totalToDelete} inspection(s) supprimée(s) avec succès.`;
+		  if (photosDeleted > 0 || photosFailed > 0) {
+			statusMessage += ` ${photosDeleted} photo(s) supprimée(s).`;
+			if (photosFailed > 0) {
+			  statusMessage += ` ${photosFailed} photo(s) n'ont pas pu être supprimées.`;
 			}
-			
-			// Supprimer le document d'inspection
-			await doc.ref.delete();
-			deletedCount++;
-			this.textContent = `Suppression... (${deletedCount}/${totalToDelete})`;
 		  }
-		}
-		
-		// Message de succès avec détails sur les photos
-		let statusMessage = `✓ ${totalToDelete} inspection(s) supprimée(s) avec succès.`;
-		if (photosDeleted > 0 || photosFailed > 0) {
-		  statusMessage += `\n${photosDeleted} photo(s) supprimée(s).`;
-		  if (photosFailed > 0) {
-			statusMessage += ` ${photosFailed} photo(s) n'ont pas pu être supprimées.`;
+		  
+		  showStatus('delete-old-status', statusMessage, 'success');
+		  
+		  // Recharger les statistiques si la fonction existe
+		  if (typeof loadStatistics === 'function') {
+			loadStatistics();
 		  }
+		  
+		} catch (error) {
+		  console.error("Erreur lors de la suppression des anciennes inspections:", error);
+		  showStatus('delete-old-status', 'Erreur lors de la suppression: ' + error.message, 'error');
+		} finally {
+		  // Réactiver le bouton
+		  this.disabled = false;
+		  this.textContent = originalText;
 		}
-		
-		showStatus('delete-old-status', statusMessage, 'success');
-		
-		// Recharger les statistiques si la fonction existe
-		if (typeof loadStatistics === 'function') {
-		  loadStatistics();
-		}
-		
-	  } catch (error) {
-		console.error("Erreur lors de la suppression des anciennes inspections:", error);
-		showStatus('delete-old-status', 'Erreur lors de la suppression: ' + error.message, 'error');
-	  } finally {
-		// Réactiver le bouton
-		this.disabled = false;
-		this.textContent = originalText;
-	  }
-	});
-
-	// Fonction utilitaire pour formater les dates (si elle n'existe pas déjà)
-	function formatDateForDisplay(date) {
-	  return date.toLocaleDateString('fr-FR', {
-		day: '2-digit',
-		month: 'long',
-		year: 'numeric'
 	  });
 	}
+
+});
 
 </script>
 

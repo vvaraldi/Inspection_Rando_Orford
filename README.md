@@ -2,9 +2,7 @@
 
 Must :
 
-1 - Supress all inspections done before...
-
-2 - Créer une inspection avec un lieu en cliquant sur l'image.
+1 - Créer une inspection avec un lieu en cliquant sur l'image.
 
 
 Bug fix :
