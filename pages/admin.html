@@ -1148,68 +1148,105 @@ document.addEventListener('DOMContentLoaded', function() {
 		
 		// Procéder à la suppression
 		this.textContent = 'Suppression en cours...';
-		showStatus('delete-old-status', 'Suppression des inspections en cours...', 'warning');
+		showStatus('delete-old-status', 'Suppression des inspections et photos en cours...', 'warning');
 		
 		let deletedCount = 0;
+		let photosDeleted = 0;
+		let photosFailed = 0;
 		
-		// Supprimer les inspections de sentiers
+		// Initialiser Firebase Storage si ce n'est pas déjà fait
+		const storage = firebase.storage();
+		
+		// Fonction pour supprimer les photos d'une inspection
+		async function deleteInspectionPhotos(inspectionData, inspectionId, inspectionType) {
+		  if (!inspectionData.photos || inspectionData.photos.length === 0) {
+			return { deleted: 0, failed: 0 };
+		  }
+		  
+		  let deleted = 0;
+		  let failed = 0;
+		  
+		  for (const photoUrl of inspectionData.photos) {
+			try {
+			  // Extraire le chemin de stockage de l'URL
+			  // L'URL ressemble à: https://firebasestorage.googleapis.com/v0/b/[bucket]/o/[encoded-path]?alt=media&token=[token]
+			  const decodedUrl = decodeURIComponent(photoUrl);
+			  const pathMatch = decodedUrl.match(/\/o\/(.+?)\?/);
+			  
+			  if (pathMatch && pathMatch[1]) {
+				const storagePath = pathMatch[1];
+				const photoRef = storage.ref(storagePath);
+				await photoRef.delete();
+				deleted++;
+			  } else {
+				// Tentative alternative: essayer de construire le chemin à partir de l'ID
+				// Format attendu: inspections/[trails|shelters]/[inspectionId]/[filename]
+				console.warn('Impossible d\'extraire le chemin de l\'URL:', photoUrl);
+				failed++;
+			  }
+			} catch (error) {
+			  console.error('Erreur lors de la suppression de la photo:', error);
+			  failed++;
+			}
+		  }
+		  
+		  return { deleted, failed };
+		}
+		
+		// Supprimer les inspections de sentiers avec leurs photos
 		if (trailInspectionsToDelete > 0) {
-		  const trailBatch = db.batch();
-		  let batchCount = 0;
+		  this.textContent = `Suppression des inspections de sentiers...`;
 		  
 		  for (const doc of trailSnapshot.docs) {
-			trailBatch.delete(doc.ref);
-			batchCount++;
+			const inspectionData = doc.data();
 			
-			// Firebase limite à 500 opérations par batch
-			if (batchCount === 500) {
-			  await trailBatch.commit();
-			  deletedCount += batchCount;
-			  this.textContent = `Suppression... (${deletedCount}/${totalToDelete})`;
-			  batchCount = 0;
+			// Supprimer les photos d'abord
+			if (inspectionData.photos && inspectionData.photos.length > 0) {
+			  this.textContent = `Suppression des photos... (${deletedCount + 1}/${totalToDelete})`;
+			  const photoResult = await deleteInspectionPhotos(inspectionData, doc.id, 'trails');
+			  photosDeleted += photoResult.deleted;
+			  photosFailed += photoResult.failed;
 			}
-		  }
-		  
-		  // Commit du dernier batch s'il reste des documents
-		  if (batchCount > 0) {
-			await trailBatch.commit();
-			deletedCount += batchCount;
+			
+			// Supprimer le document d'inspection
+			await doc.ref.delete();
+			deletedCount++;
+			this.textContent = `Suppression... (${deletedCount}/${totalToDelete})`;
 		  }
 		}
 		
-		// Supprimer les inspections d'abris
+		// Supprimer les inspections d'abris avec leurs photos
 		if (shelterInspectionsToDelete > 0) {
-		  const shelterBatch = db.batch();
-		  let batchCount = 0;
+		  this.textContent = `Suppression des inspections d'abris...`;
 		  
 		  for (const doc of shelterSnapshot.docs) {
-			shelterBatch.delete(doc.ref);
-			batchCount++;
+			const inspectionData = doc.data();
 			
-			// Firebase limite à 500 opérations par batch
-			if (batchCount === 500) {
-			  await shelterBatch.commit();
-			  deletedCount += batchCount;
-			  this.textContent = `Suppression... (${deletedCount}/${totalToDelete})`;
-			  batchCount = 0;
+			// Supprimer les photos d'abord
+			if (inspectionData.photos && inspectionData.photos.length > 0) {
+			  this.textContent = `Suppression des photos... (${deletedCount + 1}/${totalToDelete})`;
+			  const photoResult = await deleteInspectionPhotos(inspectionData, doc.id, 'shelters');
+			  photosDeleted += photoResult.deleted;
+			  photosFailed += photoResult.failed;
 			}
-		  }
-		  
-		  // Commit du dernier batch s'il reste des documents
-		  if (batchCount > 0) {
-			await shelterBatch.commit();
-			deletedCount += batchCount;
+			
+			// Supprimer le document d'inspection
+			await doc.ref.delete();
+			deletedCount++;
+			this.textContent = `Suppression... (${deletedCount}/${totalToDelete})`;
 		  }
 		}
 		
-		// Suppression des photos associées (optionnel - peut prendre du temps)
-		// Note: Cette partie nécessiterait d'itérer sur toutes les photos dans Storage
-		// ce qui peut être long. Pour l'instant, on affiche juste un message.
+		// Message de succès avec détails sur les photos
+		let statusMessage = `✓ ${totalToDelete} inspection(s) supprimée(s) avec succès.`;
+		if (photosDeleted > 0 || photosFailed > 0) {
+		  statusMessage += `\n${photosDeleted} photo(s) supprimée(s).`;
+		  if (photosFailed > 0) {
+			statusMessage += ` ${photosFailed} photo(s) n'ont pas pu être supprimées.`;
+		  }
+		}
 		
-		showStatus('delete-old-status', 
-		  `✓ ${totalToDelete} inspection(s) supprimée(s) avec succès.\n` +
-		  `Note: Les photos associées peuvent nécessiter une suppression manuelle dans Firebase Storage.`, 
-		  'success');
+		showStatus('delete-old-status', statusMessage, 'success');
 		
 		// Recharger les statistiques si la fonction existe
 		if (typeof loadStatistics === 'function') {
@@ -1234,7 +1271,6 @@ document.addEventListener('DOMContentLoaded', function() {
 		year: 'numeric'
 	  });
 	}
-
 
 </script>
 
