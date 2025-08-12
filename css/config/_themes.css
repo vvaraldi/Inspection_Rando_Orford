@@ -1,0 +1,63 @@
+/* ========================================
+   2. css/config/_themes.css
+   ======================================== 
+   Définition des thèmes
+   ======================================== */
+
+/* Thème par défaut (Alpin) */
+[data-theme="alpine"] {
+  --theme-primary: var(--color-primary);
+  --theme-primary-light: var(--color-primary-light);
+  --theme-primary-dark: var(--color-primary-dark);
+  --theme-secondary: var(--color-secondary);
+  --theme-background: #f8f9fb;
+  --theme-surface: var(--color-white);
+  --theme-text: var(--color-gray-800);
+  --theme-text-light: var(--color-gray-600);
+  --theme-border: var(--color-gray-200);
+}
+
+/* Thème sombre */
+[data-theme="dark"] {
+  --theme-primary: #4a9eff;
+  --theme-primary-light: #7ab8ff;
+  --theme-primary-dark: #2b7dd8;
+  --theme-secondary: #4ade80;
+  --theme-background: #0f172a;
+  --theme-surface: #1e293b;
+  --theme-text: #f1f5f9;
+  --theme-text-light: #cbd5e1;
+  --theme-border: #334155;
+  
+  /* Ajustements pour les couleurs d'état en mode sombre */
+  --color-success: #4ade80;
+  --color-warning: #fbbf24;
+  --color-danger: #f87171;
+}
+
+/* Thème été */
+[data-theme="summer"] {
+  --theme-primary: #059669;
+  --theme-primary-light: #10b981;
+  --theme-primary-dark: #047857;
+  --theme-secondary: #f59e0b;
+  --theme-background: #fef3c7;
+  --theme-surface: var(--color-white);
+  --theme-text: var(--color-gray-800);
+  --theme-text-light: var(--color-gray-600);
+  --theme-border: #fde68a;
+}
+
+/* Thème automne */
+[data-theme="autumn"] {
+  --theme-primary: #dc2626;
+  --theme-primary-light: #f87171;
+  --theme-primary-dark: #991b1b;
+  --theme-secondary: #d97706;
+  --theme-background: #fef2f2;
+  --theme-surface: var(--color-white);
+  --theme-text: var(--color-gray-800);
+  --theme-text-light: var(--color-gray-600);
+  --theme-border: #fed7aa;
+}
+ 

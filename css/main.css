@@ -1,0 +1,39 @@
+ /* ========================================
+   19. css/main.css
+   ======================================== 
+   Fichier principal qui importe tous les modules
+   ======================================== */
+
+/* Configuration */
+@import 'config/_variables.css';
+@import 'config/_themes.css';
+
+/* Base */
+@import 'base/_reset.css';
+@import 'base/_typography.css';
+
+/* Utilitaires */
+@import 'utilities/_helpers.css';
+
+/* Composants */
+@import 'components/_buttons.css';
+@import 'components/_cards.css';
+@import 'components/_forms.css';
+@import 'components/_badges.css';
+@import 'components/_tables.css';
+@import 'components/_modals.css';
+
+/* Layout */
+@import 'layout/_header.css';
+@import 'layout/_main.css';
+@import 'layout/_footer.css';
+
+/* Pages */
+@import 'pages/_dashboard.css';
+@import 'pages/_map.css';
+
+/* Responsive */
+@import 'responsive/_breakpoints.css';
+
+/* Animations */
+@import 'animations/_keyframes.css';

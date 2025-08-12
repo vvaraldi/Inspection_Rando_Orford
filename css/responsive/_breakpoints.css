@@ -1,0 +1,122 @@
+/* ========================================
+   17. css/responsive/_breakpoints.css
+   ======================================== 
+   Media queries et responsive design
+   ======================================== */
+
+/* Tablet (768px - 1023px) */
+@media (max-width: 1023px) {
+  .grid-cols-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .grid-cols-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .map-container {
+    flex-direction: column;
+  }
+  
+  .map-legend {
+    width: 100%;
+  }
+}
+
+/* Mobile (< 768px) */
+@media (max-width: 767px) {
+  /* Navigation mobile */
+  .nav-links {
+    display: none;
+  }
+  
+  .mobile-menu-btn {
+    display: block;
+  }
+  
+  /* Grilles */
+  .grid-cols-2,
+  .grid-cols-3,
+  .grid-cols-4 {
+    grid-template-columns: 1fr;
+  }
+  
+  /* Espacements réduits */
+  .main {
+    padding: var(--space-md);
+  }
+  
+  /* Cartes */
+  .card {
+    padding: var(--space-md);
+  }
+  
+  /* Tableaux */
+  .table-container {
+    overflow-x: auto;
+  }
+  
+  .table {
+    min-width: 600px;
+  }
+  
+  /* Map */
+  .map-view {
+    height: 400px;
+  }
+  
+  .map-marker {
+    width: 36px;
+    height: 36px;
+    font-size: var(--text-sm);
+  }
+  
+  /* Modales */
+  .modal-content {
+    margin: var(--space-md);
+    max-height: calc(100vh - 2rem);
+  }
+  
+  /* Page header */
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-md);
+  }
+  
+  /* Dashboard stats */
+  .dashboard-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Small mobile (< 480px) */
+@media (max-width: 479px) {
+  /* Titres plus petits */
+  h1 {
+    font-size: var(--text-2xl);
+  }
+  
+  h2 {
+    font-size: var(--text-xl);
+  }
+  
+  h3 {
+    font-size: var(--text-lg);
+  }
+  
+  /* Map encore plus petite */
+  .map-view {
+    height: 300px;
+  }
+  
+  /* Boutons full width */
+  .btn {
+    width: 100%;
+  }
+  
+  .btn-group {
+    flex-direction: column;
+    width: 100%;
+  }
+}

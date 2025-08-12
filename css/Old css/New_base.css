@@ -1,0 +1,699 @@
+/**
+ * =====================================================
+ * BASE.CSS - Styles de base et reset
+ * =====================================================
+ * 
+ * Ce fichier contient :
+ * - Reset CSS moderne
+ * - Styles de base pour tous les éléments HTML
+ * - Classes utilitaires de base
+ * 
+ * Utilise les variables CSS définies dans variables.css
+ */
+
+/* =====================================================
+   RESET MODERNE (Inspiré de Normalize.css + Custom)
+   ===================================================== */
+
+/**
+ * 1. Utiliser le box-sizing border-box par défaut
+ * 2. Supprimer les marges et paddings par défaut
+ * 3. Hériter la font-family sur tous les éléments
+ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box; /* 1 */
+  margin: 0; /* 2 */
+  padding: 0; /* 2 */
+}
+
+/**
+ * Configuration du document HTML
+ * 1. Hauteur complète pour les layouts flexbox/grid
+ * 2. Smooth scrolling natif
+ * 3. Font rendering optimisé
+ */
+html {
+  height: 100%; /* 1 */
+  scroll-behavior: smooth; /* 2 */
+  -webkit-font-smoothing: antialiased; /* 3 */
+  -moz-osx-font-smoothing: grayscale; /* 3 */
+  text-rendering: optimizeLegibility; /* 3 */
+}
+
+/**
+ * Configuration du body
+ * 1. Hauteur minimale pour les layouts
+ * 2. Font et couleurs de base depuis les variables
+ * 3. Background pattern optionnel pour le thème Alpine
+ */
+body {
+  min-height: 100vh; /* 1 */
+  font-family: var(--font-family-base); /* 2 */
+  font-size: var(--font-size-base); /* 2 */
+  font-weight: var(--font-weight-normal); /* 2 */
+  line-height: var(--line-height-normal); /* 2 */
+  color: var(--color-text-primary); /* 2 */
+  background-color: var(--color-background); /* 2 */
+  
+  /* Pattern de fond subtil pour le thème Alpine */
+  background-image: 
+    radial-gradient(circle at 20% 80%, 
+      rgba(var(--color-primary-rgb), 0.03) 0%, 
+      transparent 50%),
+    radial-gradient(circle at 80% 20%, 
+      rgba(var(--color-primary-rgb), 0.03) 0%, 
+      transparent 50%);
+}
+
+/* =====================================================
+   TYPOGRAPHIE
+   ===================================================== */
+
+/**
+ * Titres
+ * Utilisation cohérente des variables pour tous les niveaux
+ */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-family-heading);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-md);
+}
+
+h1 {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: -0.025em;
+}
+
+h2 {
+  font-size: var(--font-size-2xl);
+  letter-spacing: -0.02em;
+}
+
+h3 {
+  font-size: var(--font-size-xl);
+  letter-spacing: -0.015em;
+}
+
+h4 {
+  font-size: var(--font-size-lg);
+}
+
+h5 {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+}
+
+h6 {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/**
+ * Paragraphes et texte
+ */
+p {
+  margin-bottom: var(--spacing-md);
+  line-height: var(--line-height-relaxed);
+}
+
+/* Dernier paragraphe sans marge */
+p:last-child {
+  margin-bottom: 0;
+}
+
+/**
+ * Liens
+ * 1. Couleur cohérente avec le thème
+ * 2. Transition douce
+ * 3. Style de focus accessible
+ */
+a {
+  color: var(--color-primary); /* 1 */
+  text-decoration: none;
+  transition: color var(--transition-fast); /* 2 */
+  cursor: pointer;
+}
+
+a:hover {
+  color: var(--color-primary-dark);
+  text-decoration: underline;
+}
+
+/* Focus accessible */
+a:focus,
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 2px solid var(--color-primary); /* 3 */
+  outline-offset: 2px;
+}
+
+/* Focus visible uniquement au clavier */
+a:focus:not(:focus-visible),
+button:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/**
+ * Listes
+ */
+ul, ol {
+  margin-bottom: var(--spacing-md);
+  padding-left: var(--spacing-lg);
+}
+
+li {
+  margin-bottom: var(--spacing-xs);
+}
+
+/* Listes imbriquées */
+ul ul, ol ol, ul ol, ol ul {
+  margin-top: var(--spacing-xs);
+  margin-bottom: var(--spacing-xs);
+}
+
+/**
+ * Code et préformatté
+ */
+code, kbd, pre, samp {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-sm);
+}
+
+code {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  padding: 0.125em 0.25em;
+  color: var(--color-danger);
+}
+
+pre {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-md);
+  overflow-x: auto;
+  margin-bottom: var(--spacing-md);
+}
+
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+}
+
+/**
+ * Citations
+ */
+blockquote {
+  border-left: var(--border-width-bold) solid var(--color-primary);
+  padding-left: var(--spacing-md);
+  margin: var(--spacing-md) 0;
+  font-style: italic;
+  color: var(--color-text-secondary);
+}
+
+/**
+ * Tableaux (base)
+ */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: var(--spacing-md);
+}
+
+th, td {
+  text-align: left;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-bottom: var(--border-width) solid var(--color-border);
+}
+
+th {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  background-color: var(--color-surface-hover);
+}
+
+/**
+ * Éléments de formulaire (base)
+ */
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: var(--color-text-primary);
+  background-color: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  transition: 
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+/* État hover */
+input:hover,
+select:hover,
+textarea:hover {
+  border-color: var(--color-primary-light);
+}
+
+/* État focus */
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1);
+}
+
+/* Placeholder */
+::placeholder {
+  color: var(--color-text-muted);
+  opacity: 1;
+}
+
+/**
+ * Boutons (base)
+ */
+button {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
+  cursor: pointer;
+  border: none;
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  transition: all var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+}
+
+/* État disabled global */
+:disabled,
+[disabled] {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/**
+ * Images et médias
+ */
+img,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Images inline */
+img.inline,
+svg.inline {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/**
+ * Règle horizontale
+ */
+hr {
+  border: none;
+  border-top: var(--border-width) solid var(--color-border);
+  margin: var(--spacing-xl) 0;
+}
+
+/* =====================================================
+   CLASSES UTILITAIRES DE BASE
+   ===================================================== */
+
+/**
+ * Affichage
+ */
+.hidden { display: none !important; }
+.block { display: block; }
+.inline-block { display: inline-block; }
+.inline { display: inline; }
+.flex { display: flex; }
+.inline-flex { display: inline-flex; }
+.grid { display: grid; }
+
+/**
+ * Visibilité (pour les lecteurs d'écran)
+ */
+.visually-hidden,
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/**
+ * Alignement de texte
+ */
+.text-left { text-align: left; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.text-justify { text-align: justify; }
+
+/**
+ * Poids de police
+ */
+.font-light { font-weight: var(--font-weight-light); }
+.font-normal { font-weight: var(--font-weight-normal); }
+.font-medium { font-weight: var(--font-weight-medium); }
+.font-semibold { font-weight: var(--font-weight-semibold); }
+.font-bold { font-weight: var(--font-weight-bold); }
+
+/**
+ * Tailles de texte
+ */
+.text-xs { font-size: var(--font-size-xs); }
+.text-sm { font-size: var(--font-size-sm); }
+.text-base { font-size: var(--font-size-base); }
+.text-lg { font-size: var(--font-size-lg); }
+.text-xl { font-size: var(--font-size-xl); }
+.text-2xl { font-size: var(--font-size-2xl); }
+.text-3xl { font-size: var(--font-size-3xl); }
+
+/**
+ * Couleurs de texte
+ */
+.text-primary { color: var(--color-text-primary); }
+.text-secondary { color: var(--color-text-secondary); }
+.text-tertiary { color: var(--color-text-tertiary); }
+.text-muted { color: var(--color-text-muted); }
+.text-inverse { color: var(--color-text-inverse); }
+
+/**
+ * Truncate (ellipsis pour texte trop long)
+ */
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/**
+ * Line clamp (limiter le nombre de lignes)
+ */
+.line-clamp-1 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.line-clamp-3 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+/**
+ * Curseurs
+ */
+.cursor-pointer { cursor: pointer; }
+.cursor-not-allowed { cursor: not-allowed; }
+.cursor-wait { cursor: wait; }
+.cursor-help { cursor: help; }
+
+/**
+ * Sélection de texte
+ */
+.select-none { user-select: none; }
+.select-text { user-select: text; }
+.select-all { user-select: all; }
+
+/**
+ * Overflow
+ */
+.overflow-auto { overflow: auto; }
+.overflow-hidden { overflow: hidden; }
+.overflow-visible { overflow: visible; }
+.overflow-scroll { overflow: scroll; }
+.overflow-x-auto { overflow-x: auto; }
+.overflow-y-auto { overflow-y: auto; }
+
+/**
+ * Position
+ */
+.static { position: static; }
+.relative { position: relative; }
+.absolute { position: absolute; }
+.fixed { position: fixed; }
+.sticky { position: sticky; }
+
+/**
+ * Z-index (utilise les variables)
+ */
+.z-dropdown { z-index: var(--z-index-dropdown); }
+.z-sticky { z-index: var(--z-index-sticky); }
+.z-fixed { z-index: var(--z-index-fixed); }
+.z-modal { z-index: var(--z-index-modal); }
+.z-tooltip { z-index: var(--z-index-tooltip); }
+
+/* =====================================================
+   ANIMATIONS DE BASE
+   ===================================================== */
+
+/**
+ * Fade in
+ */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fade-in {
+  animation: fadeIn var(--transition-base);
+}
+
+/**
+ * Slide in (depuis le haut)
+ */
+@keyframes slideInDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.slide-in-down {
+  animation: slideInDown var(--transition-slow);
+}
+
+/**
+ * Slide in (depuis la droite)
+ */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.slide-in-right {
+  animation: slideInRight var(--transition-slow);
+}
+
+/**
+ * Pulse (pour attirer l'attention)
+ */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/**
+ * Spin (pour les loaders)
+ */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* =====================================================
+   CLASSES D'ACCESSIBILITÉ
+   ===================================================== */
+
+/**
+ * Focus visible amélioré
+ */
+.focus-visible:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/**
+ * Skip to content (pour la navigation au clavier)
+ */
+.skip-to-content {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  padding: var(--spacing-sm) var(--spacing-md);
+  text-decoration: none;
+  z-index: var(--z-index-tooltip);
+  border-radius: var(--border-radius-md);
+}
+
+.skip-to-content:focus {
+  top: var(--spacing-sm);
+}
+
+/**
+ * Reduce motion pour l'accessibilité
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* =====================================================
+   PRINT STYLES
+   ===================================================== */
+
+@media print {
+  /**
+   * Optimisations pour l'impression
+   */
+  * {
+    background: transparent !important;
+    color: #000 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  
+  a,
+  a:visited {
+    text-decoration: underline;
+  }
+  
+  /* Afficher les URLs après les liens */
+  a[href^="http"]:after {
+    content: " (" attr(href) ")";
+  }
+  
+  /* Éviter les coupures de page */
+  pre,
+  blockquote,
+  img,
+  tr {
+    page-break-inside: avoid;
+  }
+  
+  /* En-têtes en haut de page */
+  h2, h3 {
+    page-break-after: avoid;
+  }
+  
+  /* Masquer les éléments non nécessaires */
+  nav,
+  footer,
+  .no-print,
+  .mobile-nav,
+  .btn,
+  button {
+    display: none !important;
+  }
+}
+
+/* =====================================================
+   CORRECTIONS NAVIGATEURS
+   ===================================================== */
+
+/**
+ * Correction pour Safari/iOS
+ */
+input[type="search"] {
+  -webkit-appearance: textfield;
+}
+
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+}
+
+/**
+ * Correction pour IE11
+ */
+main {
+  display: block;
+}
+
+/**
+ * Empêcher le zoom sur iOS lors du focus des inputs
+ */
+@media (max-width: 768px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important; /* Empêche le zoom automatique sur iOS */
+  }
+}

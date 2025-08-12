@@ -1,0 +1,68 @@
+/* ========================================
+   7. css/components/_cards.css
+   ======================================== 
+   Styles des cartes
+   ======================================== */
+
+.card {
+  background-color: var(--theme-surface);
+  border: var(--border-width) solid var(--theme-border);
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition-base),
+              transform var(--transition-base);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.card-header {
+  margin: calc(var(--space-lg) * -1);
+  margin-bottom: var(--space-lg);
+  padding: var(--space-md) var(--space-lg);
+  background-color: var(--color-gray-50);
+  border-bottom: var(--border-width) solid var(--theme-border);
+  border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+}
+
+.card-title {
+  font-size: var(--text-xl);
+  font-weight: var(--font-semibold);
+  color: var(--theme-text);
+  margin-bottom: var(--space-xs);
+}
+
+.card-subtitle {
+  font-size: var(--text-sm);
+  color: var(--theme-text-light);
+}
+
+.card-body {
+  /* Le contenu principal de la carte */
+}
+
+.card-footer {
+  margin: calc(var(--space-lg) * -1);
+  margin-top: var(--space-lg);
+  padding: var(--space-md) var(--space-lg);
+  background-color: var(--color-gray-50);
+  border-top: var(--border-width) solid var(--theme-border);
+  border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
+}
+
+/* Card variants */
+.card-bordered {
+  border-width: var(--border-width-thick);
+}
+
+.card-elevated {
+  border: none;
+  box-shadow: var(--shadow-lg);
+}
+
+.card-compact {
+  padding: var(--space-md);
+}
+ 

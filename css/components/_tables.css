@@ -1,0 +1,72 @@
+/* ========================================
+   10. css/components/_tables.css
+   ======================================== 
+   Styles des tableaux
+   ======================================== */
+
+.table-container {
+  background-color: var(--theme-surface);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table thead {
+  background-color: var(--color-gray-50);
+}
+
+.table th {
+  padding: var(--space-md);
+  text-align: left;
+  font-weight: var(--font-semibold);
+  font-size: var(--text-sm);
+  color: var(--color-gray-700);
+  border-bottom: var(--border-width-thick) solid var(--theme-border);
+  white-space: nowrap;
+}
+
+.table td {
+  padding: var(--space-md);
+  color: var(--theme-text);
+  border-bottom: var(--border-width) solid var(--theme-border);
+}
+
+.table tbody tr {
+  transition: background-color var(--transition-fast);
+}
+
+.table tbody tr:hover {
+  background-color: var(--color-gray-50);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Table variants */
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.table-compact th,
+.table-compact td {
+  padding: var(--space-sm);
+}
+
+/* Responsive table */
+@media (max-width: 768px) {
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .table-responsive .table {
+    min-width: 600px;
+  }
+}
+ 
