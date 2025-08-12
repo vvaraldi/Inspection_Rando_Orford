@@ -148,3 +148,75 @@
   white-space: nowrap;
   border-width: 0;
 }
+
+/* ========================================
+   ADDITIONAL CSS FOR css/utilities/helpers.css
+   ======================================== 
+   CSS classes to replace inline styles in JavaScript
+   ======================================== */
+
+/* Loading states */
+.loading-message {
+  text-align: center;
+  padding: 2rem;
+  color: var(--theme-text-light);
+}
+
+.loading-message-error {
+  text-align: center;
+  padding: 2rem;
+  color: var(--color-danger);
+}
+
+.loading-message-success {
+  text-align: center;
+  padding: 2rem;
+  color: var(--color-success);
+}
+
+/* Status indicators in item cards */
+.status-indicator-warning {
+  color: #dc2626;
+}
+
+.status-indicator-success {
+  color: #059669;
+}
+
+/* Utility classes for common styling */
+.text-center {
+  text-align: center;
+}
+
+.text-small {
+  font-size: var(--text-sm);
+}
+
+.text-tiny {
+  font-size: var(--text-xs);
+}
+
+.color-muted {
+  color: var(--theme-text-light);
+}
+
+.color-danger {
+  color: var(--color-danger);
+}
+
+.color-success {
+  color: var(--color-success);
+}
+
+.padding-2 {
+  padding: 2rem;
+}
+
+.padding-1 {
+  padding: 1rem;
+}
+
+/* Line height utilities */
+.leading-normal {
+  line-height: 1.4;
+}
