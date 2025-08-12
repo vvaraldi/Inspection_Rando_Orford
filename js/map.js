@@ -193,7 +193,7 @@ function displayTrailMarkers(trails) {
   trails.forEach(trail => {
     // Créer l'élément du marqueur
     const marker = document.createElement('div');
-    marker.className = `map-marker marker-${trail.status}`;
+    marker.className = `map-marker map-marker-${trail.status}`;
     marker.textContent = trail.id.replace('trail_', '');
     marker.setAttribute('data-id', trail.id);
 //    marker.setAttribute('title', trail.name);
@@ -285,7 +285,7 @@ function displayShelterMarkers(shelters) {
   shelters.forEach(shelter => {
     // Créer l'élément du marqueur
     const marker = document.createElement('div');
-    marker.className = `map-marker marker-${shelter.status}`;
+    marker.className = `map-marker map-marker-${shelter.status}`;
     marker.innerHTML = `<span>A` + shelter.id.replace('shelter_', '') + '</span>';
     marker.setAttribute('data-id', shelter.id);
 //    marker.setAttribute('title', shelter.name);
