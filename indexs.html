@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkiTrack - Système de Gestion des Sentiers</title>
+    
+    <!-- CSS Principal -->
+    <link rel="stylesheet" href="css/main.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+</head>
+<body data-theme="alpine">
+    
+    <!-- Header / Navigation -->
+    <header class="header">
+        <nav class="nav">
+            <!-- Logo -->
+            <div class="nav-logo">
+                SkiTrack
+            </div>
+            
+            <!-- Navigation Desktop -->
+            <div class="nav-links">
+                <a href="index.html" class="nav-link active">Accueil</a>
+                <a href="pages/dashboard.html" class="nav-link">Tableau de bord</a>
+                <a href="pages/map.html" class="nav-link">Carte</a>
+                <a href="pages/inspections.html" class="nav-link">Inspections</a>
+                <a href="pages/reports.html" class="nav-link">Rapports</a>
+                <a href="pages/admin.html" class="nav-link">Administration</a>
+                <a href="logout.php" class="nav-link">Déconnexion</a>
+            </div>
+            
+            <!-- Bouton Menu Mobile -->
+            <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+                ☰
+            </button>
+        </nav>
+    </header>
+
+    <!-- Contenu Principal -->
+    <main class="main">
+        
+        <!-- En-tête de page -->
+        <div class="page-header">
+            <h1 class="page-title">Bienvenue sur SkiTrack</h1>
+            <div class="page-actions">
+                <button class="btn btn-primary" onclick="window.location.href='pages/inspections.html'">
+                    ➕ Nouvelle Inspection
+                </button>
+            </div>
+        </div>
+
+        <!-- Cartes de statistiques -->
+        <div class="dashboard-stats">
+            <div class="stat-card">
+                <div class="stat-value">24</div>
+                <div class="stat-label">Sentiers Total</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">18</div>
+                <div class="stat-label">Sentiers Ouverts</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">12</div>
+                <div class="stat-label">Inspections Aujourd'hui</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">3</div>
+                <div class="stat-label">Problèmes Actifs</div>
+            </div>
+        </div>
+
+        <!-- Section Actions Rapides -->
+        <section class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">Actions Rapides</h2>
+            </div>
+            
+            <div class="grid grid-cols-3">
+                <!-- Carte Nouvelle Inspection -->
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title">📋 Nouvelle Inspection</h3>
+                        <p>Démarrer une nouvelle inspection de sentier ou d'abri</p>
+                        <button class="btn btn-primary w-100 mt-3" onclick="window.location.href='pages/inspections.html'">
+                            Commencer
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Carte Carte Interactive -->
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title">🗺️ Carte Interactive</h3>
+                        <p>Visualiser l'état de tous les sentiers sur la carte</p>
+                        <button class="btn btn-secondary w-100 mt-3" onclick="window.location.href='pages/map.html'">
+                            Ouvrir la carte
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Carte Rapports -->
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title">📊 Rapports</h3>
+                        <p>Consulter les statistiques et générer des rapports</p>
+                        <button class="btn btn-outline w-100 mt-3" onclick="window.location.href='pages/reports.html'">
+                            Voir les rapports
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section État des Sentiers -->
+        <section class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">État Actuel des Sentiers</h2>
+                <button class="btn btn-sm" onclick="window.location.href='pages/dashboard.html'">
+                    Voir tout →
+                </button>
+            </div>
+
+            <div class="grid grid-cols-2">
+                <!-- Résumé par état -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Résumé par État</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <div class="d-flex justify-between align-center mb-2">
+                                <span class="badge badge-success">Bon état</span>
+                                <strong>15 sentiers</strong>
+                            </div>
+                            <div class="d-flex justify-between align-center mb-2">
+                                <span class="badge badge-warning">Attention requise</span>
+                                <strong>5 sentiers</strong>
+                            </div>
+                            <div class="d-flex justify-between align-center mb-2">
+                                <span class="badge badge-danger">État critique</span>
+                                <strong>2 sentiers</strong>
+                            </div>
+                            <div class="d-flex justify-between align-center">
+                                <span class="badge badge-neutral">Non inspecté</span>
+                                <strong>2 sentiers</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Problèmes récents -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Problèmes Récents</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-2">
+                            <strong class="text-danger">⚠️ Sentier des Crêtes</strong>
+                            <p class="text-sm text-muted">Arbre tombé - Signalé il y a 2h</p>
+                        </div>
+                        <div class="mb-2">
+                            <strong class="text-warning">⚠️ Boucle du Lac</strong>
+                            <p class="text-sm text-muted">Signalisation manquante - Signalé hier</p>
+                        </div>
+                        <div>
+                            <strong class="text-warning">⚠️ Piste Nordique</strong>
+                            <p class="text-sm text-muted">Pont glissant - Signalé il y a 3 jours</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Activité Récente -->
+        <section class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">Activité Récente</h2>
+                <button class="btn btn-sm" onclick="window.location.href='pages/inspections.html'">
+                    Voir tout →
+                </button>
+            </div>
+
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date/Heure</th>
+                            <th>Sentier</th>
+                            <th>Type</th>
+                            <th>État</th>
+                            <th>Inspecteur</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Aujourd'hui 14:30</td>
+                            <td>Sentier des Érables</td>
+                            <td><span class="badge badge-primary">Sentier</span></td>
+                            <td><span class="badge badge-success">Bon</span></td>
+                            <td>Marie Tremblay</td>
+                            <td>
+                                <button class="btn btn-sm" onclick="viewDetails(1)">Détails</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Aujourd'hui 11:15</td>
+                            <td>Refuge du Sommet</td>
+                            <td><span class="badge badge-shelter">Abri</span></td>
+                            <td><span class="badge badge-success">Bon</span></td>
+                            <td>Jean Dupont</td>
+                            <td>
+                                <button class="btn btn-sm" onclick="viewDetails(2)">Détails</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Aujourd'hui 09:00</td>
+                            <td>Boucle du Lac</td>
+                            <td><span class="badge badge-primary">Sentier</span></td>
+                            <td><span class="badge badge-warning">Attention</span></td>
+                            <td>Pierre Martin</td>
+                            <td>
+                                <button class="btn btn-sm" onclick="viewDetails(3)">Détails</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Hier 16:45</td>
+                            <td>Sentier des Crêtes</td>
+                            <td><span class="badge badge-primary">Sentier</span></td>
+                            <td><span class="badge badge-danger">Critique</span></td>
+                            <td>Sophie Leblanc</td>
+                            <td>
+                                <button class="btn btn-sm" onclick="viewDetails(4)">Détails</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Hier 15:30</td>
+                            <td>Piste Nordique</td>
+                            <td><span class="badge badge-primary">Sentier</span></td>
+                            <td><span class="badge badge-warning">Attention</span></td>
+                            <td>Marc Gagnon</td>
+                            <td>
+                                <button class="btn btn-sm" onclick="viewDetails(5)">Détails</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Section Liens Rapides -->
+        <section class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">Liens Rapides</h2>
+            </div>
+            
+            <div class="grid grid-cols-4">
+                <button class="btn btn-outline" onclick="window.location.href='pages/trails.html'">
+                    🥾 Gestion des Sentiers
+                </button>
+                <button class="btn btn-outline" onclick="window.location.href='pages/shelters.html'">
+                    🏠 Gestion des Abris
+                </button>
+                <button class="btn btn-outline" onclick="window.location.href='pages/problems.html'">
+                    ⚠️ Problèmes Actifs
+                </button>
+                <button class="btn btn-outline" onclick="window.location.href='pages/users.html'">
+                    👥 Utilisateurs
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p class="footer-text">
+                © 2024 SkiTrack - Système de Gestion des Sentiers | 
+                Version 1.0 | 
+                <a href="pages/help.html">Aide</a> | 
+                <a href="pages/about.html">À propos</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- Menu Mobile (caché par défaut) -->
+    <div class="mobile-nav" id="mobileNav">
+        <div class="mobile-nav-header">
+            <div class="nav-logo">🏔️ SkiTrack</div>
+            <button class="mobile-nav-close" onclick="toggleMobileMenu()">✕</button>
+        </div>
+        <div class="mobile-nav-links">
+            <a href="index.html" class="active">Accueil</a>
+            <a href="pages/dashboard.html">Tableau de bord</a>
+            <a href="pages/map.html">Carte</a>
+            <a href="pages/inspections.html">Inspections</a>
+            <a href="pages/reports.html">Rapports</a>
+            <a href="pages/admin.html">Administration</a>
+            <a href="logout.php">Déconnexion</a>
+        </div>
+    </div>
+
+    <!-- Scripts JavaScript -->
+    <script>
+        // Toggle menu mobile
+        function toggleMobileMenu() {
+            const mobileNav = document.getElementById('mobileNav');
+            mobileNav.classList.toggle('open');
+        }
+
+        // Fermer le menu mobile si on clique en dehors
+        window.addEventListener('click', function(e) {
+            const mobileNav = document.getElementById('mobileNav');
+            const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+            
+            if (!mobileNav.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+                mobileNav.classList.remove('open');
+            }
+        });
+
+        // Fonction pour voir les détails (à implémenter)
+        function viewDetails(id) {
+            window.location.href = `pages/inspection-detail.html?id=${id}`;
+        }
+
+        // Charger le thème sauvegardé
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'alpine';
+            document.body.setAttribute('data-theme', savedTheme);
+        }
+
+        // Changer de thème
+        function setTheme(theme) {
+            document.body.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+        }
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTheme();
+            
+            // Afficher l'heure actuelle
+            function updateTime() {
+                const now = new Date();
+                const timeString = now.toLocaleString('fr-CA', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                // Si vous avez un élément pour afficher l'heure
+                const timeElement = document.getElementById('currentTime');
+                if (timeElement) {
+                    timeElement.textContent = timeString;
+                }
+            }
+            
+            // Mettre à jour l'heure toutes les minutes
+            updateTime();
+            setInterval(updateTime, 60000);
+            
+            // Animation d'entrée pour les cartes
+            const cards = document.querySelectorAll('.card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.3s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+
+        // Raccourcis clavier
+        document.addEventListener('keydown', function(e) {
+            // Ctrl/Cmd + K pour recherche rapide
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                // Implémenter la recherche rapide
+                console.log('Recherche rapide');
+            }
+            
+            // Ctrl/Cmd + N pour nouvelle inspection
+            if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+                e.preventDefault();
+                window.location.href = 'pages/inspections.html';
+            }
+        });
+    </script>
+</body>
+</html>
