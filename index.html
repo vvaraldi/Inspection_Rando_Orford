@@ -159,19 +159,19 @@
           <div class="legend-section">
             <div class="legend-title">État des pistes</div>
             <div class="legend-item">
-              <div class="legend-color green"></div>
+              <div class="legend-color" style="background-color: #10b981;"></div>
               <span>Bon état</span>
             </div>
             <div class="legend-item">
-              <div class="legend-color orange"></div>
+              <div class="legend-color" style="background-color: #f59e0b;"></div>
               <span>Attention</span>
             </div>
             <div class="legend-item">
-              <div class="legend-color red"></div>
+              <div class="legend-color" style="background-color: #ef4444;"></div>
               <span>Critique</span>
             </div>
             <div class="legend-item">
-              <div class="legend-color gray"></div>
+              <div class="legend-color" style="background-color: #9ca3af;"></div>
               <span>Non inspecté</span>
             </div>
           </div>
@@ -179,11 +179,11 @@
           <div class="legend-section">
             <div class="legend-title">Types</div>
             <div class="legend-item">
-              <div class="legend-color green"></div>
+              <div class="legend-color" style="background-color: #2c7a5d;"></div>
               <span>Sentiers</span>
             </div>
             <div class="legend-item">
-              <div class="legend-color purple"></div>
+              <div class="legend-color" style="background-color: #8b5cf6;"></div>
               <span>Abris</span>
             </div>
           </div>
@@ -191,102 +191,366 @@
           <div class="legend-section">
             <div class="legend-title">Difficulté des sentiers</div>
             <div class="legend-item">
-              <div class="legend-color green"></div>
+              <div class="legend-color" style="background-color: #43a047;"></div>
               <span>Facile</span>
             </div>
             <div class="legend-item">
-              <div class="legend-color blue" style="background-color: #0942ed;"></div>
+              <div class="legend-color" style="background-color: #2196f3;"></div>
               <span>Intermédiaire</span>
             </div>
             <div class="legend-item">
-              <div class="legend-color black" style="background-color: #1f2937;"></div>
+              <div class="legend-color" style="background-color: #212121;"></div>
               <span>Difficile</span>
             </div>
           </div>
         </div>
       </div>
       
-      <!-- Panneau d'informations -->
+      <!-- Panneau d'informations avec encadré -->
       <div class="info-panel">
-        <div class="info-header">
-          <h2>Informations détaillées</h2>
-          <p>Cliquez sur une piste ou un abri pour voir les détails</p>
-        </div>
-        
-        <div class="selected-info show" id="default-info">
-          <p>Sélectionnez une piste ou un abri sur la carte pour afficher ses informations.</p>
-        </div>
-        
-        <div class="selected-info" id="piste-info">
+        <div class="info-panel-content">
           <div class="info-header">
-            <h3>Nom du sentier</h3>
-            <span class="status-badge status-good">Bon</span>
+            <h2>Informations détaillées</h2>
+            <p>Cliquez sur une piste ou un abri pour voir les détails</p>
           </div>
           
-          <div class="info-section">
-            <div class="info-title">Dernière inspection</div>
-            <p>Date et inspecteur</p>
+          <div class="selected-info show" id="default-info">
+            <p>Sélectionnez une piste ou un abri sur la carte pour afficher ses informations.</p>
           </div>
           
-          <div class="info-section">
-            <div class="info-title">Problèmes signalés</div>
-            <!-- Contenu dynamique -->
+          <div class="selected-info" id="piste-info">
+            <div class="info-header">
+              <h3>Nom du sentier</h3>
+              <span class="status-badge status-good">Bon</span>
+            </div>
+            
+            <div class="info-section">
+              <div class="info-title">Dernière inspection</div>
+              <p>Date et inspecteur</p>
+            </div>
+            
+            <div class="info-section">
+              <div class="info-title">Difficulté</div>
+              <p>Niveau de difficulté</p>
+            </div>
+            
+            <div class="info-section">
+              <div class="info-title">État du sentier</div>
+              <p>Description de l'état</p>
+            </div>
+            
+            <div class="info-section">
+              <div class="info-title">Problèmes signalés</div>
+              <ul id="sentier-issues">
+                <li>Aucun problème signalé</li>
+              </ul>
+            </div>
           </div>
           
-          <div class="info-section">
-            <div class="info-title">détails</div>
-            <p>Détails sur l'inspection</p>
-          </div>
-          
-          <div class="info-section">
-            <div class="info-title">Caractéristiques</div>
-            <p>Détails sur le sentier/abri</p>
+          <div class="selected-info" id="abri-info">
+            <div class="info-header">
+              <h3>Nom de l'abri</h3>
+              <span class="status-badge status-good">Bon</span>
+            </div>
+            
+            <div class="info-section">
+              <div class="info-title">Dernière inspection</div>
+              <p>Date et inspecteur</p>
+            </div>
+            
+            <div class="info-section">
+              <div class="info-title">Capacité</div>
+              <p>Nombre de places</p>
+            </div>
+            
+            <div class="info-section">
+              <div class="info-title">État de l'abri</div>
+              <p>Description de l'état</p>
+            </div>
+            
+            <div class="info-section">
+              <div class="info-title">Équipements</div>
+              <ul id="abri-equipments">
+                <li>Liste des équipements</li>
+              </ul>
+            </div>
+            
+            <div class="info-section">
+              <div class="info-title">Problèmes signalés</div>
+              <ul id="abri-issues">
+                <li>Aucun problème signalé</li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
       
-      <!-- Tableau des inspections récentes -->
-      <div class="card">
-        <div class="card-header">
-          <h2>Inspections récentes de sentier (moins de 7 jours)</h2>
-          <a href="pages/inspection-history.html" class="view-btn">Voir toutes les inspections (sentiers et abbris)</a>
+      <!-- Liste récapitulative avec styles pour highlighting -->
+      <div class="summary-list">
+        <h2 class="summary-title">Récapitulatif des inspections</h2>
+        
+        <div class="summary-filters">
+          <button class="filter-btn active" data-type="all">Tout</button>
+          <button class="filter-btn" data-type="sentier">Sentiers</button>
+          <button class="filter-btn" data-type="abri">Abris</button>
         </div>
         
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Type</th>
-              <th>Sentier</th>
-              <th>Inspecteur</th>
-              <th>État</th>
-            </tr>
-          </thead>
-          <tbody id="recent-inspections-table">
-            <!-- Les inspections récentes seront ajoutées dynamiquement ici -->
-            <tr>
-              <td colspan="6" style="text-align: center;">Chargement des inspections récentes...</td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="summary-content">
+          <div class="summary-section" id="sentiers-summary">
+            <h3 class="section-header sentier-header">🥾 Sentiers</h3>
+            <div class="items-grid" id="sentiers-list">
+              <!-- Les sentiers seront ajoutés dynamiquement ici -->
+            </div>
+          </div>
+          
+          <div class="summary-section" id="abris-summary">
+            <h3 class="section-header abri-header">🏠 Abris</h3>
+            <div class="items-grid" id="abris-list">
+              <!-- Les abris seront ajoutés dynamiquement ici -->
+            </div>
+          </div>
+        </div>
       </div>
+      
     </main>
   </div>
   
-  <!-- Scripts Firebase de Claude   -->
+  <!-- Scripts Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage-compat.js"></script>
   
   <!-- Scripts de l'application -->
   <script src="js/auth.js"></script>
   <script src="js/mobile-menu.js"></script>
   <script src="js/map.js"></script>
-  <script src="js/dashboard.js"></script>
 
-<!-- Script pour les effets visuels - ajouté en dernier
-<script src="js/seasonal-effects.js"></script>
--->
-
+  <style>
+    /* Styles pour corriger les problèmes identifiés */
+    
+    /* 1. Correction des couleurs de légende */
+    .legend-color {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      margin-right: 8px;
+      flex-shrink: 0;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    
+    /* 2. Styles pour l'encadré des informations détaillées */
+    .info-panel {
+      margin-top: 2rem;
+      margin-bottom: 2rem;
+    }
+    
+    .info-panel-content {
+      background: white;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    
+    .info-header h2 {
+      margin: 0 0 0.5rem 0;
+      color: #1f2937;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    
+    .info-header p {
+      margin: 0;
+      color: #6b7280;
+      font-size: 0.875rem;
+    }
+    
+    .selected-info {
+      display: none;
+      margin-top: 1rem;
+    }
+    
+    .selected-info.show {
+      display: block;
+    }
+    
+    .info-section {
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    
+    .info-section:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+    
+    .info-title {
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 0.5rem;
+    }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 1rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    
+    .status-good {
+      background-color: rgba(16, 185, 129, 0.1);
+      color: #065f46;
+    }
+    
+    .status-warning {
+      background-color: rgba(245, 158, 11, 0.1);
+      color: #92400e;
+    }
+    
+    .status-critical {
+      background-color: rgba(239, 68, 68, 0.1);
+      color: #991b1b;
+    }
+    
+    .status-not-inspected {
+      background-color: rgba(156, 163, 175, 0.1);
+      color: #374151;
+    }
+    
+    /* 3. Styles pour le highlighting de sentier, abris, status dans la liste */
+    .summary-list {
+      margin-top: 2rem;
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    }
+    
+    .summary-title {
+      margin: 0 0 1rem 0;
+      color: #1f2937;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    
+    .summary-filters {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .filter-btn {
+      padding: 0.5rem 1rem;
+      border: 1px solid #d1d5db;
+      background: white;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .filter-btn:hover {
+      background: #f9fafb;
+    }
+    
+    .filter-btn.active {
+      background: #3b82f6;
+      color: white;
+      border-color: #3b82f6;
+    }
+    
+    .summary-section {
+      margin-bottom: 2rem;
+    }
+    
+    .section-header {
+      margin: 0 0 1rem 0;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      font-size: 1.125rem;
+      font-weight: 600;
+    }
+    
+    .sentier-header {
+      background: linear-gradient(135deg, #f0f9ff 0%, #dbeafe 100%);
+      color: #1e40af;
+    }
+    
+    .abri-header {
+      background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+      color: #5b21b6;
+    }
+    
+    .items-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1rem;
+    }
+    
+    .item-card {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    
+    .item-card:hover {
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      transform: translateY(-1px);
+    }
+    
+    .item-card.sentier {
+      border-left: 4px solid #2c7a5d;
+    }
+    
+    .item-card.abri {
+      border-left: 4px solid #8b5cf6;
+    }
+    
+    .item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    
+    .item-name {
+      font-weight: 600;
+      color: #1f2937;
+    }
+    
+    .item-details {
+      font-size: 0.875rem;
+      color: #6b7280;
+      line-height: 1.4;
+    }
+    
+    .item-status {
+      margin-top: 0.5rem;
+      padding-top: 0.5rem;
+      border-top: 1px solid #f3f4f6;
+      font-size: 0.75rem;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .items-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .summary-filters {
+        flex-wrap: wrap;
+      }
+      
+      .info-panel-content {
+        padding: 1rem;
+      }
+    }
+  </style>
 </body>
 </html>
