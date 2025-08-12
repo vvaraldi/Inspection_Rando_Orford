@@ -162,12 +162,12 @@ async function getSheltersWithLatestStatus(shelters) {
  */
 function clearExistingMarkers() {
   // Supprimer tous les marqueurs de sentiers
-  document.querySelectorAll('.trail-marker').forEach(marker => {
+  document.querySelectorAll('.map-marker').forEach(marker => {
     marker.remove();
   });
   
   // Supprimer tous les marqueurs d'abris
-  document.querySelectorAll('.shelter-marker').forEach(marker => {
+  document.querySelectorAll('.map-marker-shelter').forEach(marker => {
     marker.remove();
   });
 }
@@ -185,7 +185,7 @@ function displayTrailMarkers(trails) {
   }
   
   // Supprimer les marqueurs existants de type sentier
-  document.querySelectorAll('.trail-marker:not(.shelter-marker)').forEach(marker => {
+  document.querySelectorAll('.map-marker:not(.map-marker-shelter)').forEach(marker => {
     marker.remove();
   });
   
@@ -193,7 +193,7 @@ function displayTrailMarkers(trails) {
   trails.forEach(trail => {
     // Créer l'élément du marqueur
     const marker = document.createElement('div');
-    marker.className = `trail-marker marker-${trail.status}`;
+    marker.className = `map-marker marker-${trail.status}`;
     marker.textContent = trail.id.replace('trail_', '');
     marker.setAttribute('data-id', trail.id);
 //    marker.setAttribute('title', trail.name);
@@ -277,7 +277,7 @@ function displayShelterMarkers(shelters) {
   }
   
   // Supprimer les marqueurs existants de type abri
-  document.querySelectorAll('.shelter-marker').forEach(marker => {
+  document.querySelectorAll('.map-marker-shelter').forEach(marker => {
     marker.remove();
   });
   
@@ -285,7 +285,7 @@ function displayShelterMarkers(shelters) {
   shelters.forEach(shelter => {
     // Créer l'élément du marqueur
     const marker = document.createElement('div');
-    marker.className = `trail-marker marker-${shelter.status}`;
+    marker.className = `map-marker marker-${shelter.status}`;
     marker.innerHTML = `<span>A` + shelter.id.replace('shelter_', '') + '</span>';
     marker.setAttribute('data-id', shelter.id);
 //    marker.setAttribute('title', shelter.name);
