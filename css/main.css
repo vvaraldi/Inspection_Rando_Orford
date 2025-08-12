@@ -16,13 +16,14 @@
 @import 'utilities/helpers.css';
 
 /* Composants */
+@import 'components/badges.css';
 @import 'components/buttons.css';
 @import 'components/cards.css';
-@import 'components/forms.css';
+@import 'components/dashboard.css';
 @import 'components/filters.css';
-@import 'components/badges.css';
-@import 'components/tables.css';
+@import 'components/forms.css';
 @import 'components/modals.css';
+@import 'components/tables.css';
 
 /* Layout */
 @import 'layout/header.css';

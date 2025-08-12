@@ -83,3 +83,39 @@
   color: var(--color-white);
 }
  
+/* ========================================
+   ADDITIONS TO css/components/badges.css
+   ======================================== 
+   Additional status badges for dashboard
+   ======================================== */
+
+/* Status badges */
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--border-radius-full);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.status-good {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: #065f46;
+}
+
+.status-warning {
+  background-color: rgba(245, 158, 11, 0.1);
+  color: #92400e;
+}
+
+.status-critical {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #991b1b;
+}
+
+.status-not-inspected {
+  background-color: rgba(156, 163, 175, 0.1);
+  color: var(--color-gray-700);
+}

@@ -142,3 +142,19 @@
   margin-right: var(--space-sm);
   flex-shrink: 0;
 }
+
+/* ========================================
+   ADDITIONS TO css/pages/map.css
+   ======================================== 
+   Additional legend styling corrections
+   ======================================== */
+
+/* Legend color fixes */
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: var(--border-radius-sm);
+  margin-right: var(--space-sm);
+  flex-shrink: 0;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
