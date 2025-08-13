@@ -4,19 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ski-Track - Administration</title>
-  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/main.css">
 </head>
 
-<body>
+<body data-theme="alpine">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏔️</text></svg>">
   
-  <!-- ===== HEADER ===== -->
-  <header>
-    <nav>
-      <div class="logo">Ski-Track</div>
+  <header class="header">
+    <nav class="nav">
+      <div class="nav-logo">Ski-Track</div>
       <div class="nav-links">
         <a href="../index.html">Tableau de bord</a>
-        <a href="trail-inspection.html">Inspection sentier</a>
+        <a href="trail-inspection.html">Inspection piste</a>
         <a href="shelter-inspection.html">Inspection abri</a>
         <a href="inspection-history.html">Historique</a>
         <a href="admin.html" class="active">Administration</a>
@@ -26,7 +25,6 @@
       <button class="mobile-menu-btn" id="mobile-menu-btn">☰</button>
     </nav>
     
-    <!-- Menu mobile -->
     <div class="mobile-nav" id="mobile-nav">
       <div class="mobile-nav-header">
         <div class="logo">Ski-Track</div>
@@ -34,320 +32,368 @@
       </div>
       <div class="mobile-nav-links">
         <a href="../index.html">Tableau de bord</a>
-        <a href="trail-inspection.html">Inspection sentier</a>
+        <a href="trail-inspection.html">Inspection piste</a>
         <a href="shelter-inspection.html">Inspection abri</a>
         <a href="inspection-history.html">Historique</a>
-        <a href="admin.html" class="active" id="mobile-admin-link">Administration</a>
-        <a href="change-password.html" id="mobile-password-link">Mot de passe</a>
+        <a href="admin.html" class="active">Administration</a>
+        <a href="change-password.html">Mot de passe</a>
         <a href="#" id="mobile-login-link">Connexion</a>
       </div>
     </div>
   </header>
   
-  <!-- ===== CONTENU PRINCIPAL ===== -->
-  <main>
-    <!-- En-tête de la page -->
-    <div class="page-header">
-      <h1>Panneau d'administration</h1>
-      <div id="user-info">Connecté en tant que: <span id="admin-name">Administrateur</span></div>
+  <!-- Loading screen -->
+  <div id="loading" class="loading-screen">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <p>Vérification des permissions d'administration...</p>
     </div>
-    
-    <!-- Navigation par onglets -->
-    <div class="tabs">
-      <div class="tab active" data-tab="users">Gestion des utilisateurs</div>
-      <div class="tab" data-tab="data">Données du système</div>
-      <div class="tab" data-tab="stats">Statistiques</div>
-    </div>
-    
-    <!-- ===== ONGLET: GESTION DES UTILISATEURS ===== -->
-    <div class="tab-content active" id="users-tab">
-      <div class="admin-panel">
-        
-        <!-- Liste des utilisateurs -->
-        <div class="admin-card full-width">
-          <h2 class="admin-title">Liste des utilisateurs</h2>
-          
-          <table id="inspectors-table">
-            <thead>
-              <tr>
-                <th>Nom</th>
-                <th>Email</th>
-                <th>Téléphone</th>
-                <th>Rôle</th>
-                <th>Statut</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td colspan="6" style="text-align: center;">Chargement des utilisateurs...</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        
-        <!-- Formulaire de création d'utilisateur -->
-        <div class="admin-card full-width">
-          <h2 class="admin-title">Nouvel utilisateur</h2>
-          
-          <form id="user-form">
-            <div class="form-group">
-              <label for="user-name">Nom complet</label>
-              <input type="text" id="user-name" required>
-            </div>
-            
-            <div class="form-group">
-              <label for="user-email">Email</label>
-              <input type="email" id="user-email" required>
-            </div>
-            
-            <div class="form-group">
-              <label for="user-phone">Téléphone (optionnel)</label>
-              <input type="tel" id="user-phone" placeholder="Ex: 06 12 34 56 78">
-            </div>
-            
-            <div class="form-group">
-              <label for="user-password">Mot de passe</label>
-              <input type="password" id="user-password" required>
-            </div>
-            
-            <div class="form-group">
-              <label for="user-role">Rôle</label>
-              <select id="user-role">
-                <option value="inspector">Inspecteur</option>
-                <option value="admin">Administrateur</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label for="user-status">Statut</label>
-              <select id="user-status">
-                <option value="active">Actif</option>
-                <option value="inactive">Inactif</option>
-              </select>
-            </div>
-            
-            <div class="actions">
-              <button type="button" id="cancel-user-btn" class="btn btn-secondary">Annuler</button>
-              <button type="submit" class="btn btn-success">Enregistrer</button>
-            </div>
-          </form>
-          
-          <div id="user-status-message" class="status-message" style="display: none;"></div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- ===== ONGLET: DONNÉES DU SYSTÈME ===== -->
-    <div class="tab-content" id="data-tab">
-      <div class="admin-panel">
-        
-        <!-- Initialisation des données -->
-        <div class="admin-card">
-          <h2 class="admin-title">Initialisation des données</h2>
-          
-          <!-- Sentiers -->
-          <div class="admin-section">
-            <h3>Sentiers</h3>
-            <p>Initialiser les données des sentiers de randonnée alpine du Mont Orford.</p>
-            <div class="actions">
-              <button id="init-trails-btn" class="btn btn-warning" disabled>
-                Initialiser les sentiers
-              </button>
-            </div>
-            <div id="trails-status" class="status-message" style="display: none;"></div>
-          </div>
-          
-          <!-- Abris -->
-          <div class="admin-section">
-            <h3>Abris</h3>
-            <p>Initialiser les données des abris des sommets du Mont Orford.</p>
-            <div class="actions">
-              <button id="init-shelters-btn" class="btn btn-warning" disabled>
-                Initialiser les abris
-              </button>
-            </div>
-            <div id="shelters-status" class="status-message" style="display: none;"></div>
-          </div>
-          
-          <!-- Données de test -->
-          <div class="admin-section">
-            <h3>Données de test</h3>
-            <p>Créer des inspections de test pour simuler l'utilisation du système.</p>
-            <div class="actions">
-              <button id="create-sample-btn" class="btn" disabled>
-                Créer des données de test
-              </button>
-            </div>
-            <div id="sample-status" class="status-message" style="display: none;"></div>
-          </div>
-        </div>
-        
-        <!-- Gestion des données -->
-        <div class="admin-card">
-          <h2 class="admin-title">Gestion des données</h2>
-
-          <!-- Suppression des anciennes inspections -->
-          <div class="admin-section">
-            <h3>Suppression des anciennes inspections</h3>
-            <p>Supprimer toutes les inspections antérieures à une date spécifique.</p>
-            
-            <div class="form-group" style="margin-bottom: 1rem;">
-              <label for="cutoff-date" style="display: block; margin-bottom: 0.5rem;">
-                Date limite (supprimer avant cette date) :
-              </label>
-              <input 
-                type="date" 
-                id="cutoff-date" 
-                style="padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.375rem; font-size: 0.875rem;"
-              >
-            </div>
-            
-            <div class="actions">
-              <button id="delete-old-inspections-btn" class="btn btn-danger">
-                Supprimer les anciennes inspections
-              </button>
-            </div>
-            
-            <div id="delete-old-status" class="status-message" style="display: none;"></div>
-          </div>
-          
-          <!-- Sauvegarde -->
-          <div class="admin-section">
-            <h3>Sauvegarde</h3>
-            <p>Exporter toutes les données du système en format JSON.</p>
-            <div class="actions">
-              <button id="export-data-btn" class="btn" disabled>
-                Exporter les données
-              </button>
-            </div>
-          </div>
-
-          <!-- Réinitialisation -->
-          <div class="admin-section">
-            <h3>Réinitialisation</h3>
-            <p>Attention: Cette action supprimera toutes les données d'inspection.</p>
-            <div class="actions">
-              <button id="reset-inspections-btn" class="btn btn-danger" disabled>
-                Réinitialiser les inspections
-              </button>
-            </div>
-            <div id="reset-status" class="status-message" style="display: none;"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- ===== ONGLET: STATISTIQUES ===== -->
-    <div class="tab-content" id="stats-tab">
-      <div class="admin-panel">
-        
-        <!-- Statistiques d'utilisation -->
-        <div class="admin-card">
-          <h2 class="admin-title">Statistiques d'utilisation</h2>
-          
-          <div class="admin-section">
-            <h3>Résumé des inspections</h3>
-            <table>
-              <tbody>
-                <tr>
-                  <td>Nombre total d'inspections</td>
-                  <td><strong id="total-inspections">--</strong></td>
-                </tr>
-                <tr>
-                  <td>Inspections cette semaine</td>
-                  <td><strong id="week-inspections">--</strong></td>
-                </tr>
-                <tr>
-                  <td>Inspections sentiers</td>
-                  <td><strong id="trail-inspections">--</strong></td>
-                </tr>
-                <tr>
-                  <td>Inspections abris</td>
-                  <td><strong id="shelter-inspections">--</strong></td>
-                </tr>
-                <tr>
-                  <td>Problèmes signalés non résolus</td>
-                  <td><strong id="open-issues">--</strong></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          
-          <div class="admin-section">
-            <h3>Activité des inspecteurs</h3>
-            <p style="color: #6b7280; font-style: italic;">
-              Fonctionnalité en cours de développement...
-            </p>
-          </div>
-        </div>
-        
-        <!-- État du système -->
-        <div class="admin-card">
-          <h2 class="admin-title">État du système</h2>
-          
-          <div class="admin-section">
-            <h3>Utilisation Firebase</h3>
-            <table>
-              <tbody>
-                <tr>
-                  <td>Stockage utilisé</td>
-                  <td><strong id="storage-used">--</strong></td>
-                </tr>
-                <tr>
-                  <td>Requêtes Firestore ce mois</td>
-                  <td><strong id="firestore-requests">--</strong></td>
-                </tr>
-                <tr>
-                  <td>Utilisateurs actifs</td>
-                  <td><strong id="active-users">--</strong></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          
-          <div class="admin-section">
-            <h3>Maintenance</h3>
-            <p style="color: #6b7280; font-style: italic;">
-              Fonctionnalités de maintenance en cours de développement...
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </main>
+  </div>
   
-  <!-- ===== MODAL DE SUPPRESSION ===== -->
-  <div id="delete-modal" class="modal">
+  <!-- Main content -->
+  <div id="main-content" class="main" style="display: none;">
+    <div class="page-header">
+      <h1 class="page-title">Panneau d'administration</h1>
+      <div class="user-info">
+        Connecté en tant que: <span id="admin-name">Administrateur</span>
+      </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="content-section">
+      <div class="tabs-container">
+        <div class="tabs">
+          <button class="tab-btn active" data-tab="users">
+            👥 Gestion des utilisateurs
+          </button>
+          <button class="tab-btn" data-tab="data">
+            🗄️ Données du système
+          </button>
+          <button class="tab-btn" data-tab="stats">
+            📊 Statistiques
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Users Management Tab -->
+    <div class="tab-content active" id="users-tab">
+      <!-- Users List -->
+      <div class="content-section">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Liste des utilisateurs</h2>
+            <div class="card-actions">
+              <button class="btn btn-secondary" id="refresh-users">
+                🔄 Actualiser
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="table-container">
+              <table class="table table-striped" id="inspectors-table">
+                <thead>
+                  <tr>
+                    <th>Nom</th>
+                    <th>Email</th>
+                    <th>Téléphone</th>
+                    <th>Rôle</th>
+                    <th>Statut</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td colspan="6" class="text-center">Chargement des utilisateurs...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Create User Form -->
+      <div class="content-section">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Nouvel utilisateur</h2>
+          </div>
+          <div class="card-body">
+            <form class="admin-form" id="user-form">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="form-label form-label-required" for="user-name">Nom complet</label>
+                  <input type="text" class="form-control" id="user-name" required>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label form-label-required" for="user-email">Email</label>
+                  <input type="email" class="form-control" id="user-email" required>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label" for="user-phone">Téléphone</label>
+                  <input type="tel" class="form-control" id="user-phone" placeholder="Ex: 06 12 34 56 78">
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label form-label-required" for="user-password">Mot de passe</label>
+                  <input type="password" class="form-control" id="user-password" required>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label" for="user-role">Rôle</label>
+                  <select class="form-control" id="user-role">
+                    <option value="inspector">Inspecteur</option>
+                    <option value="admin">Administrateur</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="user-status">Statut</label>
+                  <select class="form-control" id="user-status">
+                    <option value="active">Actif</option>
+                    <option value="inactive">Inactif</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div class="form-actions">
+                <button type="button" class="btn btn-secondary" id="cancel-user-btn">Annuler</button>
+                <button type="submit" class="btn btn-primary">Créer l'utilisateur</button>
+              </div>
+            </form>
+            
+            <div class="status-messages">
+              <div id="user-success-message" class="alert alert-success" style="display: none;"></div>
+              <div id="user-error-message" class="alert alert-danger" style="display: none;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- System Data Tab -->
+    <div class="tab-content" id="data-tab">
+      <!-- Data Initialization -->
+      <div class="content-section">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Initialisation des données</h2>
+          </div>
+          <div class="card-body">
+            <div class="admin-sections">
+              <!-- Trails Section -->
+              <div class="admin-section">
+                <div class="admin-section-header">
+                  <h3 class="admin-section-title">🥾 Sentiers</h3>
+                  <button class="btn btn-warning" id="init-trails-btn">
+                    Initialiser les sentiers
+                  </button>
+                </div>
+                <p class="admin-section-description">
+                  Initialiser les données des sentiers de randonnée alpine du Mont Orford.
+                </p>
+                <div class="status-messages">
+                  <div id="trails-status" class="alert alert-info" style="display: none;"></div>
+                </div>
+              </div>
+
+              <!-- Shelters Section -->
+              <div class="admin-section">
+                <div class="admin-section-header">
+                  <h3 class="admin-section-title">🏠 Abris</h3>
+                  <button class="btn btn-warning" id="init-shelters-btn">
+                    Initialiser les abris
+                  </button>
+                </div>
+                <p class="admin-section-description">
+                  Initialiser les données des abris disponibles sur les sentiers.
+                </p>
+                <div class="status-messages">
+                  <div id="shelters-status" class="alert alert-info" style="display: none;"></div>
+                </div>
+              </div>
+
+              <!-- Sample Data Section -->
+              <div class="admin-section">
+                <div class="admin-section-header">
+                  <h3 class="admin-section-title">🧪 Données de test</h3>
+                  <button class="btn btn-info" id="create-sample-btn">
+                    Créer des données de test
+                  </button>
+                </div>
+                <p class="admin-section-description">
+                  Créer des inspections fictives pour tester le système.
+                </p>
+                <div class="status-messages">
+                  <div id="sample-status" class="alert alert-info" style="display: none;"></div>
+                </div>
+              </div>
+
+              <!-- Export Data Section -->
+              <div class="admin-section">
+                <div class="admin-section-header">
+                  <h3 class="admin-section-title">💾 Sauvegarde</h3>
+                  <button class="btn btn-secondary" id="export-data-btn">
+                    Exporter les données
+                  </button>
+                </div>
+                <p class="admin-section-description">
+                  Exporter toutes les données du système en format JSON.
+                </p>
+              </div>
+
+              <!-- Reset Section -->
+              <div class="admin-section admin-section-danger">
+                <div class="admin-section-header">
+                  <h3 class="admin-section-title">⚠️ Zone dangereuse</h3>
+                </div>
+                <div class="danger-actions">
+                  <div class="danger-action">
+                    <div class="danger-action-content">
+                      <h4>Supprimer les anciennes inspections</h4>
+                      <p>Supprimer les inspections antérieures à une date donnée.</p>
+                    </div>
+                    <div class="danger-action-controls">
+                      <input type="date" class="form-control" id="cutoff-date">
+                      <button class="btn btn-danger" id="delete-old-inspections-btn">
+                        Supprimer
+                      </button>
+                    </div>
+                  </div>
+                  <div class="status-messages">
+                    <div id="delete-old-status" class="alert alert-info" style="display: none;"></div>
+                  </div>
+                  
+                  <div class="danger-action">
+                    <div class="danger-action-content">
+                      <h4>Réinitialiser toutes les inspections</h4>
+                      <p>⚠️ Attention: Cette action supprimera TOUTES les données d'inspection.</p>
+                    </div>
+                    <div class="danger-action-controls">
+                      <button class="btn btn-danger" id="reset-inspections-btn">
+                        Réinitialiser tout
+                      </button>
+                    </div>
+                  </div>
+                  <div class="status-messages">
+                    <div id="reset-status" class="alert alert-info" style="display: none;"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Statistics Tab -->
+    <div class="tab-content" id="stats-tab">
+      <div class="grid grid-cols-2">
+        <!-- Usage Statistics -->
+        <div class="content-section">
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">📈 Statistiques d'utilisation</h2>
+            </div>
+            <div class="card-body">
+              <div class="stats-grid">
+                <div class="stat-item">
+                  <div class="stat-label">Inspections totales</div>
+                  <div class="stat-value" id="total-inspections">--</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-label">Cette semaine</div>
+                  <div class="stat-value" id="week-inspections">--</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-label">Sentiers</div>
+                  <div class="stat-value" id="trail-inspections">--</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-label">Abris</div>
+                  <div class="stat-value" id="shelter-inspections">--</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-label">Problèmes ouverts</div>
+                  <div class="stat-value stat-value-danger" id="open-issues">--</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-label">Utilisateurs actifs</div>
+                  <div class="stat-value" id="active-users">--</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- System Status -->
+        <div class="content-section">
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">⚙️ État du système</h2>
+            </div>
+            <div class="card-body">
+              <div class="stats-grid">
+                <div class="stat-item">
+                  <div class="stat-label">Stockage utilisé</div>
+                  <div class="stat-value" id="storage-used">--</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-label">Requêtes Firestore</div>
+                  <div class="stat-value" id="firestore-requests">--</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-label">Dernière sauvegarde</div>
+                  <div class="stat-value" id="last-backup">--</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-label">Version système</div>
+                  <div class="stat-value">v1.2.0</div>
+                </div>
+              </div>
+              
+              <div class="system-actions">
+                <button class="btn btn-secondary btn-sm" id="refresh-stats">
+                  🔄 Actualiser les statistiques
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete User Modal -->
+  <div class="modal" id="delete-modal">
     <div class="modal-content">
       <div class="modal-header">
         <h2 class="modal-title">Confirmer la suppression</h2>
-        <button class="modal-close">&times;</button>
+        <button class="modal-close" id="modal-close">✕</button>
       </div>
       <div class="modal-body">
-        <p>Êtes-vous sûr de vouloir supprimer cet utilisateur? Cette action est irréversible.</p>
+        <p>Êtes-vous sûr de vouloir supprimer cet utilisateur?</p>
+        <p><strong>Cette action est irréversible.</strong></p>
         <p>Toutes les inspections associées à cet utilisateur seront conservées.</p>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary modal-cancel">Annuler</button>
+        <button class="btn btn-secondary" id="modal-cancel">Annuler</button>
         <button class="btn btn-danger" id="confirm-delete">Supprimer</button>
       </div>
     </div>
   </div>
-  
-  <!-- ===== SCRIPTS ===== -->
-  <!-- Firebase Libraries -->
+
+  <!-- Scripts -->
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage-compat.js"></script>
 
-  <!-- Application Scripts -->
   <script src="../js/auth.js"></script>
   <script src="../js/mobile-menu.js"></script>
-  
-  <!-- Admin Script - Tout le JavaScript est maintenant dans ce fichier séparé -->
-  <script src="../js/admin.js"></script>
-
+  <script src="../js/admin-updated.js"></script>
 </body>
 </html>
