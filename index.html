@@ -76,7 +76,7 @@
 			</div>
 		</div>
 
-		<!-- filtre pour la carte -->
+		<!-- Vieux filtre pour la carte 
 		<div class="filter-container">
 		  
 		  <div class="filter-content">
@@ -135,6 +135,89 @@
 			<button id="reset-filters" class="btn btn-sm btn-secondary">Réinitialiser</button>
 		  </div>
 		</div>
+		-->
+
+		<!-- Filters section with new card format -->
+		<div class="content-section">
+		  <div class="card">
+			<div class="card-header">
+			  <h2 class="card-title">Filtres de la carte</h2>
+			  <button class="btn btn-sm btn-secondary" id="toggle-map-filters">
+				<span id="map-filter-toggle-text">Masquer</span>
+			  </button>
+			</div>
+			
+			<div class="card-body" id="map-filters-content">
+			  <div class="filters-grid">
+				<div class="form-group">
+				  <label class="form-label" for="date-filter">Période</label>
+				  <select class="form-control" id="date-filter">
+					<option value="all">Toutes les dates</option>
+					<option value="today">Aujourd'hui</option>
+					<option value="week">Dernière semaine</option>
+					<option value="month">Dernier mois</option>
+				  </select>
+				</div>
+				
+				<div class="form-group">
+				  <label class="form-label" for="status-filter">État</label>
+				  <select class="form-control" id="status-filter">
+					<option value="all">Tous les états</option>
+					<option value="good">Bon état</option>
+					<option value="warning">Attention</option>
+					<option value="critical">Critique</option>
+					<option value="not-inspected">Non inspecté</option>
+				  </select>
+				</div>
+				
+				<div class="form-group">
+				  <label class="form-label" for="issues-filter">Problèmes</label>
+				  <select class="form-control" id="issues-filter">
+					<option value="all">Tous</option>
+					<option value="with-issues">Avec problèmes uniquement</option>
+					<option value="without-issues">Sans problème uniquement</option>
+				  </select>
+				</div>
+				
+				<div class="form-group">
+				  <label class="form-label" for="type-filter">Type</label>
+				  <select class="form-control" id="type-filter">
+					<option value="all">Tous</option>
+					<option value="trail">Sentiers uniquement</option>
+					<option value="shelter">Abris uniquement</option>
+				  </select>
+				</div>
+				
+				<div class="form-group">
+				  <label class="form-label" for="difficulty-filter">Difficulté</label>
+				  <select class="form-control" id="difficulty-filter">
+					<option value="all">Toutes</option>
+					<option value="easy">Facile</option>
+					<option value="medium">Intermédiaire</option>
+					<option value="hard">Difficile</option>
+				  </select>
+				</div>
+			  </div>
+			  
+			  <div class="filter-actions">
+				<div class="filter-info">
+				  <span id="filter-counter">14 éléments affichés</span>
+				</div>
+				<div class="filter-buttons">
+				  <button class="btn btn-secondary" id="reset-filters">Réinitialiser</button>
+				  <button class="btn btn-primary" id="apply-map-filters">Appliquer</button>
+				</div>
+			  </div>
+			</div>
+		  </div>
+		</div>
+
+
+
+
+
+
+
       
       <!-- Carte et légende -->
       <div class="map-container">

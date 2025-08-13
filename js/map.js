@@ -1046,7 +1046,8 @@ function displayFilteredMarkers() {
   // Mettre à jour le compteur d'éléments affichés si un tel élément existe
   const filterCounter = document.getElementById('filter-counter');
   if (filterCounter) {
-    filterCounter.textContent = `${filteredTrails.length + filteredShelters.length} éléments affichés`;
+    updateFilterCounter(filteredTrails.length + filteredShelters.length);
+	// filterCounter.textContent = `${filteredTrails.length + filteredShelters.length} éléments affichés`;
   }
 }
 
@@ -1054,88 +1055,251 @@ function displayFilteredMarkers() {
  * Initialiser les contrôles de filtrage
  */
 function initFilterControls() {
-  // Récupérer les éléments de filtrage
+  // Initialize toggle functionality
+  initMapFilterToggle();
+  
+  // Get filter elements
   const statusFilter = document.getElementById('status-filter');
   const typeFilter = document.getElementById('type-filter');
   const difficultyFilter = document.getElementById('difficulty-filter');
   const dateFilter = document.getElementById('date-filter');
   const issuesFilter = document.getElementById('issues-filter');
   const resetBtn = document.getElementById('reset-filters');
+  const applyBtn = document.getElementById('apply-map-filters');
   
-  // Si les éléments n'existent pas, sortir
+  // Check if elements exist
   if (!statusFilter || !typeFilter || !difficultyFilter || !dateFilter || !issuesFilter) {
-    console.warn("Certains contrôles de filtrage n'ont pas été trouvés");
+    console.warn("Some filter controls were not found");
     return;
   }
   
-  // Fonction pour appliquer les filtres
+  // Function to apply filters
   const applyFilters = () => {
-    // Afficher l'indicateur de chargement
+    // Show loading indicator
     if (document.getElementById('map-loading')) {
       document.getElementById('map-loading').style.display = 'flex';
     }
     
-    // Mettre à jour les filtres actuels
+    // Update current filters
     currentFilters.status = statusFilter.value;
     currentFilters.type = typeFilter.value;
     currentFilters.difficulty = difficultyFilter.value;
     currentFilters.date = dateFilter.value;
     currentFilters.issues = issuesFilter.value;
     
-    // Petit délai pour permettre à l'indicateur de s'afficher
+    // Apply filters with a small delay for UI feedback
     setTimeout(() => {
-      // Appliquer les filtres et mettre à jour la carte
-      displayFilteredMarkers();
+      filterAndDisplayMarkers();
       
-      // Masquer l'indicateur de chargement
+      // Hide loading indicator
       if (document.getElementById('map-loading')) {
         document.getElementById('map-loading').style.display = 'none';
       }
     }, 100);
   };
   
-  // Ajouter les écouteurs d'événements pour chaque filtre
+  // Add event listeners for auto-apply (existing functionality)
   statusFilter.addEventListener('change', applyFilters);
   typeFilter.addEventListener('change', applyFilters);
   difficultyFilter.addEventListener('change', applyFilters);
   dateFilter.addEventListener('change', applyFilters);
   issuesFilter.addEventListener('change', applyFilters);
+  
+  // Add event listener for manual apply button
+  if (applyBtn) {
+    applyBtn.addEventListener('click', applyFilters);
+  }
+  
+  // Reset filters functionality
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      // Reset all filter values
+      statusFilter.value = 'all';
+      typeFilter.value = 'all';
+      difficultyFilter.value = 'all';
+      dateFilter.value = 'all';
+      issuesFilter.value = 'all';
+      
+      // Apply the reset filters
+      applyFilters();
+    });
+  }
+}
 
-  // Gestionnaire pour le bouton Réinitialiser
-  resetBtn.addEventListener('click', function() {
-    // Réinitialiser les valeurs des filtres
-    statusFilter.value = 'all';
-    typeFilter.value = 'all';
-    difficultyFilter.value = 'all';
-    dateFilter.value = 'all';
-    issuesFilter.value = 'all';
-    
-    // Réinitialiser les filtres actuels
-    currentFilters.status = 'all';
-    currentFilters.type = 'all';
-    currentFilters.difficulty = 'all';
-    currentFilters.date = 'all';
-    currentFilters.issues = 'all';
-    
-    // Afficher l'indicateur de chargement
-    if (document.getElementById('map-loading')) {
-      document.getElementById('map-loading').style.display = 'flex';
+/**
+ * Update the filter counter display with better styling
+ */
+function updateFilterCounter(count) {
+  const filterCounter = document.getElementById('filter-counter');
+  if (filterCounter) {
+    filterCounter.textContent = `${count} élément${count !== 1 ? 's' : ''} affiché${count !== 1 ? 's' : ''}`;
+  }
+}
+
+/**
+ * Update the existing filterAndDisplayMarkers function to use new counter
+ */
+function filterAndDisplayMarkers() {
+  if (!allTrails || !allShelters) {
+    console.warn('Data not loaded yet');
+    return;
+  }
+  
+  // Filter trails
+  const filteredTrails = allTrails.filter(trail => {
+    // Date filter
+    if (currentFilters.date !== 'all') {
+      if (!trail.lastInspection) {
+        return currentFilters.date === 'not-inspected';
+      }
+      
+      const inspectionDate = trail.lastInspection.date.toDate();
+      const now = new Date();
+      
+      switch (currentFilters.date) {
+        case 'today':
+          if (!isSameDay(inspectionDate, now)) return false;
+          break;
+        case 'week':
+          const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          if (inspectionDate < weekAgo) return false;
+          break;
+        case 'month':
+          const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+          if (inspectionDate < monthAgo) return false;
+          break;
+      }
     }
     
-    // Petit délai pour permettre à l'indicateur de s'afficher
-    setTimeout(() => {
-      // Appliquer les filtres et mettre à jour la carte
-      displayFilteredMarkers();
-      
-      // Masquer l'indicateur de chargement
-      if (document.getElementById('map-loading')) {
-        document.getElementById('map-loading').style.display = 'none';
+    // Status filter
+    if (currentFilters.status !== 'all') {
+      const status = trail.lastInspection ? trail.lastInspection.condition : 'not-inspected';
+      if (status !== currentFilters.status) return false;
+    }
+    
+    // Type filter
+    if (currentFilters.type !== 'all' && currentFilters.type !== 'trail') {
+      return false;
+    }
+    
+    // Difficulty filter
+    if (currentFilters.difficulty !== 'all' && trail.difficulty !== currentFilters.difficulty) {
+      return false;
+    }
+    
+    // Issues filter
+    if (currentFilters.issues !== 'all') {
+      const hasIssues = trail.lastInspection && 
+                        trail.lastInspection.issues && 
+                        trail.lastInspection.issues.length > 0;
+                        
+      if (currentFilters.issues === 'with-issues' && !hasIssues) {
+        return false;
       }
-    }, 100);
+      
+      if (currentFilters.issues === 'without-issues' && hasIssues) {
+        return false;
+      }
+    }
 
-    // Déclencher manuellement l'événement change pour appliquer les filtres
-    statusFilter.dispatchEvent(new Event('change'));
-	
+    return true;
+  });
+  
+  // Filter shelters
+  const filteredShelters = allShelters.filter(shelter => {
+    // Date filter
+    if (currentFilters.date !== 'all') {
+      if (!shelter.lastInspection) {
+        return currentFilters.date === 'not-inspected';
+      }
+      
+      const inspectionDate = shelter.lastInspection.date.toDate();
+      const now = new Date();
+      
+      switch (currentFilters.date) {
+        case 'today':
+          if (!isSameDay(inspectionDate, now)) return false;
+          break;
+        case 'week':
+          const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          if (inspectionDate < weekAgo) return false;
+          break;
+        case 'month':
+          const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+          if (inspectionDate < monthAgo) return false;
+          break;
+      }
+    }
+    
+    // Status filter
+    if (currentFilters.status !== 'all') {
+      const status = shelter.lastInspection ? shelter.lastInspection.condition : 'not-inspected';
+      if (status !== currentFilters.status) return false;
+    }
+    
+    // Type filter
+    if (currentFilters.type !== 'all' && currentFilters.type !== 'shelter') {
+      return false;
+    }
+    
+    // Issues filter
+    if (currentFilters.issues !== 'all') {
+      const hasIssues = shelter.lastInspection && 
+                        shelter.lastInspection.issues && 
+                        shelter.lastInspection.issues.length > 0;
+                        
+      if (currentFilters.issues === 'with-issues' && !hasIssues) {
+        return false;
+      }
+      
+      if (currentFilters.issues === 'without-issues' && hasIssues) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+  
+  // Display filtered markers
+  displayTrailMarkers(filteredTrails);
+  displayShelterMarkers(filteredShelters);
+  
+  // Update counter with new function
+  updateFilterCounter(filteredTrails.length + filteredShelters.length);
+}
+
+// Helper function for date comparison
+function isSameDay(date1, date2) {
+  return date1.getFullYear() === date2.getFullYear() &&
+         date1.getMonth() === date2.getMonth() &&
+         date1.getDate() === date2.getDate();
+}
+
+/**
+ * Initialize the map filter toggle functionality
+ */
+function initMapFilterToggle() {
+  const toggleBtn = document.getElementById('toggle-map-filters');
+  const filtersContent = document.getElementById('map-filters-content');
+  const toggleText = document.getElementById('map-filter-toggle-text');
+  
+  if (!toggleBtn || !filtersContent || !toggleText) {
+    console.warn('Map filter toggle elements not found');
+    return;
+  }
+  
+  let filtersVisible = true;
+  
+  toggleBtn.addEventListener('click', function() {
+    filtersVisible = !filtersVisible;
+    
+    if (filtersVisible) {
+      filtersContent.style.display = 'block';
+      toggleText.textContent = 'Masquer';
+    } else {
+      filtersContent.style.display = 'none';
+      toggleText.textContent = 'Afficher';
+    }
   });
 }
 
