@@ -2,6 +2,10 @@
 
 Must :
 
+Index est clean... faire les autres pour sortir CSS et assuré que JS marche bien
+
+
+
 
 Admin.html ne load pas la liste des utilisateurs.
 La création d'un utilisateur ne marche pas.

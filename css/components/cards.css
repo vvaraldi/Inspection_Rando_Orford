@@ -65,4 +65,217 @@
 .card-compact {
   padding: var(--space-md);
 }
+
+/* ========================================
+   css/components/_cards.css
+   ======================================== 
+   Styles des cartes
+   ======================================== */
+
+.card {
+  background-color: var(--theme-surface);
+  border: var(--border-width) solid var(--theme-border);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: box-shadow var(--transition-fast);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.card-header {
+  padding: var(--space-lg);
+  border-bottom: var(--border-width) solid var(--theme-border);
+  background-color: var(--color-gray-50);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-title {
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  color: var(--theme-text);
+  margin: 0;
+}
+
+.card-subtitle {
+  font-size: var(--text-sm);
+  color: var(--theme-text-light);
+  margin: var(--space-xs) 0 0 0;
+}
+
+.card-body {
+  padding: var(--space-lg);
+}
+
+.card-footer {
+  padding: var(--space-lg);
+  border-top: var(--border-width) solid var(--theme-border);
+  background-color: var(--color-gray-50);
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+}
+
+/* Card variants */
+.card-primary {
+  border-color: var(--theme-primary);
+}
+
+.card-primary .card-header {
+  background-color: var(--theme-primary);
+  color: white;
+  border-bottom-color: var(--theme-primary);
+}
+
+.card-primary .card-title {
+  color: white;
+}
+
+.card-success {
+  border-color: var(--color-success);
+}
+
+.card-success .card-header {
+  background-color: var(--color-success);
+  color: white;
+  border-bottom-color: var(--color-success);
+}
+
+.card-success .card-title {
+  color: white;
+}
+
+.card-warning {
+  border-color: var(--color-warning);
+}
+
+.card-warning .card-header {
+  background-color: var(--color-warning);
+  color: white;
+  border-bottom-color: var(--color-warning);
+}
+
+.card-warning .card-title {
+  color: white;
+}
+
+.card-danger {
+  border-color: var(--color-danger);
+}
+
+.card-danger .card-header {
+  background-color: var(--color-danger);
+  color: white;
+  border-bottom-color: var(--color-danger);
+}
+
+.card-danger .card-title {
+  color: white;
+}
+
+/* Card sizes */
+.card-sm {
+  border-radius: var(--border-radius-md);
+}
+
+.card-sm .card-header,
+.card-sm .card-body,
+.card-sm .card-footer {
+  padding: var(--space-md);
+}
+
+.card-lg .card-header,
+.card-lg .card-body,
+.card-lg .card-footer {
+  padding: var(--space-xl);
+}
+
+/* Card without border */
+.card-borderless {
+  border: none;
+  box-shadow: var(--shadow-md);
+}
+
+/* Card with image */
+.card-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.card-image-top {
+  border-top-left-radius: var(--border-radius-lg);
+  border-top-right-radius: var(--border-radius-lg);
+}
+
+/* Clickable card */
+.card-clickable {
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.card-clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Card grid layout */
+.card-grid {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.card-grid-2 {
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.card-grid-3 {
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.card-grid-4 {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+/* Card actions */
+.card-actions {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+/* Responsive cards */
+@media (max-width: 768px) {
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-sm);
+  }
+  
+  .card-actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+  
+  .card-actions .btn {
+    flex: 1;
+  }
+  
+  .card-footer {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .card-header,
+  .card-body,
+  .card-footer {
+    padding: var(--space-md);
+  }
+}
+
  
