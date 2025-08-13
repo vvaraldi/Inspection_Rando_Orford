@@ -4,116 +4,93 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ski-Track - Connexion</title>
-  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/main.css">
 </head>
 
-<body>
+<body data-theme="alpine">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏔️</text></svg>">
-  <header>
-    <nav>
-      <div class="logo">Ski-Track</div>
+  
+  <header class="header">
+    <nav class="nav">
+      <div class="nav-logo">Ski-Track</div>
       <div class="nav-links">
         <a href="../index.html">Tableau de bord</a>
         <a href="login.html" class="active">Connexion</a>
       </div>
+      <button class="mobile-menu-btn" id="mobile-menu-btn">☰</button>
     </nav>
+    
+    <div class="mobile-nav" id="mobile-nav">
+      <div class="mobile-nav-header">
+        <div class="logo">Ski-Track</div>
+        <button class="mobile-nav-close" id="mobile-nav-close">✕</button>
+      </div>
+      <div class="mobile-nav-links">
+        <a href="../index.html">Tableau de bord</a>
+        <a href="login.html" class="active">Connexion</a>
+      </div>
+    </div>
   </header>
   
-  <main>
-    <div class="login-container">
-      <h1>Connexion</h1>
-      <form id="loginForm">
-        <div class="form-group">
-          <label for="email">Adresse email</label>
-          <input type="email" id="email" required>
+  <main class="main">
+    <div class="content-section">
+      <div class="auth-container">
+        <div class="auth-card">
+          <div class="auth-header">
+            <h1 class="auth-title">Connexion</h1>
+            <p class="auth-subtitle">
+              Connectez-vous à votre compte pour accéder au système d'inspection.
+            </p>
+          </div>
+          
+          <form class="auth-form" id="login-form">
+            <div class="form-group">
+              <label class="form-label" for="email">Adresse email</label>
+              <input 
+                type="email" 
+                class="form-control"
+                id="email" 
+                required 
+                placeholder="votre.email@example.com"
+                autocomplete="email"
+              >
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label" for="password">Mot de passe</label>
+              <input 
+                type="password" 
+                class="form-control"
+                id="password" 
+                required 
+                placeholder="Votre mot de passe"
+                autocomplete="current-password"
+              >
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-full" id="login-btn">
+              Se connecter
+            </button>
+            
+            <div class="status-messages">
+              <div id="error-message" class="alert alert-danger" style="display: none;"></div>
+            </div>
+          </form>
+          
+          <div class="auth-footer">
+            <a href="forgot-password.html" class="auth-link">Mot de passe oublié?</a>
+          </div>
         </div>
-        
-        <div class="form-group">
-          <label for="password">Mot de passe</label>
-          <input type="password" id="password" required>
-        </div>
-        
-        <button type="submit" class="btn">Se connecter</button>
-        
-        <div id="error-message" class="error-message"></div>
-		<div class="form-group">
-		  <a href="forgot-password.html" class="forgot-password-link">Mot de passe oublié?</a>
-		</div>
-      </form>
+      </div>
     </div>
   </main>
   
-  <!-- Scripts Firebase -->
+  <!-- Scripts -->
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
   
-  <script>
-    // Configuration Firebase
-    const firebaseConfig = {
-      apiKey: "AIzaSyDcBZrwGTskM7QUvanzLTACEJ_T-55j-DA",
-      authDomain: "trail-inspection.firebaseapp.com",
-      projectId: "trail-inspection",
-      storageBucket: "trail-inspection.appspot.com",
-      messagingSenderId: "VOTRE_MESSAGING_ID",
-      appId: "VOTRE_APP_ID"
-    };
-    
-    // Initialisation de Firebase
-    firebase.initializeApp(firebaseConfig);
-    
-    // Référence à l'auth
-    const auth = firebase.auth();
-    
-    // Vérifier si l'utilisateur est déjà connecté
-    auth.onAuthStateChanged(function(user) {
-      if (user) {
-        // Rediriger vers l'index si déjà connecté
-        window.location.href = '../index.html';
-      }
-    });
-    
-    // Gestion du formulaire de connexion
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      const errorMessage = document.getElementById('error-message');
-      
-      // Réinitialiser le message d'erreur
-      errorMessage.style.display = 'none';
-      errorMessage.textContent = '';
-      
-      // Connecter l'utilisateur
-      auth.signInWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-          // Connexion réussie
-          console.log('Connexion réussie');
-          window.location.href = '../index.html';
-        })
-        .catch((error) => {
-          // Gérer les erreurs
-          console.error('Erreur de connexion:', error);
-          errorMessage.style.display = 'block';
-          
-          switch(error.code) {
-            case 'auth/user-not-found':
-              errorMessage.textContent = 'Aucun utilisateur ne correspond à cette adresse email.';
-              break;
-            case 'auth/wrong-password':
-              errorMessage.textContent = 'Mot de passe incorrect.';
-              break;
-            case 'auth/invalid-email':
-              errorMessage.textContent = 'Adresse email invalide.';
-              break;
-            case 'auth/too-many-requests':
-              errorMessage.textContent = 'Trop de tentatives infructueuses. Veuillez réessayer plus tard.';
-              break;
-            default:
-              errorMessage.textContent = 'Erreur de connexion: ' + error.message;
-          }
-        });
-    });
-  </script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/mobile-menu.js"></script>
+  <script src="../js/login.js"></script>
 </body>
 </html>
