@@ -1,0 +1,256 @@
+/* ========================================
+   css/components/_alerts.css
+   ======================================== 
+   Styles for alert/status messages
+   ======================================== */
+
+.alert {
+  display: flex;
+  align-items: flex-start;
+  padding: var(--space-md);
+  border-radius: var(--border-radius-md);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  margin-bottom: var(--space-md);
+  border: var(--border-width) solid transparent;
+  position: relative;
+}
+
+.alert:last-child {
+  margin-bottom: 0;
+}
+
+/* Alert variants */
+.alert-success {
+  background-color: var(--color-green-50);
+  color: var(--color-green-800);
+  border-color: var(--color-green-200);
+}
+
+.alert-danger,
+.alert-error {
+  background-color: var(--color-red-50);
+  color: var(--color-red-800);
+  border-color: var(--color-red-200);
+}
+
+.alert-warning {
+  background-color: var(--color-yellow-50);
+  color: var(--color-yellow-800);
+  border-color: var(--color-yellow-200);
+}
+
+.alert-info {
+  background-color: var(--color-blue-50);
+  color: var(--color-blue-800);
+  border-color: var(--color-blue-200);
+}
+
+.alert-primary {
+  background-color: rgba(var(--theme-primary-rgb), 0.1);
+  color: var(--theme-primary-dark);
+  border-color: rgba(var(--theme-primary-rgb), 0.2);
+}
+
+/* Alert with icons */
+.alert-icon {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+}
+
+.alert-icon-symbol {
+  flex-shrink: 0;
+  font-size: var(--text-lg);
+  line-height: 1;
+}
+
+/* Dismissible alerts */
+.alert-dismissible {
+  padding-right: calc(var(--space-md) + 32px);
+}
+
+.alert-close {
+  position: absolute;
+  top: var(--space-sm);
+  right: var(--space-sm);
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  color: currentColor;
+  opacity: 0.6;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  font-size: var(--text-lg);
+  line-height: 1;
+}
+
+.alert-close:hover {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.alert-close:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px currentColor;
+}
+
+/* Clickable alerts */
+.alert-clickable {
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  user-select: none;
+}
+
+.alert-clickable:hover {
+  opacity: 0.8;
+  transform: translateY(-1px);
+}
+
+/* Alert sizes */
+.alert-sm {
+  padding: var(--space-sm);
+  font-size: var(--text-xs);
+}
+
+.alert-lg {
+  padding: var(--space-lg);
+  font-size: var(--text-base);
+}
+
+/* Alert with strong emphasis */
+.alert-strong {
+  font-weight: var(--font-semibold);
+}
+
+/* Alert list */
+.alert-list {
+  list-style: none;
+  margin: var(--space-sm) 0 0 0;
+  padding: 0;
+}
+
+.alert-list li {
+  margin-bottom: var(--space-xs);
+  position: relative;
+  padding-left: var(--space-md);
+}
+
+.alert-list li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: currentColor;
+}
+
+/* Status messages (legacy compatibility) */
+.status-message {
+  padding: var(--space-md);
+  border-radius: var(--border-radius-md);
+  font-size: var(--text-sm);
+  margin-top: var(--space-md);
+  display: none;
+}
+
+.success-message {
+  background-color: var(--color-green-50);
+  color: var(--color-green-800);
+  border: var(--border-width) solid var(--color-green-200);
+}
+
+.error-message {
+  background-color: var(--color-red-50);
+  color: var(--color-red-800);
+  border: var(--border-width) solid var(--color-red-200);
+}
+
+.warning-message {
+  background-color: var(--color-yellow-50);
+  color: var(--color-yellow-800);
+  border: var(--border-width) solid var(--color-yellow-200);
+}
+
+.info-message {
+  background-color: var(--color-blue-50);
+  color: var(--color-blue-800);
+  border: var(--border-width) solid var(--color-blue-200);
+}
+
+/* Alert animations */
+.alert-fade-in {
+  animation: alertFadeIn var(--transition-slow) ease-out;
+}
+
+.alert-fade-out {
+  animation: alertFadeOut var(--transition-slow) ease-in;
+}
+
+@keyframes alertFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes alertFadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+/* Responsive alerts */
+@media (max-width: 768px) {
+  .alert {
+    padding: var(--space-sm);
+    font-size: var(--text-xs);
+  }
+  
+  .alert-lg {
+    padding: var(--space-md);
+    font-size: var(--text-sm);
+  }
+}
+
+/* Toast-style alerts (floating) */
+.alert-toast {
+  position: fixed;
+  top: var(--space-lg);
+  right: var(--space-lg);
+  max-width: 400px;
+  z-index: var(--z-toast);
+  box-shadow: var(--shadow-lg);
+  animation: alertSlideIn var(--transition-base) ease-out;
+}
+
+@keyframes alertSlideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .alert-toast {
+    left: var(--space-md);
+    right: var(--space-md);
+    max-width: none;
+  }
+}
