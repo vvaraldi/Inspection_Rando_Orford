@@ -184,7 +184,7 @@
           </div>
           <div class="card-body">
             <div class="admin-sections">
-              <!-- Trails Section -->
+              <!-- old Trails Section
               <div class="admin-section">
                 <div class="admin-section-header">
                   <h3 class="admin-section-title">🥾 Sentiers</h3>
@@ -199,8 +199,9 @@
                   <div id="trails-status" class="alert alert-info" style="display: none;"></div>
                 </div>
               </div>
+			  -->
 
-              <!-- Shelters Section -->
+              <!-- old Shelters Section
               <div class="admin-section">
                 <div class="admin-section-header">
                   <h3 class="admin-section-title">🏠 Abris</h3>
@@ -215,6 +216,7 @@
                   <div id="shelters-status" class="alert alert-info" style="display: none;"></div>
                 </div>
               </div>
+			   -->
 
               <!-- Sample Data Section -->
               <div class="admin-section">
@@ -281,6 +283,45 @@
                   <div class="status-messages">
                     <div id="reset-status" class="alert alert-info" style="display: none;"></div>
                   </div>
+
+
+
+<!-- new place for init trail -->
+                  <div class="danger-action">
+                    <div class="danger-action-content">
+                      <h4>🥾 Sentiers</h4>
+                      <p>⚠️ Attention: Initialiser les données des sentiers de randonnée alpine du Mont Orford.</p>
+                    </div>
+                    <div class="danger-action-controls">
+                      <button class="btn btn-danger" id="init-trails-btn">
+                        Initialiser les sentiers
+                      </button>
+                    </div>
+                  </div>
+                  <div class="status-messages">
+                    <div id="trails-status" class="alert alert-info" style="display: none;"></div>
+                  </div>
+
+<!-- new place for init shelter -->
+                  <div class="danger-action">
+                    <div class="danger-action-content">
+                      <h4>🏠 Abris</h4>
+                      <p>⚠️ Attention: Cette action initialise les données des abris disponibles sur les sentiers.</p>
+                    </div>
+                    <div class="danger-action-controls">
+                      <button class="btn btn-danger" id="init-shelters-btn">
+                        Initialiser les abris
+                      </button>
+                    </div>
+                  </div>
+                  <div class="status-messages">
+                    <div id="shelters-status" class="alert alert-info" style="display: none;"></div>
+                  </div>
+
+
+
+
+
                 </div>
               </div>
             </div>
