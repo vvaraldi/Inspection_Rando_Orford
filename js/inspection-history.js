@@ -5,6 +5,8 @@
 
 class InspectionHistoryManager {
   constructor() {
+    console.log('Initializing InspectionHistoryManager');
+    
     this.allInspections = [];
     this.filteredInspections = [];
     this.currentPage = 1;
@@ -13,12 +15,21 @@ class InspectionHistoryManager {
     this.sortDirection = 'desc';
     this.filtersVisible = true;
     
+    // Check if Firebase is available
+    if (typeof db === 'undefined') {
+      console.error('Firebase Firestore not available');
+      this.showError('Firebase non disponible');
+      return;
+    }
+    
     this.initializeElements();
     this.bindEvents();
     this.loadData();
   }
 
   initializeElements() {
+    console.log('Initializing elements');
+    
     // Main elements
     this.loadingScreen = document.getElementById('loading');
     this.mainContent = document.getElementById('main-content');
@@ -28,6 +39,12 @@ class InspectionHistoryManager {
     this.paginationButtons = document.getElementById('pagination-buttons');
     this.paginationInfo = document.getElementById('pagination-info');
     this.resultsCount = document.getElementById('results-count');
+    
+    // Check critical elements
+    if (!this.inspectionsTable) {
+      console.error('Critical element missing: inspections-table');
+      return false;
+    }
     
     // Filter elements
     this.dateFilter = document.getElementById('date-filter');
@@ -53,22 +70,27 @@ class InspectionHistoryManager {
     
     // Export button
     this.exportBtn = document.getElementById('export-btn');
+    
+    console.log('Elements initialized successfully');
+    return true;
   }
 
   bindEvents() {
-    // Filter events
-    this.dateFilter.addEventListener('change', () => this.handleDateFilterChange());
-    this.typeFilter.addEventListener('change', () => this.applyFilters());
-    this.locationFilter.addEventListener('change', () => this.applyFilters());
-    this.statusFilter.addEventListener('change', () => this.applyFilters());
-    this.inspectorFilter.addEventListener('change', () => this.applyFilters());
-    this.searchInput.addEventListener('input', this.debounce(() => this.applyFilters(), 300));
-    this.resetFiltersBtn.addEventListener('click', () => this.resetFilters());
-    this.applyFiltersBtn.addEventListener('click', () => this.applyFilters());
-    this.pageSizeSelect.addEventListener('change', () => this.handlePageSizeChange());
+    console.log('Binding events');
+    
+    // Filter events - check if elements exist
+    if (this.dateFilter) this.dateFilter.addEventListener('change', () => this.handleDateFilterChange());
+    if (this.typeFilter) this.typeFilter.addEventListener('change', () => this.applyFilters());
+    if (this.locationFilter) this.locationFilter.addEventListener('change', () => this.applyFilters());
+    if (this.statusFilter) this.statusFilter.addEventListener('change', () => this.applyFilters());
+    if (this.inspectorFilter) this.inspectorFilter.addEventListener('change', () => this.applyFilters());
+    if (this.searchInput) this.searchInput.addEventListener('input', this.debounce(() => this.applyFilters(), 300));
+    if (this.resetFiltersBtn) this.resetFiltersBtn.addEventListener('click', () => this.resetFilters());
+    if (this.applyFiltersBtn) this.applyFiltersBtn.addEventListener('click', () => this.applyFilters());
+    if (this.pageSizeSelect) this.pageSizeSelect.addEventListener('change', () => this.handlePageSizeChange());
     
     // Toggle filters
-    this.toggleFiltersBtn.addEventListener('click', () => this.toggleFilters());
+    if (this.toggleFiltersBtn) this.toggleFiltersBtn.addEventListener('click', () => this.toggleFilters());
     
     // Table sorting
     document.querySelectorAll('th[data-sort]').forEach(th => {
@@ -76,33 +98,58 @@ class InspectionHistoryManager {
     });
     
     // Modal events
-    this.closeModalBtn.addEventListener('click', () => this.closeModal());
-    this.closeModalBtnFooter.addEventListener('click', () => this.closeModal());
-    this.modal.addEventListener('click', (e) => {
-      if (e.target === this.modal) this.closeModal();
-    });
+    if (this.closeModalBtn) this.closeModalBtn.addEventListener('click', () => this.closeModal());
+    if (this.closeModalBtnFooter) this.closeModalBtnFooter.addEventListener('click', () => this.closeModal());
+    if (this.modal) {
+      this.modal.addEventListener('click', (e) => {
+        if (e.target === this.modal) this.closeModal();
+      });
+    }
     
     // Export
-    this.exportBtn.addEventListener('click', () => this.exportData());
+    if (this.exportBtn) this.exportBtn.addEventListener('click', () => this.exportData());
     
-    // Pagination will be bound dynamically
+    console.log('Events bound successfully');
   }
 
   async loadData() {
     try {
       this.showLoading(true);
       
-      // Load inspections from Firebase
-      const inspectionsSnapshot = await db.collection('inspections').get();
-      this.allInspections = inspectionsSnapshot.docs.map(doc => {
+      // Load trail inspections
+      const trailInspectionsSnapshot = await db.collection('trail_inspections').get();
+      const trailInspections = trailInspectionsSnapshot.docs.map(doc => {
         const data = doc.data();
         return {
           id: doc.id,
+          type: 'trail',
           ...data,
           date: data.date ? data.date.toDate() : new Date(),
+          locationId: data.trail_id,
+          inspector: data.inspector_name || data.inspector_id || 'Non spécifié'
         };
       });
 
+      // Load shelter inspections
+      const shelterInspectionsSnapshot = await db.collection('shelter_inspections').get();
+      const shelterInspections = shelterInspectionsSnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          type: 'shelter',
+          ...data,
+          date: data.date ? data.date.toDate() : new Date(),
+          locationId: data.shelter_id,
+          inspector: data.inspector_name || data.inspector_id || 'Non spécifié'
+        };
+      });
+
+      // Combine all inspections
+      this.allInspections = [...trailInspections, ...shelterInspections];
+
+      // Load location names for each inspection
+      await this.loadLocationNames();
+      
       // Load locations for filters
       await this.loadFilterOptions();
       
@@ -116,21 +163,67 @@ class InspectionHistoryManager {
     }
   }
 
+  async loadLocationNames() {
+    try {
+      // Load trails
+      const trailsSnapshot = await db.collection('trails').get();
+      const trails = new Map();
+      trailsSnapshot.forEach(doc => {
+        trails.set(doc.id, doc.data());
+      });
+
+      // Load shelters
+      const sheltersSnapshot = await db.collection('shelters').get();
+      const shelters = new Map();
+      sheltersSnapshot.forEach(doc => {
+        shelters.set(doc.id, doc.data());
+      });
+
+      // Update inspection location names
+      this.allInspections.forEach(inspection => {
+        if (inspection.type === 'trail' && inspection.locationId) {
+          const trail = trails.get(inspection.locationId);
+          inspection.location = trail ? trail.name : 'Sentier inconnu';
+        } else if (inspection.type === 'shelter' && inspection.locationId) {
+          const shelter = shelters.get(inspection.locationId);
+          inspection.location = shelter ? shelter.name : 'Abri inconnu';
+        } else {
+          inspection.location = 'Lieu non spécifié';
+        }
+      });
+
+    } catch (error) {
+      console.error('Erreur lors du chargement des noms de lieux:', error);
+    }
+  }
+
   async loadFilterOptions() {
     try {
-      // Load locations
-      const locationsSnapshot = await db.collection('locations').get();
-      const locations = locationsSnapshot.docs.map(doc => ({
+      // Load trails
+      const trailsSnapshot = await db.collection('trails').get();
+      const trails = trailsSnapshot.docs.map(doc => ({
         id: doc.id,
-        ...doc.data()
+        name: doc.data().name,
+        type: 'trail'
       }));
+
+      // Load shelters
+      const sheltersSnapshot = await db.collection('shelters').get();
+      const shelters = sheltersSnapshot.docs.map(doc => ({
+        id: doc.id,
+        name: doc.data().name,
+        type: 'shelter'
+      }));
+
+      // Combine and sort locations
+      const allLocations = [...trails, ...shelters].sort((a, b) => a.name.localeCompare(b.name));
 
       // Populate location filter
       this.locationFilter.innerHTML = '<option value="all">Tous</option>';
-      locations.forEach(location => {
+      allLocations.forEach(location => {
         const option = document.createElement('option');
         option.value = location.id;
-        option.textContent = location.name;
+        option.textContent = `${location.name} (${location.type === 'trail' ? 'Sentier' : 'Abri'})`;
         this.locationFilter.appendChild(option);
       });
 
@@ -864,14 +957,31 @@ class InspectionHistoryManager {
 
 // Initialize when DOM is loaded and auth is ready
 document.addEventListener('DOMContentLoaded', function() {
+  // Check if we're on the inspection history page
+  if (!document.getElementById('inspections-table')) {
+    console.log('Not on inspection history page');
+    return;
+  }
+
+  // Wait for Firebase to be ready
+  if (typeof firebase === 'undefined') {
+    console.error('Firebase not loaded');
+    return;
+  }
+
   // Wait for auth to be ready
   firebase.auth().onAuthStateChanged(function(user) {
     if (user) {
       // User is authenticated, initialize the inspection history
+      console.log('User authenticated, initializing inspection history');
       window.inspectionHistory = new InspectionHistoryManager();
     } else {
       // Redirect to login if not authenticated
-      window.location.href = '../index.html';
+      console.log('User not authenticated, redirecting to login');
+      const loginUrl = window.location.pathname.includes('/pages/') 
+        ? 'login.html' 
+        : 'pages/login.html';
+      window.location.href = loginUrl;
     }
   });
 });
