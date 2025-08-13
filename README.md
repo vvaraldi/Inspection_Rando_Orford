@@ -4,6 +4,18 @@ Must :
 
 Index est clean... faire les autres pour sortir CSS et assuré que JS marche bien
 
+Done :
+ - index.html
+ - inspection-history.html
+ - forgot-password.html
+ - login.html
+ - admin.html
+
+To be done
+ - shelter-inspection.html"
+ - trail-inspection.html"
+ - change-password.html"
+ - Status.html"
 
 
 

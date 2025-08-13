@@ -3,6 +3,34 @@
  * Handles filtering, sorting, pagination and modal display
  */
 
+
+/**
+ * Récupère le nom de l'inspecteur à partir de son ID
+ * @param {string} inspectorId - L'ID de l'inspecteur
+ * @returns {Promise<string>} - Le nom de l'inspecteur ou une valeur par défaut
+ */
+async function getInspectorName(inspectorId) {
+  if (!inspectorId) {
+    console.warn("ID d'inspecteur manquant");
+    return "Inspecteur inconnu";
+  }
+  
+  try {
+    const inspectorDoc = await db.collection('inspectors').doc(inspectorId).get();
+    
+    if (inspectorDoc.exists) {
+      const data = inspectorDoc.data();
+      return data.name || "Inspecteur sans nom";
+    } else {
+      console.warn(`Inspecteur non trouvé: ${inspectorId}`);
+      return "Inspecteur inconnu";
+    }
+  } catch (error) {
+    console.error("Erreur lors de la récupération du nom de l'inspecteur:", error);
+    return "Inspecteur inconnu";
+  }
+}
+
 class InspectionHistoryManager {
   constructor() {
     console.log('Initializing InspectionHistoryManager');
@@ -112,56 +140,78 @@ class InspectionHistoryManager {
     console.log('Events bound successfully');
   }
 
-  async loadData() {
-    try {
-      this.showLoading(true);
+async loadData() {
+  try {
+    this.showLoading(true);
+    
+    // Load trail inspections
+    const trailInspectionsSnapshot = await db.collection('trail_inspections').get();
+    const trailInspections = await Promise.all(trailInspectionsSnapshot.docs.map(async doc => {
+      const data = doc.data();
       
-      // Load trail inspections
-      const trailInspectionsSnapshot = await db.collection('trail_inspections').get();
-      const trailInspections = trailInspectionsSnapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          type: 'trail',
-          ...data,
-          date: data.date ? data.date.toDate() : new Date(),
-          locationId: data.trail_id,
-          inspector: data.inspector_name || data.inspector_id || 'Non spécifié'
-        };
-      });
+      // Récupérer le nom de l'inspecteur
+      let inspectorName = "Non spécifié";
+      if (data.inspector_name) {
+        // Utiliser le nom déjà stocké si disponible
+        inspectorName = data.inspector_name;
+      } else if (data.inspector_id) {
+        // Sinon, récupérer le nom à partir de l'ID
+        inspectorName = await getInspectorName(data.inspector_id);
+      }
+      
+      return {
+        id: doc.id,
+        type: 'trail',
+        ...data,
+        date: data.date ? data.date.toDate() : new Date(),
+        locationId: data.trail_id,
+        inspector: inspectorName  // Utiliser le nom résolu au lieu de l'ID
+      };
+    }));
 
-      // Load shelter inspections
-      const shelterInspectionsSnapshot = await db.collection('shelter_inspections').get();
-      const shelterInspections = shelterInspectionsSnapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          type: 'shelter',
-          ...data,
-          date: data.date ? data.date.toDate() : new Date(),
-          locationId: data.shelter_id,
-          inspector: data.inspector_name || data.inspector_id || 'Non spécifié'
-        };
-      });
+    // Load shelter inspections
+    const shelterInspectionsSnapshot = await db.collection('shelter_inspections').get();
+    const shelterInspections = await Promise.all(shelterInspectionsSnapshot.docs.map(async doc => {
+      const data = doc.data();
+      
+      // Récupérer le nom de l'inspecteur
+      let inspectorName = "Non spécifié";
+      if (data.inspector_name) {
+        // Utiliser le nom déjà stocké si disponible
+        inspectorName = data.inspector_name;
+      } else if (data.inspector_id) {
+        // Sinon, récupérer le nom à partir de l'ID
+        inspectorName = await getInspectorName(data.inspector_id);
+      }
+      
+      return {
+        id: doc.id,
+        type: 'shelter',
+        ...data,
+        date: data.date ? data.date.toDate() : new Date(),
+        locationId: data.shelter_id,
+        inspector: inspectorName  // Utiliser le nom résolu au lieu de l'ID
+      };
+    }));
 
-      // Combine all inspections
-      this.allInspections = [...trailInspections, ...shelterInspections];
+    // Combine all inspections
+    this.allInspections = [...trailInspections, ...shelterInspections];
 
-      // Load location names for each inspection
-      await this.loadLocationNames();
-      
-      // Load locations for filters
-      await this.loadFilterOptions();
-      
-      // Initial filter and display
-      this.applyFilters();
-      
-      this.showMainContent();
-    } catch (error) {
-      console.error('Erreur lors du chargement des données:', error);
-      this.showError('Erreur lors du chargement des données');
-    }
+    // Load location names for each inspection
+    await this.loadLocationNames();
+    
+    // Load locations for filters
+    await this.loadFilterOptions();
+    
+    // Initial filter and display
+    this.applyFilters();
+    
+    this.showMainContent();
+  } catch (error) {
+    console.error('Erreur lors du chargement des données:', error);
+    this.showError('Erreur lors du chargement des données');
   }
+}
 
   async loadLocationNames() {
     try {
