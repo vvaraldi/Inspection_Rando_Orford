@@ -10,10 +10,10 @@ Done :
  - forgot-password.html
  - login.html
  - admin.html
+ - trail-inspection.html"
 
 To be done
  - shelter-inspection.html"
- - trail-inspection.html"
  - change-password.html"
  - Status.html"
 
