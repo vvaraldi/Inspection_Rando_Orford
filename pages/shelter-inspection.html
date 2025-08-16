@@ -4,689 +4,351 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ski-Track - Inspection d'abri</title>
-  <link rel="stylesheet" href="../css/styles.css">  
+  <link rel="stylesheet" href="../css/main.css">
 </head>
 
-<script>
-  window.onerror = function(message, source, lineno, colno, error) {
-    console.log("Erreur JavaScript: ", message, "à la ligne", lineno, "colonne", colno);
-    console.log("Source:", source);
-    console.log("Erreur complète:", error);
-    
-    // Afficher le contenu en cas d'erreur
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('main-content').style.display = 'block';
-    
-    return true; // Empêche l'affichage de l'erreur dans la console
-  };
-</script>
-
-<body>
+<body data-theme="alpine">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏔️</text></svg>">
-  <header>
-<!-- Pour les grands écrans -->
-  <nav>
-    <div class="logo">Ski-Track</div>
-    <!-- Menu desktop -->
-    <div class="nav-links">
-		<a href="../index.html">Tableau de bord</a>
-		<a href="trail-inspection.html">Inspection sentier</a>
-		<a href="shelter-inspection.html" class="active">Inspection abri</a>
-		<a href="inspection-history.html">Historique</a>
-		<a href="admin.html" id="admin-link" style="display: none;">Administration</a>
-		<a href="change-password.html">Mot de passe</a>
-		<a href="#" id="login-link">Connexion</a>
-    </div>
-    <!-- Bouton du menu mobile -->
-    <button class="mobile-menu-btn" id="mobile-menu-btn">☰</button>
-  </nav>
   
-  <!-- Menu mobile -->
-  <div class="mobile-nav" id="mobile-nav">
-    <div class="mobile-nav-header">
-      <div class="logo">Ski-Track</div>
-      <button class="mobile-nav-close" id="mobile-nav-close">✕</button>
+  <header class="header">
+    <nav class="nav">
+      <div class="nav-logo">Ski-Track</div>
+      <div class="nav-links">
+        <a href="../index.html">Tableau de bord</a>
+        <a href="trail-inspection.html">Inspection piste</a>
+        <a href="shelter-inspection.html" class="active">Inspection abri</a>
+        <a href="inspection-history.html">Historique</a>
+        <a href="admin.html" id="admin-link" style="display: none;">Administration</a>
+        <a href="change-password.html">Mot de passe</a>
+        <a href="#" id="login-link">Connexion</a>
+      </div>
+      <button class="mobile-menu-btn" id="mobile-menu-btn">☰</button>
+    </nav>
+    
+    <div class="mobile-nav" id="mobile-nav">
+      <div class="mobile-nav-header">
+        <div class="logo">Ski-Track</div>
+        <button class="mobile-nav-close" id="mobile-nav-close">✕</button>
+      </div>
+      <div class="mobile-nav-links">
+        <a href="../index.html">Tableau de bord</a>
+        <a href="trail-inspection.html">Inspection piste</a>
+        <a href="shelter-inspection.html" class="active">Inspection abri</a>
+        <a href="inspection-history.html">Historique</a>
+        <a href="admin.html" id="mobile-admin-link" style="display: none;">Administration</a>
+        <a href="change-password.html" id="mobile-password-link">Mot de passe</a>
+        <a href="#" id="mobile-login-link">Connexion</a>
+      </div>
     </div>
-    <div class="mobile-nav-links">
-      <a href="../index.html">Tableau de bord</a>
-      <a href="trail-inspection.html">Inspection sentier</a>
-      <a href="shelter-inspection.html" class="active">Inspection abri</a>
-      <a href="inspection-history.html">Historique</a>
-      <a href="admin.html" id="mobile-admin-link" style="display: none;">Administration</a>
-	  <a href="change-password.html" id="mobile-password-link">Mot de passe</a>
-	  <a href="#" id="mobile-login-link">Connexion</a>
-    </div>
-  </div>
-	
   </header>
   
-  <!-- Indicateur de chargement principal -->
-  <div id="loading">
-    <div style="text-align: center;">
+  <!-- Loading screen -->
+  <div id="loading" class="loading-screen">
+    <div class="loading-content">
       <div class="loading-spinner"></div>
       <p>Vérification de l'authentification...</p>
     </div>
   </div>
   
-  <!-- Contenu principal - caché initialement -->
-  <div id="main-content">
-    <main>
-      <div class="page-header">
-        <h1>Inspection d'abri</h1>
+  <!-- Main content -->
+  <div id="main-content" class="main" style="display: none;">
+    <div class="page-header">
+      <h1 class="page-title">Inspection d'abri</h1>
+      <div class="page-actions">
+        <button class="btn btn-secondary" id="cancel-btn">
+          ← Retour au tableau de bord
+        </button>
       </div>
-      
-      <div class="form-container">
-        <form id="shelterInspectionForm">
+    </div>
+    
+    <div class="content-section">
+      <div class="card">
+        <form class="inspection-form" id="shelter-inspection-form">
+          <!-- General Information Section -->
           <div class="form-section">
-            <h2 class="form-section-title">Informations générales</h2>
-            
-            <div class="dual-column">
+            <div class="form-section-header">
+              <h2 class="form-section-title">📍 Informations générales</h2>
+            </div>
+            <div class="form-section-body">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="form-label form-label-required" for="shelter-select">Abri</label>
+                  <select class="form-control" id="shelter-select" required>
+                    <option value="">Sélectionner un abri</option>
+                    <!-- Options loaded dynamically -->
+                  </select>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label" for="inspector-name">Inspecteur</label>
+                  <input type="text" class="form-control" id="inspector-name" readonly>
+                  <input type="hidden" id="inspector-id" name="inspector-id">
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label form-label-required" for="inspection-date">Date d'inspection</label>
+                  <input type="date" class="form-control" id="inspection-date" required>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label form-label-required" for="inspection-time">Heure d'inspection</label>
+                  <input type="time" class="form-control" id="inspection-time" required>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Shelter Condition Section -->
+          <div class="form-section">
+            <div class="form-section-header">
+              <h2 class="form-section-title">🏠 État général de l'abri</h2>
+            </div>
+            <div class="form-section-body">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="form-label form-label-required">État général</label>
+                  <div class="radio-group">
+                    <div class="radio-item">
+                      <input type="radio" id="condition-good" name="condition" value="good" class="form-radio">
+                      <label for="condition-good" class="radio-label">
+                        <span class="radio-indicator good"></span>
+                        <span class="radio-text">Bon état</span>
+                      </label>
+                    </div>
+                    <div class="radio-item">
+                      <input type="radio" id="condition-warning" name="condition" value="warning" class="form-radio">
+                      <label for="condition-warning" class="radio-label">
+                        <span class="radio-indicator warning"></span>
+                        <span class="radio-text">Attention requise</span>
+                      </label>
+                    </div>
+                    <div class="radio-item">
+                      <input type="radio" id="condition-critical" name="condition" value="critical" class="form-radio">
+                      <label for="condition-critical" class="radio-label">
+                        <span class="radio-indicator critical"></span>
+                        <span class="radio-text">État critique</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label">Propreté</label>
+                  <div class="radio-group">
+                    <div class="radio-item">
+                      <input type="radio" id="cleanliness-good" name="cleanliness" value="good" class="form-radio">
+                      <label for="cleanliness-good" class="radio-label">
+                        <span class="radio-indicator good"></span>
+                        <span class="radio-text">Propre</span>
+                      </label>
+                    </div>
+                    <div class="radio-item">
+                      <input type="radio" id="cleanliness-warning" name="cleanliness" value="warning" class="form-radio">
+                      <label for="cleanliness-warning" class="radio-label">
+                        <span class="radio-indicator warning"></span>
+                        <span class="radio-text">Moyennement propre</span>
+                      </label>
+                    </div>
+                    <div class="radio-item">
+                      <input type="radio" id="cleanliness-critical" name="cleanliness" value="critical" class="form-radio">
+                      <label for="cleanliness-critical" class="radio-label">
+                        <span class="radio-indicator critical"></span>
+                        <span class="radio-text">Sale</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Accessibilité</label>
+                  <div class="radio-group">
+                    <div class="radio-item">
+                      <input type="radio" id="accessibility-good" name="accessibility" value="good" class="form-radio">
+                      <label for="accessibility-good" class="radio-label">
+                        <span class="radio-indicator good"></span>
+                        <span class="radio-text">Dégagé</span>
+                      </label>
+                    </div>
+                    <div class="radio-item">
+                      <input type="radio" id="accessibility-warning" name="accessibility" value="warning" class="form-radio">
+                      <label for="accessibility-warning" class="radio-label">
+                        <span class="radio-indicator warning"></span>
+                        <span class="radio-text">Partiellement obstrué</span>
+                      </label>
+                    </div>
+                    <div class="radio-item">
+                      <input type="radio" id="accessibility-critical" name="accessibility" value="critical" class="form-radio">
+                      <label for="accessibility-critical" class="radio-label">
+                        <span class="radio-indicator critical"></span>
+                        <span class="radio-text">Bloqué</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Detailed Assessment Section -->
+          <div class="form-section">
+            <div class="form-section-header">
+              <h2 class="form-section-title">🔍 Évaluation détaillée</h2>
+            </div>
+            <div class="form-section-body">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="form-label" for="cleanliness-details">Détails sur la propreté</label>
+                  <textarea class="form-control" id="cleanliness-details" 
+                           placeholder="Décrivez l'état de propreté de l'abri..." 
+                           rows="3"></textarea>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label" for="accessibility-details">Détails sur l'accessibilité</label>
+                  <textarea class="form-control" id="accessibility-details" 
+                           placeholder="Décrivez l'état du chemin d'accès et de l'entrée..." 
+                           rows="3"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Issues Section -->
+          <div class="form-section">
+            <div class="form-section-header">
+              <h2 class="form-section-title">⚠️ Problèmes identifiés</h2>
+            </div>
+            <div class="form-section-body">
+              <div class="issues-container">
+                <div class="issues-checkboxes">
+                  <div class="checkbox-group">
+                    <div class="checkbox-item">
+                      <input type="checkbox" id="issue-roof" value="Problèmes de toiture" class="form-checkbox">
+                      <label for="issue-roof" class="checkbox-label">Problèmes de toiture</label>
+                    </div>
+                    <div class="checkbox-item">
+                      <input type="checkbox" id="issue-walls" value="Dommages aux murs" class="form-checkbox">
+                      <label for="issue-walls" class="checkbox-label">Dommages aux murs</label>
+                    </div>
+                    <div class="checkbox-item">
+                      <input type="checkbox" id="issue-door" value="Porte endommagée" class="form-checkbox">
+                      <label for="issue-door" class="checkbox-label">Porte endommagée</label>
+                    </div>
+                    <div class="checkbox-item">
+                      <input type="checkbox" id="issue-windows" value="Fenêtres cassées" class="form-checkbox">
+                      <label for="issue-windows" class="checkbox-label">Fenêtres cassées</label>
+                    </div>
+                    <div class="checkbox-item">
+                      <input type="checkbox" id="issue-floor" value="Plancher endommagé" class="form-checkbox">
+                      <label for="issue-floor" class="checkbox-label">Plancher endommagé</label>
+                    </div>
+                    <div class="checkbox-item">
+                      <input type="checkbox" id="issue-heating" value="Système de chauffage" class="form-checkbox">
+                      <label for="issue-heating" class="checkbox-label">Système de chauffage</label>
+                    </div>
+                    <div class="checkbox-item">
+                      <input type="checkbox" id="issue-furniture" value="Mobilier manquant/cassé" class="form-checkbox">
+                      <label for="issue-furniture" class="checkbox-label">Mobilier manquant/cassé</label>
+                    </div>
+                    <div class="checkbox-item">
+                      <input type="checkbox" id="issue-supplies" value="Équipements de secours" class="form-checkbox">
+                      <label for="issue-supplies" class="checkbox-label">Équipements de secours</label>
+                    </div>
+                    <div class="checkbox-item">
+                      <input type="checkbox" id="issue-cleanliness" value="Problèmes de propreté" class="form-checkbox">
+                      <label for="issue-cleanliness" class="checkbox-label">Problèmes de propreté</label>
+                    </div>
+                    <div class="checkbox-item">
+                      <input type="checkbox" id="issue-access" value="Accès difficile" class="form-checkbox">
+                      <label for="issue-access" class="checkbox-label">Accès difficile</label>
+                    </div>
+                    <div class="checkbox-item">
+                      <input type="checkbox" id="issue-signage" value="Signalisation manquante" class="form-checkbox">
+                      <label for="issue-signage" class="checkbox-label">Signalisation manquante</label>
+                    </div>
+                    <div class="checkbox-item">
+                      <input type="checkbox" id="issue-safety" value="Risques pour la sécurité" class="form-checkbox">
+                      <label for="issue-safety" class="checkbox-label">Risques pour la sécurité</label>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label" for="other-issues">Autres problèmes</label>
+                  <textarea class="form-control" id="other-issues" 
+                           placeholder="Décrivez tout autre problème non listé ci-dessus..." 
+                           rows="3"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Photos Section -->
+          <div class="form-section">
+            <div class="form-section-header">
+              <h2 class="form-section-title">📷 Documentation photographique</h2>
+            </div>
+            <div class="form-section-body">
               <div class="form-group">
-                <label for="shelter-select">Abri</label>
-                <select id="shelter-select" required>
-                  <option value="">Sélectionner un abri</option>
-                  <!-- Les options seront chargées dynamiquement -->
-                </select>
+                <div class="file-upload-area" id="photo-upload">
+                  <div class="file-upload-content">
+                    <div class="file-upload-icon">📷</div>
+                    <p class="file-upload-text">Déposez des photos ici ou cliquez pour parcourir</p>
+                    <p class="file-upload-hint">Format accepté: JPG, PNG • Taille max: 10 MB par photo</p>
+                  </div>
+                  <input type="file" id="file-input" multiple accept="image/*" class="file-input-hidden">
+                </div>
+                
+                <div class="photo-preview-container" id="preview-container">
+                  <!-- Photo previews will be added here dynamically -->
+                </div>
               </div>
-              
+            </div>
+          </div>
+
+          <!-- Additional Details Section -->
+          <div class="form-section">
+            <div class="form-section-header">
+              <h2 class="form-section-title">📝 Commentaires additionnels</h2>
+            </div>
+            <div class="form-section-body">
               <div class="form-group">
-                <label for="inspector-name">Inspecteur</label>
-                <input type="text" id="inspector-name" readonly>
-				<input type="hidden" id="inspector-id" name="inspector-id">
-              </div>
-            </div>
-            
-            <div class="dual-column">
-              <div class="form-group">
-                <label for="inspection-date">Date</label>
-                <input type="date" id="inspection-date" required>
-              </div>
-              
-              <div class="form-group">
-                <label for="inspection-time">Heure</label>
-                <input type="time" id="inspection-time" required>
+                <label class="form-label" for="comments">Commentaires généraux et observations</label>
+                <textarea class="form-control" id="comments" 
+                         placeholder="Ajoutez des commentaires détaillés, observations particulières, recommandations pour l'entretien..." 
+                         rows="4"></textarea>
               </div>
             </div>
           </div>
-          
-          <div class="form-section">
-            <h2 class="form-section-title">État de l'abri</h2>
-            
-            <div class="form-group">
-              <label>État général de la structure</label>
-              
-              <div class="condition-option">
-                <input type="radio" name="condition" id="condition-good" value="good">
-                <span class="condition-label">
-                  <strong class="good">Bon</strong> - Structure en bon état, aucun problème majeur
-                </span>
-              </div>
-              
-              <div class="condition-option">
-                <input type="radio" name="condition" id="condition-warning" value="warning" checked>
-                <span class="condition-label">
-                  <strong class="warning">Attention</strong> - Problèmes mineurs nécessitant une intervention
-                </span>
-              </div>
-              
-              <div class="condition-option">
-                <input type="radio" name="condition" id="condition-critical" value="critical">
-                <span class="condition-label">
-                  <strong class="critical">Critique</strong> - Problèmes importants, intervention urgente requise
-                </span>
-              </div>
-            </div>
-            
-            <div class="form-group">
-              <label>Problèmes identifiés</label>
-              
-              <div class="issue-list" id="issues-container">
-                <!-- Les problèmes seront ajoutés ici dynamiquement -->
-              </div>
-              
-              <button type="button" class="add-issue-btn" id="add-issue-btn">+ Ajouter un problème</button>
-            </div>
+
+          <!-- Form Actions -->
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" id="cancel-action">
+              Annuler
+            </button>
+            <button type="submit" class="btn btn-primary" id="submit-btn">
+              Enregistrer l'inspection
+            </button>
           </div>
-          
-          <div class="form-section">
-            <h2 class="form-section-title">Propreté</h2>
-            
-            <div class="form-group">
-              <label>Niveau de propreté</label>
-              
-              <div class="condition-option">
-                <input type="radio" name="cleanliness" id="cleanliness-good" value="good">
-                <span class="condition-label">
-                  <strong class="good">Propre</strong> - Abri propre, aucun déchet ni dégradation
-                </span>
-              </div>
-              
-              <div class="condition-option">
-                <input type="radio" name="cleanliness" id="cleanliness-warning" value="warning" checked>
-                <span class="condition-label">
-                  <strong class="warning">Moyen</strong> - Quelques déchets ou saleté, nettoyage recommandé
-                </span>
-              </div>
-              
-              <div class="condition-option">
-                <input type="radio" name="cleanliness" id="cleanliness-critical" value="critical">
-                <span class="condition-label">
-                  <strong class="critical">Sale</strong> - Nombreux déchets ou dégradations, nettoyage urgent
-                </span>
-              </div>
-            </div>
-            
-            <div class="form-group">
-              <label for="cleanliness-details">Détails sur la propreté</label>
-              <textarea id="cleanliness-details" placeholder="Décrivez l'état de propreté de l'abri..."></textarea>
-            </div>
-          </div>
-          
-          <div class="form-section">
-            <h2 class="form-section-title">Accessibilité</h2>
-            
-            <div class="form-group">
-              <label>État du chemin d'accès</label>
-              
-              <div class="condition-option">
-                <input type="radio" name="accessibility" id="accessibility-good" value="good" checked>
-                <span class="condition-label">
-                  <strong class="good">Dégagé</strong> - Accès facile et dégagé
-                </span>
-              </div>
-              
-              <div class="condition-option">
-                <input type="radio" name="accessibility" id="accessibility-warning" value="warning">
-                <span class="condition-label">
-                  <strong class="warning">Partiellement obstrué</strong> - Quelques obstacles sur le chemin
-                </span>
-              </div>
-              
-              <div class="condition-option">
-                <input type="radio" name="accessibility" id="accessibility-critical" value="critical">
-                <span class="condition-label">
-                  <strong class="critical">Bloqué</strong> - Accès difficile ou dangereux
-                </span>
-              </div>
-            </div>
-            
-            <div class="form-group">
-              <label for="accessibility-details">Commentaires sur l'accessibilité</label>
-              <textarea id="accessibility-details" placeholder="Décrivez l'état du chemin d'accès..."></textarea>
-            </div>
-          </div>
-          
-          <div class="form-section">
-            <h2 class="form-section-title">Photos</h2>
-            
-            <div class="form-group">
-              <div class="file-upload" id="photo-upload">
-                <div class="file-icon">📷</div>
-                <p>Déposez des photos ici ou cliquez pour parcourir</p>
-                <p style="font-size: 0.875rem; color: #6b7280; margin-top: 0.5rem;">Format accepté: JPG, PNG • Taille max: 10 MB</p>
-                <input type="file" id="file-input" multiple accept="image/*" style="display: none;">
-              </div>
-              <div id="preview-container" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px;"></div>
-            </div>
-          </div>
-          
-          <div class="form-section">
-            <h2 class="form-section-title">Commentaires additionnels</h2>
-            
-            <div class="form-group">
-              <label for="comments">Commentaires généraux</label>
-              <textarea id="comments" placeholder="Ajoutez des commentaires ou des observations supplémentaires..."></textarea>
-            </div>
-          </div>
-          
-          <div class="button-group">
-            <button type="button" class="btn btn-secondary" id="cancel-btn">Annuler</button>
-            <button type="submit" class="btn">Enregistrer l'inspection</button>
+
+          <!-- Status Messages -->
+          <div class="status-messages">
+            <div id="success-message" class="alert alert-success" style="display: none;"></div>
+            <div id="error-message" class="alert alert-danger" style="display: none;"></div>
           </div>
         </form>
       </div>
-    </main>
+    </div>
   </div>
-  
-<!-- Scripts Firebase -->
+
+  <!-- Scripts -->
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage-compat.js"></script>
   
-  <!-- Scripts de l'application -->
   <script src="../js/auth.js"></script>
   <script src="../js/mobile-menu.js"></script>
-
-// Structure complète pour le script dans shelter-inspection.html
-
-<script>
-// 1. Variables globales en haut
-let storage = null;
-let selectedFiles = [];
-
-// 2. Initialisation du Storage
-try {
-  if (typeof firebase !== 'undefined' && firebase.storage) {
-    storage = firebase.storage();
-    console.log("Firebase Storage initialisé avec succès");
-  } else {
-    console.error("Firebase Storage n'est pas disponible");
-  }
-} catch (error) {
-  console.error("Erreur lors de l'initialisation de Firebase Storage:", error);
-}
-
-// 3. Fonction globale appelée par auth.js - PLACER ICI
-window.loadShelterInspectionData = function() {
-  console.log("Chargement des données pour l'inspection d'abri...");
-  fillInspectorField();
-  loadShelters();
-};
-
-// 4. Initialisation au chargement de la page
-document.addEventListener('DOMContentLoaded', function() {
-  // Initialiser immédiatement les éléments qui ne dépendent pas de l'auth
-  setCurrentDateTime();
-  setupPhotoUpload();
-  setupForm();
-  
-  // Les données nécessitant l'auth seront chargées par auth.js
-});
-
-// 5. Toutes les autres fonctions après
-function setCurrentDateTime() {
-  const now = new Date();
-  const dateField = document.getElementById('inspection-date');
-  const timeField = document.getElementById('inspection-time');
-  
-  // Format de la date YYYY-MM-DD
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  dateField.value = `${year}-${month}-${day}`;
-  
-  // Format de l'heure HH:MM
-  const hours = String(now.getHours()).padStart(2, '0');
-  const minutes = String(now.getMinutes()).padStart(2, '0');
-  timeField.value = `${hours}:${minutes}`;
-}
-
-async function loadShelters() {
-  try {
-    console.log("Début du chargement des abris...");
-    
-    if (!db) {
-      console.error("Firebase Firestore n'est pas initialisé");
-      return;
-    }
-    
-    const sheltersSnapshot = await db.collection('shelters').orderBy('name').get();
-    const shelterSelect = document.getElementById('shelter-select');
-    
-    if (!shelterSelect) {
-      console.error("Élément shelter-select non trouvé");
-      return;
-    }
-    
-    console.log(`${sheltersSnapshot.size} abris trouvés`);
-    
-    // Vider les options existantes
-    shelterSelect.innerHTML = '<option value="">Sélectionner un abri</option>';
-    
-    // Ajouter les nouveaux abris
-    sheltersSnapshot.forEach(doc => {
-      const shelter = doc.data();
-      const option = document.createElement('option');
-      option.value = doc.id;
-      option.textContent = `${shelter.name} (${shelter.altitude} m)`;
-      shelterSelect.appendChild(option);
-    });
-    
-    console.log("Chargement des abris terminé");
-    
-  } catch (error) {
-    console.error("Erreur lors du chargement des abris:", error);
-    const shelterSelect = document.getElementById('shelter-select');
-    if (shelterSelect) {
-      shelterSelect.innerHTML = '<option value="">Erreur lors du chargement des abris</option>';
-    }
-  }
-}
-
-function fillInspectorField() {
-  const user = firebase.auth().currentUser;
-  if (!user) {
-    console.warn("Aucun utilisateur connecté");
-    return;
-  }
-
-  console.log("Remplissage du champ inspecteur pour:", user.uid);
-  
-  db.collection('inspectors').doc(user.uid).get()
-    .then(inspectorDoc => {
-      if (inspectorDoc.exists) {
-        const inspectorData = inspectorDoc.data();
-        const inspectorNameField = document.getElementById('inspector-name');
-        let inspectorIdField = document.getElementById('inspector-id');
-        
-        // Préremplir le champ avec le nom de l'inspecteur
-        if (inspectorNameField) {
-          inspectorNameField.value = inspectorData.name || user.email;
-          console.log("Nom inspecteur défini:", inspectorData.name);
-        }
-        
-        // Stocker l'ID de l'inspecteur
-        if (!inspectorIdField) {
-          // Créer le champ s'il n'existe pas
-          const form = document.getElementById('shelterInspectionForm');
-          if (form) {
-            inspectorIdField = document.createElement('input');
-            inspectorIdField.type = 'hidden';
-            inspectorIdField.id = 'inspector-id';
-            inspectorIdField.name = 'inspector-id';
-            form.appendChild(inspectorIdField);
-          }
-        }
-        
-        if (inspectorIdField) {
-          inspectorIdField.value = user.uid;
-          console.log("ID inspecteur défini:", user.uid);
-        }
-      } else {
-        console.warn("Aucune information d'inspecteur trouvée pour cet utilisateur");
-      }
-    })
-    .catch(error => {
-      console.error("Erreur lors du chargement des informations de l'inspecteur:", error);
-    });
-}
-
-function setupPhotoUpload() {
-  const photoUpload = document.getElementById('photo-upload');
-  const fileInput = document.getElementById('file-input');
-  const previewContainer = document.getElementById('preview-container');
-  
-  photoUpload.addEventListener('click', () => {
-    fileInput.click();
-  });
-  
-  photoUpload.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    photoUpload.style.backgroundColor = '#f3f4f6';
-  });
-  
-  photoUpload.addEventListener('dragleave', () => {
-    photoUpload.style.backgroundColor = '';
-  });
-  
-  photoUpload.addEventListener('drop', (e) => {
-    e.preventDefault();
-    photoUpload.style.backgroundColor = '';
-    if (e.dataTransfer.files.length) {
-      fileInput.files = e.dataTransfer.files;
-      handleFileSelect(e.dataTransfer.files);
-    }
-  });
-  
-  fileInput.addEventListener('change', () => {
-    handleFileSelect(fileInput.files);
-  });
-}
-
-function handleFileSelect(files) {
-  if (!files.length) return;
-  
-  const previewContainer = document.getElementById('preview-container');
-  
-  [...files].forEach(file => {
-    // Vérifier le type de fichier
-    if (!file.type.startsWith('image/')) {
-      alert(`Le fichier "${file.name}" n'est pas une image et sera ignoré.`);
-      return;
-    }
-    
-    // Vérifier la taille (max 10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      alert(`Le fichier "${file.name}" est trop volumineux (${(file.size / 1024 / 1024).toFixed(2)}MB). Taille maximum: 10MB.`);
-      return;
-    }
-    
-    selectedFiles.push(file);
-    
-    const reader = new FileReader();
-    reader.onload = function(event) {
-      const previewWrapper = document.createElement('div');
-      previewWrapper.style.position = 'relative';
-      
-      const img = document.createElement('img');
-      img.src = event.target.result;
-      img.style.width = '100px';
-      img.style.height = '100px';
-      img.style.objectFit = 'cover';
-      img.style.borderRadius = '4px';
-      
-      const removeBtn = document.createElement('button');
-      removeBtn.innerHTML = '&times;';
-      removeBtn.style.position = 'absolute';
-      removeBtn.style.top = '2px';
-      removeBtn.style.right = '2px';
-      removeBtn.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
-      removeBtn.style.border = 'none';
-      removeBtn.style.borderRadius = '50%';
-      removeBtn.style.width = '20px';
-      removeBtn.style.height = '20px';
-      removeBtn.style.cursor = 'pointer';
-      removeBtn.style.display = 'flex';
-      removeBtn.style.justifyContent = 'center';
-      removeBtn.style.alignItems = 'center';
-      
-      removeBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        const index = selectedFiles.indexOf(file);
-        if (index !== -1) {
-          selectedFiles.splice(index, 1);
-        }
-        previewWrapper.remove();
-      });
-      
-      previewWrapper.appendChild(img);
-      previewWrapper.appendChild(removeBtn);
-      previewContainer.appendChild(previewWrapper);
-    };
-    
-    reader.readAsDataURL(file);
-  });
-}
-
-function setupForm() {
-  // Gérer l'ajout de problèmes
-  document.getElementById('add-issue-btn').addEventListener('click', function() {
-    addIssue();
-  });
-  
-  // Gérer l'annulation du formulaire
-  document.getElementById('cancel-btn').addEventListener('click', function() {
-    if (confirm('Êtes-vous sûr de vouloir annuler cette inspection? Les données non enregistrées seront perdues.')) {
-      window.location.href = '../index.html';
-    }
-  });
-  
-  // Gérer la soumission du formulaire
-  document.getElementById('shelterInspectionForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    // Vérifier que l'utilisateur est connecté
-    if (!firebase.auth().currentUser) {
-      alert('Vous devez être connecté pour soumettre une inspection.');
-      return;
-    }
-    
-    // Désactiver le bouton de soumission
-    const submitBtn = this.querySelector('button[type="submit"]');
-    const originalText = submitBtn.textContent;
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Envoi en cours...';
-    
-    try {
-      // Récupérer les valeurs du formulaire
-      const shelterId = document.getElementById('shelter-select').value;
-      const inspectorId = document.getElementById('inspector-id').value;
-      const date = new Date(`${document.getElementById('inspection-date').value}T${document.getElementById('inspection-time').value}`);
-      const condition = document.querySelector('input[name="condition"]:checked').value;
-      const cleanliness = document.querySelector('input[name="cleanliness"]:checked').value;
-      const accessibility = document.querySelector('input[name="accessibility"]:checked').value;
-      const cleanlinessDetails = document.getElementById('cleanliness-details').value;
-      const accessibilityDetails = document.getElementById('accessibility-details').value;
-      const comments = document.getElementById('comments').value;
-      
-      // Récupérer les problèmes
-      const issues = [];
-      document.querySelectorAll('#issues-container .issue-text').forEach(item => {
-        issues.push(item.textContent);
-      });
-      
-      // Créer le document d'inspection
-      const inspectionData = {
-        shelter_id: shelterId,
-        inspector_id: inspectorId,
-        date: firebase.firestore.Timestamp.fromDate(date),
-        condition: condition,
-        cleanliness: cleanliness,
-        accessibility: accessibility,
-        issues: issues,
-        cleanliness_details: cleanlinessDetails,
-        accessibility_details: accessibilityDetails,
-        comments: comments,
-        photos: [],
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      };
-      
-      console.log("Ajout de l'inspection d'abri à Firestore...");
-      
-      // Ajouter l'inspection à Firestore
-      const docRef = await db.collection('shelter_inspections').add(inspectionData);
-      
-      console.log("Inspection d'abri ajoutée avec l'ID:", docRef.id);
-      
-      // Télécharger les photos si présentes
-      if (selectedFiles.length > 0) {
-        console.log(`Début de l'upload de ${selectedFiles.length} photos...`);
-        submitBtn.textContent = `Upload des photos (${selectedFiles.length})...`;
-        
-        try {
-          const photoUrls = await uploadPhotos(docRef.id, selectedFiles);
-          
-          if (photoUrls.length > 0) {
-            await docRef.update({
-              photos: photoUrls
-            });
-          }
-          
-        } catch (photoError) {
-          console.error("Erreur lors de l'upload des photos:", photoError);
-          
-          if (confirm(`Inspection d'abri sauvegardée avec succès, mais erreur lors de l'upload des photos: ${photoError.message}\n\nVoulez-vous continuer sans les photos ?`)) {
-            // Continuer sans les photos
-          } else {
-            await docRef.delete();
-            throw new Error("Upload annulé par l'utilisateur");
-          }
-        }
-      }
-      
-      // Rediriger vers la page d'accueil
-      alert('Inspection d\'abri enregistrée avec succès!');
-      window.location.href = '../index.html';
-      
-    } catch (error) {
-      console.error("Erreur lors de l'enregistrement de l'inspection d'abri:", error);
-      alert(`Erreur lors de l'enregistrement de l'inspection d'abri: ${error.message}`);
-      
-      // Réactiver le bouton
-      submitBtn.disabled = false;
-      submitBtn.textContent = originalText;
-    }
-  });
-}
-
-function addIssue() {
-  const issue = prompt('Décrivez le problème:');
-  if (issue && issue.trim() !== '') {
-    const issuesContainer = document.getElementById('issues-container');
-    const issueItem = document.createElement('div');
-    issueItem.className = 'issue-item';
-    issueItem.innerHTML = `
-      <span class="issue-text">${issue.trim()}</span>
-      <button type="button" class="remove-issue">&times;</button>
-    `;
-    
-    issueItem.querySelector('.remove-issue').addEventListener('click', function() {
-      issueItem.remove();
-    });
-    
-    issuesContainer.appendChild(issueItem);
-  }
-}
-
-async function uploadPhotos(inspectionId, files) {
-  const photoUrls = [];
-  
-  if (!storage) {
-    console.error("Firebase Storage n'est pas initialisé");
-    throw new Error("Service de stockage non disponible");
-  }
-  
-  try {
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      
-      if (!file.type.startsWith('image/')) continue;
-      if (file.size > 10 * 1024 * 1024) continue;
-      
-      const timestamp = Date.now();
-      const extension = file.name.split('.').pop().toLowerCase();
-      const filename = `${timestamp}-${i}.${extension}`;
-      
-      const photoRef = storage.ref(`inspections/shelters/${inspectionId}/${filename}`);
-      
-      try {
-        await photoRef.put(file, {
-          contentType: file.type,
-          customMetadata: {
-            originalName: file.name,
-            uploadedAt: new Date().toISOString()
-          }
-        });
-        
-        const url = await photoRef.getDownloadURL();
-        photoUrls.push(url);
-        
-      } catch (uploadError) {
-        console.error(`Erreur lors de l'upload de la photo ${i + 1}:`, uploadError);
-        
-        if (uploadError.code === 'storage/unauthorized') {
-          throw new Error("Permissions insuffisantes pour uploader les photos.");
-        }
-      }
-    }
-    
-    return photoUrls;
-    
-  } catch (error) {
-    console.error("Erreur lors de l'upload des photos:", error);
-    throw error;
-  }
-}
-
-// Adapter les listes déroulantes pour mobile
-document.querySelectorAll('select').forEach(select => {
-  select.addEventListener('focus', function() {
-    if (window.innerWidth <= 768) {
-      this.style.fontSize = '16px';
-    }
-  });
-});
-</script>
+  <script src="../js/shelter-inspection.js"></script>
 </body>
 </html>
