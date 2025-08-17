@@ -1,0 +1,361 @@
+/* ========================================
+   PAGES/INSPECTION.CSS - Merged Inspection Styles
+   ======================================== 
+   Combines inspection-history and inspection-forms styles
+   with duplications removed
+   ======================================== */
+
+/* ========================================
+   Inspection Page Layout
+   ======================================== */
+.inspection-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-xl);
+}
+
+.inspection-form {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* ========================================
+   Inspection Filters Section
+   ======================================== */
+.filters-section {
+  background-color: var(--theme-surface);
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-lg);
+  margin-bottom: var(--space-xl);
+  border: var(--border-width) solid var(--theme-border);
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.filter-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+  padding-top: var(--space-lg);
+  border-top: var(--border-width) solid var(--theme-border);
+}
+
+/* ========================================
+   Form Sections (for inspection forms)
+   ======================================== */
+.form-section {
+  margin-bottom: var(--space-2xl);
+  background-color: var(--theme-surface);
+  border-radius: var(--border-radius-lg);
+  border: var(--border-width) solid var(--theme-border);
+  overflow: hidden;
+}
+
+.form-section-header {
+  padding: var(--space-lg);
+  background-color: var(--color-gray-50);
+  border-bottom: var(--border-width) solid var(--theme-border);
+}
+
+.form-section-title {
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  color: var(--theme-text);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.form-section-body {
+  padding: var(--space-lg);
+}
+
+/* ========================================
+   Form Grid Layout
+   ======================================== */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--space-lg);
+}
+
+.form-grid-2 {
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+/* ========================================
+   Custom Radio Groups (for inspection forms)
+   ======================================== */
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.radio-group-horizontal {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.radio-item {
+  display: flex;
+  align-items: center;
+}
+
+.form-radio {
+  display: none;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  cursor: pointer;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--border-radius-md);
+  transition: all var(--transition-fast);
+  flex: 1;
+  border: 2px solid transparent;
+}
+
+.radio-label:hover {
+  background-color: var(--color-gray-50);
+}
+
+.radio-indicator {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--theme-border);
+  position: relative;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.radio-indicator::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: white;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.form-radio:checked + .radio-label {
+  background-color: rgba(var(--theme-primary-rgb), 0.1);
+  border-color: var(--theme-primary);
+}
+
+.form-radio:checked + .radio-label .radio-indicator {
+  background-color: var(--theme-primary);
+  border-color: var(--theme-primary);
+}
+
+.form-radio:checked + .radio-label .radio-indicator::after {
+  opacity: 1;
+}
+
+/* ========================================
+   Status-based Radio Styles
+   ======================================== */
+.radio-label[data-status="excellent"] .radio-indicator { border-color: var(--color-success); }
+.form-radio:checked + .radio-label[data-status="excellent"] .radio-indicator {
+  background-color: var(--color-success);
+  border-color: var(--color-success);
+}
+
+.radio-label[data-status="good"] .radio-indicator { border-color: var(--color-blue-500); }
+.form-radio:checked + .radio-label[data-status="good"] .radio-indicator {
+  background-color: var(--color-blue-500);
+  border-color: var(--color-blue-500);
+}
+
+.radio-label[data-status="attention"] .radio-indicator { border-color: var(--color-warning); }
+.form-radio:checked + .radio-label[data-status="attention"] .radio-indicator {
+  background-color: var(--color-warning);
+  border-color: var(--color-warning);
+}
+
+.radio-label[data-status="urgent"] .radio-indicator { border-color: var(--color-danger); }
+.form-radio:checked + .radio-label[data-status="urgent"] .radio-indicator {
+  background-color: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
+/* ========================================
+   Inspection History Table
+   ======================================== */
+.inspection-table {
+  width: 100%;
+  background-color: var(--theme-surface);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.inspection-table thead {
+  background-color: var(--color-gray-50);
+}
+
+.inspection-table th {
+  padding: var(--space-md);
+  text-align: left;
+  font-weight: var(--font-semibold);
+  color: var(--theme-text);
+  border-bottom: 2px solid var(--theme-border);
+}
+
+.inspection-table td {
+  padding: var(--space-md);
+  border-bottom: 1px solid var(--theme-border);
+}
+
+.inspection-table tbody tr {
+  transition: background-color var(--transition-fast);
+}
+
+.inspection-table tbody tr:hover {
+  background-color: var(--color-gray-50);
+}
+
+/* ========================================
+   Inspection Status Badges
+   ======================================== */
+.inspection-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--border-radius-full);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+}
+
+.inspection-badge-excellent {
+  background-color: rgba(var(--color-success-rgb), 0.1);
+  color: var(--color-success);
+}
+
+.inspection-badge-good {
+  background-color: rgba(var(--color-blue-rgb), 0.1);
+  color: var(--color-blue-500);
+}
+
+.inspection-badge-attention {
+  background-color: rgba(var(--color-warning-rgb), 0.1);
+  color: var(--color-warning);
+}
+
+.inspection-badge-urgent {
+  background-color: rgba(var(--color-danger-rgb), 0.1);
+  color: var(--color-danger);
+}
+
+/* ========================================
+   Photo Upload Section
+   ======================================== */
+.photo-upload-section {
+  border: 2px dashed var(--theme-border);
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-xl);
+  text-align: center;
+  transition: all var(--transition-fast);
+}
+
+.photo-upload-section:hover {
+  border-color: var(--theme-primary);
+  background-color: rgba(var(--theme-primary-rgb), 0.05);
+}
+
+.photo-upload-label {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.photo-upload-icon {
+  font-size: 3rem;
+  color: var(--theme-primary);
+}
+
+.photo-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--space-md);
+  margin-top: var(--space-lg);
+}
+
+.photo-preview-item {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  background-color: var(--color-gray-100);
+}
+
+.photo-preview-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-remove-btn {
+  position: absolute;
+  top: var(--space-xs);
+  right: var(--space-xs);
+  background-color: var(--color-danger);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-full);
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.photo-preview-item:hover .photo-remove-btn {
+  opacity: 1;
+}
+
+/* ========================================
+   Responsive Adjustments
+   ======================================== */
+@media (max-width: 768px) {
+  .filters-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .inspection-table {
+    font-size: var(--text-sm);
+  }
+  
+  .inspection-table th,
+  .inspection-table td {
+    padding: var(--space-sm);
+  }
+  
+  .photo-preview-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  }
+}

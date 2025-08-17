@@ -1,15 +1,22 @@
 /* ========================================
-   7. css/components/_cards.css
-   ======================================== 
-   Styles des cartes
+   COMPONENTS/CARDS.CSS - Base Card Styles
    ======================================== */
 
+/* ========================================
+   Base Card Structure
+   ======================================== */
 .card {
-  background-color: var(--theme-surface);
-  border: var(--border-width) solid var(--theme-border);
-  border-radius: var(--border-radius-lg);
-  padding: var(--space-lg);
-  box-shadow: var(--shadow-sm);
+  --card-padding: var(--space-lg);
+  --card-bg: var(--theme-surface);
+  --card-border: var(--theme-border);
+  --card-shadow: var(--shadow-sm);
+  --card-radius: var(--border-radius-lg);
+  
+  background-color: var(--card-bg);
+  border: var(--border-width) solid var(--card-border);
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+  overflow: hidden;
   transition: box-shadow var(--transition-base),
               transform var(--transition-base);
 }
@@ -18,82 +25,17 @@
   box-shadow: var(--shadow-md);
 }
 
+/* Card Header */
 .card-header {
-  margin: calc(var(--space-lg) * -1);
-  margin-bottom: var(--space-lg);
-  padding: var(--space-md) var(--space-lg);
+  padding: var(--card-padding);
   background-color: var(--color-gray-50);
-  border-bottom: var(--border-width) solid var(--theme-border);
-  border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
-}
-
-.card-title {
-  font-size: var(--text-xl);
-  font-weight: var(--font-semibold);
-  color: var(--theme-text);
-  margin-bottom: var(--space-xs);
-}
-
-.card-subtitle {
-  font-size: var(--text-sm);
-  color: var(--theme-text-light);
-}
-
-.card-body {
-  /* Le contenu principal de la carte */
-}
-
-.card-footer {
-  margin: calc(var(--space-lg) * -1);
-  margin-top: var(--space-lg);
-  padding: var(--space-md) var(--space-lg);
-  background-color: var(--color-gray-50);
-  border-top: var(--border-width) solid var(--theme-border);
-  border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
-}
-
-/* Card variants */
-.card-bordered {
-  border-width: var(--border-width-thick);
-}
-
-.card-elevated {
-  border: none;
-  box-shadow: var(--shadow-lg);
-}
-
-.card-compact {
-  padding: var(--space-md);
-}
-
-/* ========================================
-   css/components/_cards.css
-   ======================================== 
-   Styles des cartes
-   ======================================== */
-
-.card {
-  background-color: var(--theme-surface);
-  border: var(--border-width) solid var(--theme-border);
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-sm);
-  overflow: hidden;
-  transition: box-shadow var(--transition-fast);
-}
-
-.card:hover {
-  box-shadow: var(--shadow-md);
-}
-
-.card-header {
-  padding: var(--space-lg);
-  border-bottom: var(--border-width) solid var(--theme-border);
-  background-color: var(--color-gray-50);
+  border-bottom: var(--border-width) solid var(--card-border);
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
 }
 
+/* Card Title & Subtitle */
 .card-title {
   font-size: var(--text-lg);
   font-weight: var(--font-semibold);
@@ -104,178 +46,185 @@
 .card-subtitle {
   font-size: var(--text-sm);
   color: var(--theme-text-light);
-  margin: var(--space-xs) 0 0 0;
+  margin-top: var(--space-xs);
 }
 
+/* Card Body */
 .card-body {
-  padding: var(--space-lg);
+  padding: var(--card-padding);
 }
 
+/* Card Footer */
 .card-footer {
-  padding: var(--space-lg);
-  border-top: var(--border-width) solid var(--theme-border);
+  padding: var(--space-md) var(--card-padding);
   background-color: var(--color-gray-50);
+  border-top: var(--border-width) solid var(--card-border);
   display: flex;
-  justify-content: flex-end;
-  gap: var(--space-sm);
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
 }
 
-/* Card variants */
-.card-primary {
-  border-color: var(--theme-primary);
-}
-
-.card-primary .card-header {
-  background-color: var(--theme-primary);
-  color: white;
-  border-bottom-color: var(--theme-primary);
-}
-
-.card-primary .card-title {
-  color: white;
-}
-
-.card-success {
-  border-color: var(--color-success);
-}
-
-.card-success .card-header {
-  background-color: var(--color-success);
-  color: white;
-  border-bottom-color: var(--color-success);
-}
-
-.card-success .card-title {
-  color: white;
-}
-
-.card-warning {
-  border-color: var(--color-warning);
-}
-
-.card-warning .card-header {
-  background-color: var(--color-warning);
-  color: white;
-  border-bottom-color: var(--color-warning);
-}
-
-.card-warning .card-title {
-  color: white;
-}
-
-.card-danger {
-  border-color: var(--color-danger);
-}
-
-.card-danger .card-header {
-  background-color: var(--color-danger);
-  color: white;
-  border-bottom-color: var(--color-danger);
-}
-
-.card-danger .card-title {
-  color: white;
-}
-
-/* Card sizes */
+/* ========================================
+   Card Modifiers (Size Variants)
+   ======================================== */
 .card-sm {
-  border-radius: var(--border-radius-md);
+  --card-padding: var(--space-md);
 }
 
-.card-sm .card-header,
-.card-sm .card-body,
-.card-sm .card-footer {
-  padding: var(--space-md);
+.card-lg {
+  --card-padding: var(--space-xl);
 }
 
-.card-lg .card-header,
-.card-lg .card-body,
-.card-lg .card-footer {
-  padding: var(--space-xl);
+/* ========================================
+   Card Style Variants
+   ======================================== */
+.card-bordered {
+  border-width: var(--border-width-thick);
 }
 
-/* Card without border */
-.card-borderless {
+.card-elevated {
   border: none;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-lg);
 }
 
-/* Card with image */
-.card-image {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
+.card-elevated:hover {
+  box-shadow: var(--shadow-xl);
+  transform: translateY(-2px);
 }
 
-.card-image-top {
-  border-top-left-radius: var(--border-radius-lg);
-  border-top-right-radius: var(--border-radius-lg);
+.card-flat {
+  box-shadow: none;
+  border: none;
+  background-color: var(--color-gray-50);
 }
 
-/* Clickable card */
+/* ========================================
+   Card State Modifiers
+   ======================================== */
 .card-clickable {
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: all var(--transition-base);
 }
 
 .card-clickable:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
 }
 
-/* Card grid layout */
+.card-selected {
+  border-color: var(--theme-primary);
+  box-shadow: 0 0 0 3px rgba(var(--theme-primary-rgb), 0.1);
+}
+
+.card-disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* ========================================
+   Specialized Card Types
+   ======================================== */
+
+/* Stat Card */
+.stat-card {
+  text-align: center;
+}
+
+.stat-card .stat-value {
+  font-size: var(--text-3xl);
+  font-weight: var(--font-bold);
+  color: var(--theme-primary);
+  margin-bottom: var(--space-xs);
+}
+
+.stat-card .stat-label {
+  font-size: var(--text-sm);
+  color: var(--theme-text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stat-card .stat-change {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-top: var(--space-sm);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+}
+
+.stat-change-positive { color: var(--color-success); }
+.stat-change-negative { color: var(--color-danger); }
+
+/* Info Card */
+.info-card {
+  position: relative;
+}
+
+.info-card-icon {
+  position: absolute;
+  top: var(--space-lg);
+  right: var(--space-lg);
+  font-size: var(--text-2xl);
+  color: var(--theme-primary);
+  opacity: 0.2;
+}
+
+/* Action Card */
+.action-card {
+  text-align: center;
+  padding: var(--space-xl);
+}
+
+.action-card-icon {
+  font-size: 3rem;
+  margin-bottom: var(--space-md);
+  color: var(--theme-primary);
+}
+
+.action-card-title {
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  margin-bottom: var(--space-sm);
+}
+
+.action-card-description {
+  color: var(--theme-text-light);
+  margin-bottom: var(--space-lg);
+}
+
+/* ========================================
+   Card Grid Layout
+   ======================================== */
 .card-grid {
   display: grid;
   gap: var(--space-lg);
-}
-
-.card-grid-2 {
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 }
 
-.card-grid-3 {
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-}
-
-.card-grid-4 {
+.card-grid-sm {
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-md);
 }
 
-/* Card actions */
-.card-actions {
-  display: flex;
-  gap: var(--space-sm);
-  align-items: center;
+.card-grid-lg {
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: var(--space-xl);
 }
 
-/* Responsive cards */
+/* ========================================
+   Responsive Adjustments
+   ======================================== */
 @media (max-width: 768px) {
-  .card-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-sm);
+  .card {
+    --card-padding: var(--space-md);
   }
   
-  .card-actions {
-    width: 100%;
-    justify-content: stretch;
+  .card-grid {
+    grid-template-columns: 1fr;
   }
   
-  .card-actions .btn {
-    flex: 1;
-  }
-  
-  .card-footer {
-    flex-direction: column;
+  .stat-card .stat-value {
+    font-size: var(--text-2xl);
   }
 }
-
-@media (max-width: 480px) {
-  .card-header,
-  .card-body,
-  .card-footer {
-    padding: var(--space-md);
-  }
-}
-
- 
