@@ -58,25 +58,66 @@ function initDashboardFilters() {
       if (statusFilter) statusFilter.value = 'all';
       if (issuesFilter) issuesFilter.value = 'all';
       
-      // Trigger filter update if map functions are available
+      // Update the global currentFilters object that map.js uses
+      if (typeof currentFilters !== 'undefined') {
+        currentFilters.date = 'all';
+        currentFilters.status = 'all';
+        currentFilters.issues = 'all';
+      }
+      
+      // Trigger map filter update
       if (typeof displayFilteredMarkers === 'function') {
         displayFilteredMarkers();
       }
     });
   }
   
-  // Add event listeners to filter dropdowns for real-time filtering
-  const filterElements = ['date-filter', 'status-filter', 'issues-filter'];
-  filterElements.forEach(filterId => {
-    const filterElement = document.getElementById(filterId);
-    if (filterElement) {
-      filterElement.addEventListener('change', function() {
-        console.log(`Filter ${filterId} changed to:`, this.value);
-        // The map.js file should handle the actual filtering via its own listeners
-        // This is just to ensure our dashboard knows about the changes
-      });
-    }
-  });
+  // Add event listeners to filter dropdowns for real-time filtering that work with map.js
+  const dateFilter = document.getElementById('date-filter');
+  const statusFilter = document.getElementById('status-filter');
+  const issuesFilter = document.getElementById('issues-filter');
+  
+  if (dateFilter) {
+    dateFilter.addEventListener('change', function() {
+      console.log('Date filter changed to:', this.value);
+      // Update the global currentFilters object that map.js uses
+      if (typeof currentFilters !== 'undefined') {
+        currentFilters.date = this.value;
+      }
+      // Trigger map filter update
+      if (typeof displayFilteredMarkers === 'function') {
+        displayFilteredMarkers();
+      }
+    });
+  }
+  
+  if (statusFilter) {
+    statusFilter.addEventListener('change', function() {
+      console.log('Status filter changed to:', this.value);
+      // Update the global currentFilters object that map.js uses
+      if (typeof currentFilters !== 'undefined') {
+        currentFilters.status = this.value;
+      }
+      // Trigger map filter update
+      if (typeof displayFilteredMarkers === 'function') {
+        displayFilteredMarkers();
+      }
+    });
+  }
+  
+  if (issuesFilter) {
+    issuesFilter.addEventListener('change', function() {
+      console.log('Issues filter changed to:', this.value);
+      // Update the global currentFilters object that map.js uses
+      if (typeof currentFilters !== 'undefined') {
+        currentFilters.issues = this.value;
+      }
+      // Trigger map filter update
+      if (typeof displayFilteredMarkers === 'function') {
+        displayFilteredMarkers();
+      }
+    });
+  }
 }
 
 // Fonction pour charger les inspections récentes (tableau existant)
@@ -337,18 +378,36 @@ async function loadRecentInspectionsForSummary() {
  * Initialize click handlers for inspection cards to open modal
  */
 function initInspectionCardClickHandlers() {
-  const clickableCards = document.querySelectorAll('.clickable-card');
+  console.log("Initializing inspection card click handlers");
   
-  clickableCards.forEach(card => {
-    card.addEventListener('click', function() {
-      const inspectionId = this.getAttribute('data-inspection-id');
-      const type = this.getAttribute('data-type');
-      
-      if (inspectionId) {
-        viewInspectionDetails(inspectionId);
-      }
-    });
+  const clickableCards = document.querySelectorAll('.clickable-card');
+  console.log("Found clickable cards:", clickableCards.length);
+  
+  clickableCards.forEach((card, index) => {
+    console.log(`Setting up click handler for card ${index + 1}`);
+    
+    // Remove any existing event listeners
+    card.removeEventListener('click', handleCardClick);
+    // Add new event listener
+    card.addEventListener('click', handleCardClick);
   });
+}
+
+function handleCardClick(event) {
+  event.preventDefault();
+  event.stopPropagation();
+  
+  const card = event.currentTarget;
+  const inspectionId = card.getAttribute('data-inspection-id');
+  const type = card.getAttribute('data-type');
+  
+  console.log("Card clicked! Inspection ID:", inspectionId, "Type:", type);
+  
+  if (inspectionId) {
+    viewInspectionDetails(inspectionId);
+  } else {
+    console.error("No inspection ID found on card");
+  }
 }
 
 /**
@@ -356,25 +415,39 @@ function initInspectionCardClickHandlers() {
  */
 async function viewInspectionDetails(inspectionId) {
   try {
+    console.log("Opening modal for inspection:", inspectionId);
+    
     // Find the inspection in our stored data
     const inspection = allInspectionsData.find(i => i.id === inspectionId);
     if (!inspection) {
       console.error('Inspection not found:', inspectionId);
+      console.log('Available inspections:', allInspectionsData.map(i => i.id));
       return;
     }
+
+    console.log("Found inspection data:", inspection);
 
     const modalContent = await generateModalContent(inspection);
     
     // Get or create modal elements
     let modal = document.getElementById('inspection-modal');
     if (!modal) {
+      console.log("Modal not found, creating it");
       createModalHTML();
       modal = document.getElementById('inspection-modal');
     }
     
     const modalContentElement = document.getElementById('modal-content');
-    modalContentElement.innerHTML = modalContent;
+    if (modalContentElement) {
+      modalContentElement.innerHTML = modalContent;
+      console.log("Modal content updated");
+    } else {
+      console.error("Modal content element not found");
+      return;
+    }
+    
     showModal();
+    console.log("Modal should now be visible");
     
   } catch (error) {
     console.error('Erreur lors de l\'affichage des détails:', error);
@@ -567,11 +640,15 @@ async function generateModalContent(inspection) {
 function showModal() {
   const modal = document.getElementById('inspection-modal');
   if (modal) {
+    console.log("Showing modal");
+    modal.style.display = 'flex';
     modal.classList.add('show');
     // Fix scroll issue by preventing body scroll without setting overflow hidden
     document.body.style.position = 'fixed';
     document.body.style.top = `-${window.scrollY}px`;
     document.body.style.width = '100%';
+  } else {
+    console.error("Modal element not found");
   }
 }
 
@@ -581,7 +658,9 @@ function showModal() {
 function closeModal() {
   const modal = document.getElementById('inspection-modal');
   if (modal) {
+    console.log("Closing modal");
     modal.classList.remove('show');
+    modal.style.display = 'none';
     // Restore scroll position
     const scrollY = document.body.style.top;
     document.body.style.position = '';
