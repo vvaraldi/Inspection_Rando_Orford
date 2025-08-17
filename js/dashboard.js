@@ -435,6 +435,10 @@ async function viewInspectionDetails(inspectionId) {
       console.log("Modal not found, creating it");
       createModalHTML();
       modal = document.getElementById('inspection-modal');
+    } else {
+      // Modal exists, ensure close events are bound
+      console.log("Modal exists, rebinding close events");
+      bindModalCloseEvents();
     }
     
     const modalContentElement = document.getElementById('modal-content');
@@ -480,17 +484,53 @@ function createModalHTML() {
   
   document.body.insertAdjacentHTML('beforeend', modalHTML);
   
-  // Bind modal close events
+  // Bind modal close events immediately after creating the modal
+  bindModalCloseEvents();
+}
+
+/**
+ * Bind modal close events
+ */
+function bindModalCloseEvents() {
+  console.log("Binding modal close events");
+  
   const closeModalBtn = document.getElementById('close-modal');
   const closeModalBtnFooter = document.getElementById('close-modal-btn');
   const modal = document.getElementById('inspection-modal');
   
-  if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
-  if (closeModalBtnFooter) closeModalBtnFooter.addEventListener('click', closeModal);
+  if (closeModalBtn) {
+    closeModalBtn.removeEventListener('click', closeModal);
+    closeModalBtn.addEventListener('click', closeModal);
+    console.log("Bound close event to X button");
+  } else {
+    console.error("Close modal button (X) not found");
+  }
+  
+  if (closeModalBtnFooter) {
+    closeModalBtnFooter.removeEventListener('click', closeModal);
+    closeModalBtnFooter.addEventListener('click', closeModal);
+    console.log("Bound close event to Fermer button");
+  } else {
+    console.error("Close modal footer button not found");
+  }
+  
   if (modal) {
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) closeModal();
-    });
+    modal.removeEventListener('click', handleModalBackdropClick);
+    modal.addEventListener('click', handleModalBackdropClick);
+    console.log("Bound close event to modal backdrop");
+  } else {
+    console.error("Modal element not found");
+  }
+}
+
+/**
+ * Handle modal backdrop click
+ */
+function handleModalBackdropClick(e) {
+  const modal = document.getElementById('inspection-modal');
+  if (e.target === modal) {
+    console.log("Modal backdrop clicked, closing modal");
+    closeModal();
   }
 }
 
@@ -656,17 +696,27 @@ function showModal() {
  * Close modal
  */
 function closeModal() {
+  console.log("closeModal function called");
+  
   const modal = document.getElementById('inspection-modal');
   if (modal) {
     console.log("Closing modal");
     modal.classList.remove('show');
     modal.style.display = 'none';
+    
     // Restore scroll position
     const scrollY = document.body.style.top;
     document.body.style.position = '';
     document.body.style.top = '';
     document.body.style.width = '';
-    window.scrollTo(0, parseInt(scrollY || '0') * -1);
+    
+    if (scrollY) {
+      window.scrollTo(0, parseInt(scrollY || '0') * -1);
+    }
+    
+    console.log("Modal closed successfully");
+  } else {
+    console.error("Modal element not found when trying to close");
   }
 }
 
