@@ -7,17 +7,7 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏔️</text></svg>">
   
   <!-- Styles -->
-  <link rel="stylesheet" href="css/variables.css">
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/layout.css">
-  <link rel="stylesheet" href="css/components/buttons.css">
-  <link rel="stylesheet" href="css/components/modals.css">
-  <link rel="stylesheet" href="css/components/forms.css">
-  <link rel="stylesheet" href="css/components/tables.css">
-  <link rel="stylesheet" href="css/components/cards.css">
-  <link rel="stylesheet" href="css/components/badges.css">
-  <link rel="stylesheet" href="css/pages/dashboard.css">
-  <link rel="stylesheet" href="css/pages/inspection-history.css">
+  <link rel="stylesheet" href="css/main.css">
   
   <!-- OpenLayers pour la carte -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@8.2.0/ol.css">
@@ -71,76 +61,72 @@
   </div>
 
   <!-- Main content wrapper -->
-  <div class="container">
-    <!-- Main content -->
-    <main class="content">
-      <!-- Dashboard stats -->
-      <div class="dashboard-stats">
-        <div class="stat-card">
-          <div class="stat-value" id="inspections-today">-/-</div>
-          <div class="stat-label">Inspections aujourd'hui</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value" id="overall-status">-</div>
-          <div class="stat-label">État général</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value" id="reported-issues">-</div>
-          <div class="stat-label">Problèmes signalés</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value" id="last-update">--:--</div>
-          <div class="stat-label">Dernière mise à jour</div>
-        </div>
+  <div class="main">
+    <!-- Dashboard stats -->
+    <div class="dashboard-stats">
+      <div class="stat-card">
+        <div class="stat-value" id="inspections-today">-/-</div>
+        <div class="stat-label">Inspections aujourd'hui</div>
       </div>
-      
-      <!-- Carte interactive -->
-      <div class="map-container">
-        <div id="map" class="map"></div>
-        
-        <!-- Panneau d'informations -->
-        <div class="info-panel">
-          <div class="info-panel-content">
-            <div class="info-header">
-              <h2>Informations</h2>
-              <p>Cliquez sur un élément de la carte pour voir les détails</p>
-            </div>
-            
-            <div id="selected-info" class="selected-info">
-              <!-- Les informations détaillées apparaîtront ici -->
-            </div>
-          </div>
-        </div>
+      <div class="stat-card">
+        <div class="stat-value" id="overall-status">-</div>
+        <div class="stat-label">État général</div>
       </div>
+      <div class="stat-card">
+        <div class="stat-value" id="reported-issues">-</div>
+        <div class="stat-label">Problèmes signalés</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="last-update">--:--</div>
+        <div class="stat-label">Dernière mise à jour</div>
+      </div>
+    </div>
+    
+    <!-- Carte interactive -->
+    <div class="map-container">
+      <div id="map" class="map"></div>
       
-      <!-- Liste récapitulative avec styles pour highlighting -->
-      <div class="summary-list">
-        <h2 class="summary-title">Récapitulatif des inspections sur les 7 derniers jours</h2>
-        
-        <div class="summary-filters">
-          <button class="filter-btn active" data-type="all">Tout</button>
-          <button class="filter-btn" data-type="sentier">Sentiers</button>
-          <button class="filter-btn" data-type="abri">Abris</button>
-        </div>
-        
-        <div class="summary-content">
-          <div class="summary-section" id="sentiers-summary">
-            <h3 class="section-header sentier-header">⛷️ Sentiers</h3>
-            <div class="items-grid" id="sentiers-list">
-              <!-- Les sentiers seront ajoutés dynamiquement ici -->
-            </div>
+      <!-- Panneau d'informations -->
+      <div class="info-panel">
+        <div class="info-panel-content">
+          <div class="info-header">
+            <h2>Informations</h2>
+            <p>Cliquez sur un élément de la carte pour voir les détails</p>
           </div>
           
-          <div class="summary-section" id="abris-summary">
-            <h3 class="section-header abri-header">🏠 Abris</h3>
-            <div class="items-grid" id="abris-list">
-              <!-- Les abris seront ajoutés dynamiquement ici -->
-            </div>
+          <div id="selected-info" class="selected-info">
+            <!-- Les informations détaillées apparaîtront ici -->
           </div>
         </div>
       </div>
+    </div>
+    
+    <!-- Liste récapitulative avec styles pour highlighting -->
+    <div class="summary-list">
+      <h2 class="summary-title">Récapitulatif des inspections sur les 7 derniers jours</h2>
       
-    </main>
+      <div class="summary-filters">
+        <button class="filter-btn active" data-type="all">Tout</button>
+        <button class="filter-btn" data-type="sentier">Sentiers</button>
+        <button class="filter-btn" data-type="abri">Abris</button>
+      </div>
+      
+      <div class="summary-content">
+        <div class="summary-section" id="sentiers-summary">
+          <h3 class="section-header sentier-header">⛷️ Sentiers</h3>
+          <div class="items-grid" id="sentiers-list">
+            <!-- Les sentiers seront ajoutés dynamiquement ici -->
+          </div>
+        </div>
+        
+        <div class="summary-section" id="abris-summary">
+          <h3 class="section-header abri-header">🏠 Abris</h3>
+          <div class="items-grid" id="abris-list">
+            <!-- Les abris seront ajoutés dynamiquement ici -->
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Inspection Details Modal -->
