@@ -95,22 +95,104 @@
 			<div class="stat-label">Dernière mise à jour</div>
 		  </div>
 		</div>
+
+		<!-- Filters section for the map -->
+		<div class="filter-container">
+		  <div class="filter-content">
+			<div class="filter-group">
+			  <label for="date-filter">Période</label>
+			  <select id="date-filter" class="filter-select">
+				<option value="all">Toutes les dates</option>
+				<option value="today">Aujourd'hui</option>
+				<option value="week">Dernière semaine</option>
+				<option value="month">Dernier mois</option>
+			  </select>
+			</div>
+			
+			<div class="filter-group">
+			  <label for="status-filter">État</label>
+			  <select id="status-filter" class="filter-select">
+				<option value="all">Tous les états</option>
+				<option value="good">Bon état</option>
+				<option value="warning">Attention</option>
+				<option value="critical">Critique</option>
+				<option value="not-inspected">Non inspecté</option>
+			  </select>
+			</div>
+			
+			<div class="filter-group">
+			  <label for="issues-filter">Problèmes</label>
+			  <select id="issues-filter" class="filter-select">
+				<option value="all">Tous</option>
+				<option value="with-issues">Avec problèmes uniquement</option>
+				<option value="without-issues">Sans problème uniquement</option>
+			  </select>
+			</div>
+			
+			<div class="filter-group">
+			  <button id="reset-filters" class="btn btn-secondary">Réinitialiser</button>
+			</div>
+		  </div>
+		</div>
       
-      <!-- Carte interactive -->
-      <div class="map-container">
-        <div id="map" class="map"></div>
+      <!-- Map section -->
+      <div class="map-section">
+        <div class="map-view">
+          <div class="map-bg">
+            <img src="assets/map3.png" alt="Carte du Mont Orford" class="map-image">
+            <!-- Map markers will be added dynamically -->
+          </div>
+        </div>
         
-        <!-- Panneau d'informations -->
-        <div class="info-panel">
-          <div class="info-panel-content">
-            <div class="info-header">
-              <h2>Informations</h2>
-              <p>Cliquez sur un élément de la carte pour voir les détails</p>
+        <!-- Map legend -->
+        <div class="map-legend">
+          <div class="legend-title">Légende</div>
+          <div class="legend-content">
+            <div class="legend-group">
+              <div class="legend-group-title">États</div>
+              <div class="legend-item">
+                <div class="legend-marker good"></div>
+                <span>Bon état</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-marker warning"></div>
+                <span>Attention</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-marker critical"></div>
+                <span>Critique</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-marker not-inspected"></div>
+                <span>Non inspecté</span>
+              </div>
             </div>
             
-            <div id="selected-info" class="selected-info">
-              <!-- Les informations détaillées apparaîtront ici -->
+            <div class="legend-group">
+              <div class="legend-group-title">Types</div>
+              <div class="legend-item">
+                <div class="legend-marker trail"></div>
+                <span>Sentiers</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-marker shelter"></div>
+                <span>Abris</span>
+              </div>
             </div>
+          </div>
+        </div>
+      </div>
+        
+      <!-- Info panel -->
+      <div class="info-panel">
+        <div class="info-panel-content">
+          <div class="info-header">
+            <h2>Informations</h2>
+            <p>Cliquez sur un élément de la carte pour voir les détails</p>
+          </div>
+          
+          <div id="selected-info" class="selected-info">
+            <!-- Les informations détaillées apparaîtront ici -->
           </div>
         </div>
       </div>
