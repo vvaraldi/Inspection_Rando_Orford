@@ -1,289 +1,447 @@
-// dashboard.js
-// Ce fichier gère toutes les fonctionnalités spécifiques au tableau de bord
+/* ========================================
+   Dashboard CSS - Modal and Clickable Cards
+   ======================================== */
 
-// Fonction appelée après l'authentification
-function loadDashboardData() {
-  console.log("Chargement du tableau de bord");
+/* Existing dashboard styles... */
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--space-lg);
+  margin-bottom: var(--space-xl);
+}
+
+.stat-card {
+  background-color: var(--theme-surface);
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-base),
+              box-shadow var(--transition-base);
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.stat-value {
+  font-size: var(--text-3xl);
+  font-weight: var(--font-bold);
+  color: var(--theme-primary);
+  margin-bottom: var(--space-xs);
+}
+
+.stat-label {
+  font-size: var(--text-sm);
+  color: var(--theme-text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Summary list section */
+.summary-list {
+  margin-top: 2rem;
+  background: var(--theme-surface);
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+.summary-title {
+  margin: 0 0 var(--space-md) 0;
+  color: var(--theme-text);
+  font-size: var(--text-xl);
+  font-weight: var(--font-semibold);
+}
+
+.summary-filters {
+  display: flex;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-xl);
+  flex-wrap: wrap;
+}
+
+.summary-content {
+  /* Container for summary sections */
+}
+
+.summary-section {
+  margin-bottom: 2rem;
+}
+
+.section-header {
+  margin: 0 0 var(--space-md) 0;
+  padding: var(--space-md);
+  border-radius: var(--border-radius-md);
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+}
+
+.sentier-header {
+  background: linear-gradient(135deg, #e6f3ff 0%, #b8e6b8 100%);
+  color: #2d5a27;
+}
+
+.abri-header {
+  background: linear-gradient(135deg, #fff3e6 0%, #ffb8b8 100%);
+  color: #8b2635;
+}
+
+/* Items grid for inspection cards */
+.items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--space-md);
+}
+
+/* Clickable inspection cards */
+.inspection-card {
+  background: white;
+  border: 1px solid var(--theme-border);
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-base);
+  position: relative;
+}
+
+.inspection-card.clickable-card {
+  cursor: pointer;
+}
+
+.inspection-card.clickable-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--theme-primary);
+}
+
+.inspection-card.clickable-card:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-md);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-sm);
+}
+
+.type-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--border-radius-sm);
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.type-trail {
+  background-color: #e6f3ff;
+  color: #1e40af;
+}
+
+.type-shelter {
+  background-color: #fff3e6;
+  color: #d97706;
+}
+
+.date-badge {
+  font-size: var(--text-xs);
+  color: var(--theme-text-light);
+  background-color: var(--color-gray-100);
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--border-radius-sm);
+}
+
+.card-body {
+  /* Card content */
+}
+
+.card-title {
+  margin: 0 0 var(--space-sm) 0;
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  color: var(--theme-text);
+}
+
+.status-info {
+  margin-bottom: var(--space-sm);
+}
+
+.status-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--border-radius-sm);
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+}
+
+.status-good {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.status-warning {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-critical {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.status-not-inspected {
+  background-color: var(--color-gray-100);
+  color: var(--color-gray-600);
+}
+
+.additional-info {
+  margin-bottom: var(--space-sm);
+  font-size: var(--text-sm);
+  color: var(--theme-text-light);
+}
+
+/* Modal styles - ensure they work with the inspection history modal */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  overflow-y: auto;
+  background-color: rgba(0, 0, 0, 0.5);
+  animation: fadeIn 0.3s ease;
+}
+
+.modal.show {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+}
+
+.modal-content {
+  position: relative;
+  background-color: var(--theme-surface);
+  border-radius: var(--border-radius-xl);
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  animation: slideIn 0.3s ease;
+}
+
+.modal-header {
+  padding: var(--space-lg);
+  border-bottom: 1px solid var(--theme-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-title {
+  font-size: var(--text-xl);
+  font-weight: var(--font-semibold);
+  color: var(--theme-text);
+  margin: 0;
+}
+
+.modal-close {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  border: none;
+  border-radius: var(--border-radius-md);
+  color: var(--color-gray-500);
+  font-size: var(--text-xl);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.modal-close:hover {
+  background-color: var(--color-gray-100);
+  color: var(--theme-text);
+}
+
+.modal-body {
+  padding: var(--space-lg);
+  overflow-y: auto;
+  max-height: calc(90vh - 200px);
+}
+
+.modal-footer {
+  padding: var(--space-lg);
+  border-top: 1px solid var(--theme-border);
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+}
+
+/* Inspection detail styles (from inspection-history.css) */
+.inspection-detail {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.detail-section {
+  padding: var(--space-md);
+  background-color: var(--color-gray-50);
+  border-radius: var(--border-radius-md);
+}
+
+.detail-section h3 {
+  margin-bottom: var(--space-md);
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  color: var(--theme-text);
+}
+
+.detail-list {
+  list-style: none;
+  display: grid;
+  gap: var(--space-sm);
+  margin: 0;
+  padding: 0;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--space-sm);
+  background-color: white;
+  border-radius: var(--border-radius-sm);
+}
+
+.detail-label {
+  font-weight: var(--font-medium);
+  color: var(--theme-text-light);
+}
+
+.detail-value {
+  color: var(--theme-text);
+}
+
+/* Photo gallery in modal */
+.photo-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: var(--space-sm);
+}
+
+.photo-item {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform var(--transition-fast);
+}
+
+.photo-item:hover {
+  transform: scale(1.05);
+}
+
+.photo-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Issues list */
+.issues-list {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.issue-item {
+  padding: var(--space-sm);
+  background-color: #fee2e2;
+  border-left: 4px solid #dc2626;
+  border-radius: var(--border-radius-sm);
+}
+
+.issue-item p {
+  margin: 0;
+  color: #991b1b;
+}
+
+/* Badge styles */
+.badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--border-radius-sm);
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+}
+
+.badge-success {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.badge-warning {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.badge-danger {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { 
+    opacity: 0; 
+    transform: scale(0.95) translateY(-20px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: scale(1) translateY(0); 
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .items-grid {
+    grid-template-columns: 1fr;
+  }
   
-  // Charger les inspections récentes (pour le tableau s'il existe)
-  loadRecentInspections();
-  
-  // Charger le résumé des inspections des 7 derniers jours
-  loadRecentInspectionsForSummary();
-}
-
-// Fonction pour charger les inspections récentes (tableau existant)
-/**
- * Charge les inspections les plus récentes pour le tableau de bord
- */
-async function loadRecentInspections() {
-  try {
-    const recentInspectionsTable = document.getElementById('recent-inspections-table');
-    
-    if (!recentInspectionsTable) {
-      console.log("Tableau des inspections récentes non trouvé - probablement pas sur cette page");
-      return;
-    }
-    
-    // Afficher un message de chargement
-    recentInspectionsTable.innerHTML = `
-      <tr>
-        <td colspan="6" style="text-align: center;">Chargement des inspections récentes...</td>
-      </tr>
-    `;
-    
-    // Calculer la date d'il y a 7 jours
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    const sevenDaysAgoTimestamp = firebase.firestore.Timestamp.fromDate(sevenDaysAgo);
-    
-    // Charger les inspections de sentiers des 7 derniers jours
-    const trailInspectionsSnapshot = await db.collection('trail_inspections')
-      .where('date', '>=', sevenDaysAgoTimestamp)
-      .orderBy('date', 'desc')
-      .get();
-    
-    // Charger les données des sentiers
-    const trailsMap = new Map();
-    const trailsSnapshot = await db.collection('trails').get();
-    trailsSnapshot.forEach(doc => {
-      trailsMap.set(doc.id, doc.data());
-    });
-    
-    // ... rest of the existing loadRecentInspections function
-    
-  } catch (error) {
-    console.error("Erreur lors du chargement des inspections récentes:", error);
-  }
-}
-
-// Nouvelle fonction pour charger le résumé des inspections des 7 derniers jours
-/**
- * Charge les inspections des 7 derniers jours pour la section résumé
- */
-async function loadRecentInspectionsForSummary() {
-  try {
-    const sentiersContainer = document.getElementById('sentiers-list');
-    const abrisContainer = document.getElementById('abris-list');
-    
-    if (!sentiersContainer || !abrisContainer) {
-      console.log("Containers pour le résumé des inspections non trouvés - probablement pas sur la page index");
-      return;
-    }
-    
-    // Show loading state
-    sentiersContainer.innerHTML = '<div style="text-align: center; padding: 2rem; color: #6b7280;">Chargement des sentiers...</div>';
-    abrisContainer.innerHTML = '<div style="text-align: center; padding: 2rem; color: #6b7280;">Chargement des abris...</div>';
-    
-    // Calculate date 7 days ago
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    const sevenDaysAgoTimestamp = firebase.firestore.Timestamp.fromDate(sevenDaysAgo);
-    
-    // Load trail inspections from last 7 days
-    const trailInspectionsSnapshot = await db.collection('trail_inspections')
-      .where('date', '>=', sevenDaysAgoTimestamp)
-      .orderBy('date', 'desc')
-      .get();
-    
-    // Load shelter inspections from last 7 days
-    const shelterInspectionsSnapshot = await db.collection('shelter_inspections')
-      .where('date', '>=', sevenDaysAgoTimestamp)
-      .orderBy('date', 'desc')
-      .get();
-    
-    // Load trails and shelters data
-    const trailsSnapshot = await db.collection('trails').get();
-    const sheltersSnapshot = await db.collection('shelters').get();
-    
-    // Create maps for quick access
-    const trailsMap = new Map();
-    trailsSnapshot.forEach(doc => {
-      trailsMap.set(doc.id, { id: doc.id, ...doc.data() });
-    });
-    
-    const sheltersMap = new Map();
-    sheltersSnapshot.forEach(doc => {
-      sheltersMap.set(doc.id, { id: doc.id, ...doc.data() });
-    });
-    
-    // Process trail inspections
-    const trailCards = [];
-    const processedTrails = new Set();
-    
-    trailInspectionsSnapshot.forEach(doc => {
-      const inspection = doc.data();
-      const trailId = inspection.trail_id;
-      
-      // Only show the most recent inspection per trail
-      if (!processedTrails.has(trailId)) {
-        processedTrails.add(trailId);
-        const trail = trailsMap.get(trailId);
-        
-        if (trail) {
-          const inspectionDate = inspection.date.toDate();
-          const statusClass = getStatusClass(inspection.condition);
-          const statusText = getStatusText(inspection.condition);
-          const difficultyText = getDifficultyText(trail.difficulty);
-          
-          trailCards.push(`
-            <div class="item-card sentier" data-type="sentier">
-              <div class="item-header">
-                <div class="item-name">${trail.name}</div>
-                <span class="status-badge ${statusClass}">${statusText}</span>
-              </div>
-              <div class="item-details">
-                <div>Difficulté: ${difficultyText}</div>
-                <div>Inspecteur: ${inspection.inspector_name || 'Non spécifié'}</div>
-                <div>Date: ${inspectionDate.toLocaleDateString('fr-FR')}</div>
-              </div>
-              <div class="item-status">
-                ${inspection.issues && inspection.issues.length > 0 ? 
-                  `<div style="color: #dc2626;">⚠ ${inspection.issues.length} problème(s) signalé(s)</div>` : 
-                  '<div style="color: #059669;">✓ Aucun problème signalé</div>'
-                }
-              </div>
-            </div>
-          `);
-        }
-      }
-    });
-    
-    // Process shelter inspections
-    const shelterCards = [];
-    const processedShelters = new Set();
-    
-    shelterInspectionsSnapshot.forEach(doc => {
-      const inspection = doc.data();
-      const shelterId = inspection.shelter_id;
-      
-      // Only show the most recent inspection per shelter
-      if (!processedShelters.has(shelterId)) {
-        processedShelters.add(shelterId);
-        const shelter = sheltersMap.get(shelterId);
-        
-        if (shelter) {
-          const inspectionDate = inspection.date.toDate();
-          const statusClass = getStatusClass(inspection.condition);
-          const statusText = getStatusText(inspection.condition);
-          
-          shelterCards.push(`
-            <div class="item-card abri" data-type="abri">
-              <div class="item-header">
-                <div class="item-name">${shelter.name}</div>
-                <span class="status-badge ${statusClass}">${statusText}</span>
-              </div>
-              <div class="item-details">
-                <div>Capacité: ${shelter.capacity || 'Non spécifiée'} personnes</div>
-                <div>Inspecteur: ${inspection.inspector_name || 'Non spécifié'}</div>
-                <div>Date: ${inspectionDate.toLocaleDateString('fr-FR')}</div>
-              </div>
-              <div class="item-status">
-                ${inspection.issues && inspection.issues.length > 0 ? 
-                  `<div style="color: #dc2626;">⚠ ${inspection.issues.length} problème(s) signalé(s)</div>` : 
-                  '<div style="color: #059669;">✓ Aucun problème signalé</div>'
-                }
-              </div>
-            </div>
-          `);
-        }
-      }
-    });
-    
-    // Update the display
-    sentiersContainer.innerHTML = trailCards.length > 0 ? 
-      trailCards.join('') : 
-      '<div style="text-align: center; padding: 2rem; color: #6b7280;">Aucune inspection de sentier dans les 7 derniers jours</div>';
-    
-    abrisContainer.innerHTML = shelterCards.length > 0 ? 
-      shelterCards.join('') : 
-      '<div style="text-align: center; padding: 2rem; color: #6b7280;">Aucune inspection d\'abri dans les 7 derniers jours</div>';
-    
-    // Initialize filter functionality
-    initSummaryFilters();
-    
-  } catch (error) {
-    console.error("Error loading recent inspections for summary:", error);
-    
-    const sentiersContainer = document.getElementById('sentiers-list');
-    const abrisContainer = document.getElementById('abris-list');
-    
-    if (sentiersContainer) {
-      sentiersContainer.innerHTML = '<div style="text-align: center; padding: 2rem; color: #dc2626;">Erreur lors du chargement des sentiers</div>';
-    }
-    
-    if (abrisContainer) {
-      abrisContainer.innerHTML = '<div style="text-align: center; padding: 2rem; color: #dc2626;">Erreur lors du chargement des abris</div>';
-    }
-  }
-}
-
-// Helper functions
-function getStatusClass(condition) {
-  switch (condition) {
-    case 'good': return 'status-good';
-    case 'warning': return 'status-warning';
-    case 'critical': return 'status-critical';
-    default: return 'status-not-inspected';
-  }
-}
-
-function getStatusText(condition) {
-  switch (condition) {
-    case 'good': return 'Bon';
-    case 'warning': return 'Attention';
-    case 'critical': return 'Critique';
-    default: return 'Non inspecté';
-  }
-}
-
-function getDifficultyText(difficulty) {
-  switch (difficulty) {
-    case 'easy': return 'Facile';
-    case 'medium': return 'Intermédiaire';
-    case 'hard': return 'Difficile';
-    default: return difficulty || 'Non spécifiée';
-  }
-}
-
-// Initialize filter functionality for the summary section
-function initSummaryFilters() {
-  const filterButtons = document.querySelectorAll('.summary-filters .filter-btn');
-  
-  if (filterButtons.length === 0) {
-    console.log("Filtres du résumé non trouvés - probablement pas sur la page index");
-    return;
+  .summary-filters {
+    justify-content: center;
   }
   
-  filterButtons.forEach(button => {
-    button.addEventListener('click', function() {
-      // Remove active class from all buttons
-      filterButtons.forEach(btn => btn.classList.remove('active'));
-      
-      // Add active class to clicked button
-      this.classList.add('active');
-      
-      const filterType = this.getAttribute('data-type');
-      
-      // Show/hide sections based on filter
-      const sentiersSection = document.getElementById('sentiers-summary');
-      const abrisSection = document.getElementById('abris-summary');
-      
-      if (!sentiersSection || !abrisSection) {
-        console.log("Sections du résumé non trouvées");
-        return;
-      }
-      
-      if (filterType === 'all') {
-        sentiersSection.style.display = 'block';
-        abrisSection.style.display = 'block';
-      } else if (filterType === 'sentier') {
-        sentiersSection.style.display = 'block';
-        abrisSection.style.display = 'none';
-      } else if (filterType === 'abri') {
-        sentiersSection.style.display = 'none';
-        abrisSection.style.display = 'block';
-      }
-    });
-  });
+  .modal-content {
+    margin: var(--space-md);
+    max-width: calc(100vw - 2rem);
+  }
+  
+  .modal-body {
+    padding: var(--space-md);
+  }
+  
+  .modal-header,
+  .modal-footer {
+    padding: var(--space-md);
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-stats {
+    grid-template-columns: 1fr;
+  }
+  
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-xs);
+  }
 }

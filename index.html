@@ -3,369 +3,113 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SkiTrack - Mont Orford</title>
-  <link rel="stylesheet" href="css/main.css">
+  <title>Tableau de bord - Sentiers de Randonnée</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏔️</text></svg>">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components/buttons.css">
+  <link rel="stylesheet" href="css/components/modals.css">
+  <link rel="stylesheet" href="css/components/forms.css">
+  <link rel="stylesheet" href="css/components/tables.css">
+  <link rel="stylesheet" href="css/components/cards.css">
+  <link rel="stylesheet" href="css/components/badges.css">
+  <link rel="stylesheet" href="css/pages/dashboard.css">
+  <link rel="stylesheet" href="css/pages/inspection-history.css">
+  
+  <!-- OpenLayers pour la carte -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@8.2.0/ol.css">
+  <script src="https://cdn.jsdelivr.net/npm/ol@8.2.0/dist/ol.js"></script>
 </head>
 
-<script>
-  window.onerror = function(message, source, lineno, colno, error) {
-    console.log("Erreur JavaScript: ", message, "à la ligne", lineno, "colonne", colno);
-    console.log("Source:", source);
-    console.log("Erreur complète:", error);
-    
-    // Afficher le contenu en cas d'erreur
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('main-content').style.display = 'block';
-    
-    return true; // Empêche l'affichage de l'erreur dans la console
-  };
-</script>
-
-<body data-theme="alpine">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏔️</text></svg>">
-<header class="header">
-    <nav class="nav">
-      <div  class="nav-logo">Ski-Track</div>
-      <div class="nav-links">
-        <a href="index.html" class="active">Tableau de bord</a>
-        <a href="pages/trail-inspection.html">Inspection piste</a>
-        <a href="pages/shelter-inspection.html">Inspection abri</a>
-        <a href="pages/inspection-history.html">Historique</a>
-        <!-- Lien d'administration - caché par défaut -->
-        <a href="pages/admin.html" id="admin-link" style="display: none;">Administration</a>
-        <a href="pages/change-password.html">Mot de passe</a>
-        <a href="#" id="login-link">Connexion</a>
-      </div>
-      <!-- Bouton pour ouvrir le menu mobile -->
-      <button class="mobile-menu-btn" id="mobile-menu-btn">☰</button>
-    </nav>
-    
-    <!-- Structure du menu mobile -->
-    <div class="mobile-nav" id="mobile-nav">
-      <div class="mobile-nav-header">
-        <div class="logo">Ski-Track</div>
-        <button class="mobile-nav-close" id="mobile-nav-close">✕</button>
-      </div>
-      <div class="mobile-nav-links">
-        <a href="index.html" class="active">Tableau de bord</a>
-        <a href="pages/trail-inspection.html">Inspection piste</a>
-        <a href="pages/shelter-inspection.html">Inspection abri</a>
-        <a href="pages/inspection-history.html">Historique</a>
-        <a href="pages/admin.html" id="mobile-admin-link" style="display: none;">Administration</a>
-        <a href="pages/change-password.html" id="mobile-password-link">Mot de passe</a>
-        <a href="#" id="mobile-login-link">Connexion</a>
-      </div>
-    </div>
-  </header>
-  
-  <!-- Indicateur de chargement principal -->
-  <div id="loading">
-    <div style="text-align: center;">
+<body>
+  <!-- Loading screen -->
+  <div id="loading" class="loading-screen">
+    <div class="loading-content">
       <div class="loading-spinner"></div>
-      <p>Vérification de l'authentification...</p>
+      <p>Chargement du tableau de bord...</p>
     </div>
   </div>
-  
-  <!-- Contenu principal - caché initialement -->
-  <div id="main-content">
-    <main class="main">
-		<div class="page-header">
-			<h1 class="page-title">Tableau de bord des inspections</h1>
-			<div class="user-info">
-				Connecté en tant que: <span id="user-name">Inspecteur</span>
-			</div>
-		</div>
 
-		<!-- Vieux filtre pour la carte 
-		<div class="filter-container">
-		  
-		  <div class="filter-content">
-			<div class="filter-group">
-			  <label for="date-filter">Période</label>
-			  <select id="date-filter" class="filter-select">
-				<option value="all">Toutes les dates</option>
-				<option value="today">Aujourd'hui</option>
-				<option value="week">Dernière semaine</option>
-				<option value="month">Dernier mois</option>
-			  </select>
-			</div>
-			
-			<div class="filter-group">
-			  <label for="status-filter">État</label>
-			  <select id="status-filter" class="filter-select">
-				<option value="all">Tous les états</option>
-				<option value="good">Bon état</option>
-				<option value="warning">Attention</option>
-				<option value="critical">Critique</option>
-				<option value="not-inspected">Non inspecté</option>
-			  </select>
-			</div>
-			
-			<div class="filter-group">
-			  <label for="issues-filter">Problèmes</label>
-			  <select id="issues-filter" class="filter-select">
-				<option value="all">Tous</option>
-				<option value="with-issues">Avec problèmes uniquement</option>
-				<option value="without-issues">Sans problème uniquement</option>
-			  </select>
-			</div>
-			
-			<div class="filter-group">
-			  <label for="type-filter">Type</label>
-			  <select id="type-filter" class="filter-select">
-				<option value="all">Tous</option>
-				<option value="trail">Sentiers uniquement</option>
-				<option value="shelter">Abris uniquement</option>
-			  </select>
-			</div>
-			
-			<div class="filter-group">
-			  <label for="difficulty-filter">Difficulté</label>
-			  <select id="difficulty-filter" class="filter-select">
-				<option value="all">Toutes</option>
-				<option value="easy">Facile</option>
-				<option value="medium">Intermédiaire</option>
-				<option value="hard">Difficile</option>
-			  </select>
-			</div>
-		  </div>
-		  
-		  <div class="filter-footer">
-			<span id="filter-counter">14 éléments affichés</span>
-			<button id="reset-filters" class="btn btn-sm btn-secondary">Réinitialiser</button>
-		  </div>
-		</div>
-		-->
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-brand">
+      <h1>🏔️ Sentiers de Randonnée</h1>
+    </div>
+    <ul class="nav-links">
+      <li><a href="index.html" class="nav-link active">Tableau de bord</a></li>
+      <li><a href="pages/trail-inspection.html" class="nav-link">Inspection sentier</a></li>
+      <li><a href="pages/shelter-inspection.html" class="nav-link">Inspection abri</a></li>
+      <li><a href="pages/inspection-history.html" class="nav-link">Historique</a></li>
+      <li><a href="pages/status.html" class="nav-link">État public</a></li>
+    </ul>
+    <div class="nav-actions">
+      <button class="btn btn-secondary" id="logout-btn">Se déconnecter</button>
+      <button class="mobile-menu-btn" id="mobile-menu-btn">☰</button>
+    </div>
+  </nav>
 
-		<!-- Filters section with new card format -->
-		<div class="content-section">
-		  <div class="card">
-			<div class="card-header">
-			  <h2 class="card-title">Filtres de la carte</h2>
-			  <button class="btn btn-sm btn-secondary" id="toggle-map-filters">
-				<span id="map-filter-toggle-text">Masquer</span>
-			  </button>
-			</div>
-			
-			<div class="card-body" id="map-filters-content">
-			  <div class="filters-grid">
-				<div class="form-group">
-				  <label class="form-label" for="date-filter">Période</label>
-				  <select class="form-control" id="date-filter">
-					<option value="all">Toutes les dates</option>
-					<option value="today">Aujourd'hui</option>
-					<option value="week">Dernière semaine</option>
-					<option value="month">Dernier mois</option>
-				  </select>
-				</div>
-				
-				<div class="form-group">
-				  <label class="form-label" for="status-filter">État</label>
-				  <select class="form-control" id="status-filter">
-					<option value="all">Tous les états</option>
-					<option value="good">Bon état</option>
-					<option value="warning">Attention</option>
-					<option value="critical">Critique</option>
-					<option value="not-inspected">Non inspecté</option>
-				  </select>
-				</div>
-				
-				<div class="form-group">
-				  <label class="form-label" for="issues-filter">Problèmes</label>
-				  <select class="form-control" id="issues-filter">
-					<option value="all">Tous</option>
-					<option value="with-issues">Avec problèmes uniquement</option>
-					<option value="without-issues">Sans problème uniquement</option>
-				  </select>
-				</div>
-				
-				<div class="form-group">
-				  <label class="form-label" for="type-filter">Type</label>
-				  <select class="form-control" id="type-filter">
-					<option value="all">Tous</option>
-					<option value="trail">Sentiers uniquement</option>
-					<option value="shelter">Abris uniquement</option>
-				  </select>
-				</div>
-				
-				<div class="form-group">
-				  <label class="form-label" for="difficulty-filter">Difficulté</label>
-				  <select class="form-control" id="difficulty-filter">
-					<option value="all">Toutes</option>
-					<option value="easy">Facile</option>
-					<option value="medium">Intermédiaire</option>
-					<option value="hard">Difficile</option>
-				  </select>
-				</div>
-			  </div>
-			  
-			  <div class="filter-actions">
-				<div class="filter-info">
-				  <span id="filter-counter">14 éléments affichés</span>
-				</div>
-				<div class="filter-buttons">
-				  <button class="btn btn-secondary" id="reset-filters">Réinitialiser</button>
-				  <button class="btn btn-primary" id="apply-map-filters">Appliquer</button>
-				</div>
-			  </div>
-			</div>
-		  </div>
-		</div>
+  <!-- Mobile menu overlay -->
+  <div class="mobile-menu-overlay" id="mobile-menu-overlay">
+    <div class="mobile-menu">
+      <div class="mobile-menu-header">
+        <h2>Menu</h2>
+        <button class="mobile-menu-close" id="mobile-menu-close">✕</button>
+      </div>
+      <div class="mobile-menu-content">
+        <a href="index.html" class="mobile-menu-link active">Tableau de bord</a>
+        <a href="pages/trail-inspection.html" class="mobile-menu-link">Inspection sentier</a>
+        <a href="pages/shelter-inspection.html" class="mobile-menu-link">Inspection abri</a>
+        <a href="pages/inspection-history.html" class="mobile-menu-link">Historique</a>
+        <a href="pages/status.html" class="mobile-menu-link">État public</a>
+        <hr class="mobile-menu-divider">
+        <button class="btn btn-secondary mobile-logout-btn" id="mobile-logout-btn">Se déconnecter</button>
+      </div>
+    </div>
+  </div>
 
-
-
-
-
-
-
-      
-      <!-- Carte et légende -->
-      <div class="map-container">
-        <div class="map-view">
-          <!-- Indicateur de chargement de la carte -->
-          <div id="map-loading">
-            <div class="loading-spinner"></div>
-          </div>
-          <div class="map-bg">
-            <!-- Image de la carte du Mont Orford -->
-			  <img 
-				src="assets/map3.png" 
-				alt="Carte du Mont Orford" 
-				class="map-image"
-                style="margin: 0; padding: 0; width: auto !important; height: auto !important; max-width: none !important;"
-			  >
-            <!-- Les marqueurs seront ajoutés dynamiquement ici -->
-          </div>
+  <!-- Main content wrapper -->
+  <div class="container">
+    <!-- Main content -->
+    <main class="content">
+      <!-- Dashboard stats -->
+      <div class="dashboard-stats">
+        <div class="stat-card">
+          <div class="stat-value" id="inspections-today">-/-</div>
+          <div class="stat-label">Inspections aujourd'hui</div>
         </div>
-        
-        <div class="map-legend">
-          <div class="legend-section">
-            <div class="legend-title">État des pistes</div>
-            <div class="legend-item">
-              <div class="legend-color" style="background-color: #10b981;"></div>
-              <span>Bon état</span>
-            </div>
-            <div class="legend-item">
-              <div class="legend-color" style="background-color: #f59e0b;"></div>
-              <span>Attention</span>
-            </div>
-            <div class="legend-item">
-              <div class="legend-color" style="background-color: #ef4444;"></div>
-              <span>Critique</span>
-            </div>
-            <div class="legend-item">
-              <div class="legend-color" style="background-color: #9ca3af;"></div>
-              <span>Non inspecté</span>
-            </div>
-          </div>
-          
-          <div class="legend-section">
-            <div class="legend-title">Types</div>
-            <div class="legend-item">
-              <div class="legend-color" style="background-color: #2c7a5d;"></div>
-              <span>Sentiers</span>
-            </div>
-            <div class="legend-item">
-              <div class="legend-color" style="background-color: #8b5cf6;"></div>
-              <span>Abris</span>
-            </div>
-          </div>
-          
-          <div class="legend-section">
-            <div class="legend-title">Difficulté des sentiers</div>
-            <div class="legend-item">
-              <div class="legend-color" style="background-color: #43a047;"></div>
-              <span>Facile</span>
-            </div>
-            <div class="legend-item">
-              <div class="legend-color" style="background-color: #2196f3;"></div>
-              <span>Intermédiaire</span>
-            </div>
-            <div class="legend-item">
-              <div class="legend-color" style="background-color: #212121;"></div>
-              <span>Difficile</span>
-            </div>
-          </div>
+        <div class="stat-card">
+          <div class="stat-value" id="overall-status">-</div>
+          <div class="stat-label">État général</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="reported-issues">-</div>
+          <div class="stat-label">Problèmes signalés</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="last-update">--:--</div>
+          <div class="stat-label">Dernière mise à jour</div>
         </div>
       </div>
       
-      <!-- Panneau d'informations avec encadré -->
-      <div class="info-panel">
-        <div class="info-panel-content">
-          <div class="info-header">
-            <h2>Informations détaillées</h2>
-            <p>Cliquez sur une piste ou un abri pour voir les détails</p>
-          </div>
-          
-          <div class="selected-info show" id="default-info">
-            <p>Sélectionnez une piste ou un abri sur la carte pour afficher ses informations.</p>
-          </div>
-          
-          <div class="selected-info" id="piste-info">
+      <!-- Carte interactive -->
+      <div class="map-container">
+        <div id="map" class="map"></div>
+        
+        <!-- Panneau d'informations -->
+        <div class="info-panel">
+          <div class="info-panel-content">
             <div class="info-header">
-              <h3>Nom du sentier</h3>
-              <span class="status-badge status-good">Bon</span>
+              <h2>Informations</h2>
+              <p>Cliquez sur un élément de la carte pour voir les détails</p>
             </div>
             
-            <div class="info-section">
-              <div class="info-title">Dernière inspection</div>
-              <p>Date et inspecteur</p>
-            </div>
-            
-            <div class="info-section">
-              <div class="info-title">Difficulté</div>
-              <p>Niveau de difficulté</p>
-            </div>
-            
-            <div class="info-section">
-              <div class="info-title">État du sentier</div>
-              <p>Description de l'état</p>
-            </div>
-            
-            <div class="info-section">
-              <div class="info-title">Problèmes signalés</div>
-              <ul id="sentier-issues">
-                <li>Aucun problème signalé</li>
-              </ul>
+            <div id="selected-info" class="selected-info">
+              <!-- Les informations détaillées apparaîtront ici -->
             </div>
           </div>
-<!-- 
-          <div class="selected-info" id="abri-info">
-            <div class="info-header">
-              <h3>Nom de l'abri</h3>
-              <span class="status-badge status-good">Bon</span>
-            </div>
-            
-            <div class="info-section">
-              <div class="info-title">Dernière inspection</div>
-              <p>Date et inspecteur</p>
-            </div>
-            
-            <div class="info-section">
-              <div class="info-title">Capacité</div>
-              <p>Nombre de places</p>
-            </div>
-            
-            <div class="info-section">
-              <div class="info-title">État de l'abri</div>
-              <p>Description de l'état</p>
-            </div>
-            
-            <div class="info-section">
-              <div class="info-title">Équipements</div>
-              <ul id="abri-equipments">
-                <li>Liste des équipements</li>
-              </ul>
-            </div>
-            
-            <div class="info-section">
-              <div class="info-title">Problèmes signalés</div>
-              <ul id="abri-issues">
-                <li>Aucun problème signalé</li>
-              </ul>
-            </div>
-          </div>
--->
         </div>
       </div>
       
@@ -397,6 +141,24 @@
       </div>
       
     </main>
+  </div>
+
+  <!-- Inspection Details Modal -->
+  <div class="modal" id="inspection-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Détails de l'inspection</h2>
+        <button class="modal-close" id="close-modal">✕</button>
+      </div>
+      
+      <div class="modal-body" id="modal-content">
+        <!-- Content will be loaded dynamically -->
+      </div>
+      
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="close-modal-btn">Fermer</button>
+      </div>
+    </div>
   </div>
   
   <!-- Scripts Firebase -->
