@@ -11,10 +11,10 @@ Done :
  - login.html
  - admin.html
  - trail-inspection.html"
-
-To be done
  - shelter-inspection.html"
  - change-password.html"
+
+To be done
  - Status.html"
 
 
