@@ -96,48 +96,52 @@
 		  </div>
 		</div>
 
-		<!-- Filters for the map -->
-		<div class="filter-container">
-		  <div class="filter-header">
-			<h3>Filtres</h3>
-			<button id="toggle-filters" class="btn btn-secondary">
-			  <span id="filter-toggle-text">Masquer</span>
-			</button>
-		  </div>
-		  
-		  <div class="filter-content" id="filter-content">
-			<div class="filter-group">
-			  <label for="date-filter">Période</label>
-			  <select id="date-filter" class="filter-select">
-				<option value="all">Toutes les dates</option>
-				<option value="today">Aujourd'hui</option>
-				<option value="week">Dernière semaine</option>
-				<option value="month">Dernier mois</option>
-			  </select>
+		<!-- Filters section -->
+		<div class="content-section">
+		  <div class="card">
+			<div class="card-header">
+			  <h2 class="card-title">Filtres</h2>
+			  <button class="btn btn-sm btn-secondary" id="toggle-filters">
+				<span id="filter-toggle-text">Masquer</span>
+			  </button>
 			</div>
 			
-			<div class="filter-group">
-			  <label for="status-filter">État</label>
-			  <select id="status-filter" class="filter-select">
-				<option value="all">Tous les états</option>
-				<option value="good">Bon état</option>
-				<option value="warning">Attention</option>
-				<option value="critical">Critique</option>
-				<option value="not-inspected">Non inspecté</option>
-			  </select>
-			</div>
-			
-			<div class="filter-group">
-			  <label for="issues-filter">Problèmes</label>
-			  <select id="issues-filter" class="filter-select">
-				<option value="all">Tous</option>
-				<option value="with-issues">Avec problèmes uniquement</option>
-				<option value="without-issues">Sans problème uniquement</option>
-			  </select>
-			</div>
-			
-			<div class="filter-group">
-			  <button id="reset-filters" class="btn btn-secondary">Réinitialiser</button>
+			<div class="card-body" id="filters-content">
+			  <div class="filters-grid">
+				<div class="form-group">
+				  <label class="form-label" for="date-filter">Période</label>
+				  <select class="form-control" id="date-filter">
+					<option value="all">Toutes les dates</option>
+					<option value="today">Aujourd'hui</option>
+					<option value="week">Dernière semaine</option>
+					<option value="month">Dernier mois</option>
+				  </select>
+				</div>
+				
+				<div class="form-group">
+				  <label class="form-label" for="status-filter">État</label>
+				  <select class="form-control" id="status-filter">
+					<option value="all">Tous les états</option>
+					<option value="good">Bon état</option>
+					<option value="warning">Attention</option>
+					<option value="critical">Critique</option>
+					<option value="not-inspected">Non inspecté</option>
+				  </select>
+				</div>
+				
+				<div class="form-group">
+				  <label class="form-label" for="issues-filter">Problèmes</label>
+				  <select class="form-control" id="issues-filter">
+					<option value="all">Tous</option>
+					<option value="with-issues">Avec problèmes uniquement</option>
+					<option value="without-issues">Sans problème uniquement</option>
+				  </select>
+				</div>
+			  </div>
+			  
+			  <div class="filter-actions">
+				<button class="btn btn-secondary" id="reset-filters">Réinitialiser</button>
+			  </div>
 			</div>
 		  </div>
 		</div>

@@ -22,9 +22,9 @@ function loadDashboardData() {
 function initDashboardFilters() {
   console.log("Initializing dashboard filters");
   
-  // Initialize filter toggle functionality
+  // Initialize filter toggle functionality (matching inspection-history.html)
   const toggleBtn = document.getElementById('toggle-filters');
-  const filtersContent = document.getElementById('filter-content');
+  const filtersContent = document.getElementById('filters-content');
   const toggleText = document.getElementById('filter-toggle-text');
   
   if (toggleBtn && filtersContent && toggleText) {
@@ -34,7 +34,7 @@ function initDashboardFilters() {
       filtersVisible = !filtersVisible;
       
       if (filtersVisible) {
-        filtersContent.style.display = 'grid';
+        filtersContent.style.display = 'block';
         toggleText.textContent = 'Masquer';
       } else {
         filtersContent.style.display = 'none';
@@ -47,6 +47,8 @@ function initDashboardFilters() {
   const resetBtn = document.getElementById('reset-filters');
   if (resetBtn) {
     resetBtn.addEventListener('click', function() {
+      console.log("Resetting filters");
+      
       // Reset all filter values
       const dateFilter = document.getElementById('date-filter');
       const statusFilter = document.getElementById('status-filter');
