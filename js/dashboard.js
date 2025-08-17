@@ -222,14 +222,11 @@ async function loadRecentInspectionsForSummary() {
           
           trailCards.push(`
             <div class="inspection-card clickable-card" data-inspection-id="${doc.id}" data-type="trail" style="cursor: pointer;">
-              <div class="card-header">
-                <span class="type-badge type-trail">Sentier</span>
-                <span class="date-badge">${formattedDate}</span>
-              </div>
               <div class="card-body">
                 <h4 class="card-title">${trail.name}</h4>
                 <div class="status-info">
                   <span class="status-badge ${getStatusClass(inspection.condition)}">${getStatusText(inspection.condition)}</span>
+                  <span class="date-badge">${formattedDate}</span>
                 </div>
                 <div class="additional-info">
                   <div style="font-size: 0.85em; color: #6b7280; margin-top: 0.5rem;">
@@ -239,8 +236,8 @@ async function loadRecentInspectionsForSummary() {
                 </div>
                 ${
                   inspection.issues && inspection.issues.length > 0 ? 
-                  `<div style="color: #dc2626;">⚠ ${inspection.issues.length} problème(s) signalé(s)</div>` : 
-                  '<div style="color: #059669;">✓ Aucun problème signalé</div>'
+                  `<div style="color: #dc2626; margin-top: 0.5rem;">⚠ ${inspection.issues.length} problème(s) signalé(s)</div>` : 
+                  '<div style="color: #059669; margin-top: 0.5rem;">✓ Aucun problème signalé</div>'
                 }
               </div>
             </div>
@@ -282,14 +279,11 @@ async function loadRecentInspectionsForSummary() {
           
           shelterCards.push(`
             <div class="inspection-card clickable-card" data-inspection-id="${doc.id}" data-type="shelter" style="cursor: pointer;">
-              <div class="card-header">
-                <span class="type-badge type-shelter">Abri</span>
-                <span class="date-badge">${formattedDate}</span>
-              </div>
               <div class="card-body">
                 <h4 class="card-title">${shelter.name}</h4>
                 <div class="status-info">
                   <span class="status-badge ${getStatusClass(inspection.condition)}">${getStatusText(inspection.condition)}</span>
+                  <span class="date-badge">${formattedDate}</span>
                 </div>
                 <div class="additional-info">
                   <div style="font-size: 0.85em; color: #6b7280; margin-top: 0.5rem;">
@@ -298,8 +292,8 @@ async function loadRecentInspectionsForSummary() {
                 </div>
                 ${
                   inspection.issues && inspection.issues.length > 0 ? 
-                  `<div style="color: #dc2626;">⚠ ${inspection.issues.length} problème(s) signalé(s)</div>` : 
-                  '<div style="color: #059669;">✓ Aucun problème signalé</div>'
+                  `<div style="color: #dc2626; margin-top: 0.5rem;">⚠ ${inspection.issues.length} problème(s) signalé(s)</div>` : 
+                  '<div style="color: #059669; margin-top: 0.5rem;">✓ Aucun problème signalé</div>'
                 }
               </div>
             </div>
@@ -574,7 +568,10 @@ function showModal() {
   const modal = document.getElementById('inspection-modal');
   if (modal) {
     modal.classList.add('show');
-    document.body.style.overflow = 'hidden';
+    // Fix scroll issue by preventing body scroll without setting overflow hidden
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${window.scrollY}px`;
+    document.body.style.width = '100%';
   }
 }
 
@@ -585,7 +582,12 @@ function closeModal() {
   const modal = document.getElementById('inspection-modal');
   if (modal) {
     modal.classList.remove('show');
-    document.body.style.overflow = '';
+    // Restore scroll position
+    const scrollY = document.body.style.top;
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.width = '';
+    window.scrollTo(0, parseInt(scrollY || '0') * -1);
   }
 }
 
