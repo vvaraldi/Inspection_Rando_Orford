@@ -1,5 +1,5 @@
 /* ========================================
-   Dashboard CSS - Modal and Clickable Cards
+   Dashboard CSS - Modal and Filter Styles
    ======================================== */
 
 /* Existing dashboard styles... */
@@ -36,6 +36,144 @@
   color: var(--theme-text-light);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+}
+
+/* ========================================
+   FILTER STYLES (matching inspection-history.css exactly)
+   ======================================== */
+
+/* Filters */
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.filter-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+  padding-top: var(--space-lg);
+  border-top: var(--border-width) solid var(--theme-border);
+}
+
+/* Content section and card styles (matching inspection-history) */
+.content-section {
+  margin-bottom: var(--space-xl);
+}
+
+.card {
+  background-color: var(--theme-surface);
+  border: var(--border-width) solid var(--theme-border);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.card-header {
+  padding: var(--space-lg);
+  background-color: var(--color-gray-50);
+  border-bottom: var(--border-width) solid var(--theme-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-title {
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  color: var(--theme-text);
+  margin: 0;
+}
+
+.card-body {
+  padding: var(--space-lg);
+}
+
+/* Form elements (matching inspection-history) */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.form-label {
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--theme-text);
+  margin: 0;
+}
+
+.form-control {
+  padding: var(--space-sm) var(--space-md);
+  border: var(--border-width) solid var(--theme-border);
+  border-radius: var(--border-radius-md);
+  background-color: var(--theme-surface);
+  color: var(--theme-text);
+  font-size: var(--text-sm);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  line-height: 1.5;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--theme-primary);
+  box-shadow: 0 0 0 3px rgba(var(--theme-primary-rgb), 0.1);
+}
+
+/* Button styles (matching inspection-history) */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-sm) var(--space-md);
+  border: var(--border-width) solid transparent;
+  border-radius: var(--border-radius-md);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  gap: var(--space-xs);
+}
+
+.btn-sm {
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--text-xs);
+}
+
+.btn-secondary {
+  background-color: var(--color-gray-100);
+  color: var(--theme-text);
+  border-color: var(--color-gray-300);
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-gray-200);
+  border-color: var(--color-gray-400);
+}
+
+.btn-primary {
+  background-color: var(--theme-primary);
+  color: white;
+  border-color: var(--theme-primary);
+}
+
+.btn-primary:hover {
+  background-color: var(--theme-primary-dark);
+  border-color: var(--theme-primary-dark);
+}
+
+/* Responsive design for filters */
+@media (max-width: 768px) {
+  .filters-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .filter-actions {
+    flex-direction: column;
+  }
 }
 
 /* Summary list section */
