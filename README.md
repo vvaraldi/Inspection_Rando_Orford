@@ -1,8 +1,11 @@
 # Inspection_Rando_Orford
 
+WORKING WELL... now cleaning the CSS files and structures
+
+
+
 Must :
 
-Index est clean... faire les autres pour sortir CSS et assuré que JS marche bien
 
 Done :
  - index.html
@@ -14,7 +17,7 @@ Done :
  - shelter-inspection.html"
  - change-password.html"
 
-To be done
+To be done ?
  - Status.html"
 
 
