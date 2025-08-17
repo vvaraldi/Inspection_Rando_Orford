@@ -1,5 +1,5 @@
 /* ========================================
-   12. css/layout/_header.css
+   css/layout/header.css
    ======================================== 
    Styles de l'en-tête et navigation
    ======================================== */
@@ -41,20 +41,24 @@
   align-items: center;
 }
 
-.nav-link {
+/* Fixed navigation links - matching HTML structure */
+.nav-links a {
   color: var(--color-white);
+  text-decoration: none;
   padding: var(--space-sm) var(--space-md);
   border-radius: var(--border-radius-md);
-  transition: background-color var(--transition-fast);
+  transition: all var(--transition-fast);
   font-weight: var(--font-medium);
 }
 
-.nav-link:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+.nav-links a:hover {
+  background-color: rgba(0, 0, 0, 0.2);
+  color: var(--color-white);
 }
 
-.nav-link.active {
+.nav-links a.active {
   background-color: rgba(255, 255, 255, 0.2);
+  color: var(--color-white);
 }
 
 /* Mobile menu button */
@@ -90,12 +94,19 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+.mobile-nav-header .logo {
+  color: var(--color-white);
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+}
+
 .mobile-nav-close {
   background: none;
   border: none;
   color: var(--color-white);
   font-size: var(--text-2xl);
   cursor: pointer;
+  padding: var(--space-sm);
 }
 
 .mobile-nav-links {
@@ -107,6 +118,7 @@
 
 .mobile-nav-links a {
   color: var(--color-white);
+  text-decoration: none;
   padding: var(--space-md);
   border-radius: var(--border-radius-md);
   font-size: var(--text-lg);
@@ -116,5 +128,35 @@
 .mobile-nav-links a:hover,
 .mobile-nav-links a.active {
   background-color: rgba(255, 255, 255, 0.2);
+  color: var(--color-white);
 }
- 
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .nav-links {
+    display: none;
+  }
+  
+  .mobile-menu-btn {
+    display: block;
+  }
+  
+  .nav {
+    padding: var(--space-sm) var(--space-md);
+  }
+  
+  .nav-logo {
+    font-size: var(--text-lg);
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-logo::before {
+    font-size: 1.2em;
+  }
+  
+  .mobile-nav-links a {
+    font-size: var(--text-base);
+    padding: var(--space-sm) var(--space-md);
+  }
+}
