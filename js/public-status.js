@@ -433,7 +433,7 @@ function displayMap() {
   // Clear and create map container
   mapView.innerHTML = `
     <div class="map-container" style="position: relative; width: 100%; max-width: 1200px; margin: 0 auto;">
-      <img id="trail-map-image" src="../assets/images/map3.jpg" alt="Carte des sentiers" 
+      <img id="trail-map-image" src="../assets/map3.jpg" alt="Carte des sentiers" 
            style="width: 100%; height: auto; display: block; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"
            onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22800%22 height=%22600%22%3E%3Crect fill=%22%23f0f0f0%22 width=%22800%22 height=%22600%22/%3E%3Ctext x=%22400%22 y=%22300%22 text-anchor=%22middle%22 font-size=%2224%22 fill=%22%23999%22%3EMap Image Not Found%3C/text%3E%3C/svg%3E';">
       <div id="map-markers" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></div>
