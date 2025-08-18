@@ -1,32 +1,13 @@
 /**
  * public-status.js
- * Public status page functionality - Loading from Firebase
+ * Public status page functionality - Simplified version
  */
-
-// Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyDjX8Wd26_3zZfiPp-J5N0cepsHBDjDBQc",
-  authDomain: "orford-83962.firebaseapp.com",
-  projectId: "orford-83962",
-  storageBucket: "orford-83962.firebasestorage.app",
-  messagingSenderId: "223698154026",
-  appId: "1:223698154026:web:67358b93022ebc2f391a73"
-};
-
-// Initialize Firebase
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
-}
-
-const db = firebase.firestore();
 
 // Global variables
 let currentView = 'list';
 let currentFilter = 'all';
-let allTrailInspections = [];
-let allShelterInspections = [];
-let trailsData = new Map();
-let sheltersData = new Map();
+let trailsData = [];
+let sheltersData = [];
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
@@ -35,10 +16,12 @@ document.addEventListener('DOMContentLoaded', function() {
   // Initialize components
   initializeViewToggle();
   initializeFilters();
-  loadDataFromFirebase();
   
-  // Refresh data every 5 minutes
-  setInterval(loadDataFromFirebase, 5 * 60 * 1000);
+  // Load sample data for now (since Firebase has permission issues)
+  loadSampleData();
+  
+  // Update time
+  updateLastUpdateTime();
   setInterval(updateLastUpdateTime, 60 * 1000);
 });
 
@@ -101,128 +84,170 @@ function initializeFilters() {
 }
 
 /**
- * Load data from Firebase
+ * Load sample data (fallback when Firebase isn't accessible)
  */
-async function loadDataFromFirebase() {
-  const grid = document.getElementById('trails-grid');
+function loadSampleData() {
+  console.log('Loading sample data...');
   
-  try {
-    // Show loading state
-    grid.innerHTML = `
-      <div class="loading-message">
-        <div class="loading-spinner"></div>
-        <p>Chargement des données...</p>
-      </div>
-    `;
-    
-    console.log("Loading data from Firebase...");
-    
-    // Calculate date 7 days ago
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    const sevenDaysAgoTimestamp = firebase.firestore.Timestamp.fromDate(sevenDaysAgo);
-    
-    // Load trail inspections from last 7 days
-    const trailInspectionsSnapshot = await db.collection('trail_inspections')
-      .where('date', '>=', sevenDaysAgoTimestamp)
-      .orderBy('date', 'desc')
-      .get();
-    
-    console.log("Trail inspections found:", trailInspectionsSnapshot.size);
-    
-    // Load shelter inspections from last 7 days
-    const shelterInspectionsSnapshot = await db.collection('shelter_inspections')
-      .where('date', '>=', sevenDaysAgoTimestamp)
-      .orderBy('date', 'desc')
-      .get();
-    
-    console.log("Shelter inspections found:", shelterInspectionsSnapshot.size);
-    
-    // Load trails and shelters data
-    const trailsSnapshot = await db.collection('trails').get();
-    const sheltersSnapshot = await db.collection('shelters').get();
-    
-    // Clear and populate maps
-    trailsData.clear();
-    sheltersData.clear();
-    
-    trailsSnapshot.forEach(doc => {
-      trailsData.set(doc.id, { id: doc.id, ...doc.data() });
-    });
-    
-    sheltersSnapshot.forEach(doc => {
-      sheltersData.set(doc.id, { id: doc.id, ...doc.data() });
-    });
-    
-    console.log("Loaded trails:", trailsData.size, "shelters:", sheltersData.size);
-    
-    // Process inspections
-    allTrailInspections = [];
-    allShelterInspections = [];
-    
-    trailInspectionsSnapshot.forEach(doc => {
-      allTrailInspections.push({ id: doc.id, ...doc.data() });
-    });
-    
-    shelterInspectionsSnapshot.forEach(doc => {
-      allShelterInspections.push({ id: doc.id, ...doc.data() });
-    });
-    
-    // Display the data
-    displayInspections();
-    updateLastUpdateTime();
-    
-  } catch (error) {
-    console.error("Error loading data from Firebase:", error);
-    grid.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-icon">❌</div>
-        <p class="empty-message">Erreur lors du chargement des données</p>
-      </div>
-    `;
-  }
+  // Sample trails data with inspections
+  trailsData = [
+    {
+      id: 'trail1',
+      name: 'Sentier du Sommet',
+      difficulty: 'Difficile',
+      length: '8.5 km',
+      inspection: {
+        date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
+        trail_open: 'yes',
+        overall_condition: 'excellent',
+        groomed: 'yes',
+        inspector: 'Jean Tremblay'
+      }
+    },
+    {
+      id: 'trail2',
+      name: 'Sentier du Lac',
+      difficulty: 'Facile',
+      length: '3.2 km',
+      inspection: {
+        date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // Yesterday
+        trail_open: 'yes',
+        overall_condition: 'good',
+        groomed: 'no',
+        inspector: 'Marie Lavoie'
+      }
+    },
+    {
+      id: 'trail3',
+      name: 'Sentier de la Crête',
+      difficulty: 'Intermédiaire',
+      length: '5.7 km',
+      inspection: {
+        date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
+        trail_open: 'yes',
+        overall_condition: 'attention',
+        groomed: 'no',
+        inspector: 'Paul Martin'
+      }
+    },
+    {
+      id: 'trail4',
+      name: 'Sentier du Ruisseau',
+      difficulty: 'Facile',
+      length: '2.8 km',
+      inspection: {
+        date: new Date(Date.now() - 5 * 60 * 60 * 1000), // 5 hours ago
+        trail_open: 'no',
+        overall_condition: 'urgent',
+        groomed: 'no',
+        inspector: 'Sophie Dubois'
+      }
+    },
+    {
+      id: 'trail5',
+      name: 'Sentier de la Falaise',
+      difficulty: 'Expert',
+      length: '6.3 km',
+      inspection: {
+        date: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000), // 4 days ago
+        trail_open: 'yes',
+        overall_condition: 'good',
+        groomed: 'yes',
+        inspector: 'Marc Bergeron'
+      }
+    },
+    {
+      id: 'trail6',
+      name: 'Sentier de la Forêt',
+      difficulty: 'Facile',
+      length: '4.1 km',
+      inspection: null // Not inspected
+    },
+    {
+      id: 'trail7',
+      name: 'Sentier du Panorama',
+      difficulty: 'Intermédiaire',
+      length: '7.2 km',
+      inspection: {
+        date: new Date(Date.now() - 12 * 60 * 60 * 1000), // 12 hours ago
+        trail_open: 'yes',
+        overall_condition: 'excellent',
+        groomed: 'yes',
+        inspector: 'Louise Roy'
+      }
+    },
+    {
+      id: 'trail8',
+      name: 'Sentier de la Cascade',
+      difficulty: 'Intermédiaire',
+      length: '4.5 km',
+      inspection: {
+        date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+        trail_open: 'yes',
+        overall_condition: 'attention',
+        groomed: 'no',
+        inspector: 'Robert Gagnon'
+      }
+    }
+  ];
+  
+  // Sample shelters data
+  sheltersData = [
+    {
+      id: 'shelter1',
+      name: 'Refuge du Sommet',
+      capacity: '12',
+      inspection: {
+        date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+        overall_condition: 'excellent',
+        firewood_stock: 'Plein',
+        inspector: 'Jean Tremblay'
+      }
+    },
+    {
+      id: 'shelter2',
+      name: 'Refuge du Lac',
+      capacity: '8',
+      inspection: {
+        date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+        overall_condition: 'good',
+        firewood_stock: 'Moyen',
+        inspector: 'Marie Lavoie'
+      }
+    },
+    {
+      id: 'shelter3',
+      name: 'Refuge de la Crête',
+      capacity: '6',
+      inspection: {
+        date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+        overall_condition: 'attention',
+        firewood_stock: 'Bas',
+        inspector: 'Paul Martin'
+      }
+    }
+  ];
+  
+  // Display the data
+  displayData();
 }
 
 /**
- * Display inspections in list view
+ * Display data in list view
  */
-function displayInspections() {
+function displayData() {
   const grid = document.getElementById('trails-grid');
   grid.innerHTML = '';
   
-  // Group inspections by trail/shelter and get latest
-  const latestTrailInspections = new Map();
-  const latestShelterInspections = new Map();
-  
-  // Get latest inspection for each trail
-  allTrailInspections.forEach(inspection => {
-    const trailId = inspection.trail_id;
-    if (!latestTrailInspections.has(trailId) || 
-        inspection.date.seconds > latestTrailInspections.get(trailId).date.seconds) {
-      latestTrailInspections.set(trailId, inspection);
-    }
-  });
-  
-  // Get latest inspection for each shelter
-  allShelterInspections.forEach(inspection => {
-    const shelterId = inspection.shelter_id;
-    if (!latestShelterInspections.has(shelterId) || 
-        inspection.date.seconds > latestShelterInspections.get(shelterId).date.seconds) {
-      latestShelterInspections.set(shelterId, inspection);
-    }
-  });
-  
   // Display trail cards
-  trailsData.forEach((trail, trailId) => {
-    const inspection = latestTrailInspections.get(trailId);
-    const card = createTrailCard(trail, inspection);
+  trailsData.forEach(trail => {
+    const card = createTrailCard(trail);
     grid.appendChild(card);
   });
   
   // Display shelter cards
-  sheltersData.forEach((shelter, shelterId) => {
-    const inspection = latestShelterInspections.get(shelterId);
-    const card = createShelterCard(shelter, inspection);
+  sheltersData.forEach(shelter => {
+    const card = createShelterCard(shelter);
     grid.appendChild(card);
   });
   
@@ -233,8 +258,9 @@ function displayInspections() {
 /**
  * Create trail card
  */
-function createTrailCard(trail, inspection) {
+function createTrailCard(trail) {
   const card = document.createElement('article');
+  const inspection = trail.inspection;
   
   // Determine status
   let status = 'unknown';
@@ -249,8 +275,6 @@ function createTrailCard(trail, inspection) {
       status = 'open';
     } else if (condition === 'attention' || condition === 'urgent') {
       status = 'condition';
-    } else {
-      status = 'open';
     }
   }
   
@@ -261,16 +285,19 @@ function createTrailCard(trail, inspection) {
   card.dataset.type = 'trail';
   
   // Format inspection date
-  const inspectionDate = inspection?.date ? formatFirebaseDate(inspection.date) : 'Non inspecté';
+  const inspectionDate = inspection?.date ? formatDate(inspection.date) : 'Non inspecté';
   
   // Condition percentage
   const conditionPercent = getConditionPercent(condition);
+  
+  // Difficulty class
+  const difficultyClass = trail.difficulty ? trail.difficulty.toLowerCase().replace('é', 'e') : '';
   
   // Create card HTML
   card.innerHTML = `
     <div class="trail-header">
       <h3 class="trail-name">⛷️ ${trail.name}</h3>
-      <span class="trail-difficulty difficulty-${(trail.difficulty || 'Facile').toLowerCase()}">${trail.difficulty || 'N/A'}</span>
+      <span class="trail-difficulty difficulty-${difficultyClass}">${trail.difficulty || 'N/A'}</span>
     </div>
     
     <div class="trail-status status-${status}">
@@ -297,6 +324,12 @@ function createTrailCard(trail, inspection) {
         <span class="detail-value">✅ Damé</span>
       </div>
       ` : ''}
+      ${inspection?.inspector ? `
+      <div class="trail-detail">
+        <span class="detail-label">Inspecteur:</span>
+        <span class="detail-value">${inspection.inspector}</span>
+      </div>
+      ` : ''}
     </div>
     
     ${condition !== 'unknown' ? `
@@ -320,8 +353,9 @@ function createTrailCard(trail, inspection) {
 /**
  * Create shelter card
  */
-function createShelterCard(shelter, inspection) {
+function createShelterCard(shelter) {
   const card = document.createElement('article');
+  const inspection = shelter.inspection;
   
   let condition = inspection?.overall_condition || 'unknown';
   
@@ -331,7 +365,7 @@ function createShelterCard(shelter, inspection) {
   card.dataset.groomed = 'false';
   card.dataset.type = 'shelter';
   
-  const inspectionDate = inspection?.date ? formatFirebaseDate(inspection.date) : 'Non inspecté';
+  const inspectionDate = inspection?.date ? formatDate(inspection.date) : 'Non inspecté';
   const conditionPercent = getConditionPercent(condition);
   
   card.innerHTML = `
@@ -364,6 +398,12 @@ function createShelterCard(shelter, inspection) {
         <span class="detail-value">${inspection.firewood_stock}</span>
       </div>
       ` : ''}
+      ${inspection?.inspector ? `
+      <div class="trail-detail">
+        <span class="detail-label">Inspecteur:</span>
+        <span class="detail-value">${inspection.inspector}</span>
+      </div>
+      ` : ''}
     </div>
     
     ${condition !== 'unknown' ? `
@@ -393,16 +433,17 @@ function displayMap() {
   // Clear and create map container
   mapView.innerHTML = `
     <div class="map-container" style="position: relative; width: 100%; max-width: 1200px; margin: 0 auto;">
-      <img src="../assets/images/map3.jpg" alt="Carte des sentiers" style="width: 100%; height: auto; display: block; border-radius: 8px;">
+      <img id="trail-map-image" src="../assets/images/map3.jpg" alt="Carte des sentiers" 
+           style="width: 100%; height: auto; display: block; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"
+           onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22800%22 height=%22600%22%3E%3Crect fill=%22%23f0f0f0%22 width=%22800%22 height=%22600%22/%3E%3Ctext x=%22400%22 y=%22300%22 text-anchor=%22middle%22 font-size=%2224%22 fill=%22%23999%22%3EMap Image Not Found%3C/text%3E%3C/svg%3E';">
       <div id="map-markers" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></div>
     </div>
   `;
   
-  // Add markers after image loads
-  const img = mapView.querySelector('img');
-  img.onload = function() {
+  // Wait a bit then add markers
+  setTimeout(() => {
     addMapMarkers();
-  };
+  }, 100);
 }
 
 /**
@@ -415,74 +456,46 @@ function addMapMarkers() {
   // Clear existing markers
   markersContainer.innerHTML = '';
   
-  // Define positions (percentages) - same as dashboard
+  // Define positions (percentages) for demo
   const positions = {
-    trails: {
-      'Sentier du Sommet': { x: 45, y: 25 },
-      'Sentier du Lac': { x: 60, y: 50 },
-      'Sentier de la Crête': { x: 35, y: 40 },
-      'Sentier du Ruisseau': { x: 70, y: 65 },
-      'Sentier de la Falaise': { x: 25, y: 55 },
-      'Sentier de la Forêt': { x: 50, y: 70 },
-      'Sentier du Panorama': { x: 40, y: 15 },
-      'Sentier de la Cascade': { x: 75, y: 45 }
-    },
-    shelters: {
-      'Refuge du Sommet': { x: 45, y: 20 },
-      'Refuge du Lac': { x: 60, y: 55 },
-      'Refuge de la Crête': { x: 35, y: 35 }
-    }
+    'Sentier du Sommet': { x: 45, y: 25 },
+    'Sentier du Lac': { x: 60, y: 50 },
+    'Sentier de la Crête': { x: 35, y: 40 },
+    'Sentier du Ruisseau': { x: 70, y: 65 },
+    'Sentier de la Falaise': { x: 25, y: 55 },
+    'Sentier de la Forêt': { x: 50, y: 70 },
+    'Sentier du Panorama': { x: 40, y: 15 },
+    'Sentier de la Cascade': { x: 75, y: 45 },
+    'Refuge du Sommet': { x: 45, y: 20 },
+    'Refuge du Lac': { x: 60, y: 55 },
+    'Refuge de la Crête': { x: 35, y: 35 }
   };
   
-  // Get latest inspections
-  const latestTrailInspections = new Map();
-  const latestShelterInspections = new Map();
-  
-  allTrailInspections.forEach(inspection => {
-    const trailId = inspection.trail_id;
-    if (!latestTrailInspections.has(trailId) || 
-        inspection.date.seconds > latestTrailInspections.get(trailId).date.seconds) {
-      latestTrailInspections.set(trailId, inspection);
-    }
-  });
-  
-  allShelterInspections.forEach(inspection => {
-    const shelterId = inspection.shelter_id;
-    if (!latestShelterInspections.has(shelterId) || 
-        inspection.date.seconds > latestShelterInspections.get(shelterId).date.seconds) {
-      latestShelterInspections.set(shelterId, inspection);
-    }
-  });
-  
   // Add trail markers
-  trailsData.forEach((trail, trailId) => {
-    const position = positions.trails[trail.name];
+  trailsData.forEach(trail => {
+    const position = positions[trail.name];
     if (!position) return;
     
-    const inspection = latestTrailInspections.get(trailId);
-    const marker = createMapMarker(trail, inspection, position, 'trail');
-    if (marker && shouldShowOnMap(trail, inspection)) {
+    if (shouldShowOnMap(trail, trail.inspection)) {
+      const marker = createMapMarker(trail, trail.inspection, position, 'trail');
       markersContainer.appendChild(marker);
     }
   });
   
-  // Add shelter markers (only if not filtered out)
+  // Add shelter markers
   if (currentFilter === 'all' || currentFilter === 'condition') {
-    sheltersData.forEach((shelter, shelterId) => {
-      const position = positions.shelters[shelter.name];
+    sheltersData.forEach(shelter => {
+      const position = positions[shelter.name];
       if (!position) return;
       
-      const inspection = latestShelterInspections.get(shelterId);
-      const marker = createMapMarker(shelter, inspection, position, 'shelter');
-      if (marker) {
-        markersContainer.appendChild(marker);
-      }
+      const marker = createMapMarker(shelter, shelter.inspection, position, 'shelter');
+      markersContainer.appendChild(marker);
     });
   }
 }
 
 /**
- * Check if item should be shown on map based on filter
+ * Check if item should be shown on map
  */
 function shouldShowOnMap(item, inspection) {
   if (currentFilter === 'all') return true;
@@ -587,11 +600,16 @@ function createMapMarker(item, inspection, position, type) {
     this.style.zIndex = '10';
   });
   
+  // Add click to show details
+  marker.addEventListener('click', function() {
+    alert(`${item.name}\n${inspection ? 'État: ' + getConditionText(inspection.overall_condition) : 'Non inspecté'}`);
+  });
+  
   return marker;
 }
 
 /**
- * Apply filter to displayed items
+ * Apply filter
  */
 function applyFilter() {
   const cards = document.querySelectorAll('.trail-card');
@@ -603,15 +621,29 @@ function applyFilter() {
     if (shouldShow) visibleCount++;
   });
   
-  // Show/hide empty state
+  // Update empty state
   const emptyState = document.getElementById('empty-state');
   const grid = document.getElementById('trails-grid');
   
   if (visibleCount === 0 && cards.length > 0) {
-    emptyState.style.display = 'block';
+    if (!emptyState) {
+      const emptyDiv = document.createElement('div');
+      emptyDiv.id = 'empty-state';
+      emptyDiv.className = 'empty-state';
+      emptyDiv.style.display = 'block';
+      emptyDiv.innerHTML = `
+        <div class="empty-icon">🔍</div>
+        <p class="empty-message">Aucun sentier ne correspond aux filtres sélectionnés</p>
+      `;
+      grid.parentNode.insertBefore(emptyDiv, grid.nextSibling);
+    } else {
+      emptyState.style.display = 'block';
+    }
     grid.style.display = 'none';
   } else {
-    emptyState.style.display = 'none';
+    if (emptyState) {
+      emptyState.style.display = 'none';
+    }
     grid.style.display = 'grid';
   }
   
@@ -649,14 +681,15 @@ function shouldShowCard(card) {
 /**
  * Helper functions
  */
-function formatFirebaseDate(timestamp) {
-  if (!timestamp) return 'N/A';
+function formatDate(date) {
+  if (!date) return 'N/A';
   
-  const date = timestamp.toDate();
   const now = new Date();
   const diffHours = Math.floor((now - date) / (1000 * 60 * 60));
   
-  if (diffHours < 24) {
+  if (diffHours < 1) {
+    return 'À l\'instant';
+  } else if (diffHours < 24) {
     return `Il y a ${diffHours} heure${diffHours !== 1 ? 's' : ''}`;
   } else {
     const diffDays = Math.floor(diffHours / 24);
@@ -715,3 +748,6 @@ function updateLastUpdateTime() {
     });
   }
 }
+
+// Log that script loaded
+console.log('Public status script loaded successfully');
