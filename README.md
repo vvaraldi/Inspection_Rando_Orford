@@ -11,7 +11,7 @@ Piority 1
 - card style are missing borders at the bottom of the dash board page.
 
 Piority 2
-- The selection of selectable issues in inspection form are not showing any kind of check box.
+- Remove selectable issues in inspection form are not showing any kind of check box.
 - The loading of a picture do not work. error is the following : Firebase Storage: User does not have permission to access 'trail-inspections/1755443473347-0-IMG_0006.JPG'. (storage/unauthorized)
 - When creating a user is logs automatically with this new user. It should stay with the current logged person.
 

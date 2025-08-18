@@ -8,9 +8,7 @@
   
   <!-- CSS Files -->
   <link rel="stylesheet" href="../css/main.css">
-  
-  <!-- Leaflet for map -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+</head>com/leaflet@1.9.4/dist/leaflet.css">
 </head>
 
 <body class="status-page">
@@ -50,19 +48,23 @@
         <div class="legend-items">
           <div class="legend-item">
             <div class="legend-color" style="background: #43a047;"></div>
-            <span>Ouvert - Bonnes conditions</span>
+            <span>Excellent - Ouvert</span>
           </div>
           <div class="legend-item">
             <div class="legend-color" style="background: #2196f3;"></div>
-            <span>Damé récemment</span>
+            <span>Bon - Ouvert</span>
           </div>
           <div class="legend-item">
             <div class="legend-color" style="background: #ff9800;"></div>
-            <span>Conditions variables</span>
+            <span>Attention requise</span>
           </div>
           <div class="legend-item">
             <div class="legend-color" style="background: #f44336;"></div>
-            <span>Fermé</span>
+            <span>Urgent / Fermé</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: #8b4513;"></div>
+            <span>🏠 Abri</span>
           </div>
         </div>
       </div>
@@ -70,18 +72,12 @@
       <!-- Trails Grid -->
       <div class="trails-grid" id="trails-grid">
         <!-- Trail cards will be inserted here by JavaScript -->
-        <div class="loading-message">
-          <div class="loading-spinner"></div>
-          <p>Chargement des données...</p>
-        </div>
       </div>
     </div>
     
     <!-- Map View -->
     <div id="map-view" class="view-content" style="display: none;">
-      <div class="map-container" id="map">
-        <!-- Map will be initialized here -->
-      </div>
+      <!-- Map will be inserted here by JavaScript -->
     </div>
     
     <!-- Empty State (shown when no trails match filters) -->
@@ -105,51 +101,6 @@
       </p>
     </div>
   </footer>
-  
-  <!-- Trail Card Template (hidden, used by JavaScript) -->
-  <template id="trail-card-template">
-    <article class="trail-card">
-      <div class="trail-header">
-        <h3 class="trail-name"></h3>
-        <span class="trail-difficulty"></span>
-      </div>
-      
-      <div class="trail-status">
-        <span class="status-icon"></span>
-        <span class="status-text"></span>
-      </div>
-      
-      <div class="trail-details">
-        <div class="trail-detail">
-          <span class="detail-label">Longueur:</span>
-          <span class="detail-value trail-length"></span>
-        </div>
-        <div class="trail-detail">
-          <span class="detail-label">Dernière inspection:</span>
-          <span class="detail-value trail-inspection"></span>
-        </div>
-        <div class="trail-detail">
-          <span class="detail-label">Conditions:</span>
-          <span class="detail-value trail-conditions"></span>
-        </div>
-      </div>
-      
-      <div class="condition-bars">
-        <div class="condition-item">
-          <div class="condition-label">
-            <span>État général</span>
-            <span class="condition-percentage"></span>
-          </div>
-          <div class="condition-bar">
-            <div class="condition-fill"></div>
-          </div>
-        </div>
-      </div>
-    </article>
-  </template>
-  
-  <!-- External Scripts -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   
   <!-- Application Scripts -->
   <script src="../js/public-status.js"></script>
