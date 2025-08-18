@@ -6,24 +6,20 @@ WORKING WELL... now cleaning the CSS files and structures
 
 Must :
 
+Piority 1
+- remove script from the Status.html file + make it compatible with the new CSS structure
+- card style are missing borders at the bottom of the dash board page.
 
-Done :
- - index.html
- - inspection-history.html
- - forgot-password.html
- - login.html
- - admin.html
- - trail-inspection.html"
- - shelter-inspection.html"
- - change-password.html"
+Piority 2
+- The selection of selectable issues in inspection form are not showing any kind of check box.
+- The loading of a picture do not work. error is the following : Firebase Storage: User does not have permission to access 'trail-inspections/1755443473347-0-IMG_0006.JPG'. (storage/unauthorized)
+- When creating a user is logs automatically with this new user. It should stay with the current logged person.
 
-To be done ?
- - Status.html"
+Priority 3
+- remove the 8 character minimum for the password
 
 
-La création d'un utilisateur ne marche pas.
-
-
+Priority 4
 1 - Créer une inspection avec un lieu en cliquant sur l'image.
 
 

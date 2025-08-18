@@ -4,495 +4,154 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mont Orford - État des sentiers</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏔️</text></svg>">
+  
+  <!-- CSS Files -->
   <link rel="stylesheet" href="../css/main.css">
+  
+  <!-- Leaflet for map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 </head>
 
 <body class="status-page">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏔️</text></svg>">
-  
-  <!-- En-tête -->
-  <div class="public-header">
-    <h1>🏔️ Mont Orford - État des sentiers de randonnée alpine</h1>
+  <!-- Public Header -->
+  <header class="public-header">
+    <h1>🏔️ Mont Orford - État des sentiers</h1>
     <div class="last-update-public">
       Dernière mise à jour: <span id="last-update-time">--:--</span>
     </div>
-  </div>
+  </header>
   
-  <!-- Section des filtres -->
-  <div class="filters-section">
+  <!-- Filters Section -->
+  <section class="filters-section">
+    <!-- View Toggle -->
     <div class="view-toggle">
-      <button class="toggle-btn active" data-view="map">📍 Vue carte</button>
-      <button class="toggle-btn" data-view="list">📋 Vue liste</button>
+      <button class="toggle-btn active" data-view="list">📋 Vue liste</button>
+      <button class="toggle-btn" data-view="map">📍 Vue carte</button>
     </div>
     
-    <div class="filter-buttons">
-      <button class="filter-btn active" data-filter="all">Tout afficher</button>
-      <button class="filter-btn" data-filter="trails">Sentiers</button>
-      <button class="filter-btn" data-filter="shelters">Abris</button>
-      <button class="filter-btn" data-filter="good">✓ Bon état</button>
-      <button class="filter-btn" data-filter="warning">⚠ Attention</button>
-      <button class="filter-btn" data-filter="critical">⚠️ Critique</button>
-      <button class="filter-btn" data-filter="not-inspected">? Non inspecté</button>
+    <!-- Status Filters -->
+    <div class="status-filters">
+      <button class="filter-btn active filter-all" data-filter="all">Tout afficher</button>
+      <button class="filter-btn filter-open" data-filter="open">✅ Ouvert</button>
+      <button class="filter-btn filter-closed" data-filter="closed">❌ Fermé</button>
+      <button class="filter-btn filter-condition" data-filter="condition">⚠️ Conditions</button>
+      <button class="filter-btn filter-groomed" data-filter="groomed">🎿 Damé</button>
     </div>
-  </div>
+  </section>
   
-  <!-- Contenu principal -->
-  <div class="main-content">
-    <!-- Vue carte -->
-    <div class="map-view-container active" id="map-view">
-      <div class="map-wrapper">
-        <img src="../assets/map3.png" alt="Carte du Mont Orford" class="map-image">
-        <!-- Les marqueurs seront ajoutés dynamiquement ici -->
-      </div>
-      <div class="map-tooltip" id="map-tooltip"></div>
-    </div>
-    
-    <!-- Vue liste -->
-    <div class="list-view-container" id="list-view">
-      <!-- Section Sentiers -->
-      <div class="list-section">
-        <div class="list-section-header trails">
-          🥾 Sentiers
-        </div>
-        <div class="status-table">
-          <table>
-            <thead>
-              <tr>
-                <th>Nom</th>
-                <th>État</th>
-                <th>Dernière inspection</th>
-              </tr>
-            </thead>
-            <tbody id="trails-tbody">
-              <tr>
-                <td colspan="3" style="text-align: center;">Chargement...</td>
-              </tr>
-            </tbody>
-          </table>
+  <!-- Main Container -->
+  <main class="public-container">
+    <!-- List View -->
+    <div id="list-view" class="view-content active">
+      <!-- Legend Box -->
+      <div class="legend-box">
+        <h3 class="legend-title">Légende des statuts</h3>
+        <div class="legend-items">
+          <div class="legend-item">
+            <div class="legend-color" style="background: #43a047;"></div>
+            <span>Ouvert - Bonnes conditions</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: #2196f3;"></div>
+            <span>Damé récemment</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: #ff9800;"></div>
+            <span>Conditions variables</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: #f44336;"></div>
+            <span>Fermé</span>
+          </div>
         </div>
       </div>
       
-      <!-- Section Abris -->
-      <div class="list-section">
-        <div class="list-section-header shelters">
-          🏠 Abris
-        </div>
-        <div class="status-table">
-          <table>
-            <thead>
-              <tr>
-                <th>Nom</th>
-                <th>État</th>
-                <th>Dernière inspection</th>
-              </tr>
-            </thead>
-            <tbody id="shelters-tbody">
-              <tr>
-                <td colspan="3" style="text-align: center;">Chargement...</td>
-              </tr>
-            </tbody>
-          </table>
+      <!-- Trails Grid -->
+      <div class="trails-grid" id="trails-grid">
+        <!-- Trail cards will be inserted here by JavaScript -->
+        <div class="loading-message">
+          <div class="loading-spinner"></div>
+          <p>Chargement des données...</p>
         </div>
       </div>
     </div>
-  </div>
-  
-  <!-- Légende -->
-  <div class="legend-section">
-    <div class="legend-title">Légende</div>
-    <div class="legend-items">
-      <div class="legend-group">
-        <div class="legend-group-title">États</div>
-        <div class="legend-item">
-          <div class="legend-dot" style="background: #10b981;"></div>
-          <span>Bon état</span>
-        </div>
-        <div class="legend-item">
-          <div class="legend-dot" style="background: #f59e0b;"></div>
-          <span>Attention</span>
-        </div>
-        <div class="legend-item">
-          <div class="legend-dot" style="background: #ef4444;"></div>
-          <span>Critique</span>
-        </div>
-        <div class="legend-item">
-          <div class="legend-dot" style="background: #9ca3af;"></div>
-          <span>Non inspecté</span>
-        </div>
-      </div>
-      
-      <div class="legend-group">
-        <div class="legend-group-title">Types</div>
-        <div class="legend-item">
-          <div class="legend-dot" style="background: #1e40af;"></div>
-          <span>Sentiers</span>
-        </div>
-        <div class="legend-item">
-          <div class="legend-dot" style="background: #8b5cf6;"></div>
-          <span>Abris (A)</span>
-        </div>
-      </div>
-      
-      <div class="legend-group">
-        <div class="legend-group-title">Difficulté</div>
-        <div class="legend-item">
-          <div class="legend-dot" style="background: #43a047;"></div>
-          <span>Facile</span>
-        </div>
-        <div class="legend-item">
-          <div class="legend-dot" style="background: #2196f3;"></div>
-          <span>Intermédiaire</span>
-        </div>
-        <div class="legend-item">
-          <div class="legend-dot" style="background: #212121;"></div>
-          <span>Difficile</span>
-        </div>
+    
+    <!-- Map View -->
+    <div id="map-view" class="view-content" style="display: none;">
+      <div class="map-container" id="map">
+        <!-- Map will be initialized here -->
       </div>
     </div>
-  </div>
+    
+    <!-- Empty State (shown when no trails match filters) -->
+    <div id="empty-state" class="empty-state" style="display: none;">
+      <div class="empty-icon">🔍</div>
+      <p class="empty-message">Aucun sentier ne correspond aux filtres sélectionnés</p>
+    </div>
+  </main>
   
-  <!-- Scripts Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+  <!-- Public Footer -->
+  <footer class="public-footer">
+    <div class="footer-content">
+      <div class="footer-links">
+        <a href="https://www.orford.com" target="_blank">Site officiel</a>
+        <a href="tel:819-843-6233">819-843-6233</a>
+        <a href="mailto:info@orford.com">info@orford.com</a>
+      </div>
+      <p class="footer-text">
+        © 2024 Mont Orford - Tous droits réservés<br>
+        Conditions mises à jour régulièrement par nos patrouilleurs
+      </p>
+    </div>
+  </footer>
   
-  <script>
-    // Configuration Firebase
-    const firebaseConfig = {
-      apiKey: "AIzaSyDcBZrwGTskM7QUvanzLTACEJ_T-55j-DA",
-      authDomain: "trail-inspection.firebaseapp.com",
-      projectId: "trail-inspection",
-      storageBucket: "trail-inspection.firebasestorage.app",
-      messagingSenderId: "415995272058",
-      appId: "1:415995272058:web:dc476de8ffee052e2ad4c3",
-      measurementId: "G-EBLYWBM9YB"
-    };
-    
-    // Initialisation de Firebase
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    
-    // Variables globales
-    let allData = [];
-    let currentFilter = 'all';
-    let currentView = 'map';
-    
-    // Chargement des données au démarrage
-    document.addEventListener('DOMContentLoaded', function() {
-      loadPublicData();
-      setupViewToggle();
-      setupFilters();
+  <!-- Trail Card Template (hidden, used by JavaScript) -->
+  <template id="trail-card-template">
+    <article class="trail-card">
+      <div class="trail-header">
+        <h3 class="trail-name"></h3>
+        <span class="trail-difficulty"></span>
+      </div>
       
-      // Actualisation automatique toutes les 5 minutes
-      setInterval(loadPublicData, 5 * 60 * 1000);
-    });
-    
-    // Configuration du toggle vue carte/liste
-    function setupViewToggle() {
-      document.querySelectorAll('.toggle-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-          // Mettre à jour l'état actif
-          document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
-          this.classList.add('active');
-          
-          // Changer la vue
-          currentView = this.dataset.view;
-          
-          if (currentView === 'map') {
-            document.getElementById('map-view').classList.add('active');
-            document.getElementById('list-view').classList.remove('active');
-          } else {
-            document.getElementById('map-view').classList.remove('active');
-            document.getElementById('list-view').classList.add('active');
-          }
-        });
-      });
-    }
-    
-    // Configuration des filtres
-    function setupFilters() {
-      document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-          // Mettre à jour l'état actif
-          document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-          this.classList.add('active');
-          
-          // Appliquer le filtre
-          currentFilter = this.dataset.filter;
-          displayData();
-        });
-      });
-    }
-    
-    // Charger les données publiques
-    async function loadPublicData() {
-      try {
-        allData = [];
-        
-        // Charger les sentiers
-        const trailsSnapshot = await db.collection('trails').get();
-        const trails = new Map();
-        trailsSnapshot.forEach(doc => {
-          trails.set(doc.id, { id: doc.id, ...doc.data() });
-        });
-        
-        // Charger les abris
-        const sheltersSnapshot = await db.collection('shelters').get();
-        const shelters = new Map();
-        sheltersSnapshot.forEach(doc => {
-          shelters.set(doc.id, { id: doc.id, ...doc.data() });
-        });
-        
-        // Charger les dernières inspections de sentiers
-        for (const [trailId, trail] of trails) {
-          const inspectionSnapshot = await db.collection('trail_inspections')
-            .where('trail_id', '==', trailId)
-            .orderBy('date', 'desc')
-            .limit(1)
-            .get();
-          
-          let status = 'not-inspected';
-          let lastInspection = null;
-          
-          if (!inspectionSnapshot.empty) {
-            const doc = inspectionSnapshot.docs[0];
-            lastInspection = doc.data();
-            status = lastInspection.condition || 'not-inspected';
-          }
-          
-          allData.push({
-            type: 'trail',
-            ...trail,
-            status,
-            lastInspection
-          });
-        }
-        
-        // Charger les dernières inspections d'abris
-        for (const [shelterId, shelter] of shelters) {
-          const inspectionSnapshot = await db.collection('shelter_inspections')
-            .where('shelter_id', '==', shelterId)
-            .orderBy('date', 'desc')
-            .limit(1)
-            .get();
-          
-          let status = 'not-inspected';
-          let lastInspection = null;
-          
-          if (!inspectionSnapshot.empty) {
-            const doc = inspectionSnapshot.docs[0];
-            lastInspection = doc.data();
-            status = lastInspection.condition || 'not-inspected';
-          }
-          
-          allData.push({
-            type: 'shelter',
-            ...shelter,
-            status,
-            lastInspection
-          });
-        }
-        
-        // Trier par nom
-        allData.sort((a, b) => a.name.localeCompare(b.name));
-        
-        // Mettre à jour l'heure de dernière mise à jour
-        const now = new Date();
-        document.getElementById('last-update-time').textContent = 
-          `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()} à ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-        
-        // Afficher les données
-        displayData();
-        
-      } catch (error) {
-        console.error("Erreur lors du chargement des données:", error);
-        document.getElementById('status-tbody').innerHTML = 
-          '<tr><td colspan="4" style="text-align: center; color: #e02424;">Erreur lors du chargement des données.</td></tr>';
-      }
-    }
-    
-    // Afficher les données filtrées
-    function displayData() {
-      // Filtrer les données
-      let filteredData = allData;
+      <div class="trail-status">
+        <span class="status-icon"></span>
+        <span class="status-text"></span>
+      </div>
       
-      switch (currentFilter) {
-        case 'trails':
-          filteredData = allData.filter(item => item.type === 'trail');
-          break;
-        case 'shelters':
-          filteredData = allData.filter(item => item.type === 'shelter');
-          break;
-        case 'good':
-          filteredData = allData.filter(item => item.status === 'good');
-          break;
-        case 'warning':
-          filteredData = allData.filter(item => item.status === 'warning');
-          break;
-        case 'critical':
-          filteredData = allData.filter(item => item.status === 'critical');
-          break;
-        case 'not-inspected':
-          filteredData = allData.filter(item => item.status === 'not-inspected');
-          break;
-      }
+      <div class="trail-details">
+        <div class="trail-detail">
+          <span class="detail-label">Longueur:</span>
+          <span class="detail-value trail-length"></span>
+        </div>
+        <div class="trail-detail">
+          <span class="detail-label">Dernière inspection:</span>
+          <span class="detail-value trail-inspection"></span>
+        </div>
+        <div class="trail-detail">
+          <span class="detail-label">Conditions:</span>
+          <span class="detail-value trail-conditions"></span>
+        </div>
+      </div>
       
-      // Afficher dans la vue carte
-      displayMapMarkers(filteredData);
-      
-      // Afficher dans la vue liste
-      displayListItems(filteredData);
-    }
-    
-    // Afficher les marqueurs sur la carte
-    function displayMapMarkers(data) {
-      const mapWrapper = document.querySelector('.map-wrapper');
-      
-      // Supprimer les marqueurs existants
-      mapWrapper.querySelectorAll('.trail-marker').forEach(marker => marker.remove());
-      
-      // Créer les nouveaux marqueurs
-      data.forEach(item => {
-        if (!item.coordinates) return;
-        
-        const marker = document.createElement('div');
-        marker.className = `trail-marker marker-${item.status}`;
-        
-        // Texte du marqueur
-        if (item.type === 'shelter') {
-          marker.innerHTML = 'A' + item.id.replace('shelter_', '');
-          marker.style.backgroundColor = '#8b5cf6';
-        } else {
-          marker.textContent = item.id.replace('trail_', '');
-        }
-        
-        // Position
-        marker.style.top = `${item.coordinates.top}px`;
-        marker.style.left = `${item.coordinates.left}px`;
-        
-        // Tooltip au survol
-        marker.addEventListener('mouseenter', function(e) {
-          showTooltip(e, item);
-        });
-        
-        marker.addEventListener('mouseleave', function() {
-          hideTooltip();
-        });
-        
-        mapWrapper.appendChild(marker);
-      });
-    }
-    
-    // Afficher les éléments dans la liste
-    function displayListItems(data) {
-      const trailsTbody = document.getElementById('trails-tbody');
-      const sheltersTbody = document.getElementById('shelters-tbody');
-      
-      // Séparer les sentiers et les abris
-      const trails = data.filter(item => item.type === 'trail');
-      const shelters = data.filter(item => item.type === 'shelter');
-      
-      // Afficher les sentiers
-      if (trails.length === 0) {
-        trailsTbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #6b7280;">Aucun sentier à afficher</td></tr>';
-      } else {
-        trailsTbody.innerHTML = '';
-        trails.forEach(item => {
-          const row = createListRow(item);
-          trailsTbody.appendChild(row);
-        });
-      }
-      
-      // Afficher les abris
-      if (shelters.length === 0) {
-        sheltersTbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #6b7280;">Aucun abri à afficher</td></tr>';
-      } else {
-        sheltersTbody.innerHTML = '';
-        shelters.forEach(item => {
-          const row = createListRow(item);
-          sheltersTbody.appendChild(row);
-        });
-      }
-    }
-    
-    // Créer une ligne pour la liste
-    function createListRow(item) {
-      const row = document.createElement('tr');
-      
-      // Nom avec difficulté si sentier
-      let nameHtml = item.name;
-      if (item.type === 'trail' && item.difficulty) {
-        const difficultyText = {
-          'easy': 'Facile',
-          'medium': 'Inter.',
-          'hard': 'Difficile'
-        }[item.difficulty];
-        nameHtml += `<span class="difficulty-badge difficulty-${item.difficulty}">${difficultyText}</span>`;
-      }
-      
-      // État
-      const statusText = {
-        'good': 'Bon',
-        'warning': 'Attention',
-        'critical': 'Critique',
-        'not-inspected': 'Non inspecté'
-      }[item.status];
-      
-      // Date de dernière inspection
-      let inspectionDate = 'Jamais';
-      if (item.lastInspection && item.lastInspection.date) {
-        const date = item.lastInspection.date.toDate();
-        inspectionDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
-      }
-      
-      row.innerHTML = `
-        <td>${nameHtml}</td>
-        <td><span class="status-badge status-${item.status}">${statusText}</span></td>
-        <td>${inspectionDate}</td>
-      `;
-      
-      return row;
-    }
-    
-    // Afficher le tooltip
-    function showTooltip(event, item) {
-      const tooltip = document.getElementById('map-tooltip');
-      const marker = event.target;
-      
-      // Contenu du tooltip
-      let content = `<strong>${item.name}</strong><br>`;
-      
-      // État
-      const statusText = {
-        'good': 'Bon état',
-        'warning': 'Attention',
-        'critical': 'Critique',
-        'not-inspected': 'Non inspecté'
-      }[item.status];
-      content += `État: ${statusText}<br>`;
-      
-      // Date d'inspection
-      if (item.lastInspection && item.lastInspection.date) {
-        const date = item.lastInspection.date.toDate();
-        content += `Inspecté: ${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
-      } else {
-        content += 'Jamais inspecté';
-      }
-      
-      tooltip.innerHTML = content;
-      tooltip.style.display = 'block';
-      
-      // Position du tooltip
-      const rect = marker.getBoundingClientRect();
-      const mapRect = marker.parentElement.getBoundingClientRect();
-      
-      tooltip.style.left = (rect.left - mapRect.left + rect.width / 2) + 'px';
-      tooltip.style.top = (rect.top - mapRect.top - 40) + 'px';
-    }
-    
-    // Cacher le tooltip
-    function hideTooltip() {
-      document.getElementById('map-tooltip').style.display = 'none';
-    }
-  </script>
+      <div class="condition-bars">
+        <div class="condition-item">
+          <div class="condition-label">
+            <span>État général</span>
+            <span class="condition-percentage"></span>
+          </div>
+          <div class="condition-bar">
+            <div class="condition-fill"></div>
+          </div>
+        </div>
+      </div>
+    </article>
+  </template>
+  
+  <!-- External Scripts -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  
+  <!-- Application Scripts -->
+  <script src="../js/public-status.js"></script>
 </body>
 </html>
