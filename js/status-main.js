@@ -69,7 +69,6 @@ async function loadPublicData() {
     const trails = new Map();
     trailsSnapshot.forEach(doc => {
       const data = doc.data();
-      console.log(`Trail ${doc.id}:`, data);
       trails.set(doc.id, { id: doc.id, ...data });
     });
     
@@ -81,32 +80,26 @@ async function loadPublicData() {
     const shelters = new Map();
     sheltersSnapshot.forEach(doc => {
       const data = doc.data();
-      console.log(`Shelter ${doc.id}:`, data);
       shelters.set(doc.id, { id: doc.id, ...data });
     });
     
-    // Try to load recent inspections from different possible collections
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    const thirtyDaysAgoTimestamp = firebase.firestore.Timestamp.fromDate(thirtyDaysAgo);
-    
-    // Try loading trail_inspections collection (legacy structure)
-    console.log("Loading trail inspections...");
+    // Load ALL trail inspections (no time limit)
+    console.log("Loading all trail inspections...");
     let trailInspectionsByLocation = {};
     try {
       const trailInspectionsSnapshot = await db.collection('trail_inspections')
-        .where('date', '>=', thirtyDaysAgoTimestamp)
         .orderBy('date', 'desc')
         .get();
       
-      console.log(`Found ${trailInspectionsSnapshot.size} trail inspections`);
+      console.log(`Found ${trailInspectionsSnapshot.size} trail inspections total`);
       
+      // Group by trail_id and keep only the most recent
       trailInspectionsSnapshot.forEach(doc => {
         const inspection = { id: doc.id, ...doc.data() };
-        const locationId = inspection.trail_id; // Use trail_id field
+        const locationId = inspection.trail_id;
         
-        if (!trailInspectionsByLocation[locationId] || 
-            (inspection.date && inspection.date.toDate() > trailInspectionsByLocation[locationId].date.toDate())) {
+        // Keep only the most recent inspection for each trail
+        if (!trailInspectionsByLocation[locationId]) {
           trailInspectionsByLocation[locationId] = inspection;
         }
       });
@@ -114,23 +107,23 @@ async function loadPublicData() {
       console.log("Could not load trail_inspections:", error.message);
     }
     
-    // Try loading shelter_inspections collection (legacy structure)
-    console.log("Loading shelter inspections...");
+    // Load ALL shelter inspections (no time limit)
+    console.log("Loading all shelter inspections...");
     let shelterInspectionsByLocation = {};
     try {
       const shelterInspectionsSnapshot = await db.collection('shelter_inspections')
-        .where('date', '>=', thirtyDaysAgoTimestamp)
         .orderBy('date', 'desc')
         .get();
       
-      console.log(`Found ${shelterInspectionsSnapshot.size} shelter inspections`);
+      console.log(`Found ${shelterInspectionsSnapshot.size} shelter inspections total`);
       
+      // Group by shelter_id and keep only the most recent
       shelterInspectionsSnapshot.forEach(doc => {
         const inspection = { id: doc.id, ...doc.data() };
-        const locationId = inspection.shelter_id; // Use shelter_id field
+        const locationId = inspection.shelter_id;
         
-        if (!shelterInspectionsByLocation[locationId] || 
-            (inspection.date && inspection.date.toDate() > shelterInspectionsByLocation[locationId].date.toDate())) {
+        // Keep only the most recent inspection for each shelter
+        if (!shelterInspectionsByLocation[locationId]) {
           shelterInspectionsByLocation[locationId] = inspection;
         }
       });
@@ -146,7 +139,7 @@ async function loadPublicData() {
         id: id,
         name: trail.name || 'Sentier sans nom',
         difficulty: trail.difficulty,
-        coordinates: trail.mapCoordinates || trail.coordinates, // Try both field names
+        coordinates: trail.coordinates, // Use the coordinates field directly
         status: lastInspection ? lastInspection.condition : 'not-inspected',
         lastInspection: lastInspection ? {
           date: lastInspection.date,
@@ -154,7 +147,6 @@ async function loadPublicData() {
           issues: lastInspection.issues
         } : null
       };
-      console.log(`Trail data item:`, dataItem);
       allData.push(dataItem);
     });
     
@@ -165,7 +157,7 @@ async function loadPublicData() {
         type: 'shelter',
         id: id,
         name: shelter.name || 'Abri sans nom',
-        coordinates: shelter.mapCoordinates || shelter.coordinates, // Try both field names
+        coordinates: shelter.coordinates, // Use the coordinates field directly
         status: lastInspection ? lastInspection.condition : 'not-inspected',
         lastInspection: lastInspection ? {
           date: lastInspection.date,
@@ -173,7 +165,6 @@ async function loadPublicData() {
           issues: lastInspection.issues
         } : null
       };
-      console.log(`Shelter data item:`, dataItem);
       allData.push(dataItem);
     });
     

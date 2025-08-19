@@ -7,32 +7,52 @@
 function displayMapMarkers(data) {
   const mapWrapper = document.querySelector('.map-wrapper');
   
+  if (!mapWrapper) {
+    console.error('Map wrapper not found');
+    return;
+  }
+  
   // Remove existing markers
   mapWrapper.querySelectorAll('.trail-marker').forEach(marker => marker.remove());
   
   // Create new markers
   data.forEach(item => {
-    if (!item.coordinates) return;
+    if (!item.coordinates) {
+      return;
+    }
     
     const marker = document.createElement('div');
     marker.className = `trail-marker marker-${item.status}`;
     
-    // Marker text
+    // Marker content
     if (item.type === 'shelter') {
-      marker.innerHTML = '🏠';
+      // Display 'A' + shelter number for shelters
+      const shelterNumber = item.id.replace('shelter_', '');
+      marker.innerHTML = `A${shelterNumber}`;
     } else {
-      // Trail number
-      const trailNumber = item.name.match(/\d+/);
-      marker.innerHTML = trailNumber ? trailNumber[0] : item.name.charAt(0);
+      // Display trail number for trails
+      const trailNumber = item.id.replace('trail_', '');
+      marker.textContent = trailNumber;
     }
     
-    // Position the marker
-    marker.style.left = `${item.coordinates.x}px`;
-    marker.style.top = `${item.coordinates.y}px`;
+    // Position the marker using the exact coordinate format from Firebase
+    // The coordinates should have 'left' and 'top' properties
+    if (item.coordinates.left !== undefined && item.coordinates.top !== undefined) {
+      marker.style.left = `${item.coordinates.left}px`;
+      marker.style.top = `${item.coordinates.top}px`;
+    } else {
+      console.warn(`Invalid coordinates for ${item.name}:`, item.coordinates);
+      return;
+    }
     
     // Add tooltip interaction
     marker.addEventListener('mouseenter', (e) => showTooltip(e, item));
     marker.addEventListener('mouseleave', hideTooltip);
+    
+    // Add click event for future functionality
+    marker.addEventListener('click', () => {
+      console.log(`Clicked on ${item.name}`);
+    });
     
     mapWrapper.appendChild(marker);
   });
@@ -63,10 +83,15 @@ function showTooltip(event, item) {
     content += 'Jamais inspecté';
   }
   
+  // Add issues if any
+  if (item.lastInspection && item.lastInspection.issues && item.lastInspection.issues.length > 0) {
+    content += '<br>Problèmes: ' + item.lastInspection.issues.length;
+  }
+  
   tooltip.innerHTML = content;
   tooltip.style.display = 'block';
   
-  // Tooltip position
+  // Position tooltip above the marker
   const rect = marker.getBoundingClientRect();
   const mapRect = marker.parentElement.getBoundingClientRect();
   
@@ -76,5 +101,8 @@ function showTooltip(event, item) {
 
 // Hide tooltip
 function hideTooltip() {
-  document.getElementById('map-tooltip').style.display = 'none';
+  const tooltip = document.getElementById('map-tooltip');
+  if (tooltip) {
+    tooltip.style.display = 'none';
+  }
 }
