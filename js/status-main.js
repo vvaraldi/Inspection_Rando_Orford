@@ -58,77 +58,126 @@ function setupFilters() {
 // Load public data from Firebase
 async function loadPublicData() {
   try {
+    console.log("Starting to load public data...");
     allData = [];
     
     // Load trails
+    console.log("Loading trails...");
     const trailsSnapshot = await db.collection('trails').get();
+    console.log(`Found ${trailsSnapshot.size} trails`);
+    
     const trails = new Map();
     trailsSnapshot.forEach(doc => {
-      trails.set(doc.id, { id: doc.id, ...doc.data() });
+      const data = doc.data();
+      console.log(`Trail ${doc.id}:`, data);
+      trails.set(doc.id, { id: doc.id, ...data });
     });
     
     // Load shelters
+    console.log("Loading shelters...");
     const sheltersSnapshot = await db.collection('shelters').get();
+    console.log(`Found ${sheltersSnapshot.size} shelters`);
+    
     const shelters = new Map();
     sheltersSnapshot.forEach(doc => {
-      shelters.set(doc.id, { id: doc.id, ...doc.data() });
+      const data = doc.data();
+      console.log(`Shelter ${doc.id}:`, data);
+      shelters.set(doc.id, { id: doc.id, ...data });
     });
     
-    // Load recent inspections (last 30 days)
+    // Try to load recent inspections from different possible collections
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const thirtyDaysAgoTimestamp = firebase.firestore.Timestamp.fromDate(thirtyDaysAgo);
     
-    const inspectionsSnapshot = await db.collection('inspections')
-      .where('timestamp', '>=', thirtyDaysAgo)
-      .orderBy('timestamp', 'desc')
-      .get();
-    
-    // Group inspections by location
-    const inspectionsByLocation = {};
-    inspectionsSnapshot.forEach(doc => {
-      const inspection = { id: doc.id, ...doc.data() };
-      const locationId = inspection.locationId;
+    // Try loading trail_inspections collection (legacy structure)
+    console.log("Loading trail inspections...");
+    let trailInspectionsByLocation = {};
+    try {
+      const trailInspectionsSnapshot = await db.collection('trail_inspections')
+        .where('date', '>=', thirtyDaysAgoTimestamp)
+        .orderBy('date', 'desc')
+        .get();
       
-      if (!inspectionsByLocation[locationId] || 
-          inspection.timestamp.toDate() > inspectionsByLocation[locationId].timestamp.toDate()) {
-        inspectionsByLocation[locationId] = inspection;
-      }
-    });
+      console.log(`Found ${trailInspectionsSnapshot.size} trail inspections`);
+      
+      trailInspectionsSnapshot.forEach(doc => {
+        const inspection = { id: doc.id, ...doc.data() };
+        const locationId = inspection.trail_id; // Use trail_id field
+        
+        if (!trailInspectionsByLocation[locationId] || 
+            (inspection.date && inspection.date.toDate() > trailInspectionsByLocation[locationId].date.toDate())) {
+          trailInspectionsByLocation[locationId] = inspection;
+        }
+      });
+    } catch (error) {
+      console.log("Could not load trail_inspections:", error.message);
+    }
+    
+    // Try loading shelter_inspections collection (legacy structure)
+    console.log("Loading shelter inspections...");
+    let shelterInspectionsByLocation = {};
+    try {
+      const shelterInspectionsSnapshot = await db.collection('shelter_inspections')
+        .where('date', '>=', thirtyDaysAgoTimestamp)
+        .orderBy('date', 'desc')
+        .get();
+      
+      console.log(`Found ${shelterInspectionsSnapshot.size} shelter inspections`);
+      
+      shelterInspectionsSnapshot.forEach(doc => {
+        const inspection = { id: doc.id, ...doc.data() };
+        const locationId = inspection.shelter_id; // Use shelter_id field
+        
+        if (!shelterInspectionsByLocation[locationId] || 
+            (inspection.date && inspection.date.toDate() > shelterInspectionsByLocation[locationId].date.toDate())) {
+          shelterInspectionsByLocation[locationId] = inspection;
+        }
+      });
+    } catch (error) {
+      console.log("Could not load shelter_inspections:", error.message);
+    }
     
     // Combine trails with their inspections
     trails.forEach((trail, id) => {
-      const lastInspection = inspectionsByLocation[id];
-      allData.push({
+      const lastInspection = trailInspectionsByLocation[id];
+      const dataItem = {
         type: 'trail',
         id: id,
         name: trail.name || 'Sentier sans nom',
         difficulty: trail.difficulty,
-        coordinates: trail.mapCoordinates,
+        coordinates: trail.mapCoordinates || trail.coordinates, // Try both field names
         status: lastInspection ? lastInspection.condition : 'not-inspected',
         lastInspection: lastInspection ? {
-          date: lastInspection.timestamp,
+          date: lastInspection.date,
           inspector: lastInspection.inspector_name,
           issues: lastInspection.issues
         } : null
-      });
+      };
+      console.log(`Trail data item:`, dataItem);
+      allData.push(dataItem);
     });
     
     // Combine shelters with their inspections
     shelters.forEach((shelter, id) => {
-      const lastInspection = inspectionsByLocation[id];
-      allData.push({
+      const lastInspection = shelterInspectionsByLocation[id];
+      const dataItem = {
         type: 'shelter',
         id: id,
         name: shelter.name || 'Abri sans nom',
-        coordinates: shelter.mapCoordinates,
+        coordinates: shelter.mapCoordinates || shelter.coordinates, // Try both field names
         status: lastInspection ? lastInspection.condition : 'not-inspected',
         lastInspection: lastInspection ? {
-          date: lastInspection.timestamp,
+          date: lastInspection.date,
           inspector: lastInspection.inspector_name,
           issues: lastInspection.issues
         } : null
-      });
+      };
+      console.log(`Shelter data item:`, dataItem);
+      allData.push(dataItem);
     });
+    
+    console.log(`Total data items: ${allData.length}`);
     
     // Update last update time
     const now = new Date();
