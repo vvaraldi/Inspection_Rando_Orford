@@ -126,7 +126,7 @@ body {
 /* Map view container */
 .map-view-container {
   display: none;
-  background: var(--theme-surface);
+  background: var(--theme-surface) !important;
   border-radius: var(--border-radius-lg);
   padding: var(--space-md);
   box-shadow: var(--shadow-sm);
