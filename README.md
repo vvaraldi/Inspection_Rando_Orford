@@ -3,15 +3,13 @@
 Must :
 
 Piority 1
-- add a delete function in front of each inspection in the history if admin is logged
+- When creating a user is logs automatically with this new user. It should stay with the current logged person.
 
 Piority 2
 - Remove selectable issues in inspection form are not showing any kind of check box.
-- When creating a user is logs automatically with this new user. It should stay with the current logged person.
 
 Priority 3
 - remove the 8 character minimum for the password
-
 
 Priority 4
 1 - Créer une inspection avec un lieu en cliquant sur l'image.
