@@ -31,132 +31,80 @@
   <section class="filters-section">
     <!-- View Toggle -->
     <div class="view-toggle">
-      <button class="toggle-btn active" data-view="overview">📊 Vue d'ensemble</button>
-      <button class="toggle-btn" data-view="trails">🥾 Sentiers</button>
-      <button class="toggle-btn" data-view="shelters">🏠 Abris</button>
+      <button class="toggle-btn active" data-view="map">📍 Vue carte</button>
+      <button class="toggle-btn" data-view="list">📋 Vue liste</button>
     </div>
     
     <!-- Status Filters -->
-    <div class="status-filters">
-      <button class="filter-btn active filter-all" data-filter="all">Tout afficher</button>
-      <button class="filter-btn filter-open" data-filter="open">✅ Ouvert</button>
-      <button class="filter-btn filter-attention" data-filter="attention">⚠️ Attention</button>
-      <button class="filter-btn filter-closed" data-filter="closed">❌ Fermé</button>
-      <button class="filter-btn filter-groomed" data-filter="groomed">🎿 Damé</button>
+    <div class="filter-buttons">
+      <button class="filter-btn active" data-filter="all">Tout afficher</button>
+      <button class="filter-btn" data-filter="trails">Sentiers</button>
+      <button class="filter-btn" data-filter="shelters">Abris</button>
+      <button class="filter-btn" data-filter="good">✓ Bon état</button>
+      <button class="filter-btn" data-filter="warning">⚠ Attention</button>
+      <button class="filter-btn" data-filter="critical">⚠️ Critique</button>
+      <button class="filter-btn" data-filter="not-inspected">? Non inspecté</button>
     </div>
   </section>
   
   <!-- Main Container -->
   <main class="public-container" id="main-content" style="display: none;">
     
-    <!-- Overview Section -->
-    <div id="overview-view" class="view-content active">
-      <!-- Overall Status Summary -->
-      <section class="status-summary">
-        <h2 class="section-title">Conditions générales</h2>
-        <div class="summary-stats">
-          <div class="stat-card status-open">
-            <div class="stat-icon">✅</div>
-            <div class="stat-content">
-              <div class="stat-value" id="open-count">-</div>
-              <div class="stat-label">Sentiers ouverts</div>
-            </div>
-          </div>
-          <div class="stat-card status-attention">
-            <div class="stat-icon">⚠️</div>
-            <div class="stat-content">
-              <div class="stat-value" id="attention-count">-</div>
-              <div class="stat-label">Attention requise</div>
-            </div>
-          </div>
-          <div class="stat-card status-closed">
-            <div class="stat-icon">❌</div>
-            <div class="stat-content">
-              <div class="stat-value" id="closed-count">-</div>
-              <div class="stat-label">Fermés</div>
-            </div>
-          </div>
-          <div class="stat-card status-groomed">
-            <div class="stat-icon">🎿</div>
-            <div class="stat-content">
-              <div class="stat-value" id="groomed-count">-</div>
-              <div class="stat-label">Damés</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Weather Conditions -->
-      <section class="weather-section">
-        <div class="weather-widget">
-          <h3>Conditions météo</h3>
-          <div class="weather-icon" id="weather-icon">☀️</div>
-          <div class="temperature" id="temperature">--°C</div>
-          <div class="weather-details">
-            <div class="weather-detail">
-              <span class="weather-detail-label">Humidité</span>
-              <span class="weather-detail-value" id="humidity">--%</span>
-            </div>
-            <div class="weather-detail">
-              <span class="weather-detail-label">Vent</span>
-              <span class="weather-detail-value" id="wind">-- km/h</span>
-            </div>
-            <div class="weather-detail">
-              <span class="weather-detail-label">Visibilité</span>
-              <span class="weather-detail-value" id="visibility">Excellente</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Recent Alerts -->
-      <section class="alerts-section" id="alerts-section">
-        <h3 class="section-title">Alertes importantes</h3>
-        <div id="recent-alerts" class="alerts-container">
-          <!-- Alerts will be populated by JavaScript -->
-        </div>
-      </section>
+    <!-- Map View -->
+    <div class="map-view-container active" id="map-view">
+      <div class="map-wrapper">
+        <img src="../assets/map3.png" alt="Carte du Mont Orford" class="map-image">
+        <!-- Markers will be added dynamically here -->
+      </div>
+      <div class="map-tooltip" id="map-tooltip"></div>
     </div>
     
-    <!-- Trails View -->
-    <div id="trails-view" class="view-content">
-      <!-- Legend Box -->
-      <div class="legend-box">
-        <h3 class="legend-title">Légende des statuts</h3>
-        <div class="legend-items">
-          <div class="legend-item">
-            <div class="legend-color status-excellent"></div>
-            <span>Excellent - Ouvert</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-color status-good"></div>
-            <span>Bon - Ouvert</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-color status-fair"></div>
-            <span>Acceptable - Attention</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-color status-poor"></div>
-            <span>Mauvais - Fermé</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-color status-unknown"></div>
-            <span>Non inspecté</span>
-          </div>
+    <!-- List View -->
+    <div class="list-view-container" id="list-view">
+      <!-- Trails Section -->
+      <div class="list-section">
+        <div class="list-section-header trails">
+          🥾 Sentiers
+        </div>
+        <div class="status-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Nom</th>
+                <th>État</th>
+                <th>Dernière inspection</th>
+              </tr>
+            </thead>
+            <tbody id="trails-tbody">
+              <tr>
+                <td colspan="3" style="text-align: center;">Chargement...</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
       
-      <!-- Trails Grid -->
-      <div class="trails-grid" id="trails-grid">
-        <!-- Trail cards will be inserted here by JavaScript -->
-      </div>
-    </div>
-
-    <!-- Shelters View -->
-    <div id="shelters-view" class="view-content">
-      <div class="shelters-grid" id="shelters-grid">
-        <!-- Shelter cards will be inserted here by JavaScript -->
+      <!-- Shelters Section -->
+      <div class="list-section">
+        <div class="list-section-header shelters">
+          🏠 Abris
+        </div>
+        <div class="status-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Nom</th>
+                <th>État</th>
+                <th>Dernière inspection</th>
+              </tr>
+            </thead>
+            <tbody id="shelters-tbody">
+              <tr>
+                <td colspan="3" style="text-align: center;">Chargement...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
     
@@ -170,32 +118,15 @@
   <!-- Public Footer -->
   <footer class="public-footer">
     <div class="footer-content">
-      <div class="footer-info">
-        <h4>Mont Orford</h4>
-        <p>Parc national et station de ski</p>
-      </div>
       <div class="footer-links">
-        <div class="link-group">
-          <h5>Contact</h5>
-          <a href="tel:819-843-6233">📞 819-843-6233</a>
-          <a href="mailto:info@orford.com">✉️ info@orford.com</a>
-        </div>
-        <div class="link-group">
-          <h5>Liens utiles</h5>
-          <a href="https://www.orford.com" target="_blank">Site officiel</a>
-          <a href="https://www.orford.com/conditions" target="_blank">Bulletin neige</a>
-        </div>
-        <div class="link-group">
-          <h5>Urgence</h5>
-          <a href="tel:911">🚨 911</a>
-          <a href="tel:819-843-2744">🚑 Patrouille</a>
-        </div>
+        <a href="https://www.orford.com" target="_blank">Site officiel</a>
+        <a href="tel:819-843-6233">819-843-6233</a>
+        <a href="mailto:info@orford.com">info@orford.com</a>
       </div>
-      <div class="footer-bottom">
-        <p>© 2024 Mont Orford - Tous droits réservés</p>
-        <p>Conditions mises à jour régulièrement par nos patrouilleurs</p>
-        <p class="disclaimer">⚠️ Les conditions peuvent changer rapidement. Vérifiez toujours avant de partir.</p>
-      </div>
+      <p class="footer-text">
+        © 2024 Mont Orford - Tous droits réservés<br>
+        Conditions mises à jour régulièrement par nos patrouilleurs
+      </p>
     </div>
   </footer>
 
@@ -774,6 +705,22 @@
       margin: 0 auto;
       padding: 2rem 1rem;
       min-height: calc(100vh - 200px);
+    }
+
+    /* Map view container - match index.html */
+    #map-view {
+      background: var(--theme-surface);
+      border-radius: var(--border-radius-lg);
+      padding: var(--space-md);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* List sections - match index.html */
+    .trails-grid, .shelters-grid {
+      background: var(--theme-surface);
+      border-radius: var(--border-radius-lg);
+      padding: var(--space-md);
+      box-shadow: var(--shadow-sm);
     }
 
     /* View Content */
