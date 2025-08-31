@@ -418,9 +418,17 @@ class TrailInspectionManager {
   }
 
   resetForm() {
+	// Store inspector info before reset
+	const inspectorId = this.inspectorId.value;
+	const inspectorName = this.inspectorName.value;
+  
     // Reset form fields
     this.form.reset();
     
+	// Restore inspector info
+	this.inspectorId.value = inspectorId;
+	this.inspectorName.value = inspectorName;
+  
     // Clear selected files
     this.selectedFiles = [];
     

@@ -1,13 +1,10 @@
 # Inspection_Rando_Orford
 
-WORKING WELL... now cleaning the CSS files and structures
-
-
-
 Must :
 
 Piority 1
-- remove script from the Status.html file + make it compatible with the new CSS structure
+- apres avoir enrregistré une inspection la cellule de l'inspecteur ne devrait pas être effacer
+- in the dashboard page, selected inspection and the last seven days inspections are not in a box... It should be !
 - card style are missing borders at the bottom of the dash board page.
 
 Piority 2
