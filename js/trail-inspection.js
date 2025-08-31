@@ -362,19 +362,20 @@ class TrailInspectionManager {
     return issues;
   }
 
-  async uploadPhotos() {
-    const uploadPromises = this.selectedFiles.map(async (file, index) => {
-      const fileName = `inspections/trails/${Date.now()}-${index}-${file.name}`;
-      const storageRef = this.storage.ref(fileName);
-      
-      const snapshot = await storageRef.put(file);
-      const downloadURL = await snapshot.ref.getDownloadURL();
-      
-      return downloadURL;
-    });
-    
-    return Promise.all(uploadPromises);
-  }
+	async uploadPhotos() {
+	  const uploadPromises = this.selectedFiles.map(async (file, index) => {
+		const inspectionId = Date.now();
+		const fileName = `inspections/trails/${inspectionId}/${index}-${file.name}`;
+		const storageRef = this.storage.ref(fileName);
+		
+		const snapshot = await storageRef.put(file);
+		const downloadURL = await snapshot.ref.getDownloadURL();
+		
+		return downloadURL;
+	  });
+
+	  return Promise.all(uploadPromises); // ← Keep this!
+	}
 
   async saveInspection(formData) {
     const docRef = await this.db.collection('trail_inspections').add(formData);
