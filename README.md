@@ -3,8 +3,7 @@
 Must :
 
 Piority 1
-- in the dashboard page, selected inspection and the last seven days inspections are not in a box... It should be !
-- card style are missing borders at the bottom of the dash board page.
+- in the status page the map is in a box but background is not cogerent with the dashboard. What code be changed to have the same visual framing and background on the Status page ?
 
 Piority 2
 - Remove selectable issues in inspection form are not showing any kind of check box.
