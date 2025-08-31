@@ -1051,12 +1051,15 @@ async deleteInspection(inspectionId) {
     return;
   }
 
-  // Confirm deletion
+  // Enhanced confirmation message with photo info
+  const photoCount = inspection.photos ? inspection.photos.length : 0;
   const confirmMessage = `Êtes-vous sûr de vouloir supprimer cette inspection ?\n\n` +
     `Date: ${this.formatDate(inspection.date)}\n` +
     `Type: ${inspection.type === 'trail' ? 'Sentier' : 'Abri'}\n` +
     `Lieu: ${inspection.location || 'Non spécifié'}\n` +
-    `Inspecteur: ${inspection.inspector || 'Non spécifié'}\n\n` +
+    `Inspecteur: ${inspection.inspector || 'Non spécifié'}\n` +
+    `Photos: ${photoCount} photo(s)\n\n` +
+    `Cette action supprimera définitivement l'inspection ET toutes ses photos.\n` +
     `Cette action est irréversible.`;
 
   if (!confirm(confirmMessage)) {
@@ -1071,25 +1074,65 @@ async deleteInspection(inspectionId) {
       deleteButton.innerHTML = '⏳';
     }
 
-    // Determine the collection based on inspection type
-    const collection = inspection.type === 'trail' ? 'trail_inspections' : 'shelter_inspections';
-    
-    // Delete the inspection from Firestore
-    await this.db.collection(collection).doc(inspectionId).delete();
+    // Initialize Firebase Storage reference if not already done
+    if (typeof firebase === 'undefined' || !firebase.storage) {
+      throw new Error('Firebase Storage non disponible');
+    }
+    const storage = firebase.storage();
 
-    // Remove from local arrays
+    // Step 1: Delete all photos from Firebase Storage
+    if (inspection.photos && inspection.photos.length > 0) {
+      console.log(`Deleting ${inspection.photos.length} photos from storage...`);
+      
+      const photoDeletePromises = inspection.photos.map(async (photoUrl) => {
+        try {
+          // Extract the storage path from the download URL
+          const storageRef = storage.refFromURL(photoUrl);
+          await storageRef.delete();
+          console.log(`Deleted photo: ${storageRef.fullPath}`);
+        } catch (photoError) {
+          console.warn(`Failed to delete photo: ${photoUrl}`, photoError);
+          // Continue with other deletions even if one fails
+        }
+      });
+
+      // Wait for all photo deletions to complete (or fail)
+      await Promise.allSettled(photoDeletePromises);
+    }
+
+    // Step 2: Delete the inspection document from Firestore
+    const collection = inspection.type === 'trail' ? 'trail_inspections' : 'shelter_inspections';
+    console.log(`Deleting inspection document from ${collection}...`);
+    await firebase.firestore().collection(collection).doc(inspectionId).delete();
+
+    // Step 3: Remove from local arrays and update display
     this.allInspections = this.allInspections.filter(i => i.id !== inspectionId);
     this.filteredInspections = this.filteredInspections.filter(i => i.id !== inspectionId);
 
-    // Update display
     this.updateDisplay();
     
-    // Show success message
-    this.showSuccessMessage('Inspection supprimée avec succès');
+    // Show success message with details
+    const successMessage = photoCount > 0 
+      ? `Inspection supprimée avec succès (${photoCount} photo(s) également supprimée(s))`
+      : 'Inspection supprimée avec succès';
+    
+    this.showSuccessMessage(successMessage);
+    
+    console.log(`Successfully deleted inspection ${inspectionId} with ${photoCount} photos`);
     
   } catch (error) {
     console.error('Error deleting inspection:', error);
-    alert('Erreur lors de la suppression de l\'inspection: ' + error.message);
+    
+    let errorMessage = 'Erreur lors de la suppression de l\'inspection';
+    if (error.code === 'permission-denied') {
+      errorMessage = 'Permissions insuffisantes pour supprimer cette inspection';
+    } else if (error.code === 'not-found') {
+      errorMessage = 'Inspection non trouvée (peut-être déjà supprimée)';
+    } else if (error.message) {
+      errorMessage += ': ' + error.message;
+    }
+    
+    alert(errorMessage);
     
     // Restore button state
     const deleteButton = document.querySelector(`button[onclick*="deleteInspection('${inspectionId}')"]`);
