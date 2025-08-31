@@ -3,7 +3,6 @@
 Must :
 
 Piority 1
-- apres avoir enrregistré une inspection la cellule de l'inspecteur ne devrait pas être effacer
 - in the dashboard page, selected inspection and the last seven days inspections are not in a box... It should be !
 - card style are missing borders at the bottom of the dash board page.
 

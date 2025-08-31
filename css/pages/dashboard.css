@@ -550,3 +550,79 @@
     left: calc(var(--space-lg) * -1 + 10px);
   }
 }
+
+/* Info panel adjustments when inside card */
+.card .info-panel {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+.card .info-panel-content {
+  padding: 0;
+}
+
+/* Summary filters in card header */
+.card-header .summary-filters {
+  display: flex;
+  gap: var(--space-sm);
+  margin: 0;
+}
+
+.card-header .summary-filters .filter-btn {
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--text-sm);
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--theme-border);
+  background: var(--theme-surface);
+  color: var(--theme-text-light);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.card-header .summary-filters .filter-btn:hover {
+  background: var(--color-gray-100);
+  color: var(--theme-text);
+}
+
+.card-header .summary-filters .filter-btn.active {
+  background: var(--theme-primary);
+  color: white;
+  border-color: var(--theme-primary);
+}
+
+/* Summary sections spacing */
+.summary-section {
+  margin-bottom: var(--space-xl);
+}
+
+.summary-section:last-child {
+  margin-bottom: 0;
+}
+
+.section-header {
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  color: var(--theme-text);
+  margin-bottom: var(--space-md);
+  padding-bottom: var(--space-sm);
+  border-bottom: 2px solid var(--theme-border);
+}
+
+/* Items grid improvements */
+.items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--space-md);
+}
+
+/* Dashboard specific card adjustments */
+.dashboard-container .content-section {
+  margin-bottom: var(--space-xl);
+}
+
+/* Ensure proper borders at bottom of dashboard */
+.dashboard-container .card:last-child {
+  margin-bottom: var(--space-xl);
+}
