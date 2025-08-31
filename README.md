@@ -3,8 +3,7 @@
 Must :
 
 Piority 1
-- The loading of a picture do not work. error is the following : Firebase Storage: User does not have permission to access 'trail-inspections/1755443473347-0-IMG_0006.JPG'. (storage/unauthorized)
-
+- add a delete function in front of each inspection in the history if admin is logged
 
 Piority 2
 - Remove selectable issues in inspection form are not showing any kind of check box.

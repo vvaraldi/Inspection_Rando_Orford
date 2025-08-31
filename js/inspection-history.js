@@ -42,6 +42,7 @@ class InspectionHistoryManager {
     this.sortField = 'date';
     this.sortDirection = 'desc';
     this.filtersVisible = true;
+	this.isAdminUser = false;
     
     // Check if Firebase is available
     if (typeof db === 'undefined') {
@@ -50,7 +51,7 @@ class InspectionHistoryManager {
       return;
     }
     
-    this.initializeElements();
+	this.initializeElements();
     this.bindEvents();
     this.loadData();
   }
@@ -141,6 +142,7 @@ class InspectionHistoryManager {
   }
 
 async loadData() {
+  await this.checkUserRole();
   try {
     this.showLoading(true);
     
@@ -499,30 +501,43 @@ async loadData() {
     const statusBadge = this.createStatusBadge(inspection.condition);
     const photoCount = inspection.photos ? inspection.photos.length : 0;
 
-    row.innerHTML = `
-      <td>${formattedDate}</td>
-      <td class="${typeClass}">${typeText}</td>
-      <td>${inspection.location || 'Non spécifié'}</td>
-      <td>${inspection.inspector || 'Non spécifié'}</td>
-      <td>${statusBadge}</td>
-      <td>
-        <span class="photo-count">
-          📷 ${photoCount}
-        </span>
-      </td>
-      <td>
-        <div class="action-buttons">
-          <button class="btn btn-sm btn-primary" onclick="inspectionHistory.viewDetails('${inspection.id}')">
-            👁️
-          </button>
-          <button class="btn btn-sm btn-secondary" onclick="inspectionHistory.downloadReport('${inspection.id}')">
-            📄
-          </button>
-        </div>
-      </td>
-    `;
+  // Create action buttons - add delete button for admin users
+  let actionButtons = `
+    <div class="action-buttons">
+      <button class="btn btn-sm btn-primary" onclick="inspectionHistory.viewDetails('${inspection.id}')" title="Voir les détails">
+        👁️
+      </button>
+      <button class="btn btn-sm btn-secondary" onclick="inspectionHistory.downloadReport('${inspection.id}')" title="Télécharger le rapport">
+        📄
+      </button>`;
 
-    return row;
+  // Add delete button only for admin users
+  if (this.isAdminUser) {
+    actionButtons += `
+      <button class="btn btn-sm btn-danger" onclick="inspectionHistory.deleteInspection('${inspection.id}')" title="Supprimer l'inspection">
+        🗑️
+      </button>`;
+  }
+
+  actionButtons += `</div>`;
+
+  row.innerHTML = `
+    <td>${formattedDate}</td>
+    <td class="${typeClass}">${typeText}</td>
+    <td>${inspection.location || 'Non spécifié'}</td>
+    <td>${inspection.inspector || 'Non spécifié'}</td>
+    <td>${statusBadge}</td>
+    <td>
+      <span class="photo-count">
+        📷 ${photoCount}
+      </span>
+    </td>
+    <td>
+      ${actionButtons}
+    </td>
+  `;
+
+  return row;
   }
 
   createStatusBadge(condition) {
@@ -1035,3 +1050,114 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 });
+
+async checkUserRole() {
+  try {
+    if (!this.auth || !this.auth.currentUser) {
+      this.isAdminUser = false;
+      return;
+    }
+
+    const user = this.auth.currentUser;
+    const userDoc = await this.db.collection('inspectors').doc(user.uid).get();
+    
+    if (userDoc.exists) {
+      const userData = userDoc.data();
+      this.isAdminUser = (userData.role === 'admin');
+    }
+  } catch (error) {
+    console.error('Error checking user role:', error);
+    this.isAdminUser = false;
+  }
+}
+
+async deleteInspection(inspectionId) {
+  if (!this.isAdminUser) {
+    alert('Accès refusé - Permissions administrateur requises');
+    return;
+  }
+
+  const inspection = this.allInspections.find(i => i.id === inspectionId);
+  if (!inspection) {
+    alert('Inspection non trouvée');
+    return;
+  }
+
+  // Confirm deletion
+  const confirmMessage = `Êtes-vous sûr de vouloir supprimer cette inspection ?\n\n` +
+    `Date: ${this.formatDate(inspection.date)}\n` +
+    `Type: ${inspection.type === 'trail' ? 'Sentier' : 'Abri'}\n` +
+    `Lieu: ${inspection.location || 'Non spécifié'}\n` +
+    `Inspecteur: ${inspection.inspector || 'Non spécifié'}\n\n` +
+    `Cette action est irréversible.`;
+
+  if (!confirm(confirmMessage)) {
+    return;
+  }
+
+  try {
+    // Show loading state
+    const deleteButton = document.querySelector(`button[onclick*="deleteInspection('${inspectionId}')"]`);
+    if (deleteButton) {
+      deleteButton.disabled = true;
+      deleteButton.innerHTML = '⏳';
+    }
+
+    // Determine the collection based on inspection type
+    const collection = inspection.type === 'trail' ? 'trail_inspections' : 'shelter_inspections';
+    
+    // Delete the inspection from Firestore
+    await this.db.collection(collection).doc(inspectionId).delete();
+
+    // Remove from local arrays
+    this.allInspections = this.allInspections.filter(i => i.id !== inspectionId);
+    this.filteredInspections = this.filteredInspections.filter(i => i.id !== inspectionId);
+
+    // Update display
+    this.updateDisplay();
+    
+    // Show success message
+    this.showSuccessMessage('Inspection supprimée avec succès');
+    
+  } catch (error) {
+    console.error('Error deleting inspection:', error);
+    alert('Erreur lors de la suppression de l\'inspection: ' + error.message);
+    
+    // Restore button state
+    const deleteButton = document.querySelector(`button[onclick*="deleteInspection('${inspectionId}')"]`);
+    if (deleteButton) {
+      deleteButton.disabled = false;
+      deleteButton.innerHTML = '🗑️';
+    }
+  }
+}
+
+// Add this method to show success messages
+showSuccessMessage(message) {
+  // Create a temporary success message element
+  const successDiv = document.createElement('div');
+  successDiv.className = 'alert alert-success';
+  successDiv.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    padding: 12px 20px;
+    border-radius: 6px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    z-index: 1000;
+    font-weight: 500;
+  `;
+  successDiv.textContent = message;
+  
+  document.body.appendChild(successDiv);
+  
+  // Remove after 5 seconds
+  setTimeout(() => {
+    if (successDiv.parentNode) {
+      successDiv.parentNode.removeChild(successDiv);
+    }
+  }, 5000);
+}
