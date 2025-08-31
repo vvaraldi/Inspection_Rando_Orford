@@ -43,8 +43,10 @@ class InspectionHistoryManager {
     this.sortDirection = 'desc';
     this.filtersVisible = true;
 	this.isAdminUser = false;
-    
-    // Check if Firebase is available
+	this.auth = firebase.auth();
+	this.db = firebase.firestore();
+
+  // Check if Firebase is available
     if (typeof db === 'undefined') {
       console.error('Firebase Firestore not available');
       this.showError('Firebase non disponible');
@@ -142,9 +144,12 @@ class InspectionHistoryManager {
   }
 
 async loadData() {
-  await this.checkUserRole();
   try {
     this.showLoading(true);
+    
+    // Check user role first
+    await this.checkUserRole();
+    console.log('Role check complete, isAdminUser:', this.isAdminUser);
     
     // Load trail inspections
     const trailInspectionsSnapshot = await db.collection('trail_inspections').get();
@@ -207,12 +212,14 @@ async loadData() {
     
     // Initial filter and display
     this.applyFilters();
-    
     this.showMainContent();
+
   } catch (error) {
-    console.error('Erreur lors du chargement des données:', error);
-    this.showError('Erreur lors du chargement des données');
-  }
+		console.error('Erreur lors du chargement des données:', error);
+		this.showError('Erreur lors du chargement des données');
+	} finally {
+		this.showLoading(false);
+	}
 }
 
   async loadLocationNames() {
@@ -493,6 +500,8 @@ async loadData() {
   }
 
   createInspectionRow(inspection) {
+	console.log('Creating row - isAdminUser:', this.isAdminUser); // Add this line for debugging
+
     const row = document.createElement('tr');
     
     const formattedDate = this.formatDate(inspection.date);
@@ -1020,8 +1029,10 @@ async loadData() {
   }
 
 async checkUserRole() {
+  console.log('Checking user role...'); // Add this line
   try {
     if (!this.auth || !this.auth.currentUser) {
+      console.log('No auth or db available'); // Add this line  
       this.isAdminUser = false;
       return;
     }
@@ -1032,6 +1043,7 @@ async checkUserRole() {
     if (userDoc.exists) {
       const userData = userDoc.data();
       this.isAdminUser = (userData.role === 'admin');
+      console.log('User role check complete - isAdmin:', this.isAdminUser, 'userData:', userData); // Add this line
     }
   } catch (error) {
     console.error('Error checking user role:', error);
