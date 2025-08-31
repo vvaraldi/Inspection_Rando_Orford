@@ -45,7 +45,10 @@ class InspectionHistoryManager {
 	this.isAdminUser = false;
 	this.auth = firebase.auth();
 	this.db = firebase.firestore();
+	this.storage = firebase.storage();
 
+	console.log('Firebase services initialized - Storage available:', !!this.storage); // Add this debug line
+  
   // Check if Firebase is available
     if (typeof db === 'undefined') {
       console.error('Firebase Firestore not available');
@@ -1086,11 +1089,10 @@ async deleteInspection(inspectionId) {
       deleteButton.innerHTML = '⏳';
     }
 
-    // Initialize Firebase Storage reference if not already done
-    if (typeof firebase === 'undefined' || !firebase.storage) {
-      throw new Error('Firebase Storage non disponible');
+    // Use the initialized storage reference
+    if (!this.storage) {
+      throw new Error('Firebase Storage non initialisé');
     }
-    const storage = firebase.storage();
 
     // Step 1: Delete all photos from Firebase Storage
     if (inspection.photos && inspection.photos.length > 0) {
@@ -1099,7 +1101,7 @@ async deleteInspection(inspectionId) {
       const photoDeletePromises = inspection.photos.map(async (photoUrl) => {
         try {
           // Extract the storage path from the download URL
-          const storageRef = storage.refFromURL(photoUrl);
+          const storageRef = this.storage.refFromURL(photoUrl);
           await storageRef.delete();
           console.log(`Deleted photo: ${storageRef.fullPath}`);
         } catch (photoError) {
@@ -1115,7 +1117,7 @@ async deleteInspection(inspectionId) {
     // Step 2: Delete the inspection document from Firestore
     const collection = inspection.type === 'trail' ? 'trail_inspections' : 'shelter_inspections';
     console.log(`Deleting inspection document from ${collection}...`);
-    await firebase.firestore().collection(collection).doc(inspectionId).delete();
+    await this.db.collection(collection).doc(inspectionId).delete();
 
     // Step 3: Remove from local arrays and update display
     this.allInspections = this.allInspections.filter(i => i.id !== inspectionId);
