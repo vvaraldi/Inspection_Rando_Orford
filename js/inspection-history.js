@@ -1018,38 +1018,6 @@ async loadData() {
       timeout = setTimeout(later, wait);
     };
   }
-}
-
-// Initialize when DOM is loaded and auth is ready
-document.addEventListener('DOMContentLoaded', function() {
-  // Check if we're on the inspection history page
-  if (!document.getElementById('inspections-table')) {
-    console.log('Not on inspection history page');
-    return;
-  }
-
-  // Wait for Firebase to be ready
-  if (typeof firebase === 'undefined') {
-    console.error('Firebase not loaded');
-    return;
-  }
-
-  // Wait for auth to be ready
-  firebase.auth().onAuthStateChanged(function(user) {
-    if (user) {
-      // User is authenticated, initialize the inspection history
-      console.log('User authenticated, initializing inspection history');
-      window.inspectionHistory = new InspectionHistoryManager();
-    } else {
-      // Redirect to login if not authenticated
-      console.log('User not authenticated, redirecting to login');
-      const loginUrl = window.location.pathname.includes('/pages/') 
-        ? 'login.html' 
-        : 'pages/login.html';
-      window.location.href = loginUrl;
-    }
-  });
-});
 
 async checkUserRole() {
   try {
@@ -1161,3 +1129,36 @@ showSuccessMessage(message) {
     }
   }, 5000);
 }
+
+}
+
+// Initialize when DOM is loaded and auth is ready
+document.addEventListener('DOMContentLoaded', function() {
+  // Check if we're on the inspection history page
+  if (!document.getElementById('inspections-table')) {
+    console.log('Not on inspection history page');
+    return;
+  }
+
+  // Wait for Firebase to be ready
+  if (typeof firebase === 'undefined') {
+    console.error('Firebase not loaded');
+    return;
+  }
+
+  // Wait for auth to be ready
+  firebase.auth().onAuthStateChanged(function(user) {
+    if (user) {
+      // User is authenticated, initialize the inspection history
+      console.log('User authenticated, initializing inspection history');
+      window.inspectionHistory = new InspectionHistoryManager();
+    } else {
+      // Redirect to login if not authenticated
+      console.log('User not authenticated, redirecting to login');
+      const loginUrl = window.location.pathname.includes('/pages/') 
+        ? 'login.html' 
+        : 'pages/login.html';
+      window.location.href = loginUrl;
+    }
+  });
+});
