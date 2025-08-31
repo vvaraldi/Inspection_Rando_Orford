@@ -1,0 +1,1367 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mont Orford - État des sentiers</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏔️</text></svg>">
+  
+  <!-- CSS Files -->
+  <link rel="stylesheet" href="../css/main.css">
+</head>
+
+<body class="status-page" data-theme="alpine">
+  <!-- Loading Indicator -->
+  <div id="loading" class="loading-screen">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <p>Chargement de l'état des sentiers...</p>
+    </div>
+  </div>
+
+  <!-- Public Header -->
+  <header class="public-header">
+    <h1>🏔️ Mont Orford - État des sentiers</h1>
+    <div class="last-update-public">
+      Dernière mise à jour: <span id="last-update-time">--:--</span>
+    </div>
+  </header>
+  
+  <!-- Filters Section -->
+  <section class="filters-section">
+    <!-- View Toggle -->
+    <div class="view-toggle">
+      <button class="toggle-btn active" data-view="overview">📊 Vue d'ensemble</button>
+      <button class="toggle-btn" data-view="trails">🥾 Sentiers</button>
+      <button class="toggle-btn" data-view="shelters">🏠 Abris</button>
+    </div>
+    
+    <!-- Status Filters -->
+    <div class="status-filters">
+      <button class="filter-btn active filter-all" data-filter="all">Tout afficher</button>
+      <button class="filter-btn filter-open" data-filter="open">✅ Ouvert</button>
+      <button class="filter-btn filter-attention" data-filter="attention">⚠️ Attention</button>
+      <button class="filter-btn filter-closed" data-filter="closed">❌ Fermé</button>
+      <button class="filter-btn filter-groomed" data-filter="groomed">🎿 Damé</button>
+    </div>
+  </section>
+  
+  <!-- Main Container -->
+  <main class="public-container" id="main-content" style="display: none;">
+    
+    <!-- Overview Section -->
+    <div id="overview-view" class="view-content active">
+      <!-- Overall Status Summary -->
+      <section class="status-summary">
+        <h2 class="section-title">Conditions générales</h2>
+        <div class="summary-stats">
+          <div class="stat-card status-open">
+            <div class="stat-icon">✅</div>
+            <div class="stat-content">
+              <div class="stat-value" id="open-count">-</div>
+              <div class="stat-label">Sentiers ouverts</div>
+            </div>
+          </div>
+          <div class="stat-card status-attention">
+            <div class="stat-icon">⚠️</div>
+            <div class="stat-content">
+              <div class="stat-value" id="attention-count">-</div>
+              <div class="stat-label">Attention requise</div>
+            </div>
+          </div>
+          <div class="stat-card status-closed">
+            <div class="stat-icon">❌</div>
+            <div class="stat-content">
+              <div class="stat-value" id="closed-count">-</div>
+              <div class="stat-label">Fermés</div>
+            </div>
+          </div>
+          <div class="stat-card status-groomed">
+            <div class="stat-icon">🎿</div>
+            <div class="stat-content">
+              <div class="stat-value" id="groomed-count">-</div>
+              <div class="stat-label">Damés</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Weather Conditions -->
+      <section class="weather-section">
+        <div class="weather-widget">
+          <h3>Conditions météo</h3>
+          <div class="weather-icon" id="weather-icon">☀️</div>
+          <div class="temperature" id="temperature">--°C</div>
+          <div class="weather-details">
+            <div class="weather-detail">
+              <span class="weather-detail-label">Humidité</span>
+              <span class="weather-detail-value" id="humidity">--%</span>
+            </div>
+            <div class="weather-detail">
+              <span class="weather-detail-label">Vent</span>
+              <span class="weather-detail-value" id="wind">-- km/h</span>
+            </div>
+            <div class="weather-detail">
+              <span class="weather-detail-label">Visibilité</span>
+              <span class="weather-detail-value" id="visibility">Excellente</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Recent Alerts -->
+      <section class="alerts-section" id="alerts-section">
+        <h3 class="section-title">Alertes importantes</h3>
+        <div id="recent-alerts" class="alerts-container">
+          <!-- Alerts will be populated by JavaScript -->
+        </div>
+      </section>
+    </div>
+    
+    <!-- Trails View -->
+    <div id="trails-view" class="view-content">
+      <!-- Legend Box -->
+      <div class="legend-box">
+        <h3 class="legend-title">Légende des statuts</h3>
+        <div class="legend-items">
+          <div class="legend-item">
+            <div class="legend-color status-excellent"></div>
+            <span>Excellent - Ouvert</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color status-good"></div>
+            <span>Bon - Ouvert</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color status-fair"></div>
+            <span>Acceptable - Attention</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color status-poor"></div>
+            <span>Mauvais - Fermé</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color status-unknown"></div>
+            <span>Non inspecté</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Trails Grid -->
+      <div class="trails-grid" id="trails-grid">
+        <!-- Trail cards will be inserted here by JavaScript -->
+      </div>
+    </div>
+
+    <!-- Shelters View -->
+    <div id="shelters-view" class="view-content">
+      <div class="shelters-grid" id="shelters-grid">
+        <!-- Shelter cards will be inserted here by JavaScript -->
+      </div>
+    </div>
+    
+    <!-- Empty State -->
+    <div id="empty-state" class="empty-state" style="display: none;">
+      <div class="empty-icon">🔍</div>
+      <p class="empty-message">Aucun élément ne correspond aux filtres sélectionnés</p>
+    </div>
+  </main>
+  
+  <!-- Public Footer -->
+  <footer class="public-footer">
+    <div class="footer-content">
+      <div class="footer-info">
+        <h4>Mont Orford</h4>
+        <p>Parc national et station de ski</p>
+      </div>
+      <div class="footer-links">
+        <div class="link-group">
+          <h5>Contact</h5>
+          <a href="tel:819-843-6233">📞 819-843-6233</a>
+          <a href="mailto:info@orford.com">✉️ info@orford.com</a>
+        </div>
+        <div class="link-group">
+          <h5>Liens utiles</h5>
+          <a href="https://www.orford.com" target="_blank">Site officiel</a>
+          <a href="https://www.orford.com/conditions" target="_blank">Bulletin neige</a>
+        </div>
+        <div class="link-group">
+          <h5>Urgence</h5>
+          <a href="tel:911">🚨 911</a>
+          <a href="tel:819-843-2744">🚑 Patrouille</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2024 Mont Orford - Tous droits réservés</p>
+        <p>Conditions mises à jour régulièrement par nos patrouilleurs</p>
+        <p class="disclaimer">⚠️ Les conditions peuvent changer rapidement. Vérifiez toujours avant de partir.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script>
+    // Public Status Page JavaScript
+    class PublicStatusApp {
+      constructor() {
+        this.currentView = 'overview';
+        this.currentFilter = 'all';
+        this.data = {
+          trails: [],
+          shelters: [],
+          inspections: []
+        };
+        
+        this.init();
+      }
+
+      async init() {
+        console.log('Initializing public status page...');
+        
+        // Set up event listeners
+        this.setupEventListeners();
+        
+        // Load data
+        await this.loadData();
+        
+        // Initial render
+        this.render();
+        
+        // Hide loading screen
+        this.hideLoading();
+        
+        // Update timestamp
+        this.updateLastUpdate();
+        
+        // Set up refresh interval (every 5 minutes)
+        setInterval(() => {
+          this.loadData();
+          this.updateLastUpdate();
+        }, 5 * 60 * 1000);
+      }
+
+      setupEventListeners() {
+        // View toggle buttons
+        document.querySelectorAll('.toggle-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            this.switchView(e.target.dataset.view);
+          });
+        });
+
+        // Filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            this.setFilter(e.target.dataset.filter);
+          });
+        });
+      }
+
+      async loadData() {
+        try {
+          // Load from localStorage (same as your dashboard)
+          this.data.trails = this.getStoredData('trailsData') || this.getDefaultTrails();
+          this.data.shelters = this.getStoredData('sheltersData') || this.getDefaultShelters();
+          
+          // Load inspections
+          const trailInspections = this.getStoredData('trailInspections') || [];
+          const shelterInspections = this.getStoredData('shelterInspections') || [];
+          
+          this.data.inspections = [
+            ...trailInspections.map(i => ({...i, type: 'trail'})),
+            ...shelterInspections.map(i => ({...i, type: 'shelter'}))
+          ];
+          
+          console.log(`Loaded ${this.data.trails.length} trails, ${this.data.shelters.length} shelters, ${this.data.inspections.length} inspections`);
+          
+        } catch (error) {
+          console.error('Error loading data:', error);
+        }
+      }
+
+      getStoredData(key) {
+        try {
+          const data = localStorage.getItem(key);
+          return data ? JSON.parse(data) : null;
+        } catch (error) {
+          console.error(`Error parsing ${key}:`, error);
+          return null;
+        }
+      }
+
+      switchView(view) {
+        if (this.currentView === view) return;
+        
+        // Update buttons
+        document.querySelectorAll('.toggle-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.view === view);
+        });
+        
+        // Update views
+        document.querySelectorAll('.view-content').forEach(content => {
+          content.classList.toggle('active', content.id === `${view}-view`);
+        });
+        
+        this.currentView = view;
+        this.render();
+      }
+
+      setFilter(filter) {
+        if (this.currentFilter === filter) return;
+        
+        // Update buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.filter === filter);
+        });
+        
+        this.currentFilter = filter;
+        this.applyFilters();
+      }
+
+      render() {
+        if (this.currentView === 'overview') {
+          this.renderOverview();
+        } else if (this.currentView === 'trails') {
+          this.renderTrails();
+        } else if (this.currentView === 'shelters') {
+          this.renderShelters();
+        }
+      }
+
+      renderOverview() {
+        this.updateStatsSummary();
+        this.updateWeatherWidget();
+        this.updateRecentAlerts();
+      }
+
+      updateStatsSummary() {
+        const stats = this.calculateStats();
+        
+        document.getElementById('open-count').textContent = stats.open;
+        document.getElementById('attention-count').textContent = stats.attention;
+        document.getElementById('closed-count').textContent = stats.closed;
+        document.getElementById('groomed-count').textContent = stats.groomed;
+      }
+
+      calculateStats() {
+        const stats = { open: 0, attention: 0, closed: 0, groomed: 0 };
+        
+        this.data.trails.forEach(trail => {
+          const inspection = this.getLatestInspection(trail.name, 'trail');
+          if (inspection) {
+            if (inspection.trail_open === 'yes') {
+              if (inspection.overall_condition === 'excellent' || inspection.overall_condition === 'good') {
+                stats.open++;
+              } else {
+                stats.attention++;
+              }
+            } else {
+              stats.closed++;
+            }
+            
+            if (inspection.groomed === 'yes') {
+              stats.groomed++;
+            }
+          }
+        });
+        
+        return stats;
+      }
+
+      updateWeatherWidget() {
+        // Mock weather data - replace with real API call
+        const weather = {
+          temperature: -8,
+          humidity: 65,
+          wind: 12,
+          visibility: 'Bonne',
+          icon: '❄️'
+        };
+        
+        document.getElementById('weather-icon').textContent = weather.icon;
+        document.getElementById('temperature').textContent = `${weather.temperature}°C`;
+        document.getElementById('humidity').textContent = `${weather.humidity}%`;
+        document.getElementById('wind').textContent = `${weather.wind} km/h`;
+        document.getElementById('visibility').textContent = weather.visibility;
+      }
+
+      updateRecentAlerts() {
+        const alertsContainer = document.getElementById('recent-alerts');
+        const recentInspections = this.data.inspections
+          .filter(i => this.hasAlerts(i))
+          .sort((a, b) => new Date(b.date) - new Date(a.date))
+          .slice(0, 3);
+        
+        if (recentInspections.length === 0) {
+          alertsContainer.innerHTML = '<div class="no-alerts">✅ Aucune alerte active</div>';
+          return;
+        }
+        
+        alertsContainer.innerHTML = recentInspections.map(inspection => `
+          <div class="alert-item ${this.getAlertSeverity(inspection)}">
+            <div class="alert-icon">${this.getAlertIcon(inspection)}</div>
+            <div class="alert-content">
+              <h4>${inspection.trail_name || inspection.shelter_name}</h4>
+              <p>${this.getAlertMessage(inspection)}</p>
+              <small>${this.formatDate(inspection.date)}</small>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      renderTrails() {
+        const container = document.getElementById('trails-grid');
+        const filteredTrails = this.getFilteredTrails();
+        
+        if (filteredTrails.length === 0) {
+          this.showEmptyState();
+          return;
+        }
+        
+        this.hideEmptyState();
+        container.innerHTML = filteredTrails.map(trail => this.createTrailCard(trail)).join('');
+      }
+
+      renderShelters() {
+        const container = document.getElementById('shelters-grid');
+        const filteredShelters = this.getFilteredShelters();
+        
+        if (filteredShelters.length === 0) {
+          this.showEmptyState();
+          return;
+        }
+        
+        this.hideEmptyState();
+        container.innerHTML = filteredShelters.map(shelter => this.createShelterCard(shelter)).join('');
+      }
+
+      createTrailCard(trail) {
+        const inspection = this.getLatestInspection(trail.name, 'trail');
+        const status = this.getTrailStatus(inspection);
+        const condition = inspection?.overall_condition || 'unknown';
+        const groomed = inspection?.groomed === 'yes';
+        
+        return `
+          <article class="trail-card ${status.class}" data-status="${status.key}" data-groomed="${groomed}">
+            <div class="trail-header">
+              <h3 class="trail-name">${trail.name}</h3>
+              <span class="trail-difficulty ${this.getDifficultyClass(trail.difficulty)}">${trail.difficulty}</span>
+            </div>
+            
+            <div class="trail-status ${status.class}">
+              <span class="status-icon">${status.icon}</span>
+              <span class="status-text">${status.text}</span>
+              ${groomed ? '<span class="groomed-indicator">🎿</span>' : ''}
+            </div>
+            
+            <div class="trail-details">
+              <div class="trail-detail">
+                <span class="detail-label">Longueur:</span>
+                <span class="detail-value">${trail.length || 'N/A'}</span>
+              </div>
+              <div class="trail-detail">
+                <span class="detail-label">Dénivelé:</span>
+                <span class="detail-value">${trail.elevation || 'N/A'}</span>
+              </div>
+              <div class="trail-detail">
+                <span class="detail-label">Dernière inspection:</span>
+                <span class="detail-value">${inspection ? this.formatDate(inspection.date) : 'Jamais'}</span>
+              </div>
+            </div>
+            
+            ${condition !== 'unknown' ? `
+            <div class="condition-indicator">
+              <div class="condition-bar">
+                <div class="condition-fill ${this.getConditionClass(condition)}" 
+                     style="width: ${this.getConditionPercent(condition)}%"></div>
+              </div>
+              <span class="condition-text">${this.getConditionText(condition)}</span>
+            </div>
+            ` : ''}
+            
+            ${inspection?.notes ? `
+            <div class="trail-notes">
+              <strong>Notes:</strong> ${inspection.notes}
+            </div>
+            ` : ''}
+          </article>
+        `;
+      }
+
+      createShelterCard(shelter) {
+        const inspection = this.getLatestInspection(shelter.name, 'shelter');
+        const status = this.getShelterStatus(inspection);
+        
+        return `
+          <article class="shelter-card ${status.class}">
+            <div class="shelter-header">
+              <h3 class="shelter-name">🏠 ${shelter.name}</h3>
+              <span class="shelter-capacity">${shelter.capacity || 'N/A'} personnes</span>
+            </div>
+            
+            <div class="shelter-status ${status.class}">
+              <span class="status-icon">${status.icon}</span>
+              <span class="status-text">${status.text}</span>
+            </div>
+            
+            <div class="shelter-details">
+              <div class="shelter-detail">
+                <span class="detail-label">État général:</span>
+                <span class="detail-value">${inspection?.overall_condition || 'Non vérifié'}</span>
+              </div>
+              <div class="shelter-detail">
+                <span class="detail-label">Bois de chauffage:</span>
+                <span class="detail-value">${inspection?.firewood_stock || 'Non vérifié'}</span>
+              </div>
+              <div class="shelter-detail">
+                <span class="detail-label">Dernière inspection:</span>
+                <span class="detail-value">${inspection ? this.formatDate(inspection.date) : 'Jamais'}</span>
+              </div>
+            </div>
+            
+            ${inspection?.notes ? `
+            <div class="shelter-notes">
+              <strong>Notes:</strong> ${inspection.notes}
+            </div>
+            ` : ''}
+          </article>
+        `;
+      }
+
+      // Utility methods
+      getLatestInspection(name, type) {
+        const inspections = this.data.inspections.filter(i => 
+          i.type === type && (i.trail_name === name || i.shelter_name === name)
+        );
+        
+        if (inspections.length === 0) return null;
+        
+        return inspections.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+      }
+
+      getTrailStatus(inspection) {
+        if (!inspection) return { key: 'unknown', class: 'status-unknown', icon: '❓', text: 'Non inspecté' };
+        
+        if (inspection.trail_open === 'no') {
+          return { key: 'closed', class: 'status-closed', icon: '❌', text: 'Fermé' };
+        }
+        
+        const condition = inspection.overall_condition;
+        if (condition === 'excellent') return { key: 'open', class: 'status-excellent', icon: '✅', text: 'Excellent' };
+        if (condition === 'good') return { key: 'open', class: 'status-good', icon: '✅', text: 'Bon' };
+        if (condition === 'fair') return { key: 'attention', class: 'status-fair', icon: '⚠️', text: 'Attention' };
+        if (condition === 'poor') return { key: 'closed', class: 'status-poor', icon: '❌', text: 'Mauvais' };
+        
+        return { key: 'open', class: 'status-open', icon: '✅', text: 'Ouvert' };
+      }
+
+      getShelterStatus(inspection) {
+        if (!inspection) return { key: 'unknown', class: 'status-unknown', icon: '❓', text: 'Non vérifié' };
+        
+        const condition = inspection.overall_condition;
+        if (condition === 'excellent' || condition === 'good') {
+          return { key: 'open', class: 'status-good', icon: '🏠', text: 'Disponible' };
+        }
+        if (condition === 'fair') {
+          return { key: 'attention', class: 'status-fair', icon: '⚠️', text: 'Attention' };
+        }
+        if (condition === 'poor') {
+          return { key: 'closed', class: 'status-poor', icon: '❌', text: 'Indisponible' };
+        }
+        
+        return { key: 'open', class: 'status-open', icon: '🏠', text: 'Disponible' };
+      }
+
+      getFilteredTrails() {
+        return this.data.trails.filter(trail => {
+          if (this.currentFilter === 'all') return true;
+          
+          const inspection = this.getLatestInspection(trail.name, 'trail');
+          const status = this.getTrailStatus(inspection);
+          
+          if (this.currentFilter === 'open') return status.key === 'open';
+          if (this.currentFilter === 'attention') return status.key === 'attention';
+          if (this.currentFilter === 'closed') return status.key === 'closed';
+          if (this.currentFilter === 'groomed') return inspection?.groomed === 'yes';
+          
+          return true;
+        });
+      }
+
+      getFilteredShelters() {
+        return this.data.shelters.filter(shelter => {
+          if (this.currentFilter === 'all') return true;
+          
+          const inspection = this.getLatestInspection(shelter.name, 'shelter');
+          const status = this.getShelterStatus(inspection);
+          
+          if (this.currentFilter === 'open') return status.key === 'open';
+          if (this.currentFilter === 'attention') return status.key === 'attention';
+          if (this.currentFilter === 'closed') return status.key === 'closed';
+          
+          return true;
+        });
+      }
+
+      applyFilters() {
+        this.render();
+      }
+
+      showEmptyState() {
+        document.getElementById('empty-state').style.display = 'block';
+      }
+
+      hideEmptyState() {
+        document.getElementById('empty-state').style.display = 'none';
+      }
+
+      hideLoading() {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
+      }
+
+      updateLastUpdate() {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('fr-CA', { 
+          hour: '2-digit', 
+          minute: '2-digit' 
+        });
+        document.getElementById('last-update-time').textContent = timeString;
+      }
+
+      formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('fr-CA', { 
+          year: 'numeric', 
+          month: 'short', 
+          day: 'numeric' 
+        });
+      }
+
+      getDifficultyClass(difficulty) {
+        const map = {
+          'Facile': 'difficulty-easy',
+          'Intermédiaire': 'difficulty-medium',
+          'Difficile': 'difficulty-hard'
+        };
+        return map[difficulty] || 'difficulty-unknown';
+      }
+
+      getConditionClass(condition) {
+        const map = {
+          'excellent': 'condition-excellent',
+          'good': 'condition-good',
+          'fair': 'condition-fair',
+          'poor': 'condition-poor'
+        };
+        return map[condition] || 'condition-unknown';
+      }
+
+      getConditionPercent(condition) {
+        const map = {
+          'excellent': 100,
+          'good': 75,
+          'fair': 50,
+          'poor': 25
+        };
+        return map[condition] || 0;
+      }
+
+      getConditionText(condition) {
+        const map = {
+          'excellent': 'Excellent',
+          'good': 'Bon',
+          'fair': 'Acceptable',
+          'poor': 'Mauvais'
+        };
+        return map[condition] || 'Inconnu';
+      }
+
+      hasAlerts(inspection) {
+        return inspection.overall_condition === 'poor' || 
+               inspection.trail_open === 'no' ||
+               (inspection.notes && inspection.notes.toLowerCase().includes('attention'));
+      }
+
+      getAlertSeverity(inspection) {
+        if (inspection.trail_open === 'no' || inspection.overall_condition === 'poor') {
+          return 'alert-critical';
+        }
+        return 'alert-warning';
+      }
+
+      getAlertIcon(inspection) {
+        if (inspection.trail_open === 'no') return '❌';
+        if (inspection.overall_condition === 'poor') return '⚠️';
+        return '⚠️';
+      }
+
+      getAlertMessage(inspection) {
+        if (inspection.trail_open === 'no') {
+          return 'Sentier fermé - ' + (inspection.notes || 'Raison non spécifiée');
+        }
+        if (inspection.overall_condition === 'poor') {
+          return 'Conditions difficiles - ' + (inspection.notes || 'Prudence recommandée');
+        }
+        return inspection.notes || 'Attention requise';
+      }
+
+      // Default data (fallback when localStorage is empty)
+      getDefaultTrails() {
+        return [
+          { name: 'Sentier du Sommet', difficulty: 'Difficile', length: '5.2 km', elevation: '425 m' },
+          { name: 'Sentier du Lac', difficulty: 'Intermédiaire', length: '3.8 km', elevation: '180 m' },
+          { name: 'Sentier de la Crête', difficulty: 'Difficile', length: '4.5 km', elevation: '380 m' },
+          { name: 'Sentier du Ruisseau', difficulty: 'Facile', length: '2.1 km', elevation: '50 m' },
+          { name: 'Sentier de la Falaise', difficulty: 'Intermédiaire', length: '3.2 km', elevation: '220 m' },
+          { name: 'Sentier de la Forêt', difficulty: 'Facile', length: '1.8 km', elevation: '30 m' }
+        ];
+      }
+
+      getDefaultShelters() {
+        return [
+          { name: 'Refuge du Sommet', capacity: 12 },
+          { name: 'Refuge du Lac', capacity: 8 },
+          { name: 'Refuge de la Crête', capacity: 6 }
+        ];
+      }
+    }
+
+    // Initialize the app when DOM is ready
+    document.addEventListener('DOMContentLoaded', () => {
+      new PublicStatusApp();
+    });
+  </script>
+
+  <style>
+    /* Additional Public Status Page Styles */
+    
+    /* Loading Screen */
+    .loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #1b4b72 0%, #2c7a5d 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    
+    .loading-content {
+      text-align: center;
+      color: white;
+    }
+    
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s ease-in-out infinite;
+      margin: 0 auto 1rem;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Public Container */
+    .public-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+      min-height: calc(100vh - 200px);
+    }
+
+    /* View Content */
+    .view-content {
+      display: none;
+    }
+    
+    .view-content.active {
+      display: block;
+    }
+
+    /* Section Titles */
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1b4b72;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    /* Status Summary */
+    .status-summary {
+      margin-bottom: var(--space-2xl);
+    }
+    
+    .summary-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--space-lg);
+      margin-top: var(--space-xl);
+    }
+    
+    .stat-card {
+      background: var(--theme-surface);
+      border-radius: var(--border-radius-lg);
+      padding: var(--space-lg);
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      transition: transform 0.2s ease;
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-2px);
+    }
+    
+    .stat-icon {
+      font-size: 2rem;
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: rgba(27, 75, 114, 0.1);
+    }
+    
+    .stat-content {
+      flex: 1;
+    }
+    
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1b4b72;
+      line-height: 1;
+    }
+    
+    .stat-label {
+      font-size: 0.9rem;
+      color: #666;
+      margin-top: 0.25rem;
+    }
+
+    /* Status-specific colors */
+    .status-open .stat-icon { background: rgba(67, 160, 71, 0.1); }
+    .status-attention .stat-icon { background: rgba(255, 152, 0, 0.1); }
+    .status-closed .stat-icon { background: rgba(244, 67, 54, 0.1); }
+    .status-groomed .stat-icon { background: rgba(33, 150, 243, 0.1); }
+
+    /* Weather Section */
+    .weather-section {
+      margin-bottom: var(--space-2xl);
+    }
+    
+    .weather-widget {
+      background: linear-gradient(135deg, var(--theme-primary) 0%, var(--theme-secondary) 100%);
+      color: white;
+      padding: var(--space-xl);
+      border-radius: var(--border-radius-xl);
+      text-align: center;
+      box-shadow: var(--shadow-md);
+    }
+    
+    .weather-widget h3 {
+      margin: 0 0 1rem 0;
+      font-size: 1.25rem;
+    }
+    
+    .weather-icon {
+      font-size: 4rem;
+      margin: 1rem 0;
+    }
+    
+    .temperature {
+      font-size: 3rem;
+      font-weight: 700;
+      margin: 1rem 0;
+    }
+    
+    .weather-details {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    
+    .weather-detail {
+      text-align: center;
+    }
+    
+    .weather-detail-label {
+      display: block;
+      font-size: 0.8rem;
+      opacity: 0.8;
+      margin-bottom: 0.25rem;
+    }
+    
+    .weather-detail-value {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    /* Alerts Section */
+    .alerts-section {
+      margin-bottom: var(--space-2xl);
+    }
+    
+    .alerts-container {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+    
+    .alert-item {
+      background: var(--theme-surface);
+      border-radius: var(--border-radius-md);
+      padding: var(--space-md);
+      display: flex;
+      gap: var(--space-md);
+      box-shadow: var(--shadow-sm);
+      border-left: 4px solid var(--color-warning);
+    }
+    
+    .alert-critical {
+      border-left-color: #f44336;
+    }
+    
+    .alert-warning {
+      border-left-color: #ff9800;
+    }
+    
+    .alert-icon {
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+    
+    .alert-content h4 {
+      margin: 0 0 0.5rem 0;
+      color: #1b4b72;
+      font-size: 1rem;
+    }
+    
+    .alert-content p {
+      margin: 0 0 0.5rem 0;
+      color: #666;
+      font-size: 0.9rem;
+    }
+    
+    .alert-content small {
+      color: #999;
+      font-size: 0.8rem;
+    }
+    
+    .no-alerts {
+      text-align: center;
+      padding: 2rem;
+      color: #43a047;
+      font-weight: 600;
+    }
+
+    /* Legend Box */
+    .legend-box {
+      background: var(--theme-surface);
+      border-radius: var(--border-radius-lg);
+      padding: var(--space-lg);
+      margin-bottom: var(--space-xl);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .legend-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #1b4b72;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    
+    .legend-items {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 0.75rem;
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+    }
+    
+    .legend-color {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    
+    .status-excellent { background: #43a047; }
+    .status-good { background: #2196f3; }
+    .status-fair { background: #ff9800; }
+    .status-poor { background: #f44336; }
+    .status-unknown { background: #9e9e9e; }
+
+    /* Grids */
+    .trails-grid, .shelters-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.5rem;
+    }
+
+    /* Trail Cards */
+    .trail-card, .shelter-card {
+      background: var(--theme-surface);
+      border-radius: var(--border-radius-lg);
+      padding: var(--space-lg);
+      box-shadow: var(--shadow-sm);
+      transition: all 0.3s ease;
+      border-top: 4px solid var(--color-gray-400);
+    }
+    
+    .trail-card:hover, .shelter-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* Status-based border colors */
+    .trail-card.status-excellent { border-top-color: #43a047; }
+    .trail-card.status-good { border-top-color: #2196f3; }
+    .trail-card.status-fair { border-top-color: #ff9800; }
+    .trail-card.status-poor { border-top-color: #f44336; }
+    .trail-card.status-closed { border-top-color: #f44336; }
+    .trail-card.status-unknown { border-top-color: #9e9e9e; }
+
+    /* Card Headers */
+    .trail-header, .shelter-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+    
+    .trail-name, .shelter-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #1b4b72;
+      margin: 0;
+      line-height: 1.2;
+    }
+    
+    .trail-difficulty, .shelter-capacity {
+      background: #f5f5f5;
+      color: #666;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    
+    .difficulty-easy { background: #e8f5e8; color: #2e7d32; }
+    .difficulty-medium { background: #fff3e0; color: #f57c00; }
+    .difficulty-hard { background: #ffebee; color: #c62828; }
+
+    /* Status Display */
+    .trail-status, .shelter-status {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-md);
+      padding: var(--space-sm) var(--space-md);
+      border-radius: var(--border-radius-md);
+      background: var(--theme-background);
+    }
+    
+    .status-icon {
+      font-size: 1.25rem;
+    }
+    
+    .status-text {
+      font-weight: 600;
+      flex: 1;
+    }
+    
+    .groomed-indicator {
+      font-size: 1.1rem;
+      margin-left: auto;
+    }
+
+    /* Details */
+    .trail-details, .shelter-details {
+      margin-bottom: 1rem;
+    }
+    
+    .trail-detail, .shelter-detail {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+    }
+    
+    .detail-label {
+      color: #666;
+      font-weight: 500;
+    }
+    
+    .detail-value {
+      color: #1b4b72;
+      font-weight: 600;
+    }
+
+    /* Condition Indicator */
+    .condition-indicator {
+      margin-bottom: 1rem;
+    }
+    
+    .condition-bar {
+      width: 100%;
+      height: 8px;
+      background: #e0e0e0;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 0.5rem;
+    }
+    
+    .condition-fill {
+      height: 100%;
+      transition: width 0.3s ease;
+      border-radius: 4px;
+    }
+    
+    .condition-excellent { background: #43a047; }
+    .condition-good { background: #2196f3; }
+    .condition-fair { background: #ff9800; }
+    .condition-poor { background: #f44336; }
+    
+    .condition-text {
+      font-size: 0.85rem;
+      color: #666;
+      font-weight: 500;
+    }
+
+    /* Notes */
+    .trail-notes, .shelter-notes {
+      background: var(--theme-background);
+      padding: var(--space-sm) var(--space-md);
+      border-radius: var(--border-radius-sm);
+      font-size: var(--text-sm);
+      color: var(--theme-text-light);
+      border-left: 3px solid var(--theme-primary);
+    }
+
+    /* Status Filters */
+    .status-filters {
+      display: flex;
+      justify-content: center;
+      gap: var(--space-sm);
+      flex-wrap: wrap;
+    }
+    
+    .filter-btn {
+      padding: var(--space-sm) var(--space-md);
+      border: var(--border-width) solid var(--theme-border);
+      background: var(--theme-surface);
+      color: var(--theme-text-light);
+      border-radius: var(--border-radius-full);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      font-size: var(--text-sm);
+      font-weight: var(--font-medium);
+    }
+    
+    .filter-btn:hover {
+      border-color: var(--theme-primary);
+      color: var(--theme-primary);
+    }
+    
+    .filter-btn.active {
+      background: var(--theme-primary);
+      border-color: var(--theme-primary);
+      color: white;
+    }
+
+    /* Toggle Buttons */
+    .toggle-btn {
+      padding: var(--space-sm) var(--space-lg);
+      border: var(--border-width-thick) solid var(--theme-primary);
+      background: var(--theme-surface);
+      color: var(--theme-primary);
+      border-radius: var(--border-radius-full);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      font-weight: var(--font-medium);
+      font-size: var(--text-sm);
+    }
+    
+    .toggle-btn:hover {
+      background: var(--theme-background);
+    }
+    
+    .toggle-btn.active {
+      background: var(--theme-primary);
+      color: white;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: #666;
+    }
+    
+    .empty-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+    
+    .empty-message {
+      font-size: 1.1rem;
+      margin: 0;
+    }
+
+    /* Public Footer */
+    .public-footer {
+      background: #1b4b72;
+      color: white;
+      padding: 3rem 2rem 2rem;
+      margin-top: 4rem;
+    }
+    
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .footer-info {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    
+    .footer-info h4 {
+      font-size: 1.5rem;
+      margin: 0 0 0.5rem 0;
+    }
+    
+    .footer-info p {
+      margin: 0;
+      opacity: 0.8;
+    }
+    
+    .footer-links {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+    
+    .link-group h5 {
+      font-size: 1rem;
+      margin: 0 0 1rem 0;
+      color: #fff;
+    }
+    
+    .link-group a {
+      display: block;
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      margin-bottom: 0.5rem;
+      transition: color 0.2s ease;
+    }
+    
+    .link-group a:hover {
+      color: white;
+    }
+    
+    .footer-bottom {
+      text-align: center;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .footer-bottom p {
+      margin: 0.5rem 0;
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+    
+    .disclaimer {
+      font-weight: 600;
+      color: #ffd54f !important;
+      opacity: 1 !important;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .public-container {
+        padding: 1rem;
+      }
+      
+      .summary-stats {
+        grid-template-columns: 1fr;
+      }
+      
+      .weather-details {
+        flex-direction: column;
+        gap: 1rem;
+      }
+      
+      .trails-grid, .shelters-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .view-toggle, .status-filters {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .toggle-btn, .filter-btn {
+        text-align: center;
+      }
+      
+      .legend-items {
+        grid-template-columns: 1fr;
+      }
+      
+      .footer-links {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .public-header h1 {
+        font-size: 1.4rem;
+      }
+      
+      .trail-header, .shelter-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+      
+      .stat-card {
+        flex-direction: column;
+        text-align: center;
+      }
+      
+      .weather-widget {
+        padding: 1.5rem;
+      }
+      
+      .temperature {
+        font-size: 2.5rem;
+      }
+    }
+  </style>
+</head>
+</html>
