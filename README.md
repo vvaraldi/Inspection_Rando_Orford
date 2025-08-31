@@ -3,11 +3,11 @@
 Must :
 
 Piority 1
-- in the status page the map is in a box but background is not cogerent with the dashboard. What code be changed to have the same visual framing and background on the Status page ?
+- The loading of a picture do not work. error is the following : Firebase Storage: User does not have permission to access 'trail-inspections/1755443473347-0-IMG_0006.JPG'. (storage/unauthorized)
+
 
 Piority 2
 - Remove selectable issues in inspection form are not showing any kind of check box.
-- The loading of a picture do not work. error is the following : Firebase Storage: User does not have permission to access 'trail-inspections/1755443473347-0-IMG_0006.JPG'. (storage/unauthorized)
 - When creating a user is logs automatically with this new user. It should stay with the current logged person.
 
 Priority 3

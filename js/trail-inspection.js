@@ -364,7 +364,7 @@ class TrailInspectionManager {
 
   async uploadPhotos() {
     const uploadPromises = this.selectedFiles.map(async (file, index) => {
-      const fileName = `trail-inspections/${Date.now()}-${index}-${file.name}`;
+      const fileName = `inspections/trails/${Date.now()}-${index}-${file.name}`;
       const storageRef = this.storage.ref(fileName);
       
       const snapshot = await storageRef.put(file);

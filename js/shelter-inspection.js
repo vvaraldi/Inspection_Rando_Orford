@@ -369,7 +369,7 @@ class ShelterInspectionManager {
 
   async uploadPhotos() {
     const uploadPromises = this.selectedFiles.map(async (file, index) => {
-      const fileName = `shelter-inspections/${Date.now()}-${index}-${file.name}`;
+      const fileName = `inspections/shelters/${Date.now()}-${index}-${file.name}`;
       const storageRef = this.storage.ref(fileName);
       
       const snapshot = await storageRef.put(file);
