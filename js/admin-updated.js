@@ -405,7 +405,7 @@ class AdminManager {
     }
   }
 
-  createUserRow(userId, userData) {
+  createInspectorRow(userId, userData) {
     const row = document.createElement('tr');
     const isCurrentUser = userId === this.currentUserId;
     
