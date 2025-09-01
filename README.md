@@ -3,16 +3,12 @@
 Must :
 
 Piority 1
-- When creating a user is logs automatically with this new user. It should stay with the current logged person.
-
-Piority 2
 - Remove selectable issues in inspection form are not showing any kind of check box.
 
-Priority 3
-- remove the 8 character minimum for the password
-
-Priority 4
+Piority 2
 1 - Créer une inspection avec un lieu en cliquant sur l'image.
+
+Priority 3
 
 
 Bug fix :
