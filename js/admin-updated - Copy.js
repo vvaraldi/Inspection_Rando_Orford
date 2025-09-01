@@ -54,19 +54,6 @@ class AdminManager {
     }
   }
 
-  // Helper method to get Firebase configuration
-  getFirebaseConfig() {
-    return {
-      apiKey: "AIzaSyDcBZrwGTskM7QUvanzLTACEJ_T-55j-DA",
-      authDomain: "trail-inspection.firebaseapp.com",
-      projectId: "trail-inspection",
-      storageBucket: "trail-inspection.firebasestorage.app",
-      messagingSenderId: "415995272058",
-      appId: "1:415995272058:web:dc476de8ffee052e2ad4c3",
-      measurementId: "G-EBLYWBM9YB"
-    };
-  }
-
   bindEvents() {
     // Tab navigation
     this.tabBtns.forEach(btn => {
@@ -135,8 +122,9 @@ class AdminManager {
       { id: 'init-trails-btn', handler: () => this.initializeTrails() },
       { id: 'init-shelters-btn', handler: () => this.initializeShelters() },
       { id: 'create-sample-btn', handler: () => this.createSampleData() },
-      { id: 'clear-inspections-btn', handler: () => this.clearInspections() },
-      { id: 'clear-test-data-btn', handler: () => this.clearTestData() }
+      { id: 'export-data-btn', handler: () => this.exportData() },
+      { id: 'delete-old-inspections-btn', handler: () => this.deleteOldInspections() },
+      { id: 'reset-inspections-btn', handler: () => this.resetAllInspections() }
     ];
 
     buttons.forEach(({ id, handler }) => {
@@ -147,196 +135,41 @@ class AdminManager {
     });
   }
 
-  // FIXED USER CREATION METHOD - Option B Implementation
-  async handleUserFormSubmit(e) {
-    e.preventDefault();
-    
-    const formData = new FormData(e.target);
-    const userData = {
-      name: document.getElementById('user-name').value.trim(),
-      email: document.getElementById('user-email').value.trim(),
-      phone: document.getElementById('user-phone').value.trim(),
-      password: document.getElementById('user-password').value,
-      role: document.getElementById('user-role').value,
-      status: document.getElementById('user-status').value
-    };
-
-    if (!this.validateUserForm(userData)) {
-      return;
-    }
-
-    let secondaryApp = null;
-
-    try {
-      this.setFormLoading(true);
-      
-      // Create secondary Firebase app instance to avoid automatic login
-      secondaryApp = firebase.initializeApp(this.getFirebaseConfig(), "secondary");
-      const secondaryAuth = secondaryApp.auth();
-      
-      // Create user with secondary app (this won't affect current session)
-      const userCredential = await secondaryAuth.createUserWithEmailAndPassword(
-        userData.email, 
-        userData.password
-      );
-
-      // Add user data to Firestore using main database instance
-      await this.db.collection('inspectors').doc(userCredential.user.uid).set({
-        name: userData.name,
-        email: userData.email,
-        phone: userData.phone || null,
-        role: userData.role,
-        status: userData.status,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        createdBy: this.currentUserId
-      });
-
-      this.showSuccess('Utilisateur créé avec succès');
-      this.resetUserForm();
-      this.loadInspectors(); // Refresh the table
-      
-    } catch (error) {
-      console.error('Error creating user:', error);
-      this.handleUserCreationError(error);
-    } finally {
-      // Always clean up the secondary app
-      if (secondaryApp) {
-        try {
-          await secondaryApp.delete();
-        } catch (cleanupError) {
-          console.warn('Error cleaning up secondary app:', cleanupError);
-        }
-      }
-      this.setFormLoading(false);
-    }
-  }
-
-  validateUserForm(userData) {
-    if (!userData.name) {
-      this.showError('Le nom est requis');
-      return false;
-    }
-    
-    if (!userData.email) {
-      this.showError('L\'email est requis');
-      return false;
-    }
-    
-    if (!userData.password || userData.password.length < 6) {
-      this.showError('Le mot de passe doit contenir au moins 6 caractères');
-      return false;
-    }
-
-    if (!userData.role) {
-      this.showError('Le rôle est requis');
-      return false;
-    }
-
-    if (!userData.status) {
-      this.showError('Le statut est requis');
-      return false;
-    }
-
-    return true;
-  }
-
-  handleUserCreationError(error) {
-    let message = 'Erreur lors de la création de l\'utilisateur';
-    
-    switch (error.code) {
-      case 'auth/email-already-in-use':
-        message = 'Cette adresse email est déjà utilisée';
-        break;
-      case 'auth/invalid-email':
-        message = 'Adresse email invalide';
-        break;
-      case 'auth/weak-password':
-        message = 'Le mot de passe est trop faible';
-        break;
-      case 'auth/operation-not-allowed':
-        message = 'La création de comptes est désactivée';
-        break;
-      default:
-        message = error.message || message;
-    }
-    
-    this.showError(message);
-  }
-
-  setFormLoading(loading) {
-    const submitBtn = document.getElementById('submit-user-btn');
-    const form = this.userForm;
-    
-    if (loading) {
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Création...';
-      }
-      if (form) {
-        form.style.opacity = '0.6';
-      }
-    } else {
-      if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Créer l\'utilisateur';
-      }
-      if (form) {
-        form.style.opacity = '1';
-      }
-    }
-  }
-
-  resetUserForm() {
-    if (this.userForm) {
-      this.userForm.reset();
-    }
-    this.hideMessages();
-  }
-
   async checkAdminPermissions() {
-    return new Promise((resolve) => {
-      this.auth.onAuthStateChanged(async (user) => {
-        if (user) {
-          this.currentUserId = user.uid;
-          try {
-            const userDoc = await this.db.collection('inspectors').doc(user.uid).get();
-            
-            if (userDoc.exists) {
-              const userData = userDoc.data();
-              
-              if (userData.status !== 'active') {
-                this.showError('Votre compte a été désactivé');
-                await this.auth.signOut();
-                this.redirectToLogin();
-                resolve(false);
-                return;
-              }
-              
-              if (userData.role !== 'admin') {
-                this.showError('Accès refusé - Droits administrateur requis');
-                this.redirectToLogin();
-                resolve(false);
-                return;
-              }
-              
-              resolve(true);
-            } else {
-              this.showError('Utilisateur non trouvé dans la base de données');
-              this.redirectToLogin();
-              resolve(false);
-            }
-          } catch (error) {
-            console.error('Error checking admin permissions:', error);
-            this.showError('Erreur lors de la vérification des permissions');
-            this.redirectToLogin();
-            resolve(false);
-          }
-        } else {
-          this.redirectToLogin();
-          resolve(false);
-        }
-      });
-    });
+    try {
+      if (!this.auth) return false;
+
+      const user = this.auth.currentUser;
+      if (!user) {
+        this.redirectToLogin();
+        return false;
+      }
+
+      // Check if user is admin
+      const userDoc = await this.db.collection('inspectors').doc(user.uid).get();
+      
+      if (!userDoc.exists) {
+        this.showError('Utilisateur non trouvé dans la base de données');
+        return false;
+      }
+
+      const userData = userDoc.data();
+      if (userData.role !== 'admin') {
+        this.showError('Accès refusé - Permissions administrateur requises');
+        setTimeout(() => {
+          window.location.href = '../index.html';
+        }, 2000);
+        return false;
+      }
+
+      this.currentUserId = user.uid;
+      this.updateUserInfo(userData.name);
+      return true;
+    } catch (error) {
+      console.error('Error checking admin permissions:', error);
+      this.showError('Erreur lors de la vérification des permissions');
+      return false;
+    }
   }
 
   redirectToLogin() {
@@ -346,72 +179,75 @@ class AdminManager {
     window.location.href = loginUrl;
   }
 
+  updateUserInfo(name) {
+    const adminName = document.getElementById('admin-name');
+    if (adminName && name) {
+      adminName.textContent = name;
+    }
+  }
+
   switchTab(tabName) {
-    // Update tab buttons
-    this.tabBtns.forEach(btn => {
-      btn.classList.remove('active');
-      if (btn.dataset.tab === tabName) {
-        btn.classList.add('active');
-      }
-    });
+    // Remove active class from all tabs and contents
+    this.tabBtns.forEach(btn => btn.classList.remove('active'));
+    this.tabContents.forEach(content => content.classList.remove('active'));
 
-    // Update tab content
-    this.tabContents.forEach(content => {
-      content.classList.remove('active');
-      if (content.id === `${tabName}-tab`) {
-        content.classList.add('active');
-      }
-    });
+    // Add active class to selected tab and content
+    const selectedBtn = document.querySelector(`[data-tab="${tabName}"]`);
+    const selectedContent = document.getElementById(`${tabName}-tab`);
 
-    // Load data based on active tab
+    if (selectedBtn && selectedContent) {
+      selectedBtn.classList.add('active');
+      selectedContent.classList.add('active');
+
+      // Load data for the selected tab
+      this.loadTabData(tabName);
+    }
+  }
+
+  loadTabData(tabName) {
     switch (tabName) {
-      case 'statistics':
-        this.loadStatistics();
-        break;
       case 'users':
         this.loadInspectors();
         break;
+      case 'stats':
+        this.loadStatistics();
+        break;
+      // 'data' tab doesn't need initial loading
     }
   }
 
   async loadInspectors() {
     try {
-      const snapshot = await this.db.collection('inspectors')
-        .orderBy('createdAt', 'desc')
-        .get();
+      this.showTableLoading();
+      
+      const snapshot = await this.db.collection('inspectors').get();
+      const tbody = this.inspectorsTable.querySelector('tbody');
+      tbody.innerHTML = '';
 
-      if (this.inspectorsTable) {
-        this.inspectorsTable.innerHTML = '';
-        
-        if (snapshot.empty) {
-          const row = this.inspectorsTable.insertRow();
-          row.innerHTML = '<td colspan="6" style="text-align: center;">Aucun utilisateur trouvé</td>';
-          return;
-        }
-
-        snapshot.forEach((doc) => {
-          const userData = doc.data();
-          const userId = doc.id;
-          const row = this.createUserRow(userId, userData);
-          this.inspectorsTable.appendChild(row);
-        });
-
-        // Bind events for interactive elements
-        this.bindTableEvents();
+      if (snapshot.empty) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center">Aucun utilisateur trouvé</td></tr>';
+        return;
       }
+
+      snapshot.forEach(doc => {
+        const userData = doc.data();
+        const row = this.createInspectorRow(doc.id, userData);
+        tbody.appendChild(row);
+      });
+
+      this.bindTableEvents();
     } catch (error) {
       console.error('Error loading inspectors:', error);
-      this.showError('Erreur lors du chargement des utilisateurs');
+      this.showTableError('Erreur lors du chargement des utilisateurs');
     }
   }
 
-  createUserRow(userId, userData) {
+  createInspectorRow(userId, userData) {
     const row = document.createElement('tr');
-    const isCurrentUser = userId === this.currentUserId;
+    const isCurrentUser = (userId === this.currentUserId);
     
     const roleClass = userData.role === 'admin' ? 'role-admin' : 'role-inspector';
     const roleText = userData.role === 'admin' ? 'Administrateur' : 'Inspecteur';
-    
     const statusClass = userData.status === 'active' ? 'status-active' : 'status-inactive';
     const statusText = userData.status === 'active' ? 'Actif' : 'Inactif';
 
@@ -525,24 +361,149 @@ class AdminManager {
     }
   }
 
-  deleteUser(userId) {
-    this.userToDelete = userId;
-    if (this.deleteModal) {
-      this.deleteModal.classList.add('show');
+  async handleUserFormSubmit(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    const userData = {
+      name: document.getElementById('user-name').value.trim(),
+      email: document.getElementById('user-email').value.trim(),
+      phone: document.getElementById('user-phone').value.trim(),
+      password: document.getElementById('user-password').value,
+      role: document.getElementById('user-role').value,
+      status: document.getElementById('user-status').value
+    };
+
+    if (!this.validateUserForm(userData)) {
+      return;
     }
+
+    try {
+      this.setFormLoading(true);
+      
+      // Create user in Firebase Auth
+      const userCredential = await this.auth.createUserWithEmailAndPassword(
+        userData.email, 
+        userData.password
+      );
+
+      // Add user data to Firestore
+      await this.db.collection('inspectors').doc(userCredential.user.uid).set({
+        name: userData.name,
+        email: userData.email,
+        phone: userData.phone || null,
+        role: userData.role,
+        status: userData.status,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        createdBy: this.currentUserId
+      });
+
+      this.showSuccess('Utilisateur créé avec succès');
+      this.resetUserForm();
+      this.loadInspectors(); // Refresh the table
+      
+    } catch (error) {
+      console.error('Error creating user:', error);
+      this.handleUserCreationError(error);
+    } finally {
+      this.setFormLoading(false);
+    }
+  }
+
+  validateUserForm(userData) {
+    if (!userData.name) {
+      this.showError('Le nom est requis');
+      return false;
+    }
+    
+    if (!userData.email) {
+      this.showError('L\'email est requis');
+      return false;
+    }
+    
+    if (!userData.password || userData.password.length < 6) {
+      this.showError('Le mot de passe doit contenir au moins 6 caractères');
+      return false;
+    }
+
+    return true;
+  }
+
+  handleUserCreationError(error) {
+    let errorMessage = 'Erreur lors de la création de l\'utilisateur';
+    
+    switch (error.code) {
+      case 'auth/email-already-in-use':
+        errorMessage = 'Cette adresse email est déjà utilisée';
+        break;
+      case 'auth/invalid-email':
+        errorMessage = 'Adresse email invalide';
+        break;
+      case 'auth/weak-password':
+        errorMessage = 'Le mot de passe est trop faible';
+        break;
+      default:
+        errorMessage = error.message || errorMessage;
+    }
+    
+    this.showError(errorMessage);
+  }
+
+  resetUserForm() {
+    if (this.userForm) {
+      this.userForm.reset();
+    }
+    this.hideMessages();
+  }
+
+  setFormLoading(isLoading) {
+    const submitBtn = this.userForm.querySelector('button[type="submit"]');
+    const inputs = this.userForm.querySelectorAll('input, select');
+
+    if (isLoading) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Création en cours...';
+      inputs.forEach(input => input.disabled = true);
+    } else {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Créer l\'utilisateur';
+      inputs.forEach(input => input.disabled = false);
+    }
+  }
+
+  deleteUser(userId) {
+    if (userId === this.currentUserId) {
+      this.showError('Vous ne pouvez pas vous supprimer vous-même');
+      return;
+    }
+
+    this.userToDelete = userId;
+    this.showModal();
   }
 
   async confirmDeleteUser() {
     if (!this.userToDelete) return;
 
     try {
+      // Delete from Firestore
       await this.db.collection('inspectors').doc(this.userToDelete).delete();
+
+      // Note: We don't delete from Firebase Auth as it requires special admin privileges
+      // The user account will remain in Auth but won't be able to access the system
+
       this.showSuccess('Utilisateur supprimé avec succès');
-      this.loadInspectors();
       this.closeModal();
+      this.loadInspectors(); // Refresh the table
+      
     } catch (error) {
       console.error('Error deleting user:', error);
       this.showError('Erreur lors de la suppression de l\'utilisateur');
+    }
+  }
+
+  showModal() {
+    if (this.deleteModal) {
+      this.deleteModal.classList.add('show');
     }
   }
 
@@ -607,88 +568,6 @@ class AdminManager {
     const element = document.getElementById(id);
     if (element) {
       element.textContent = value;
-    }
-  }
-
-  showSuccess(message) {
-    this.hideMessages();
-    if (this.userSuccessMessage) {
-      this.userSuccessMessage.textContent = message;
-      this.userSuccessMessage.style.display = 'block';
-      setTimeout(() => {
-        this.userSuccessMessage.style.display = 'none';
-      }, 5000);
-    }
-  }
-
-  showError(message) {
-    this.hideMessages();
-    if (this.userErrorMessage) {
-      this.userErrorMessage.textContent = message;
-      this.userErrorMessage.style.display = 'block';
-      setTimeout(() => {
-        this.userErrorMessage.style.display = 'none';
-      }, 5000);
-    }
-  }
-
-  hideMessages() {
-    if (this.userSuccessMessage) {
-      this.userSuccessMessage.style.display = 'none';
-    }
-    if (this.userErrorMessage) {
-      this.userErrorMessage.style.display = 'none';
-    }
-  }
-
-  showStatus(elementId, message, type = 'info') {
-    const element = document.getElementById(elementId);
-    if (element) {
-      element.textContent = message;
-      element.className = `status-message status-${type}`;
-      element.style.display = 'block';
-      
-      if (type === 'success' || type === 'error') {
-        setTimeout(() => {
-          element.style.display = 'none';
-        }, 5000);
-      }
-    }
-  }
-
-  showMainContent() {
-    if (this.loadingScreen) {
-      this.loadingScreen.style.display = 'none';
-    }
-    if (this.mainContent) {
-      this.mainContent.style.display = 'block';
-    }
-  }
-
-  async initialize() {
-    try {
-      // Wait for Firebase auth to be ready
-      if (!this.auth) {
-        throw new Error('Firebase Auth not available');
-      }
-
-      // Check authentication and admin permissions
-      const isAdmin = await this.checkAdminPermissions();
-      if (!isAdmin) {
-        return;
-      }
-
-      // Initialize the interface
-      this.showMainContent();
-      
-      // Load initial data
-      this.loadInspectors();
-      
-      console.log('Admin panel initialized successfully');
-      
-    } catch (error) {
-      console.error('Error initializing admin panel:', error);
-      this.showError('Erreur lors de l\'initialisation du panneau d\'administration');
     }
   }
 
@@ -791,7 +670,8 @@ class AdminManager {
     ];
   }
 
-  // Data initialization methods implementation
+  // Implementation of placeholder methods
+
   async initializeTrails() {
     try {
       this.showStatus('trails-status', 'Initialisation des sentiers en cours...', 'info');
@@ -854,60 +734,68 @@ class AdminManager {
     try {
       this.showStatus('sample-status', 'Création des données de test en cours...', 'info');
       
-      // Create sample trail inspections
-      const sampleTrailInspections = [
-        {
-          trail_id: 'trail_1',
-          condition: 'good',
-          notes: 'Sentier en excellent état',
-          issues: [],
-          inspector_name: 'Admin Test',
-          inspector_id: this.currentUserId,
-          date: firebase.firestore.FieldValue.serverTimestamp()
-        },
-        {
-          trail_id: 'trail_2',
-          condition: 'warning',
-          notes: 'Quelques branches tombées',
-          issues: ['Obstacles sur le sentier'],
-          inspector_name: 'Admin Test',
-          inspector_id: this.currentUserId,
-          date: firebase.firestore.FieldValue.serverTimestamp()
-        }
-      ];
-
-      // Create sample shelter inspections
-      const sampleShelterInspections = [
-        {
-          shelter_id: 'shelter_1',
-          condition: 'good',
-          notes: 'Abri propre et en bon état',
-          cleanliness: 'clean',
+      // Get an inspector for the tests
+      const inspectorsSnapshot = await this.db.collection('inspectors').limit(1).get();
+      if (inspectorsSnapshot.empty) {
+        throw new Error('Aucun inspecteur disponible pour créer les données de test');
+      }
+      
+      const inspectorId = inspectorsSnapshot.docs[0].id;
+      const inspectorName = inspectorsSnapshot.docs[0].data().name;
+      
+      // Get trails and shelters
+      const trailsSnapshot = await this.db.collection('trails').limit(3).get();
+      const sheltersSnapshot = await this.db.collection('shelters').limit(2).get();
+      
+      const batch = this.db.batch();
+      const now = new Date();
+      let sampleCount = 0;
+      
+      // Create trail inspections
+      trailsSnapshot.forEach((trailDoc, index) => {
+        const date = new Date(now);
+        date.setDate(date.getDate() - index * 7); // One inspection per week
+        
+        const inspectionRef = this.db.collection('trail_inspections').doc();
+        batch.set(inspectionRef, {
+          trail_id: trailDoc.id,
+          inspector_id: inspectorId,
+          inspector_name: inspectorName,
+          date: firebase.firestore.Timestamp.fromDate(date),
+          condition: ['good', 'warning', 'critical'][index % 3],
+          issues: index % 2 === 0 ? ['Problème de test 1', 'Problème de test 2'] : [],
+          notes: `Inspection de test #${index + 1}`,
+          photos: [],
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        sampleCount++;
+      });
+      
+      // Create shelter inspections
+      sheltersSnapshot.forEach((shelterDoc, index) => {
+        const date = new Date(now);
+        date.setDate(date.getDate() - index * 10);
+        
+        const inspectionRef = this.db.collection('shelter_inspections').doc();
+        batch.set(inspectionRef, {
+          shelter_id: shelterDoc.id,
+          inspector_id: inspectorId,
+          inspector_name: inspectorName,
+          date: firebase.firestore.Timestamp.fromDate(date),
+          condition: ['good', 'warning'][index % 2],
+          cleanliness: ['good', 'warning', 'critical'][index % 3],
           accessibility: 'good',
           issues: [],
-          inspector_name: 'Admin Test',
-          inspector_id: this.currentUserId,
-          date: firebase.firestore.FieldValue.serverTimestamp()
-        }
-      ];
-
-      const batch = this.db.batch();
-
-      // Add sample trail inspections
-      sampleTrailInspections.forEach((inspection, index) => {
-        const docRef = this.db.collection('trail_inspections').doc();
-        batch.set(docRef, inspection);
+          notes: `Inspection d'abri de test #${index + 1}`,
+          photos: [],
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        sampleCount++;
       });
-
-      // Add sample shelter inspections
-      sampleShelterInspections.forEach((inspection, index) => {
-        const docRef = this.db.collection('shelter_inspections').doc();
-        batch.set(docRef, inspection);
-      });
-
+      
       await batch.commit();
-
-      this.showStatus('sample-status', '✓ Données de test créées avec succès!', 'success');
+      
+      this.showStatus('sample-status', `✓ ${sampleCount} données de test créées avec succès!`, 'success');
       console.log('✓ Données de test créées avec succès');
       
     } catch (error) {
@@ -919,10 +807,8 @@ class AdminManager {
   async exportData() {
     try {
       const button = document.getElementById('export-data-btn');
-      if (button) {
-        button.disabled = true;
-        button.textContent = 'Export en cours...';
-      }
+      button.disabled = true;
+      button.textContent = 'Export en cours...';
       
       // Load all data
       const [trails, shelters, trailInspections, shelterInspections, inspectors] = await Promise.all([
@@ -962,121 +848,219 @@ class AdminManager {
       alert('Erreur lors de l\'export: ' + error.message);
     } finally {
       const button = document.getElementById('export-data-btn');
-      if (button) {
-        button.disabled = false;
-        button.textContent = 'Exporter les données';
-      }
+      button.disabled = false;
+      button.textContent = 'Exporter les données';
     }
   }
 
   async deleteOldInspections() {
     const cutoffDateInput = document.getElementById('cutoff-date');
-    if (!cutoffDateInput || !cutoffDateInput.value) {
-      alert('Veuillez sélectionner une date limite');
+    if (!cutoffDateInput.value) {
+      this.showStatus('delete-old-status', 'Veuillez sélectionner une date limite.', 'danger');
       return;
     }
-
-    const cutoffDate = new Date(cutoffDateInput.value);
+    
+    const cutoffDate = new Date(cutoffDateInput.value + 'T00:00:00');
     const cutoffTimestamp = firebase.firestore.Timestamp.fromDate(cutoffDate);
-
-    if (!confirm(`⚠️ ATTENTION: Cela supprimera toutes les inspections antérieures au ${cutoffDate.toLocaleDateString()}. Cette action est irréversible. Continuer?`)) {
+    
+    if (!confirm(`Supprimer toutes les inspections antérieures au ${cutoffDate.toLocaleDateString('fr-FR')}?\n\nCette action est IRRÉVERSIBLE.`)) {
       return;
     }
-
+    
     try {
       const button = document.getElementById('delete-old-inspections-btn');
-      if (button) {
-        button.disabled = true;
-        button.textContent = 'Suppression...';
-      }
-
-      // Delete old trail inspections
-      const oldTrailInspections = await this.db.collection('trail_inspections')
+      button.disabled = true;
+      button.textContent = 'Suppression...';
+      
+      this.showStatus('delete-old-status', 'Suppression des anciennes inspections en cours...', 'info');
+      
+      // Count and delete trail inspections
+      const trailSnapshot = await this.db.collection('trail_inspections')
         .where('date', '<', cutoffTimestamp)
         .get();
-
-      // Delete old shelter inspections
-      const oldShelterInspections = await this.db.collection('shelter_inspections')
+      
+      const shelterSnapshot = await this.db.collection('shelter_inspections')
         .where('date', '<', cutoffTimestamp)
         .get();
-
+      
       const batch = this.db.batch();
-      let totalDeleted = 0;
-
-      oldTrailInspections.docs.forEach(doc => {
+      let deleteCount = 0;
+      
+      trailSnapshot.forEach(doc => {
         batch.delete(doc.ref);
-        totalDeleted++;
+        deleteCount++;
       });
-
-      oldShelterInspections.docs.forEach(doc => {
+      
+      shelterSnapshot.forEach(doc => {
         batch.delete(doc.ref);
-        totalDeleted++;
+        deleteCount++;
       });
-
+      
       await batch.commit();
-
-      alert(`✓ ${totalDeleted} inspections supprimées avec succès`);
-      console.log(`✓ ${totalDeleted} inspections supprimées avec succès`);
-
+      
+      this.showStatus('delete-old-status', `✓ ${deleteCount} inspection(s) supprimée(s) avec succès.`, 'success');
+      
+      // Refresh statistics
+      this.loadStatistics();
+      
     } catch (error) {
       console.error('✗ Erreur lors de la suppression:', error);
-      alert('Erreur lors de la suppression: ' + error.message);
+      this.showStatus('delete-old-status', 'Erreur lors de la suppression: ' + error.message, 'danger');
     } finally {
       const button = document.getElementById('delete-old-inspections-btn');
-      if (button) {
-        button.disabled = false;
-        button.textContent = 'Supprimer les anciennes inspections';
-      }
+      button.disabled = false;
+      button.textContent = 'Supprimer';
     }
   }
 
   async resetAllInspections() {
-    if (!confirm('⚠️ ATTENTION: Cela supprimera TOUTES les inspections. Cette action est irréversible. Continuer?')) {
+    if (!confirm('ATTENTION: Cette action supprimera TOUTES les inspections.\n\nCette action est IRRÉVERSIBLE.\n\nTaper "SUPPRIMER" pour confirmer:') || 
+        prompt('Tapez "SUPPRIMER" pour confirmer:') !== 'SUPPRIMER') {
       return;
     }
-
+    
     try {
       const button = document.getElementById('reset-inspections-btn');
-      if (button) {
-        button.disabled = true;
-        button.textContent = 'Réinitialisation...';
-      }
-
+      button.disabled = true;
+      button.textContent = 'Suppression...';
+      
+      this.showStatus('reset-status', 'Suppression de toutes les inspections en cours...', 'info');
+      
       // Get all inspections
       const [trailInspections, shelterInspections] = await Promise.all([
         this.db.collection('trail_inspections').get(),
         this.db.collection('shelter_inspections').get()
       ]);
-
-      const batch = this.db.batch();
-      let totalDeleted = 0;
-
-      // Delete all trail inspections
-      trailInspections.docs.forEach(doc => {
-        batch.delete(doc.ref);
-        totalDeleted++;
-      });
-
-      // Delete all shelter inspections
-      shelterInspections.docs.forEach(doc => {
-        batch.delete(doc.ref);
-        totalDeleted++;
-      });
-
-      await batch.commit();
-
-      alert(`✓ ${totalDeleted} inspections supprimées avec succès`);
-      console.log(`✓ Toutes les inspections ont été supprimées`);
-
+      
+      // Delete in batches (Firestore limit is 500 operations per batch)
+      const allDocs = [...trailInspections.docs, ...shelterInspections.docs];
+      const batchSize = 450;
+      let deletedCount = 0;
+      
+      for (let i = 0; i < allDocs.length; i += batchSize) {
+        const batch = this.db.batch();
+        const batchDocs = allDocs.slice(i, i + batchSize);
+        
+        batchDocs.forEach(doc => {
+          batch.delete(doc.ref);
+        });
+        
+        await batch.commit();
+        deletedCount += batchDocs.length;
+      }
+      
+      this.showStatus('reset-status', `✓ ${deletedCount} inspection(s) supprimée(s) avec succès.`, 'success');
+      
+      // Refresh statistics
+      this.loadStatistics();
+      
     } catch (error) {
       console.error('✗ Erreur lors de la réinitialisation:', error);
-      alert('Erreur lors de la réinitialisation: ' + error.message);
+      this.showStatus('reset-status', 'Erreur lors de la réinitialisation: ' + error.message, 'danger');
     } finally {
       const button = document.getElementById('reset-inspections-btn');
-      if (button) {
-        button.disabled = false;
-        button.textContent = 'Réinitialiser tout';
+      button.disabled = false;
+      button.textContent = 'Réinitialiser tout';
+    }
+  }
+
+  // Utility methods for UI feedback
+
+  showTableLoading() {
+    const tbody = this.inspectorsTable.querySelector('tbody');
+    tbody.innerHTML = '<tr><td colspan="6" class="text-center">Chargement des utilisateurs...</td></tr>';
+  }
+
+  showTableError(message) {
+    const tbody = this.inspectorsTable.querySelector('tbody');
+    tbody.innerHTML = `<tr><td colspan="6" class="text-center" style="color: var(--color-danger);">${message}</td></tr>`;
+  }
+
+  showSuccess(message) {
+    this.hideMessages();
+    if (this.userSuccessMessage) {
+      this.userSuccessMessage.textContent = message;
+      this.userSuccessMessage.style.display = 'block';
+      this.userSuccessMessage.classList.add('alert-fade-in');
+      
+      setTimeout(() => {
+        this.userSuccessMessage.style.display = 'none';
+        this.userSuccessMessage.classList.remove('alert-fade-in');
+      }, 5000);
+    }
+  }
+
+  showError(message) {
+    this.hideMessages();
+    if (this.userErrorMessage) {
+      this.userErrorMessage.textContent = message;
+      this.userErrorMessage.style.display = 'block';
+      this.userErrorMessage.classList.add('alert-fade-in');
+      
+      setTimeout(() => {
+        this.userErrorMessage.style.display = 'none';
+        this.userErrorMessage.classList.remove('alert-fade-in');
+      }, 8000);
+    }
+  }
+
+  hideMessages() {
+    if (this.userSuccessMessage) {
+      this.userSuccessMessage.style.display = 'none';
+    }
+    if (this.userErrorMessage) {
+      this.userErrorMessage.style.display = 'none';
+    }
+  }
+
+  showStatus(elementId, message, type = 'info') {
+    const element = document.getElementById(elementId);
+    if (element) {
+      element.textContent = message;
+      element.className = `alert alert-${type}`;
+      element.style.display = 'block';
+      
+      if (type === 'success' || type === 'error') {
+        setTimeout(() => {
+          element.style.display = 'none';
+        }, 5000);
       }
+    }
+  }
+
+  showMainContent() {
+    if (this.loadingScreen) {
+      this.loadingScreen.style.display = 'none';
+    }
+    if (this.mainContent) {
+      this.mainContent.style.display = 'block';
+    }
+  }
+
+  async initialize() {
+    try {
+      // Wait for Firebase auth to be ready
+      if (!this.auth) {
+        throw new Error('Firebase Auth not available');
+      }
+
+      // Check authentication and admin permissions
+      const isAdmin = await this.checkAdminPermissions();
+      if (!isAdmin) {
+        return;
+      }
+
+      // Initialize the interface
+      this.showMainContent();
+      
+      // Load initial data
+      this.loadInspectors();
+      
+      console.log('Admin panel initialized successfully');
+      
+    } catch (error) {
+      console.error('Error initializing admin panel:', error);
+      this.showError('Erreur lors de l\'initialisation du panneau d\'administration');
     }
   }
 }
