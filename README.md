@@ -3,10 +3,9 @@
 Must :
 
 Piority 1
-- Remove selectable issues in inspection form are not showing any kind of check box.
+1 - Créer une inspection avec un lieu en cliquant sur l'image.
 
 Piority 2
-1 - Créer une inspection avec un lieu en cliquant sur l'image.
 
 Priority 3
 
