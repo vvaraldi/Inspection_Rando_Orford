@@ -7,9 +7,15 @@ class ThemeManager {
 
   initializeTheme() {
     // Load saved theme preference or default to 'alpine'
-    const savedTheme = localStorage.getItem('preferred-theme') || 'alpine';
+    const savedTheme = localStorage.getItem('preferred-theme') || 'dark';
     document.body.setAttribute('data-theme', savedTheme);
   }
+
+// alpine
+// dark
+// summer
+// autumn
+
 
   switchTheme(themeName) {
     document.body.setAttribute('data-theme', themeName);
