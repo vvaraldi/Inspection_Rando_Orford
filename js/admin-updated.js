@@ -19,6 +19,7 @@ class AdminManager {
     this.storage = null;
     this.loadingScreen = null;
     this.mainContent = null;
+    this.userToDelete = null;
     
     this.initializeElements();
     this.initializeFirebase();
@@ -135,8 +136,9 @@ class AdminManager {
       { id: 'init-trails-btn', handler: () => this.initializeTrails() },
       { id: 'init-shelters-btn', handler: () => this.initializeShelters() },
       { id: 'create-sample-btn', handler: () => this.createSampleData() },
-      { id: 'clear-inspections-btn', handler: () => this.clearInspections() },
-      { id: 'clear-test-data-btn', handler: () => this.clearTestData() }
+      { id: 'export-data-btn', handler: () => this.exportData() },
+      { id: 'delete-old-inspections-btn', handler: () => this.deleteOldInspections() },
+      { id: 'reset-inspections-btn', handler: () => this.resetAllInspections() }
     ];
 
     buttons.forEach(({ id, handler }) => {
@@ -314,11 +316,14 @@ class AdminManager {
               
               if (userData.role !== 'admin') {
                 this.showError('Accès refusé - Droits administrateur requis');
-                this.redirectToLogin();
+                setTimeout(() => {
+                  window.location.href = '../index.html';
+                }, 2000);
                 resolve(false);
                 return;
               }
               
+              this.updateUserInfo(userData.name);
               resolve(true);
             } else {
               this.showError('Utilisateur non trouvé dans la base de données');
@@ -336,6 +341,15 @@ class AdminManager {
           resolve(false);
         }
       });
+    });
+  }
+
+  updateUserInfo(userName) {
+    const userInfoElements = document.querySelectorAll('.user-name, #user-name-display, #admin-name');
+    userInfoElements.forEach(element => {
+      if (element) {
+        element.textContent = userName;
+      }
     });
   }
 
@@ -376,36 +390,61 @@ class AdminManager {
 
   async loadInspectors() {
     try {
+      console.log('Loading inspectors...');
+      
+      // Show loading state
+      if (this.inspectorsTable) {
+        const tbody = this.inspectorsTable.querySelector('tbody');
+        if (tbody) {
+          tbody.innerHTML = '<tr><td colspan="6" class="text-center">Chargement des utilisateurs...</td></tr>';
+        }
+      }
+      
       const snapshot = await this.db.collection('inspectors')
         .orderBy('createdAt', 'desc')
         .get();
 
+      console.log('Inspectors loaded:', snapshot.size);
+
       if (this.inspectorsTable) {
-        this.inspectorsTable.innerHTML = '';
+        const tbody = this.inspectorsTable.querySelector('tbody');
+        if (!tbody) {
+          console.error('Table tbody not found');
+          return;
+        }
+        
+        tbody.innerHTML = '';
         
         if (snapshot.empty) {
-          const row = this.inspectorsTable.insertRow();
-          row.innerHTML = '<td colspan="6" style="text-align: center;">Aucun utilisateur trouvé</td>';
+          tbody.innerHTML = '<tr><td colspan="6" class="text-center">Aucun utilisateur trouvé</td></tr>';
           return;
         }
 
         snapshot.forEach((doc) => {
           const userData = doc.data();
           const userId = doc.id;
+          console.log('Creating row for user:', userData.name, userId);
           const row = this.createUserRow(userId, userData);
-          this.inspectorsTable.appendChild(row);
+          tbody.appendChild(row);
         });
 
         // Bind events for interactive elements
         this.bindTableEvents();
+      } else {
+        console.error('inspectorsTable not found');
       }
     } catch (error) {
       console.error('Error loading inspectors:', error);
-      this.showError('Erreur lors du chargement des utilisateurs');
+      if (this.inspectorsTable) {
+        const tbody = this.inspectorsTable.querySelector('tbody');
+        if (tbody) {
+          tbody.innerHTML = `<tr><td colspan="6" class="text-center" style="color: var(--color-danger);">Erreur: ${error.message}</td></tr>`;
+        }
+      }
     }
   }
 
-  createInspectorRow(userId, userData) {
+  createUserRow(userId, userData) {
     const row = document.createElement('tr');
     const isCurrentUser = userId === this.currentUserId;
     
@@ -856,15 +895,6 @@ class AdminManager {
       
       // Create sample trail inspections
       const sampleTrailInspections = [
-        {
-          trail_id: 'trail_1',
-          condition: 'good',
-          notes: 'Sentier en excellent état',
-          issues: [],
-          inspector_name: 'Admin Test',
-          inspector_id: this.currentUserId,
-          date: firebase.firestore.FieldValue.serverTimestamp()
-        },
         {
           trail_id: 'trail_2',
           condition: 'warning',
