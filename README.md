@@ -3,7 +3,7 @@
 Must :
 
 Piority 1
-1 - Gestion centralisé du theme
+
 
 Piority 2
 1 - Créer une inspection avec un lieu en cliquant sur l'image.
