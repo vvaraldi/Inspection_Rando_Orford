@@ -734,99 +734,128 @@ class AdminManager {
   // Data definitions for initialization
   getInitialTrailsData() {
     return [
-      {
-        id: 'trail_1',
-        name: "La tortue",
-        length: 1.1,
-        difficulty: "easy",
-        description: "Sentier facile idéal pour débutants",
-        coordinates: { top: 394, left: 450 }
-      },
-      {
-        id: 'trail_2',
-        name: "Tracé du lynx",
-        length: 0.6,
-        difficulty: "easy",
-        description: "Court sentier avec peu de dénivelé",
-        coordinates: { top: 323, left: 210 }
-      },
-      {
-        id: 'trail_3',
-        name: "Adams",
-        length: 0.6,
-        difficulty: "easy",
-        description: "Sentier familial accessible",
-        coordinates: { top: 520, left: 420 }
-      },
-      {
-        id: 'trail_4',
-        name: "La Belle et la Bête",
-        length: 2.0,
-        difficulty: "medium",
-        description: "Sentier intermédiaire avec quelques défis",
-        coordinates: { top: 280, left: 380 }
-      },
-      {
-        id: 'trail_5',
-        name: "Pic de l'Ours",
-        length: 3.2,
-        difficulty: "hard",
-        description: "Sentier difficile pour randonneurs expérimentés",
-        coordinates: { top: 180, left: 320 }
-      },
-      {
-        id: 'trail_6',
-        name: "Sentier des Érables",
-        length: 1.8,
-        difficulty: "medium",
-        description: "Belle vue sur la vallée",
-        coordinates: { top: 450, left: 380 }
-      },
-      {
-        id: 'trail_7',
-        name: "Circuit du Sommet",
-        length: 4.5,
-        difficulty: "hard",
-        description: "Circuit complet du mont Orford",
-        coordinates: { top: 150, left: 400 }
-      }
+        {
+          id: 'trail_1',
+          name: "La tortue",
+          length: 1.1,
+          difficulty: "easy",
+          description: "Sentier facile idéal pour débutants",
+          status: "open",
+          coordinates: { top: 387, left: 454 }
+        },
+        {
+          id: 'trail_2',
+          name: "Tracé du lynx",
+          length: 0.6,
+          difficulty: "easy",
+          description: "Court sentier avec peu de dénivelé",
+          status: "open",
+          coordinates: { top: 316, left: 228 }
+        },
+        {
+          id: 'trail_3',
+          name: "Adams",
+          length: 0.6,
+          difficulty: "easy",
+          description: "Sentier familial accessible",
+          status: "open",
+          coordinates: { top: 500, left: 425 }
+        },
+        {
+          id: 'trail_4',
+          name: "Le renard",
+          length: 2.4,
+          difficulty: "easy",
+          description: "Sentier plus long mais avec pente douce",
+          status: "open",
+          coordinates: { top: 418, left: 73 }
+        },
+        {
+          id: 'trail_5',
+          name: "Le lièvre",
+          length: 1.3,
+          difficulty: "medium",
+          description: "Sentier intermédiaire avec quelques pentes",
+          status: "open",
+          coordinates: { top: 143, left: 298 }
+        },
+        {
+          id: 'trail_6',
+          name: "Le Campagnol",
+          length: 1.5,
+          difficulty: "hard",
+          description: "Sentier difficile pour randonneurs expérimentés",
+          status: "open",
+          coordinates: { top: 20, left: 426 }
+        },
+        {
+          id: 'trail_7',
+          name: "L'Hermine",
+          length: 1.8,
+          difficulty: "medium",
+          description: "Sentier intermédiaire avec belle vue",
+          status: "open",
+          coordinates: { top: 360, left: 533 }
+        },
+        {
+          id: 'trail_8',
+          name: "L'Alouette",
+          length: 2.4,
+          difficulty: "medium",
+          description: "Sentier avec dénivelé modéré",
+          status: "open",
+          coordinates: { top: 390, left: 664 }
+        },
+        {
+          id: 'trail_9',
+          name: "L'Urubu",
+          length: 1.2,
+          difficulty: "hard",
+          description: "Sentier technique et escarpé",
+          status: "open",
+          coordinates: { top: 485, left: 270 }
+        },
+        {
+          id: 'trail_10',
+          name: "La Carcajou",
+          length: 0.8,
+          difficulty: "hard",
+          description: "Court sentier mais très exigeant",
+          status: "open",
+          coordinates: { top: 455, left: 305 }
+        },
+        {
+          id: 'trail_11',
+          name: "La Mille-Pattes",
+          length: 1.5,
+          difficulty: "hard",
+          description: "Sentier avec plusieurs segments techniques",
+          status: "open",
+          coordinates: { top: 298, left: 523 }
+        }
     ];
   }
 
   getInitialSheltersData() {
     return [
-      {
-        id: 'shelter_1',
-        name: "Abri du Lac",
-        altitude: 450,
-        capacity: 8,
-        description: "Abri principal près du lac",
-        coordinates: { top: 380, left: 290 }
-      },
-      {
-        id: 'shelter_2',
-        name: "Refuge des Pins",
-        altitude: 620,
-        capacity: 6,
-        description: "Petit refuge dans la forêt de pins",
-        coordinates: { top: 250, left: 350 }
-      },
-      {
-        id: 'shelter_3',
-        name: "Cabane du Sommet",
-        altitude: 850,
-        capacity: 12,
-        description: "Grande cabane au sommet avec vue panoramique",
-        coordinates: { top: 120, left: 380 }
-      },
-      {
-        id: 'shelter_4',
-        name: "Abri de la Vallée",
-        altitude: 380,
-        capacity: 4,
-        description: "Petit abri d'urgence en vallée",
-        coordinates: { top: 480, left: 320 }
-      }
+        {
+          id: 'shelter_1',
+          name: "Mont Giroux",
+          altitude: 650,
+          coordinates: { top: 437, left: 159 }
+        },
+        {
+          id: 'shelter_2',
+          name: "Mont Orford",
+          altitude: 850,
+          coordinates: { top: 39, left: 479 }
+        },
+        {
+          id: 'shelter_3',
+          name: "Mont Alfred-Desrochers",
+          altitude: 615,
+          coordinates: { top: 168, left: 622 }
+        }
     ];
   }
 
@@ -1109,255 +1138,6 @@ class AdminManager {
       }
     }
   }
-
-				/**
-				 * ADD THESE METHODS TO YOUR AdminManager CLASS in admin-updated.js
-				 * Add them after the existing methods and before the initialize() method
-				 */
-
-				// Trail Status Migration Method
-				async addTrailStatusMigration() {
-				  if (!confirm('Cela ajoutera le champ "status" à tous les sentiers existants. Tous les sentiers seront marqués comme "ouverts" par défaut. Continuer?')) {
-					return;
-				  }
-				  
-				  try {
-					this.showStatus('migration-status', 'Migration du statut des sentiers en cours...', 'info');
-					
-					// Get all existing trails
-					const trailsSnapshot = await this.db.collection('trails').get();
-					
-					if (trailsSnapshot.empty) {
-					  this.showStatus('migration-status', 'Aucun sentier trouvé pour la migration.', 'warning');
-					  return;
-					}
-					
-					const batch = this.db.batch();
-					let updatedCount = 0;
-					let alreadyUpdatedCount = 0;
-					
-					trailsSnapshot.forEach(doc => {
-					  const trailData = doc.data();
-					  
-					  // Only update if status field doesn't exist
-					  if (!trailData.hasOwnProperty('status')) {
-						const trailRef = this.db.collection('trails').doc(doc.id);
-						batch.update(trailRef, {
-						  status: 'open', // Default all trails to open
-						  updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-						  updatedBy: this.currentUserId
-						});
-						updatedCount++;
-					  } else {
-						alreadyUpdatedCount++;
-					  }
-					});
-					
-					if (updatedCount === 0) {
-					  this.showStatus('migration-status', 
-						`✓ Migration terminée: ${alreadyUpdatedCount} sentier(s) ont déjà le champ status.`, 
-						'info');
-					  return;
-					}
-					
-					// Execute the batch update
-					await batch.commit();
-					
-					this.showStatus('migration-status', 
-					  `✓ Migration réussie: ${updatedCount} sentier(s) mis à jour avec le statut "ouvert"! ` +
-					  `${alreadyUpdatedCount > 0 ? `(${alreadyUpdatedCount} déjà à jour)` : ''}`, 
-					  'success');
-					console.log(`✓ Trail status migration completed: ${updatedCount} trails updated`);
-					
-				  } catch (error) {
-					console.error('✗ Erreur lors de la migration du statut des sentiers:', error);
-					this.showStatus('migration-status', 'Erreur lors de la migration: ' + error.message, 'danger');
-				  }
-				}
-
-				// Enhanced Trail Initialization with Status (replaces existing method)
-				async initializeTrailsWithStatus() {
-				  if (!confirm('Cela créera les sentiers initiaux avec le champ status. Les sentiers existants ne seront pas modifiés. Continuer?')) {
-					return;
-				  }
-				  
-				  try {
-					this.showStatus('trails-init-status', 'Initialisation des sentiers avec statut en cours...', 'info');
-					
-					const trails = this.getInitialTrailsDataWithStatus(); // New method
-					const batch = this.db.batch();
-					let createdCount = 0;
-					let skippedCount = 0;
-					
-					// Check which trails already exist
-					for (const trail of trails) {
-					  const trailDoc = await this.db.collection('trails').doc(trail.id).get();
-					  
-					  if (!trailDoc.exists) {
-						const trailRef = this.db.collection('trails').doc(trail.id);
-						batch.set(trailRef, {
-						  ...trail,
-						  createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-						  createdBy: this.currentUserId
-						});
-						createdCount++;
-					  } else {
-						skippedCount++;
-					  }
-					}
-					
-					if (createdCount === 0) {
-					  this.showStatus('trails-init-status', 
-						`✓ Tous les sentiers (${skippedCount}) existent déjà.`, 
-						'info');
-					  return;
-					}
-					
-					await batch.commit();
-					
-					this.showStatus('trails-init-status', 
-					  `✓ ${createdCount} nouveau(x) sentier(s) créé(s) avec le statut! ` +
-					  `${skippedCount > 0 ? `(${skippedCount} déjà existant(s))` : ''}`, 
-					  'success');
-					console.log('✓ Sentiers avec statut initialisés avec succès');
-					
-				  } catch (error) {
-					console.error('✗ Erreur lors de l\'initialisation des sentiers avec statut:', error);
-					this.showStatus('trails-init-status', 'Erreur lors de l\'initialisation: ' + error.message, 'danger');
-				  }
-				}
-
-				// Updated trail data with status field
-				getInitialTrailsDataWithStatus() {
-				  return [
-					{
-					  id: 'trail_1',
-					  name: "La tortue",
-					  length: 1.1,
-					  difficulty: "easy",
-					  status: "open", // NEW: Default status
-					  description: "Sentier facile idéal pour débutants",
-					  coordinates: { top: 394, left: 450 }
-					},
-					{
-					  id: 'trail_2',
-					  name: "Tracé du lynx",
-					  length: 0.6,
-					  difficulty: "easy",
-					  status: "open", // NEW: Default status
-					  description: "Court sentier avec peu de dénivelé",
-					  coordinates: { top: 323, left: 210 }
-					},
-					{
-					  id: 'trail_3',
-					  name: "Adams",
-					  length: 0.6,
-					  difficulty: "easy",
-					  status: "open", // NEW: Default status
-					  description: "Sentier familial accessible",
-					  coordinates: { top: 520, left: 420 }
-					},
-					{
-					  id: 'trail_4',
-					  name: "La Belle et la Bête",
-					  length: 2.0,
-					  difficulty: "medium",
-					  status: "open", // NEW: Default status
-					  description: "Sentier intermédiaire avec quelques défis",
-					  coordinates: { top: 280, left: 380 }
-					},
-					{
-					  id: 'trail_5',
-					  name: "Pic de l'Ours",
-					  length: 3.2,
-					  difficulty: "hard",
-					  status: "open", // NEW: Default status
-					  description: "Sentier difficile pour randonneurs expérimentés",
-					  coordinates: { top: 180, left: 320 }
-					},
-					{
-					  id: 'trail_6',
-					  name: "Sentier des Érables",
-					  length: 1.8,
-					  difficulty: "medium",
-					  status: "open", // NEW: Default status
-					  description: "Belle vue sur la vallée",
-					  coordinates: { top: 450, left: 380 }
-					},
-					{
-					  id: 'trail_7',
-					  name: "Circuit du Sommet",
-					  length: 4.5,
-					  difficulty: "hard",
-					  status: "open", // NEW: Default status
-					  description: "Circuit complet du mont Orford",
-					  coordinates: { top: 150, left: 400 }
-					}
-				  ];
-				}
-
-				/**
-				 * ADD THESE EVENT BINDINGS TO YOUR bindEvents() METHOD
-				 * Add these lines in the bindEvents() method after the existing event listeners
-				 */
-
-				// ADD THESE LINES TO bindEvents() method:
-				const migrateTrailStatusBtn = document.getElementById('migrate-trail-status-btn');
-				if (migrateTrailStatusBtn) {
-				  migrateTrailStatusBtn.addEventListener('click', () => this.addTrailStatusMigration());
-				}
-
-				const initTrailsWithStatusBtn = document.getElementById('init-trails-with-status-btn');
-				if (initTrailsWithStatusBtn) {
-				  initTrailsWithStatusBtn.addEventListener('click', () => this.initializeTrailsWithStatus());
-				}
-
-				/**
-				 * ALTERNATIVE APPROACH: If you prefer to have a single "Smart Migration" button
-				 * This method will automatically detect what needs to be done
-				 */
-
-				async smartTrailStatusMigration() {
-				  try {
-					this.showStatus('migration-status', 'Analyse des sentiers en cours...', 'info');
-					
-					// Check if trails exist
-					const trailsSnapshot = await this.db.collection('trails').get();
-					
-					if (trailsSnapshot.empty) {
-					  // No trails exist, create them with status
-					  if (confirm('Aucun sentier trouvé. Voulez-vous créer les sentiers initiaux avec le champ status?')) {
-						await this.initializeTrailsWithStatus();
-					  }
-					  return;
-					}
-					
-					// Check how many trails need status migration
-					let needsMigration = 0;
-					let hasStatus = 0;
-					
-					trailsSnapshot.forEach(doc => {
-					  const data = doc.data();
-					  if (data.hasOwnProperty('status')) {
-						hasStatus++;
-					  } else {
-						needsMigration++;
-					  }
-					});
-					
-					if (needsMigration > 0) {
-					  if (confirm(`${needsMigration} sentier(s) ont besoin du champ status. Lancer la migration?`)) {
-						await this.addTrailStatusMigration();
-					  }
-					} else {
-					  this.showStatus('migration-status', `✓ Tous les ${hasStatus} sentiers ont déjà le champ status.`, 'success');
-					}
-					
-				  } catch (error) {
-					console.error('Erreur lors de l\'analyse des sentiers:', error);
-					this.showStatus('migration-status', 'Erreur lors de l\'analyse: ' + error.message, 'danger');
-				  }
-				}
 
 }
 
