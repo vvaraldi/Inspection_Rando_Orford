@@ -364,9 +364,68 @@ class TrailInspectionManager {
   }
 
   async saveInspection(formData) {
-    const docRef = await this.db.collection('trail_inspections').add(formData);
-    console.log('Inspection saved with ID:', docRef.id);
-    return docRef.id;
+	// Use a batch to save both the inspection and update the trail status
+	const batch = this.db.batch();
+	  
+	// 1. Save the inspection document
+	const inspectionRef = this.db.collection('trail_inspections').doc();
+	batch.set(inspectionRef, formData);
+	  
+	// 2. Update the trail's status field
+	const trailRef = this.db.collection('trails').doc(formData.trail_id);
+	batch.update(trailRef, {
+		status: formData.trail_status, // Update trail status based on inspection
+		lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
+		lastInspectionId: inspectionRef.id
+	});
+	// Execute both operations atomically
+	await batch.commit();
+  
+	console.log('Inspection saved with ID:', inspectionRef.id);
+	console.log('Trail status updated to:', formData.trail_status);
+  
+	return inspectionRef.id;
+  }
+
+  async handleSubmit(e) {
+	  e.preventDefault();
+	  
+	  if (!this.validateForm()) {
+		return;
+	  }
+	  
+	  try {
+		this.setFormLoading(true);
+		this.hideMessages();
+		
+		// Collect form data
+		const formData = this.collectFormData();
+		
+		// Upload photos if any
+		if (this.selectedFiles.length > 0) {
+		  formData.photos = await this.uploadPhotos();
+		}
+		
+		// Save inspection AND update trail status
+		await this.saveInspection(formData);
+		
+		// Get trail name for confirmation message
+		const trailName = this.trailSelect.selectedOptions[0]?.textContent || 'le sentier';
+		const statusText = formData.trail_status === 'open' ? 'ouvert' : 'fermé';
+		
+		this.showSuccess(`Inspection enregistrée avec succès! ${trailName} est maintenant marqué comme ${statusText}.`);
+		
+		// Reset form after short delay
+		setTimeout(() => {
+		  this.resetForm();
+		}, 2000);
+		
+	  } catch (error) {
+		console.error('Error submitting inspection:', error);
+		this.handleSubmissionError(error);
+	  } finally {
+		this.setFormLoading(false);
+	  }
   }
 
   handleSubmissionError(error) {
