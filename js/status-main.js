@@ -181,7 +181,7 @@ async function loadPublicData() {
     console.log("Data loading completed successfully");
     
     // Update display
-    updateDisplay();
+    displayData();
     
   } catch (error) {
     console.error("Error in loadPublicData:", error);
