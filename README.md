@@ -3,7 +3,11 @@
 Must :
 
 Piority 1
+you asked to update applyFilters function to handle trail status filtering but I can't find applyFilters in the status files js nor in the status.html
+
 1 - add a state of opened or closed. optional on the snow condition.
+
+
 
 Piority 2
 2 - Shelter and trail inspection forms html should open larger the frame for the forms to have the 3 states side by side when opened in a large enough window.

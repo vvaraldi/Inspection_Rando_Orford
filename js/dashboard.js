@@ -120,50 +120,223 @@ function initDashboardFilters() {
   }
 }
 
-// Fonction pour charger les inspections récentes (tableau existant)
 /**
  * Charge les inspections les plus récentes pour le tableau de bord
  */
-async function loadRecentInspections() {
-  try {
-    const recentInspectionsTable = document.getElementById('recent-inspections-table');
-    
-    if (!recentInspectionsTable) {
-      console.log("Tableau des inspections récentes non trouvé - probablement pas sur cette page");
-      return;
-    }
-    
-    // Afficher un message de chargement
-    recentInspectionsTable.innerHTML = `
-      <tr>
-        <td colspan="6" style="text-align: center;">Chargement des inspections récentes...</td>
-      </tr>
-    `;
-    
-    // Calculer la date d'il y a 7 jours
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    const sevenDaysAgoTimestamp = firebase.firestore.Timestamp.fromDate(sevenDaysAgo);
-    
-    // Charger les inspections de sentiers des 7 derniers jours
-    const trailInspectionsSnapshot = await db.collection('trail_inspections')
-      .where('date', '>=', sevenDaysAgoTimestamp)
-      .orderBy('date', 'desc')
-      .get();
-    
-    // Charger les données des sentiers
-    const trailsMap = new Map();
-    const trailsSnapshot = await db.collection('trails').get();
-    trailsSnapshot.forEach(doc => {
-      trailsMap.set(doc.id, doc.data());
-    });
-    
-    // ... rest of the existing loadRecentInspections function
-    
-  } catch (error) {
-    console.error("Erreur lors du chargement des inspections récentes:", error);
+  // UPDATED: loadRecentInspections to include trail status display in cards
+  async function loadRecentInspections() {
+	  try {
+		console.log('Loading recent inspections...');
+		document.getElementById('recent-inspections').innerHTML = '<div class="loading">Chargement des inspections...</div>';
+		
+		// Calculate date 7 days ago
+		const sevenDaysAgo = new Date();
+		sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+		const sevenDaysAgoTimestamp = firebase.firestore.Timestamp.fromDate(sevenDaysAgo);
+		
+		console.log("Fetching inspections from:", sevenDaysAgo);
+		
+		// Load trail inspections from last 7 days
+		const trailInspectionsSnapshot = await db.collection('trail_inspections')
+		  .where('date', '>=', sevenDaysAgoTimestamp)
+		  .orderBy('date', 'desc')
+		  .get();
+		
+		console.log("Trail inspections found:", trailInspectionsSnapshot.size);
+		
+		// Load shelter inspections from last 7 days
+		const shelterInspectionsSnapshot = await db.collection('shelter_inspections')
+		  .where('date', '>=', sevenDaysAgoTimestamp)
+		  .orderBy('date', 'desc')
+		  .get();
+		
+		console.log("Shelter inspections found:", shelterInspectionsSnapshot.size);
+		
+		// Load trails and shelters data
+		const trailsSnapshot = await db.collection('trails').get();
+		const sheltersSnapshot = await db.collection('shelters').get();
+		
+		// Create maps for quick lookup
+		const trailsMap = new Map();
+		const sheltersMap = new Map();
+		
+		trailsSnapshot.forEach(doc => {
+		  trailsMap.set(doc.id, doc.data());
+		});
+		
+		sheltersSnapshot.forEach(doc => {
+		  sheltersMap.set(doc.id, doc.data());
+		});
+		
+		console.log("Loaded trails:", trailsMap.size, "shelters:", sheltersMap.size);
+		
+		// Process trail inspections
+		const trailCards = [];
+		const processedTrails = new Set();
+		
+		// Clear and populate allInspectionsData for modal access
+		allInspectionsData = [];
+		
+		trailInspectionsSnapshot.docs.forEach(doc => {
+		  const inspection = doc.data();
+		  const trailId = inspection.trail_id;
+		  
+		  if (!processedTrails.has(trailId)) {
+			processedTrails.add(trailId);
+			
+			const trail = trailsMap.get(trailId);
+			if (trail) {
+			  // Store inspection data for modal access
+			  const inspectionData = {
+				id: doc.id,
+				type: 'trail',
+				...inspection,
+				date: inspection.date ? inspection.date.toDate() : new Date(),
+				locationId: trailId,
+				locationName: trail.name,
+				length: trail.length,
+				difficulty: trail.difficulty
+			  };
+			  allInspectionsData.push(inspectionData);
+			  
+			  const formattedDate = new Date(inspection.date.toDate()).toLocaleDateString('fr-FR', {
+				day: '2-digit',
+				month: '2-digit',
+				year: 'numeric'
+			  });
+			  
+			  // NEW: Trail Status Badge in card
+			  const trailStatusBadge = inspection.trail_status 
+				? createTrailStatusBadge(inspection.trail_status)
+				: '';
+			  
+			  trailCards.push(`
+				<div class="inspection-card clickable-card" data-inspection-id="${doc.id}" data-type="trail" style="cursor: pointer;">
+				  <div class="card-body">
+					<h4 class="card-title">${trail.name}</h4>
+					<div class="status-info">
+					  <span class="status-badge ${getStatusClass(inspection.condition)}">${getStatusText(inspection.condition)}</span>
+					  ${trailStatusBadge ? trailStatusBadge : ''}
+					  <span class="date-badge">${formattedDate}</span>
+					</div>
+					<div class="additional-info">
+					  <div style="font-size: 0.85em; color: #6b7280; margin-top: 0.5rem;">
+						📏 ${trail.length ? trail.length + ' km' : 'Longueur non spécifiée'} • 
+						${getDifficultyText(trail.difficulty)}
+						${inspection.snow_condition ? ` • ❄️ ${getSnowConditionText(inspection.snow_condition)}` : ''}
+					  </div>
+					</div>
+					${
+					  inspection.issues && inspection.issues.length > 0 ? 
+					  `<div style="color: #dc2626; margin-top: 0.5rem;">⚠ ${inspection.issues.length} problème(s) signalé(s)</div>` : 
+					  '<div style="color: #059669; margin-top: 0.5rem;">✓ Aucun problème signalé</div>'
+					}
+				  </div>
+				</div>
+			  `);
+			}
+		  }
+		});
+		
+		// Process shelter inspections (similar logic)
+		const shelterCards = [];
+		const processedShelters = new Set();
+		
+		shelterInspectionsSnapshot.docs.forEach(doc => {
+		  const inspection = doc.data();
+		  const shelterId = inspection.shelter_id;
+		  
+		  if (!processedShelters.has(shelterId)) {
+			processedShelters.add(shelterId);
+			
+			const shelter = sheltersMap.get(shelterId);
+			if (shelter) {
+			  // Store inspection data for modal access
+			  const inspectionData = {
+				id: doc.id,
+				type: 'shelter',
+				...inspection,
+				date: inspection.date ? inspection.date.toDate() : new Date(),
+				locationId: shelterId,
+				locationName: shelter.name,
+				capacity: shelter.capacity,
+				altitude: shelter.altitude
+			  };
+			  allInspectionsData.push(inspectionData);
+			  
+			  const formattedDate = new Date(inspection.date.toDate()).toLocaleDateString('fr-FR', {
+				day: '2-digit',
+				month: '2-digit',
+				year: 'numeric'
+			  });
+			  
+			  shelterCards.push(`
+				<div class="inspection-card clickable-card" data-inspection-id="${doc.id}" data-type="shelter" style="cursor: pointer;">
+				  <div class="card-body">
+					<h4 class="card-title">${shelter.name}</h4>
+					<div class="status-info">
+					  <span class="status-badge ${getStatusClass(inspection.condition)}">${getStatusText(inspection.condition)}</span>
+					  <span class="date-badge">${formattedDate}</span>
+					</div>
+					<div class="additional-info">
+					  <div style="font-size: 0.85em; color: #6b7280; margin-top: 0.5rem;">
+						👥 ${shelter.capacity ? shelter.capacity + ' places' : 'Capacité non spécifiée'} • 
+						🏔️ ${shelter.altitude ? shelter.altitude + 'm' : 'Altitude non spécifiée'}
+					  </div>
+					</div>
+					${
+					  inspection.issues && inspection.issues.length > 0 ? 
+					  `<div style="color: #dc2626; margin-top: 0.5rem;">⚠ ${inspection.issues.length} problème(s) signalé(s)</div>` : 
+					  '<div style="color: #059669; margin-top: 0.5rem;">✓ Aucun problème signalé</div>'
+					}
+				  </div>
+				</div>
+			  `);
+			}
+		  }
+		});
+		
+		// Display results
+		const container = document.getElementById('recent-inspections');
+		if (trailCards.length === 0 && shelterCards.length === 0) {
+		  container.innerHTML = '<div class="no-data">Aucune inspection récente trouvée.</div>';
+		} else {
+		  let html = '';
+		  if (trailCards.length > 0) {
+			html += `
+			  <div class="inspections-section">
+				<h3 class="section-title">Sentiers (${trailCards.length})</h3>
+				<div class="inspections-grid">
+				  ${trailCards.join('')}
+				</div>
+			  </div>
+			`;
+		  }
+		  if (shelterCards.length > 0) {
+			html += `
+			  <div class="inspections-section">
+				<h3 class="section-title">Abris (${shelterCards.length})</h3>
+				<div class="inspections-grid">
+				  ${shelterCards.join('')}
+				</div>
+			  </div>
+			`;
+		  }
+		  container.innerHTML = html;
+		}
+		
+		// Bind click events to cards for modal opening
+		document.querySelectorAll('.clickable-card').forEach(card => {
+		  card.addEventListener('click', handleCardClick);
+		});
+		
+		console.log(`Displayed ${trailCards.length} trail and ${shelterCards.length} shelter inspections`);
+		
+	  } catch (error) {
+		console.error('Error loading recent inspections:', error);
+		document.getElementById('recent-inspections').innerHTML = '<div class="error">Erreur lors du chargement des inspections</div>';
+	  }
   }
-}
 
 // Nouvelle fonction pour charger le résumé des inspections des 7 derniers jours
 /**
@@ -537,142 +710,151 @@ function handleModalBackdropClick(e) {
 /**
  * Generate modal content (same as history page)
  */
-async function generateModalContent(inspection) {
-  const formattedDate = formatDate(inspection.date);
-  const typeText = inspection.type === 'trail' ? 'Sentier' : 'Abri';
-  const statusBadge = createStatusBadge(inspection.condition);
+  // Updated generateModalContent for dashboard - ADD TRAIL STATUS
+  async function generateModalContent(inspection) {
+	  const formattedDate = formatDate(inspection.date);
+	  const typeText = inspection.type === 'trail' ? 'Sentier' : 'Abri';
+	  const statusBadge = createStatusBadge(inspection.condition);
 
-  let specificInfo = '';
-  if (inspection.type === 'trail') {
-    specificInfo = `
-      <div class="detail-section">
-        <h3>Informations du sentier</h3>
-        <ul class="detail-list">
-          <li class="detail-item">
-            <span class="detail-label">Longueur</span>
-            <span class="detail-value">${inspection.length || 'Non spécifié'} km</span>
-          </li>
-          <li class="detail-item">
-            <span class="detail-label">Difficulté</span>
-            <span class="detail-value">${getDifficultyText(inspection.difficulty)}</span>
-          </li>
-          ${inspection.snow_condition ? `
-          <li class="detail-item">
-            <span class="detail-label">Conditions de neige</span>
-            <span class="detail-value">${getSnowConditionText(inspection.snow_condition)}</span>
-          </li>` : ''}
-        </ul>
-      </div>
-    `;
-  } else if (inspection.type === 'shelter') {
-    specificInfo = `
-      <div class="detail-section">
-        <h3>Informations de l'abri</h3>
-        <ul class="detail-list">
-          ${inspection.cleanliness ? `
-          <li class="detail-item">
-            <span class="detail-label">Propreté</span>
-            <span class="detail-value">${getCleanlinessText(inspection.cleanliness)}</span>
-          </li>` : ''}
-          ${inspection.accessibility ? `
-          <li class="detail-item">
-            <span class="detail-label">Accessibilité</span>
-            <span class="detail-value">${getAccessibilityText(inspection.accessibility)}</span>
-          </li>` : ''}
-          ${inspection.altitude ? `
-          <li class="detail-item">
-            <span class="detail-label">Altitude</span>
-            <span class="detail-value">${inspection.altitude} m</span>
-          </li>` : ''}
-        </ul>
-      </div>
-    `;
+	  let specificInfo = '';
+	  if (inspection.type === 'trail') {
+		// NEW: Trail Status in dashboard modal
+		const trailStatusBadge = inspection.trail_status 
+		  ? createTrailStatusBadge(inspection.trail_status)
+		  : '<span class="status-badge status-unknown">Non spécifié</span>';
+		  
+		specificInfo = `
+		  <div class="detail-section">
+			<h3>Informations du sentier</h3>
+			<ul class="detail-list">
+			  <li class="detail-item">
+				<span class="detail-label">Statut du sentier</span>
+				<span class="detail-value">${trailStatusBadge}</span>
+			  </li>
+			  <li class="detail-item">
+				<span class="detail-label">Longueur</span>
+				<span class="detail-value">${inspection.length || 'Non spécifié'} km</span>
+			  </li>
+			  <li class="detail-item">
+				<span class="detail-label">Difficulté</span>
+				<span class="detail-value">${getDifficultyText(inspection.difficulty)}</span>
+			  </li>
+			  ${inspection.snow_condition ? `
+			  <li class="detail-item">
+				<span class="detail-label">Conditions de neige</span>
+				<span class="detail-value">${getSnowConditionText(inspection.snow_condition)}</span>
+			  </li>` : ''}
+			</ul>
+		  </div>
+		`;
+	  } else if (inspection.type === 'shelter') {
+		specificInfo = `
+		  <div class="detail-section">
+			<h3>Informations de l'abri</h3>
+			<ul class="detail-list">
+			  ${inspection.cleanliness ? `
+			  <li class="detail-item">
+				<span class="detail-label">Propreté</span>
+				<span class="detail-value">${getCleanlinessText(inspection.cleanliness)}</span>
+			  </li>` : ''}
+			  ${inspection.accessibility ? `
+			  <li class="detail-item">
+				<span class="detail-label">Accessibilité</span>
+				<span class="detail-value">${getAccessibilityText(inspection.accessibility)}</span>
+			  </li>` : ''}
+			</ul>
+		  </div>
+		`;
+	  }
+
+	  // Issues section
+	  let issuesSection = '';
+	  if (inspection.issues && inspection.issues.length > 0) {
+		issuesSection = `
+		  <div class="detail-section">
+			<h3>Problèmes identifiés</h3>
+			<ul class="issues-list">
+			  ${inspection.issues.map(issue => `<li class="issue-item">⚠️ ${issue}</li>`).join('')}
+			</ul>
+		  </div>
+		`;
+	  }
+
+	  // Photos section
+	  let photosSection = '';
+	  if (inspection.photos && inspection.photos.length > 0) {
+		photosSection = `
+		  <div class="detail-section">
+			<h3>Photos (${inspection.photos.length})</h3>
+			<div class="photos-grid">
+			  ${inspection.photos.map((photo, index) => `
+				<div class="photo-thumbnail" onclick="openPhotoModal('${photo}')">
+				  <img src="${photo}" alt="Photo ${index + 1}" loading="lazy" />
+				</div>
+			  `).join('')}
+			</div>
+		  </div>
+		`;
+	  }
+
+	  // Notes section
+	  let notesSection = '';
+	  if (inspection.notes && inspection.notes.trim()) {
+		notesSection = `
+		  <div class="detail-section">
+			<h3>Notes et commentaires</h3>
+			<div class="notes-content">
+			  ${inspection.notes.replace(/\n/g, '<br>')}
+			</div>
+		  </div>
+		`;
+	  }
+
+	  return `
+		<div class="inspection-details">
+		  <div class="detail-header">
+			<div class="detail-header-main">
+			  <h2>${typeText}: ${inspection.locationName}</h2>
+			  <div class="detail-header-meta">
+				<span class="detail-date">${formattedDate}</span>
+				<span class="detail-inspector">Par ${inspection.inspector}</span>
+			  </div>
+			</div>
+			<div class="detail-header-status">
+			  ${statusBadge}
+			</div>
+		  </div>
+
+		  ${specificInfo}
+		  ${issuesSection}
+		  ${notesSection}
+		  ${photosSection}
+		</div>
+	  `;
   }
 
-  // Issues section
-  let issuesSection = '';
-  if (inspection.issues && inspection.issues.length > 0) {
-    const issuesList = inspection.issues.map(issue => `
-      <div class="issue-item">
-        <p>${issue}</p>
-      </div>
-    `).join('');
-    
-    issuesSection = `
-      <div class="detail-section">
-        <h3>Problèmes signalés</h3>
-        <div class="issues-list">
-          ${issuesList}
-        </div>
-      </div>
-    `;
+// NEW FUNCTION: Create trail status badge for dashboard
+  function createTrailStatusBadge(trailStatus) {
+	  const statusConfig = {
+		'open': { class: 'status-open', text: '🟢 Ouvert', title: 'Sentier ouvert au public' },
+		'closed': { class: 'status-closed', text: '🔴 Fermé', title: 'Sentier fermé au public' }
+	  };
+	  
+	  const config = statusConfig[trailStatus] || { class: 'status-unknown', text: '❓ Inconnu', title: 'Statut inconnu' };
+	  
+	  return `<span class="status-badge ${config.class}" title="${config.title}">${config.text}</span>`;
   }
 
-  // Photos section
-  let photosSection = '';
-  if (inspection.photos && inspection.photos.length > 0) {
-    const photosList = inspection.photos.map((photo, index) => `
-      <div class="photo-item" onclick="openPhotoModal('${photo}')">
-        <img src="${photo}" alt="Photo ${index + 1}" loading="lazy">
-      </div>
-    `).join('');
-    
-    photosSection = `
-      <div class="detail-section">
-        <h3>Photos (${inspection.photos.length})</h3>
-        <div class="photo-gallery">
-          ${photosList}
-        </div>
-      </div>
-    `;
+// NEW FUNCTION: Get snow condition text
+  function getSnowConditionText(condition) {
+	  const conditionMap = {
+		'good': 'Bonnes conditions',
+		'warning': 'Conditions moyennes', 
+		'critical': 'Mauvaises conditions',
+		'none': 'Non évalué'
+	  };
+	  return conditionMap[condition] || condition;
   }
-
-  // Comments section
-  let commentsSection = '';
-  if (inspection.general_comment) {
-    commentsSection = `
-      <div class="detail-section">
-        <h3>Commentaires</h3>
-        <p>${inspection.general_comment}</p>
-      </div>
-    `;
-  }
-
-  return `
-    <div class="inspection-detail">
-      <div class="detail-section">
-        <h3>Informations générales</h3>
-        <ul class="detail-list">
-          <li class="detail-item">
-            <span class="detail-label">Type</span>
-            <span class="detail-value">${typeText}</span>
-          </li>
-          <li class="detail-item">
-            <span class="detail-label">Nom</span>
-            <span class="detail-value">${inspection.locationName || 'Non spécifié'}</span>
-          </li>
-          <li class="detail-item">
-            <span class="detail-label">Date</span>
-            <span class="detail-value">${formattedDate}</span>
-          </li>
-          <li class="detail-item">
-            <span class="detail-label">État</span>
-            <span class="detail-value">${statusBadge}</span>
-          </li>
-          <li class="detail-item">
-            <span class="detail-label">Inspecteur</span>
-            <span class="detail-value">${inspection.inspector_name || 'Non spécifié'}</span>
-          </li>
-        </ul>
-      </div>
-      
-      ${specificInfo}
-      ${issuesSection}
-      ${photosSection}
-      ${commentsSection}
-    </div>
-  `;
-}
 
 /**
  * Show modal

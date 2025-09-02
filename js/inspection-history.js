@@ -478,28 +478,70 @@ async loadData() {
     this.updateResultsCount();
   }
 
-  displayInspections() {
-    const startIndex = (this.currentPage - 1) * this.pageSize;
-    const endIndex = startIndex + this.pageSize;
-    const pageInspections = this.filteredInspections.slice(startIndex, endIndex);
+  displayInspections(inspections) {
+	  if (!inspections || inspections.length === 0) {
+		this.inspectionsTable.innerHTML = `
+		  <tr>
+			<td colspan="8" class="text-center">Aucune inspection trouvée</td>
+		  </tr>
+		`;
+		document.getElementById('results-count').textContent = '0';
+		return;
+	  }
 
-    if (pageInspections.length === 0) {
-      this.inspectionsTable.innerHTML = `
-        <tr>
-          <td colspan="7" class="text-center">Aucune inspection ne correspond à vos critères.</td>
-        </tr>
-      `;
-      this.paginationContainer.style.display = 'none';
-      return;
-    }
+	  let html = '';
+	  
+	  inspections.forEach(inspection => {
+		const date = inspection.date ? inspection.date.toDate() : new Date();
+		const formattedDate = this.formatDate(date);
+		const typeText = inspection.type === 'trail' ? 'Sentier' : 'Abri';
+		const locationName = inspection.locationName || 'Inconnu';
+		const inspectorName = inspection.inspector_name || 'Inconnu';
+		
+		// Status badge
+		const statusBadge = this.createStatusBadge(inspection.condition);
+		
+		// NEW: Trail Status badge (only for trail inspections)
+		const trailStatusBadge = inspection.type === 'trail' && inspection.trail_status 
+		  ? this.createTrailStatusBadge(inspection.trail_status)
+		  : '<span class="badge badge-secondary">N/A</span>';
+		
+		// Photos count
+		const photosCount = inspection.photos ? inspection.photos.length : 0;
+		const photosText = photosCount > 0 ? `${photosCount} photo${photosCount > 1 ? 's' : ''}` : 'Aucune';
+		
+		// Admin actions
+		const adminActions = this.isAdminUser ? 
+		  `<button class="btn btn-sm btn-danger" onclick="inspectionHistoryManager.deleteInspection('${inspection.id}')" title="Supprimer">🗑️</button>` : 
+		  '';
 
-    this.paginationContainer.style.display = 'flex';
+		html += `
+		  <tr class="inspection-row" data-inspection-id="${inspection.id}">
+			<td>${formattedDate}</td>
+			<td>
+			  <span class="badge badge-${inspection.type === 'trail' ? 'primary' : 'secondary'}">
+				${typeText}
+			  </span>
+			</td>
+			<td>${locationName}</td>
+			<td>${inspectorName}</td>
+			<td>${statusBadge}</td>
+			<td>${trailStatusBadge}</td>
+			<td>
+			  <span class="text-muted">${photosText}</span>
+			</td>
+			<td>
+			  <div class="btn-group btn-group-sm">
+				<button class="btn btn-sm btn-primary" onclick="inspectionHistoryManager.viewInspectionDetails('${inspection.id}')" title="Voir les détails">👁️</button>
+				${adminActions}
+			  </div>
+			</td>
+		  </tr>
+		`;
+	  });
 
-    this.inspectionsTable.innerHTML = '';
-    pageInspections.forEach(inspection => {
-      const row = this.createInspectionRow(inspection);
-      this.inspectionsTable.appendChild(row);
-    });
+	  this.inspectionsTable.innerHTML = html;
+	  document.getElementById('results-count').textContent = inspections.length.toString();
   }
 
   createInspectionRow(inspection) {
@@ -560,6 +602,17 @@ async loadData() {
       'not-inspected': '<span class="badge badge-secondary">Non inspecté</span>'
     };
     return badges[condition] || badges['not-inspected'];
+  }
+
+  createTrailStatusBadge(trailStatus) {
+	  const statusConfig = {
+		'open': { class: 'badge-success', text: '🟢 Ouvert', title: 'Sentier ouvert au public' },
+		'closed': { class: 'badge-danger', text: '🔴 Fermé', title: 'Sentier fermé au public' }
+	  };
+	  
+	  const config = statusConfig[trailStatus] || { class: 'badge-secondary', text: '❓ Inconnu', title: 'Statut inconnu' };
+	  
+	  return `<span class="badge ${config.class}" title="${config.title}">${config.text}</span>`;
   }
 
   updatePagination() {
@@ -689,126 +742,143 @@ async loadData() {
     }
   }
 
+  // Updated generateModalContent method - ADD TRAIL STATUS
   async generateModalContent(inspection) {
-    const formattedDate = this.formatDate(inspection.date);
-    const typeText = inspection.type === 'trail' ? 'Sentier' : 'Abri';
-    const statusBadge = this.createStatusBadge(inspection.condition);
+	  const formattedDate = this.formatDate(inspection.date.toDate());
+	  const typeText = inspection.type === 'trail' ? 'Sentier' : 'Abri';
+	  const statusBadge = this.createStatusBadge(inspection.condition);
 
-    let specificInfo = '';
-    if (inspection.type === 'trail') {
-      specificInfo = `
-        <div class="detail-section">
-          <h3>Informations du sentier</h3>
-          <ul class="detail-list">
-            <li class="detail-item">
-              <span class="detail-label">Longueur</span>
-              <span class="detail-value">${inspection.length || 'Non spécifié'} km</span>
-            </li>
-            <li class="detail-item">
-              <span class="detail-label">Difficulté</span>
-              <span class="detail-value">${this.getDifficultyText(inspection.difficulty)}</span>
-            </li>
-            ${inspection.snow_condition ? `
-            <li class="detail-item">
-              <span class="detail-label">Conditions de neige</span>
-              <span class="detail-value">${this.getSnowConditionText(inspection.snow_condition)}</span>
-            </li>` : ''}
-          </ul>
-        </div>
-      `;
-    } else if (inspection.type === 'shelter') {
-      specificInfo = `
-        <div class="detail-section">
-          <h3>Informations de l'abri</h3>
-          <ul class="detail-list">
-            ${inspection.cleanliness ? `
-            <li class="detail-item">
-              <span class="detail-label">Propreté</span>
-              <span class="detail-value">${this.getCleanlinessText(inspection.cleanliness)}</span>
-            </li>` : ''}
-            ${inspection.accessibility ? `
-            <li class="detail-item">
-              <span class="detail-label">Accessibilité</span>
-              <span class="detail-value">${this.getAccessibilityText(inspection.accessibility)}</span>
-            </li>` : ''}
-          </ul>
-        </div>
-      `;
-    }
+	  let specificInfo = '';
+	  if (inspection.type === 'trail') {
+		// NEW: Trail Status in modal
+		const trailStatusBadge = inspection.trail_status 
+		  ? this.createTrailStatusBadge(inspection.trail_status)
+		  : '<span class="badge badge-secondary">Non spécifié</span>';
+		  
+		specificInfo = `
+		  <div class="detail-section">
+			<h3>Informations du sentier</h3>
+			<ul class="detail-list">
+			  <li class="detail-item">
+				<span class="detail-label">Statut du sentier</span>
+				<span class="detail-value">${trailStatusBadge}</span>
+			  </li>
+			  <li class="detail-item">
+				<span class="detail-label">Longueur</span>
+				<span class="detail-value">${inspection.length || 'Non spécifié'} km</span>
+			  </li>
+			  <li class="detail-item">
+				<span class="detail-label">Difficulté</span>
+				<span class="detail-value">${this.getDifficultyText(inspection.difficulty)}</span>
+			  </li>
+			  ${inspection.snow_condition ? `
+			  <li class="detail-item">
+				<span class="detail-label">Conditions de neige</span>
+				<span class="detail-value">${this.getSnowConditionText(inspection.snow_condition)}</span>
+			  </li>` : ''}
+			</ul>
+		  </div>
+		`;
+	  } else if (inspection.type === 'shelter') {
+		specificInfo = `
+		  <div class="detail-section">
+			<h3>Informations de l'abri</h3>
+			<ul class="detail-list">
+			  ${inspection.cleanliness ? `
+			  <li class="detail-item">
+				<span class="detail-label">Propreté</span>
+				<span class="detail-value">${this.getCleanlinessText(inspection.cleanliness)}</span>
+			  </li>` : ''}
+			  ${inspection.accessibility ? `
+			  <li class="detail-item">
+				<span class="detail-label">Accessibilité</span>
+				<span class="detail-value">${this.getAccessibilityText(inspection.accessibility)}</span>
+			  </li>` : ''}
+			  ${inspection.capacity ? `
+			  <li class="detail-item">
+				<span class="detail-label">Capacité</span>
+				<span class="detail-value">${inspection.capacity} personnes</span>
+			  </li>` : ''}
+			</ul>
+		  </div>
+		`;
+	  }
 
-    let issuesSection = '';
-    if (inspection.issues && inspection.issues.length > 0) {
-      issuesSection = `
-        <div class="detail-section">
-          <h3>Problèmes signalés</h3>
-          <div class="issues-list">
-            ${inspection.issues.map(issue => `
-              <div class="issue-item">
-                <p>${issue}</p>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-      `;
-    }
+	  // Issues section
+	  let issuesSection = '';
+	  if (inspection.issues && inspection.issues.length > 0) {
+		issuesSection = `
+		  <div class="detail-section">
+			<h3>Problèmes identifiés</h3>
+			<ul class="issues-list">
+			  ${inspection.issues.map(issue => `<li class="issue-item">⚠️ ${issue}</li>`).join('')}
+			</ul>
+		  </div>
+		`;
+	  }
 
-    let photosSection = '';
-    if (inspection.photos && inspection.photos.length > 0) {
-      photosSection = `
-        <div class="detail-section">
-          <h3>Photos (${inspection.photos.length})</h3>
-          <div class="photo-gallery">
-            ${inspection.photos.map(photoUrl => `
-              <div class="photo-item" onclick="window.open('${photoUrl}', '_blank')">
-                <img src="${photoUrl}" alt="Photo d'inspection" loading="lazy">
-              </div>
-            `).join('')}
-          </div>
-        </div>
-      `;
-    }
+	  // Photos section
+	  let photosSection = '';
+	  if (inspection.photos && inspection.photos.length > 0) {
+		photosSection = `
+		  <div class="detail-section">
+			<h3>Photos (${inspection.photos.length})</h3>
+			<div class="photos-grid">
+			  ${inspection.photos.map((photo, index) => `
+				<div class="photo-thumbnail" onclick="window.open('${photo}', '_blank')">
+				  <img src="${photo}" alt="Photo ${index + 1}" loading="lazy" />
+				</div>
+			  `).join('')}
+			</div>
+		  </div>
+		`;
+	  }
 
-    return `
-      <div class="inspection-detail">
-        <div class="detail-section">
-          <h3>Informations générales</h3>
-          <ul class="detail-list">
-            <li class="detail-item">
-              <span class="detail-label">Date</span>
-              <span class="detail-value">${formattedDate}</span>
-            </li>
-            <li class="detail-item">
-              <span class="detail-label">Type</span>
-              <span class="detail-value">${typeText}</span>
-            </li>
-            <li class="detail-item">
-              <span class="detail-label">Lieu</span>
-              <span class="detail-value">${inspection.location || 'Non spécifié'}</span>
-            </li>
-            <li class="detail-item">
-              <span class="detail-label">Inspecteur</span>
-              <span class="detail-value">${inspection.inspector || 'Non spécifié'}</span>
-            </li>
-            <li class="detail-item">
-              <span class="detail-label">État</span>
-              <span class="detail-value">${statusBadge}</span>
-            </li>
-          </ul>
-        </div>
-        
-        ${specificInfo}
-        
-        ${inspection.notes ? `
-          <div class="detail-section">
-            <h3>Notes</h3>
-            <p>${inspection.notes}</p>
-          </div>
-        ` : ''}
-        
-        ${issuesSection}
-        ${photosSection}
-      </div>
-    `;
+	  // Notes section
+	  let notesSection = '';
+	  if (inspection.notes && inspection.notes.trim()) {
+		notesSection = `
+		  <div class="detail-section">
+			<h3>Notes et commentaires</h3>
+			<div class="notes-content">
+			  ${inspection.notes.replace(/\n/g, '<br>')}
+			</div>
+		  </div>
+		`;
+	  }
+
+	  return `
+		<div class="inspection-details">
+		  <div class="detail-header">
+			<div class="detail-header-main">
+			  <h2>${typeText}: ${inspection.locationName}</h2>
+			  <div class="detail-header-meta">
+				<span class="detail-date">${formattedDate}</span>
+				<span class="detail-inspector">Par ${inspection.inspector_name}</span>
+			  </div>
+			</div>
+			<div class="detail-header-status">
+			  ${statusBadge}
+			</div>
+		  </div>
+
+		  ${specificInfo}
+		  ${issuesSection}
+		  ${notesSection}
+		  ${photosSection}
+		</div>
+	  `;
+  }
+
+// NEW HELPER METHOD: Get snow condition text
+  getSnowConditionText(condition) {
+	  const conditionMap = {
+		'good': 'Bonnes conditions',
+		'warning': 'Conditions moyennes',
+		'critical': 'Mauvaises conditions',
+		'none': 'Non évalué'
+	  };
+	  return conditionMap[condition] || condition;
   }
 
   getDifficultyText(difficulty) {

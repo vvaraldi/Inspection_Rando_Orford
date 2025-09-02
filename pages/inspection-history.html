@@ -172,24 +172,25 @@
               <div class="loading-spinner"></div>
             </div>
 
-            <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th data-sort="date" class="sortable">Date</th>
-                  <th data-sort="type" class="sortable">Type</th>
-                  <th data-sort="location" class="sortable">Sentier/Abri</th>
-                  <th data-sort="inspector" class="sortable">Inspecteur</th>
-                  <th data-sort="condition" class="sortable">État</th>
-                  <th>Photos</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="inspections-table">
-                <tr>
-                  <td colspan="7" class="text-center">Chargement des données...</td>
-                </tr>
-              </tbody>
-            </table>
+			<table class="table table-striped">
+			  <thead>
+				<tr>
+				  <th data-sort="date" class="sortable">Date</th>
+				  <th data-sort="type" class="sortable">Type</th>
+				  <th data-sort="location" class="sortable">Sentier/Abri</th>
+				  <th data-sort="inspector" class="sortable">Inspecteur</th>
+				  <th data-sort="condition" class="sortable">État</th>
+				  <th data-sort="trail_status" class="sortable">Statut sentier</th> <!-- NEW COLUMN -->
+				  <th>Photos</th>
+				  <th>Actions</th>
+				</tr>
+			  </thead>
+			  <tbody id="inspections-table">
+				<tr>
+				  <td colspan="8" class="text-center">Chargement des données...</td> <!-- Updated colspan -->
+				</tr>
+			  </tbody>
+			</table>
           </div>
           
           <!-- Pagination -->

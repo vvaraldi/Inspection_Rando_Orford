@@ -52,78 +52,68 @@
     <!-- List View -->
     <div class="list-view-container" id="list-view">
       <!-- Trails Section -->
-      <div class="list-section">
-        <div class="list-section-header trails">
-          🥾 Sentiers
-        </div>
-        <div class="status-table">
-          <table>
-            <thead>
-              <tr>
-                <th>Nom</th>
-                <th>État</th>
-                <th>Dernière inspection</th>
-              </tr>
-            </thead>
-            <tbody id="trails-tbody">
-              <tr>
-                <td colspan="3" style="text-align: center;">Chargement...</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+		<div class="table-section">
+		  <h3 class="table-title">🏔️ Sentiers</h3>
+		  <div class="table-container">
+			<table class="data-table">
+			  <thead>
+				<tr>
+				  <th>Nom</th>
+				  <th>État</th>
+				  <th>Statut</th> <!-- NEW COLUMN -->
+				  <th>Dernière inspection</th>
+				</tr>
+			  </thead>
+			  <tbody id="trails-tbody">
+				<tr>
+				  <td colspan="4" style="text-align: center;">Chargement...</td> <!-- Updated colspan -->
+				</tr>
+			  </tbody>
+			</table>
+		  </div>
+		</div>
       
       <!-- Shelters Section -->
-      <div class="list-section">
-        <div class="list-section-header shelters">
-          🏠 Abris
-        </div>
-        <div class="status-table">
-          <table>
-            <thead>
-              <tr>
-                <th>Nom</th>
-                <th>État</th>
-                <th>Dernière inspection</th>
-              </tr>
-            </thead>
-            <tbody id="shelters-tbody">
-              <tr>
-                <td colspan="3" style="text-align: center;">Chargement...</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+		<div class="table-section">
+		  <h3 class="table-title">🏠 Abris</h3>
+		  <div class="table-container">
+			<table class="data-table">
+			  <thead>
+				<tr>
+				  <th>Nom</th>
+				  <th>État</th>
+				  <th>Dernière inspection</th>
+				</tr>
+			  </thead>
+			  <tbody id="shelters-tbody">
+				<tr>
+				  <td colspan="3" style="text-align: center;">Chargement...</td>
+				</tr>
+			  </tbody>
+			</table>
+		  </div>
+		</div>
+
+	  <!-- Optional: Add filter for trail status -->
+		<div class="filters-section">
+		  <div class="filters-grid">
+			<!-- Existing filters... -->
+			
+			<!-- NEW: Trail Status Filter -->
+			<div class="filter-group">
+			  <label class="filter-label" for="trail-status-filter">Statut sentier</label>
+			  <select class="filter-select" id="trail-status-filter">
+				<option value="all">Tous</option>
+				<option value="open">🟢 Ouverts</option>
+				<option value="closed">🔴 Fermés</option>
+				<option value="unknown">❓ Inconnu</option>
+			  </select>
+			</div>
+		  </div>
+		</div>
+
     </div>
   </div>
-  
-  <!-- Legend 
-  <div class="legend-section">
-    <div class="legend-title">Légende</div>
-    <div class="legend-items">
-      <div class="legend-group">
-        <div class="legend-group-title">États</div>
-        <div class="legend-item">
-          <div class="legend-dot" style="background: #10b981;"></div>
-          <span>Bon état</span>
-        </div>
-        <div class="legend-item">
-          <div class="legend-dot" style="background: #f59e0b;"></div>
-          <span>Attention</span>
-        </div>
-        <div class="legend-item">
-          <div class="legend-dot" style="background: #ef4444;"></div>
-          <span>Critique</span>
-        </div>
-        <div class="legend-item">
-          <div class="legend-dot" style="background: #9ca3af;"></div>
-          <span>Non inspecté</span>
-        </div>
-      </div>
-    </div>
-  </div>-->
   
   <!-- Firebase Scripts -->
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>

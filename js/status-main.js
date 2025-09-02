@@ -56,6 +56,7 @@ function setupFilters() {
 }
 
 // Load public data from Firebase
+// Updated loadPublicData to include trail status from trail document
 async function loadPublicData() {
   try {
     console.log("Starting to load public data...");
@@ -103,11 +104,13 @@ async function loadPublicData() {
           trailInspectionsByLocation[locationId] = inspection;
         }
       });
+      
+      console.log(`Processed inspections for ${Object.keys(trailInspectionsByLocation).length} unique trails`);
     } catch (error) {
-      console.log("Could not load trail_inspections:", error.message);
+      console.error("Error loading trail inspections:", error);
     }
     
-    // Load ALL shelter inspections (no time limit)
+    // Load shelter inspections
     console.log("Loading all shelter inspections...");
     let shelterInspectionsByLocation = {};
     try {
@@ -122,65 +125,67 @@ async function loadPublicData() {
         const inspection = { id: doc.id, ...doc.data() };
         const locationId = inspection.shelter_id;
         
-        // Keep only the most recent inspection for each shelter
         if (!shelterInspectionsByLocation[locationId]) {
           shelterInspectionsByLocation[locationId] = inspection;
         }
       });
+      
+      console.log(`Processed inspections for ${Object.keys(shelterInspectionsByLocation).length} unique shelters`);
     } catch (error) {
-      console.log("Could not load shelter_inspections:", error.message);
+      console.error("Error loading shelter inspections:", error);
     }
     
-    // Combine trails with their inspections
-    trails.forEach((trail, id) => {
-      const lastInspection = trailInspectionsByLocation[id];
-      const dataItem = {
+    // Process trails with their status
+    console.log("Processing trail data...");
+    trails.forEach((trail, trailId) => {
+      const lastInspection = trailInspectionsByLocation[trailId];
+      
+      allData.push({
+        id: trailId,
+        name: trail.name,
         type: 'trail',
-        id: id,
-        name: trail.name || 'Sentier sans nom',
         difficulty: trail.difficulty,
-        coordinates: trail.coordinates, // Use the coordinates field directly
+        length: trail.length,
+        coordinates: trail.coordinates,
+        
+        // Status from inspection condition (good/warning/critical)
         status: lastInspection ? lastInspection.condition : 'not-inspected',
-        lastInspection: lastInspection ? {
-          date: lastInspection.date,
-          inspector: lastInspection.inspector_name,
-          issues: lastInspection.issues
-        } : null
-      };
-      allData.push(dataItem);
+        
+        // NEW: Trail Status from trail document (open/closed) - persistent field
+        trailStatus: trail.status || 'unknown',
+        
+        lastInspection: lastInspection,
+        lastInspectionDate: lastInspection ? lastInspection.date : null
+      });
     });
     
-    // Combine shelters with their inspections
-    shelters.forEach((shelter, id) => {
-      const lastInspection = shelterInspectionsByLocation[id];
-      const dataItem = {
+    // Process shelters (unchanged)
+    console.log("Processing shelter data...");
+    shelters.forEach((shelter, shelterId) => {
+      const lastInspection = shelterInspectionsByLocation[shelterId];
+      
+      allData.push({
+        id: shelterId,
+        name: shelter.name,
         type: 'shelter',
-        id: id,
-        name: shelter.name || 'Abri sans nom',
-        coordinates: shelter.coordinates, // Use the coordinates field directly
+        capacity: shelter.capacity,
+        altitude: shelter.altitude,
+        coordinates: shelter.coordinates,
         status: lastInspection ? lastInspection.condition : 'not-inspected',
-        lastInspection: lastInspection ? {
-          date: lastInspection.date,
-          inspector: lastInspection.inspector_name,
-          issues: lastInspection.issues
-        } : null
-      };
-      allData.push(dataItem);
+        lastInspection: lastInspection,
+        lastInspectionDate: lastInspection ? lastInspection.date : null
+      });
     });
     
-    console.log(`Total data items: ${allData.length}`);
+    console.log(`Total data processed: ${allData.length} items`);
+    console.log("Data loading completed successfully");
     
-    // Update last update time
-    const now = new Date();
-    document.getElementById('last-update-time').textContent = 
-      `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()} à ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-    
-    // Display the data
-    displayData();
+    // Update display
+    updateDisplay();
     
   } catch (error) {
-    console.error("Erreur lors du chargement des données:", error);
-    handleLoadError();
+    console.error("Error in loadPublicData:", error);
+    showError("Erreur lors du chargement des données: " + error.message);
   }
 }
 
