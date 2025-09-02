@@ -232,3 +232,14 @@ function displayData() {
   // Display in list view
   displayListItems(filteredData);
 }
+
+  showError(message) {
+    this.inspectionsTable.innerHTML = `
+      <tr>
+        <td colspan="7" class="text-center" style="color: var(--color-danger);">
+          ${message}
+        </td>
+      </tr>
+    `;
+    this.showMainContent();
+  }
