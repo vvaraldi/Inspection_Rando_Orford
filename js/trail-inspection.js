@@ -1,6 +1,7 @@
- /**
- * Trail Inspection Form Management
+/**
+ * Trail Inspection Form Management - Updated Version
  * Handles form functionality, photo uploads, and data submission
+ * Now includes trail status (open/closed) and optional snow conditions
  */
 
 class TrailInspectionManager {
@@ -51,7 +52,6 @@ class TrailInspectionManager {
       this.auth = firebase.auth();
       this.db = firebase.firestore();
       this.storage = firebase.storage();
-      console.log('Firebase services initialized successfully');
     } else {
       console.error('Firebase not available');
       this.showError('Firebase non disponible');
@@ -63,7 +63,12 @@ class TrailInspectionManager {
     if (this.form) {
       this.form.addEventListener('submit', (e) => this.handleSubmit(e));
     }
-
+    
+    // Cancel button
+    if (this.cancelBtn) {
+      this.cancelBtn.addEventListener('click', () => this.handleCancel());
+    }
+    
     // Photo upload events
     if (this.photoUpload && this.fileInput) {
       this.photoUpload.addEventListener('click', () => this.fileInput.click());
@@ -71,127 +76,99 @@ class TrailInspectionManager {
       this.photoUpload.addEventListener('drop', (e) => this.handleDrop(e));
       this.fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
     }
-
-    // Cancel button
-    if (this.cancelBtn) {
-      this.cancelBtn.addEventListener('click', () => this.handleCancel());
-    }
-
+    
     // Form validation on input change
-    this.bindValidationEvents();
-  }
-
-  bindValidationEvents() {
-    // Required field validation
-    const requiredFields = this.form.querySelectorAll('[required]');
-    requiredFields.forEach(field => {
-      field.addEventListener('blur', () => this.validateField(field));
-      field.addEventListener('change', () => this.validateField(field));
+    const requiredInputs = this.form.querySelectorAll('[required]');
+    requiredInputs.forEach(input => {
+      input.addEventListener('blur', () => this.validateField(input));
+      input.addEventListener('change', () => this.validateField(input));
     });
   }
 
   setCurrentDateTime() {
     const now = new Date();
+    const dateStr = now.toISOString().split('T')[0];
+    const timeStr = now.toTimeString().split(' ')[0].substring(0, 5);
     
-    // Set current date
     if (this.inspectionDate) {
-      this.inspectionDate.value = now.toISOString().split('T')[0];
+      this.inspectionDate.value = dateStr;
     }
-    
-    // Set current time
     if (this.inspectionTime) {
-      const hours = now.getHours().toString().padStart(2, '0');
-      const minutes = now.getMinutes().toString().padStart(2, '0');
-      this.inspectionTime.value = `${hours}:${minutes}`;
+      this.inspectionTime.value = timeStr;
     }
   }
 
   async loadInspectionData() {
     try {
-      // Load trails for selection
+      // Load current user info
+      if (this.auth.currentUser) {
+        this.currentUser = this.auth.currentUser;
+        
+        // Try to get inspector name from Firestore
+        try {
+          const inspectorDoc = await this.db.collection('inspectors').doc(this.currentUser.uid).get();
+          if (inspectorDoc.exists) {
+            const inspectorData = inspectorDoc.data();
+            this.inspectorName.value = inspectorData.name || this.currentUser.displayName || this.currentUser.email;
+          } else {
+            this.inspectorName.value = this.currentUser.displayName || this.currentUser.email || 'Inspecteur';
+          }
+        } catch (error) {
+          console.warn('Could not load inspector data:', error);
+          this.inspectorName.value = this.currentUser.displayName || this.currentUser.email || 'Inspecteur';
+        }
+        
+        this.inspectorId.value = this.currentUser.uid;
+      }
+      
+      // Load trails for the select dropdown
       await this.loadTrails();
       
-      // Fill inspector information
-      this.fillInspectorField();
-      
-      console.log('Inspection data loaded successfully');
     } catch (error) {
       console.error('Error loading inspection data:', error);
-      this.showError('Erreur lors du chargement des données');
+      throw error;
     }
   }
 
   async loadTrails() {
     try {
-      if (!this.db) {
-        throw new Error('Database not available');
-      }
-
-      const trailsSnapshot = await this.db.collection('trails').orderBy('name').get();
+      const trailsSnapshot = await this.db.collection('trails').get();
+      this.trailSelect.innerHTML = '<option value="">Sélectionner un sentier</option>';
       
-      if (this.trailSelect) {
-        // Clear existing options except the first one
-        this.trailSelect.innerHTML = '<option value="">Sélectionner un sentier</option>';
-        
-        trailsSnapshot.forEach(doc => {
-          const trail = doc.data();
-          const option = document.createElement('option');
-          option.value = doc.id;
-          option.textContent = `${trail.name} (${trail.difficulty} - ${trail.length}km)`;
-          this.trailSelect.appendChild(option);
-        });
-      }
+      trailsSnapshot.forEach(doc => {
+        const trail = doc.data();
+        const option = document.createElement('option');
+        option.value = doc.id;
+        option.textContent = `${trail.name} (${trail.length || '?'} km - ${this.getDifficultyText(trail.difficulty)})`;
+        this.trailSelect.appendChild(option);
+      });
       
-      console.log(`${trailsSnapshot.size} trails loaded`);
     } catch (error) {
       console.error('Error loading trails:', error);
       this.showError('Erreur lors du chargement des sentiers');
     }
   }
 
-  fillInspectorField() {
-    if (this.auth && this.auth.currentUser) {
-      const user = this.auth.currentUser;
-      
-      // Get user data from Firestore
-      this.db.collection('inspectors').doc(user.uid).get()
-        .then(doc => {
-          if (doc.exists) {
-            const userData = doc.data();
-            if (this.inspectorName) {
-              this.inspectorName.value = userData.name || user.email;
-            }
-            if (this.inspectorId) {
-              this.inspectorId.value = user.uid;
-            }
-          }
-        })
-        .catch(error => {
-          console.error('Error getting inspector data:', error);
-          // Fallback to email
-          if (this.inspectorName) {
-            this.inspectorName.value = user.email;
-          }
-          if (this.inspectorId) {
-            this.inspectorId.value = user.uid;
-          }
-        });
-    }
+  getDifficultyText(difficulty) {
+    const difficultyMap = {
+      'easy': 'Facile',
+      'medium': 'Intermédiaire', 
+      'hard': 'Difficile'
+    };
+    return difficultyMap[difficulty] || difficulty || 'Non spécifié';
   }
 
-  // Photo upload handling
+  // Photo handling methods
   handleDragOver(e) {
     e.preventDefault();
-    e.stopPropagation();
-    this.photoUpload.classList.add('dragover');
+    this.photoUpload.classList.add('drag-over');
   }
 
   handleDrop(e) {
     e.preventDefault();
-    e.stopPropagation();
-    this.photoUpload.classList.remove('dragover');
+    this.photoUpload.classList.remove('drag-over');
     
-    const files = Array.from(e.dataTransfer.files);
+    const files = Array.from(e.dataTransfer.files).filter(file => file.type.startsWith('image/'));
     this.processFiles(files);
   }
 
@@ -201,16 +178,18 @@ class TrailInspectionManager {
   }
 
   processFiles(files) {
-    const imageFiles = files.filter(file => file.type.startsWith('image/'));
-    
-    imageFiles.forEach(file => {
+    files.forEach(file => {
       if (file.size > 10 * 1024 * 1024) { // 10MB limit
         this.showError(`Le fichier ${file.name} est trop volumineux (max 10MB)`);
         return;
       }
       
-      this.selectedFiles.push(file);
-      this.createPhotoPreview(file);
+      if (this.selectedFiles.length < 10) { // Limit to 10 files
+        this.selectedFiles.push(file);
+        this.createPhotoPreview(file);
+      } else {
+        this.showError('Maximum 10 photos autorisées');
+      }
     });
     
     // Reset file input
@@ -222,17 +201,16 @@ class TrailInspectionManager {
     preview.className = 'photo-preview';
     
     const img = document.createElement('img');
-    const removeBtn = document.createElement('button');
-    removeBtn.className = 'photo-preview-remove';
-    removeBtn.innerHTML = '✕';
-    removeBtn.type = 'button';
-    
-    // Create object URL for preview
     const objectUrl = URL.createObjectURL(file);
     img.src = objectUrl;
-    img.alt = 'Photo preview';
+    img.alt = file.name;
     
-    // Remove button functionality
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'photo-remove';
+    removeBtn.innerHTML = '×';
+    removeBtn.title = 'Supprimer cette photo';
+    
     removeBtn.addEventListener('click', () => {
       const index = this.selectedFiles.indexOf(file);
       if (index > -1) {
@@ -271,6 +249,13 @@ class TrailInspectionManager {
         isValid = false;
       }
     });
+    
+    // Check if trail status is selected
+    const statusSelected = this.form.querySelector('input[name="trail-status"]:checked');
+    if (!statusSelected) {
+      this.showError('Veuillez sélectionner le statut du sentier (Ouvert/Fermé)');
+      isValid = false;
+    }
     
     // Check if condition is selected
     const conditionSelected = this.form.querySelector('input[name="condition"]:checked');
@@ -326,8 +311,9 @@ class TrailInspectionManager {
       inspector_id: this.inspectorId.value,
       inspector_name: this.inspectorName.value,
       date: this.createTimestamp(),
+      trail_status: this.form.querySelector('input[name="trail-status"]:checked')?.value, // NEW: Trail status
       condition: this.form.querySelector('input[name="condition"]:checked')?.value,
-      snow_condition: this.form.querySelector('input[name="snow-condition"]:checked')?.value,
+      snow_condition: this.form.querySelector('input[name="snow-condition"]:checked')?.value || null, // UPDATED: Optional
       issues: this.collectIssues(),
       notes: this.comments.value.trim(),
       photos: [], // Will be populated after upload
@@ -362,20 +348,20 @@ class TrailInspectionManager {
     return issues;
   }
 
-	async uploadPhotos() {
-	  const uploadPromises = this.selectedFiles.map(async (file, index) => {
-		const inspectionId = Date.now();
-		const fileName = `inspections/trails/${inspectionId}/${index}-${file.name}`;
-		const storageRef = this.storage.ref(fileName);
-		
-		const snapshot = await storageRef.put(file);
-		const downloadURL = await snapshot.ref.getDownloadURL();
-		
-		return downloadURL;
-	  });
+  async uploadPhotos() {
+    const uploadPromises = this.selectedFiles.map(async (file, index) => {
+      const inspectionId = Date.now();
+      const fileName = `inspections/trails/${inspectionId}/${index}-${file.name}`;
+      const storageRef = this.storage.ref(fileName);
+      
+      const snapshot = await storageRef.put(file);
+      const downloadURL = await snapshot.ref.getDownloadURL();
+      
+      return downloadURL;
+    });
 
-	  return Promise.all(uploadPromises); // ← Keep this!
-	}
+    return Promise.all(uploadPromises);
+  }
 
   async saveInspection(formData) {
     const docRef = await this.db.collection('trail_inspections').add(formData);
@@ -419,16 +405,16 @@ class TrailInspectionManager {
   }
 
   resetForm() {
-	// Store inspector info before reset
-	const inspectorId = this.inspectorId.value;
-	const inspectorName = this.inspectorName.value;
+    // Store inspector info before reset
+    const inspectorId = this.inspectorId.value;
+    const inspectorName = this.inspectorName.value;
   
     // Reset form fields
     this.form.reset();
     
-	// Restore inspector info
-	this.inspectorId.value = inspectorId;
-	this.inspectorName.value = inspectorName;
+    // Restore inspector info
+    this.inspectorId.value = inspectorId;
+    this.inspectorName.value = inspectorName;
   
     // Clear selected files
     this.selectedFiles = [];
@@ -549,16 +535,9 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
       // Redirect to login if not authenticated
       const loginUrl = window.location.pathname.includes('/pages/') 
-        ? 'login.html' 
+        ? '../pages/login.html' 
         : 'pages/login.html';
       window.location.href = loginUrl;
     }
   });
-
-  // Global function for backward compatibility (called by auth.js)
-  window.loadTrailInspectionData = function() {
-    if (trailInspectionManager) {
-      trailInspectionManager.loadInspectionData();
-    }
-  };
 });

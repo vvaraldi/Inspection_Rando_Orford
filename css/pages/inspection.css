@@ -1,8 +1,8 @@
 /* ========================================
-   PAGES/INSPECTION.CSS - Merged Inspection Styles
+   PAGES/INSPECTION.CSS - Enhanced Merged Inspection Styles
    ======================================== 
-   Combines inspection-history and inspection-forms styles
-   with duplications removed
+   Combines inspection-history, inspection-forms styles,
+   and new trail status functionality with duplications removed
    ======================================== */
 
 /* ========================================
@@ -89,13 +89,44 @@
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 }
 
+/* Responsive adjustments */
+@media (max-width: 767px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .form-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .form-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Full width for specific elements */
+.form-group:has(> .radio-group) {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 768px) {
+  .form-group:has(> .radio-group) {
+    grid-column: span 2;
+  }
+}
+
 /* ========================================
-   Custom Radio Groups (for inspection forms)
+   Enhanced Radio Groups (Updated for Trail Status)
    ======================================== */
 .radio-group {
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
+  gap: var(--space-sm, 0.75rem);
 }
 
 .radio-group-horizontal {
@@ -103,71 +134,144 @@
   flex-wrap: wrap;
 }
 
+@media (min-width: 768px) {
+  .radio-group {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+}
+
 .radio-item {
   display: flex;
   align-items: center;
+  min-width: 0;
+  flex: 1;
 }
 
 .form-radio {
-  display: none;
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .radio-label {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
+  gap: var(--space-sm, 0.5rem);
   cursor: pointer;
-  padding: var(--space-sm) var(--space-md);
-  border-radius: var(--border-radius-md);
-  transition: all var(--transition-fast);
-  flex: 1;
-  border: 2px solid transparent;
+  padding: var(--space-sm, 0.75rem) var(--space-md, 1rem);
+  border-radius: var(--border-radius-md, 0.5rem);
+  border: 2px solid var(--theme-border, #e5e7eb);
+  background-color: var(--theme-surface, #ffffff);
+  transition: all var(--transition-fast, 0.2s ease);
+  width: 100%;
+  min-width: 0;
+  font-weight: 500;
 }
 
 .radio-label:hover {
-  background-color: var(--color-gray-50);
+  border-color: var(--theme-primary, #3b82f6);
+  background-color: var(--color-gray-50, #f8fafc);
 }
 
+.form-radio:checked + .radio-label {
+  border-color: var(--theme-primary, #3b82f6);
+  background-color: rgba(var(--theme-primary-rgb, 59, 130, 246), 0.1);
+}
+
+/* ========================================
+   Enhanced Radio Indicators with Status Colors
+   ======================================== */
 .radio-indicator {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  border: 2px solid var(--theme-border);
+  border: 2px solid var(--theme-border, #d1d5db);
+  background-color: var(--theme-surface, white);
   position: relative;
-  transition: all var(--transition-fast);
+  transition: all var(--transition-fast, 0.2s ease);
   flex-shrink: 0;
 }
 
 .radio-indicator::after {
   content: '';
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 8px;
-  height: 8px;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
-  background-color: white;
+  background-color: transparent;
   opacity: 0;
-  transition: opacity var(--transition-fast);
-}
-
-.form-radio:checked + .radio-label {
-  background-color: rgba(var(--theme-primary-rgb), 0.1);
-  border-color: var(--theme-primary);
-}
-
-.form-radio:checked + .radio-label .radio-indicator {
-  background-color: var(--theme-primary);
-  border-color: var(--theme-primary);
+  transition: opacity var(--transition-fast, 0.2s ease);
 }
 
 .form-radio:checked + .radio-label .radio-indicator::after {
   opacity: 1;
+  background-color: currentColor;
+}
+
+/* Status-based colors */
+.radio-indicator.good {
+  border-color: var(--color-success, #10b981);
+}
+
+.radio-indicator.warning {
+  border-color: var(--color-warning, #f59e0b);
+}
+
+.radio-indicator.critical {
+  border-color: var(--color-danger, #ef4444);
+}
+
+.form-radio:checked + .radio-label .radio-indicator.good::after {
+  background-color: var(--color-success, #10b981);
+}
+
+.form-radio:checked + .radio-label .radio-indicator.warning::after {
+  background-color: var(--color-warning, #f59e0b);
+}
+
+.form-radio:checked + .radio-label .radio-indicator.critical::after {
+  background-color: var(--color-danger, #ef4444);
+}
+
+/* Default for unchecked items */
+.form-radio:checked + .radio-label .radio-indicator:not(.good):not(.warning):not(.critical)::after {
+  background-color: var(--theme-primary, #3b82f6);
 }
 
 /* ========================================
-   Status-based Radio Styles
+   Radio Text Styling
+   ======================================== */
+.radio-text {
+  font-weight: 500;
+  color: var(--theme-text, #374151);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.form-radio:checked + .radio-label .radio-text {
+  color: var(--theme-primary, #3b82f6);
+}
+
+/* Status-specific text colors */
+.form-radio:checked + .radio-label:has(.radio-indicator.good) .radio-text {
+  color: var(--color-success, #10b981);
+}
+
+.form-radio:checked + .radio-label:has(.radio-indicator.warning) .radio-text {
+  color: var(--color-warning, #f59e0b);
+}
+
+.form-radio:checked + .radio-label:has(.radio-indicator.critical) .radio-text {
+  color: var(--color-danger, #ef4444);
+}
+
+/* ========================================
+   Legacy Status-based Radio Styles (Maintain backward compatibility)
    ======================================== */
 .radio-label[data-status="excellent"] .radio-indicator { border-color: var(--color-success); }
 .form-radio:checked + .radio-label[data-status="excellent"] .radio-indicator {
@@ -191,6 +295,106 @@
 .form-radio:checked + .radio-label[data-status="urgent"] .radio-indicator {
   background-color: var(--color-danger);
   border-color: var(--color-danger);
+}
+
+/* ========================================
+   Optional Field Labels
+   ======================================== */
+.form-label-optional {
+  font-size: 0.85em;
+  color: var(--theme-text-light, #6b7280);
+  font-weight: normal;
+  font-style: italic;
+}
+
+/* ========================================
+   Enhanced Photo Upload & Preview
+   ======================================== */
+.photo-preview-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.photo-preview {
+  position: relative;
+  border-radius: var(--border-radius-md, 0.5rem);
+  overflow: hidden;
+  background-color: var(--color-gray-50, #f8fafc);
+  border: 2px solid var(--theme-border, #e5e7eb);
+  aspect-ratio: 1;
+}
+
+.photo-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.photo-remove {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  border: none;
+  background-color: rgba(239, 68, 68, 0.9);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  line-height: 1;
+  transition: all 0.2s ease;
+}
+
+.photo-remove:hover {
+  background-color: rgb(239, 68, 68);
+  transform: scale(1.1);
+}
+
+/* File Upload Area */
+.file-upload-area {
+  border: 2px dashed var(--theme-border, #d1d5db);
+  border-radius: var(--border-radius-lg, 0.75rem);
+  padding: 2rem;
+  text-align: center;
+  background-color: var(--color-gray-50, #f8fafc);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.file-upload-area:hover,
+.file-upload-area.drag-over {
+  border-color: var(--theme-primary, #3b82f6);
+  background-color: rgba(var(--theme-primary-rgb, 59, 130, 246), 0.1);
+}
+
+.file-upload-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.6;
+}
+
+.file-upload-text {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--theme-text, #374151);
+  margin-bottom: 0.5rem;
+}
+
+.file-upload-hint {
+  font-size: 0.875rem;
+  color: var(--theme-text-light, #6b7280);
+  margin: 0;
+}
+
+.file-input-hidden {
+  display: none;
 }
 
 /* ========================================
@@ -230,7 +434,7 @@
 }
 
 /* ========================================
-   Inspection Status Badges
+   Enhanced Status Badges (Including Trail Status)
    ======================================== */
 .inspection-badge {
   display: inline-flex;
@@ -262,100 +466,245 @@
   color: var(--color-danger);
 }
 
+/* Trail Status Badges */
+.status-open {
+  background-color: var(--color-success-light, #d1fae5);
+  color: var(--color-success-dark, #065f46);
+  border: 1px solid var(--color-success, #10b981);
+}
+
+.status-closed {
+  background-color: var(--color-danger-light, #fee2e2);
+  color: var(--color-danger-dark, #991b1b);
+  border: 1px solid var(--color-danger, #ef4444);
+}
+
+.status-unknown {
+  background-color: var(--color-gray-light, #f3f4f6);
+  color: var(--color-gray-dark, #374151);
+  border: 1px solid var(--color-gray, #9ca3af);
+}
+
 /* ========================================
-   Photo Upload Section
+   Form Loading States
    ======================================== */
-.photo-upload-section {
-  border: 2px dashed var(--theme-border);
-  border-radius: var(--border-radius-lg);
-  padding: var(--space-xl);
-  text-align: center;
-  transition: all var(--transition-fast);
+.form-loading {
+  opacity: 0.7;
+  pointer-events: none;
 }
 
-.photo-upload-section:hover {
-  border-color: var(--theme-primary);
-  background-color: rgba(var(--theme-primary-rgb), 0.05);
+.form-loading .btn {
+  position: relative;
 }
 
-.photo-upload-label {
-  cursor: pointer;
+.form-loading .btn span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.form-loading .btn span::before {
+  content: '';
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ========================================
+   Enhanced Alert Messages
+   ======================================== */
+.alert {
+  padding: 1rem 1.5rem;
+  border-radius: var(--border-radius-md, 0.5rem);
+  margin: 1rem 0;
+  font-weight: 500;
+  border-left: 4px solid;
+  animation: slideInFromTop 0.3s ease;
+}
+
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.alert-success {
+  background-color: var(--color-success-light, #d1fae5);
+  color: var(--color-success-dark, #065f46);
+  border-left-color: var(--color-success, #10b981);
+}
+
+.alert-danger {
+  background-color: var(--color-danger-light, #fee2e2);
+  color: var(--color-danger-dark, #991b1b);
+  border-left-color: var(--color-danger, #ef4444);
+}
+
+/* ========================================
+   Issues and Checkboxes Section
+   ======================================== */
+.issues-container {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: var(--space-md);
+  gap: var(--space-lg);
 }
 
-.photo-upload-icon {
-  font-size: 3rem;
-  color: var(--theme-primary);
-}
-
-.photo-preview-grid {
+.issues-checkboxes {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: var(--space-md);
-  margin-top: var(--space-lg);
 }
 
-.photo-preview-item {
-  position: relative;
-  aspect-ratio: 1;
-  border-radius: var(--border-radius-md);
-  overflow: hidden;
-  background-color: var(--color-gray-100);
+.checkbox-group {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--space-sm);
 }
 
-.photo-preview-item img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.photo-remove-btn {
-  position: absolute;
-  top: var(--space-xs);
-  right: var(--space-xs);
-  background-color: var(--color-danger);
-  color: white;
-  border: none;
-  border-radius: var(--border-radius-full);
-  width: 24px;
-  height: 24px;
+.checkbox-item {
   display: flex;
   align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  opacity: 0;
-  transition: opacity var(--transition-fast);
 }
 
-.photo-preview-item:hover .photo-remove-btn {
-  opacity: 1;
+.form-checkbox {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  cursor: pointer;
+  padding: var(--space-sm);
+  border-radius: var(--border-radius-md);
+  transition: background-color var(--transition-fast);
+  width: 100%;
+}
+
+.checkbox-label:hover {
+  background-color: var(--color-gray-50);
+}
+
+.checkbox-indicator {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--theme-border);
+  border-radius: var(--border-radius-sm);
+  background-color: var(--theme-surface);
+  position: relative;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.form-checkbox:checked + .checkbox-label .checkbox-indicator {
+  background-color: var(--theme-primary);
+  border-color: var(--theme-primary);
+}
+
+.form-checkbox:checked + .checkbox-label .checkbox-indicator::after {
+  content: '';
+  position: absolute;
+  top: 1px;
+  left: 5px;
+  width: 6px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
 }
 
 /* ========================================
-   Responsive Adjustments
+   Focus States for Accessibility
    ======================================== */
-@media (max-width: 768px) {
+.form-radio:focus + .radio-label {
+  outline: 2px solid var(--theme-primary, #3b82f6);
+  outline-offset: 2px;
+}
+
+.form-checkbox:focus + .checkbox-label {
+  outline: 2px solid var(--theme-primary, #3b82f6);
+  outline-offset: 2px;
+}
+
+/* ========================================
+   Mobile Responsive Design
+   ======================================== */
+@media (max-width: 767px) {
+  .inspection-container {
+    padding: var(--space-lg);
+  }
+  
+  .radio-group {
+    gap: 0.5rem;
+  }
+  
+  .radio-label {
+    padding: 0.625rem 0.75rem;
+    font-size: 0.875rem;
+  }
+  
+  .photo-preview-container {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 0.75rem;
+  }
+  
+  .file-upload-area {
+    padding: 1.5rem 1rem;
+  }
+  
+  .file-upload-icon {
+    font-size: 2.5rem;
+  }
+  
+  .checkbox-group {
+    grid-template-columns: 1fr;
+  }
+  
   .filters-grid {
     grid-template-columns: 1fr;
   }
   
-  .form-grid {
-    grid-template-columns: 1fr;
+  .filter-actions {
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+}
+
+/* ========================================
+   Print Styles
+   ======================================== */
+@media print {
+  .photo-preview-container,
+  .file-upload-area,
+  .form-actions,
+  .filter-actions {
+    display: none;
+  }
+  
+  .radio-label {
+    border: 1px solid #ccc;
+    break-inside: avoid;
+  }
+  
+  .form-section {
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
   
   .inspection-table {
-    font-size: var(--text-sm);
-  }
-  
-  .inspection-table th,
-  .inspection-table td {
-    padding: var(--space-sm);
-  }
-  
-  .photo-preview-grid {
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    box-shadow: none;
   }
 }

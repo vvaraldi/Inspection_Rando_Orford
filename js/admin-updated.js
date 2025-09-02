@@ -1109,6 +1109,278 @@ class AdminManager {
       }
     }
   }
+
+/**
+ * Trail Status Migration Script
+ * Add this function to your admin-updated.js file to migrate existing trails
+ * with the new status field (open/closed)
+ */
+
+// Add this method to the AdminManager class in admin-updated.js
+async addTrailStatusMigration() {
+  if (!confirm('Cela ajoutera le champ "status" à tous les sentiers existants. Tous les sentiers seront marqués comme "ouverts" par défaut. Continuer?')) {
+    return;
+  }
+  
+  try {
+    this.showStatus('migration-status', 'Migration du statut des sentiers en cours...', 'info');
+    
+    // Get all existing trails
+    const trailsSnapshot = await this.db.collection('trails').get();
+    
+    if (trailsSnapshot.empty) {
+      this.showStatus('migration-status', 'Aucun sentier trouvé pour la migration.', 'warning');
+      return;
+    }
+    
+    const batch = this.db.batch();
+    let updatedCount = 0;
+    
+    trailsSnapshot.forEach(doc => {
+      const trailData = doc.data();
+      
+      // Only update if status field doesn't exist
+      if (!trailData.hasOwnProperty('status')) {
+        const trailRef = this.db.collection('trails').doc(doc.id);
+        batch.update(trailRef, {
+          status: 'open', // Default all trails to open
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          updatedBy: this.currentUserId
+        });
+        updatedCount++;
+      }
+    });
+    
+    if (updatedCount === 0) {
+      this.showStatus('migration-status', 'Tous les sentiers ont déjà le champ status.', 'info');
+      return;
+    }
+    
+    // Execute the batch update
+    await batch.commit();
+    
+    this.showStatus('migration-status', `✓ ${updatedCount} sentier(s) mis à jour avec le statut "ouvert" par défaut!`, 'success');
+    console.log(`✓ Trail status migration completed: ${updatedCount} trails updated`);
+    
+  } catch (error) {
+    console.error('✗ Erreur lors de la migration du statut des sentiers:', error);
+    this.showStatus('migration-status', 'Erreur lors de la migration: ' + error.message, 'danger');
+  }
+}
+
+// Updated getInitialTrailsData method - add this to replace the existing one
+getInitialTrailsData() {
+  return [
+    {
+      id: 'trail_1',
+      name: "La tortue",
+      length: 1.1,
+      difficulty: "easy",
+      status: "open", // NEW: Default status
+      description: "Sentier facile idéal pour débutants",
+      coordinates: { top: 394, left: 450 }
+    },
+    {
+      id: 'trail_2',
+      name: "Tracé du lynx",
+      length: 0.6,
+      difficulty: "easy",
+      status: "open", // NEW: Default status
+      description: "Court sentier avec peu de dénivelé",
+      coordinates: { top: 323, left: 210 }
+    },
+    {
+      id: 'trail_3',
+      name: "Adams",
+      length: 0.6,
+      difficulty: "easy",
+      status: "open", // NEW: Default status
+      description: "Sentier familial accessible",
+      coordinates: { top: 520, left: 420 }
+    },
+    {
+      id: 'trail_4',
+      name: "La Belle et la Bête",
+      length: 2.0,
+      difficulty: "medium",
+      status: "open", // NEW: Default status
+      description: "Sentier intermédiaire avec quelques défis",
+      coordinates: { top: 280, left: 380 }
+    },
+    {
+      id: 'trail_5',
+      name: "Pic de l'Ours",
+      length: 3.2,
+      difficulty: "hard",
+      status: "open", // NEW: Default status
+      description: "Sentier difficile pour randonneurs expérimentés",
+      coordinates: { top: 180, left: 320 }
+    },
+    {
+      id: 'trail_6',
+      name: "Sentier des Érables",
+      length: 1.8,
+      difficulty: "medium",
+      status: "open", // NEW: Default status
+      description: "Belle vue sur la vallée",
+      coordinates: { top: 450, left: 380 }
+    },
+    {
+      id: 'trail_7',
+      name: "Circuit du Sommet",
+      length: 4.5,
+      difficulty: "hard",
+      status: "open", // NEW: Default status
+      description: "Circuit complet du mont Orford",
+      coordinates: { top: 150, left: 400 }
+    }
+  ];
+}
+
+/**
+ * HTML Addition for Admin Panel
+ * Add this button to your admin.html in the data initialization section:
+ */
+const adminMigrationButtonHTML = `
+<!-- Add this in the data initialization section of admin.html -->
+<div class="admin-section">
+  <h3>Migration des données</h3>
+  <div class="admin-actions">
+    <button type="button" class="btn btn-warning" onclick="adminManager.addTrailStatusMigration()">
+      Migrer le statut des sentiers
+    </button>
+    <div id="migration-status" class="status-message" style="display: none;"></div>
+    <small class="form-text text-muted">
+      Ajoute le champ "status" (ouvert/fermé) aux sentiers existants. 
+      Tous les sentiers seront marqués comme "ouverts" par défaut.
+    </small>
+  </div>
+</div>
+`;
+
+/**
+ * Updated collectFormData method for dashboard.js and other display files
+ * This shows how to handle the new trail_status field in inspections
+ */
+function getTrailStatusText(status) {
+  const statusMap = {
+    'open': 'Ouvert',
+    'closed': 'Fermé'
+  };
+  return statusMap[status] || 'Statut inconnu';
+}
+
+function getTrailStatusClass(status) {
+  const classMap = {
+    'open': 'status-open',
+    'closed': 'status-closed'
+  };
+  return classMap[status] || 'status-unknown';
+}
+
+/**
+ * CSS for trail status badges - add to main.css
+ */
+const trailStatusCSS = `
+/* Trail Status Badges */
+.status-open {
+  background-color: var(--color-success-light, #d1fae5);
+  color: var(--color-success-dark, #065f46);
+  border: 1px solid var(--color-success, #10b981);
+}
+
+.status-closed {
+  background-color: var(--color-danger-light, #fee2e2);
+  color: var(--color-danger-dark, #991b1b);
+  border: 1px solid var(--color-danger, #ef4444);
+}
+
+.status-unknown {
+  background-color: var(--color-gray-light, #f3f4f6);
+  color: var(--color-gray-dark, #374151);
+  border: 1px solid var(--color-gray, #9ca3af);
+}
+`;
+
+/**
+ * Updated validation for the inspection form
+ * This validates both trail status and general condition
+ */
+function validateInspectionForm() {
+  let isValid = true;
+  const form = document.getElementById('trail-inspection-form');
+  
+  // Check required fields
+  const requiredFields = form.querySelectorAll('[required]');
+  requiredFields.forEach(field => {
+    if (!field.checkValidity()) {
+      isValid = false;
+      field.classList.add('is-invalid');
+    } else {
+      field.classList.remove('is-invalid');
+      field.classList.add('is-valid');
+    }
+  });
+  
+  // Check if trail status is selected
+  const statusSelected = form.querySelector('input[name="trail-status"]:checked');
+  if (!statusSelected) {
+    showError('Veuillez sélectionner le statut du sentier (Ouvert/Fermé)');
+    isValid = false;
+  }
+  
+  // Check if condition is selected
+  const conditionSelected = form.querySelector('input[name="condition"]:checked');
+  if (!conditionSelected) {
+    showError('Veuillez sélectionner l\'état général du sentier');
+    isValid = false;
+  }
+  
+  // Snow condition is optional - no validation needed
+  
+  return isValid;
+}
+
+/**
+ * Example of how to display trail status in other pages
+ * Use this in dashboard.js, map.js, etc.
+ */
+function displayTrailWithStatus(trail, inspection) {
+  const statusBadge = inspection?.trail_status 
+    ? `<span class="status-badge ${getTrailStatusClass(inspection.trail_status)}">${getTrailStatusText(inspection.trail_status)}</span>`
+    : '<span class="status-badge status-unknown">Statut inconnu</span>';
+    
+  const conditionBadge = inspection?.condition
+    ? `<span class="status-badge ${getStatusClass(inspection.condition)}">${getStatusText(inspection.condition)}</span>`
+    : '<span class="status-badge status-unknown">Non inspecté</span>';
+    
+  return `
+    <div class="trail-card">
+      <h4>${trail.name}</h4>
+      <div class="trail-status">
+        ${statusBadge}
+        ${conditionBadge}
+      </div>
+      <div class="trail-info">
+        📏 ${trail.length || '?'} km • ${getDifficultyText(trail.difficulty)}
+      </div>
+      ${inspection?.snow_condition ? 
+        `<div class="snow-condition">❄️ Neige: ${getSnowConditionText(inspection.snow_condition)}</div>` 
+        : ''}
+    </div>
+  `;
+}
+
+function getSnowConditionText(condition) {
+  const conditionMap = {
+    'good': 'Bonnes conditions',
+    'warning': 'Conditions moyennes',
+    'critical': 'Mauvaises conditions',
+    'none': 'Non évalué'
+  };
+  return conditionMap[condition] || condition;
+}
+
 }
 
 // Global admin manager instance

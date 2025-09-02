@@ -3,10 +3,11 @@
 Must :
 
 Piority 1
-
+1 - add a state of opened or closed. optional on the snow condition.
 
 Piority 2
-1 - Créer une inspection avec un lieu en cliquant sur l'image.
+2 - Shelter and trail inspection forms html should open larger the frame for the forms to have the 3 states side by side when opened in a large enough window.
+3 - Créer une inspection avec un lieu en cliquant sur l'image.
 
 Priority 3
 
