@@ -185,7 +185,7 @@ async function loadPublicData() {
     
   } catch (error) {
     console.error("Error in loadPublicData:", error);
-    showError("Erreur lors du chargement des données: " + error.message);
+//    showError("Erreur lors du chargement des données: " + error.message);
   }
 }
 
@@ -233,13 +233,3 @@ function displayData() {
   displayListItems(filteredData);
 }
 
-  showError(message) {
-    this.inspectionsTable.innerHTML = `
-      <tr>
-        <td colspan="7" class="text-center" style="color: var(--color-danger);">
-          ${message}
-        </td>
-      </tr>
-    `;
-    this.showMainContent();
-  }
