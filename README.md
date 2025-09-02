@@ -1,35 +1,27 @@
 # Inspection_Rando_Orford
 
-Must :
+To do:
 
-Piority 1
-you asked to update applyFilters function to handle trail status filtering but I can't find applyFilters in the status files js nor in the status.html
+Priority 1
+1 - inspection history do not diplay the insptection list (despite updating the right number of inspections)
+2 - in the dashboard view we will need to adjust the view to see the trail status or the trail state (toggle between both options). but before the console is throwing issues
 
-1 - add a state of opened or closed. optional on the snow condition.
-
-
-
-Piority 2
+Priority 2
+1 - remove the filter in the status.html list view and map view and in the correspondong js files
 2 - Shelter and trail inspection forms html should open larger the frame for the forms to have the 3 states side by side when opened in a large enough window.
-3 - Créer une inspection avec un lieu en cliquant sur l'image.
 
 Priority 3
+1 - Créer une inspection avec un lieu en cliquant sur l'image.
+2 - Créer un role de super admin pour la gestion des données systèmes (initialisation, reinit des inspections....)
+3- Créer un système de notifications plus sophistiqué lorsqu'une inspection est ajoutée
 
 
 Bug fix :
-- Créer un role de super admin pour la gestion des données systèmes (initialisation, reinit des inspections....)
 - Que fait la touche créer des données de test ? Peut-on mettre un flag pour supprimer les données de test a tout moment
 
 
-Pas sûr !
-PWA (Progressive Web App) : Transformez l'application en PWA pour une expérience proche d'une application native
-
-
-
-
- Prochaines améliorations possibles dixit Opus4.1:
+Prochaines améliorations possibles dixit Opus4.1:   Pas sûr de vouloir faire et intérêt
+0 - PWA (Progressive Web App) : Transformez l'application en PWA pour une expérience proche d'une application native
 1- Convertir en modules ES6 pour une meilleure organisation
 2- Ajouter des tests unitaires pour les fonctions critiques
 3- Implémenter un système de permissions plus granulaire
-4- Ajouter la gestion d'erreurs offline pour Firebase
-5- Créer un système de notifications plus sophistiqué
