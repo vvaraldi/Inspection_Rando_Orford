@@ -7,6 +7,7 @@ Priority 1
 2 - in the dashboard view we will need to adjust the view to see the trail status or the trail state (toggle between both options). but before the console is throwing issues
 
 Priority 2
+0 - when we click on a trail in the dashboard it loads the last inspection data from this trail. Could the html scroll automatically down to the section "Inspection sélectionnée" so that the user sees the details without scrolling ?
 1 - remove the filter in the status.html list view and map view and in the correspondong js files
 2 - Shelter and trail inspection forms html should open larger the frame for the forms to have the 3 states side by side when opened in a large enough window.
 

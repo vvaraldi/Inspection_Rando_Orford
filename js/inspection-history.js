@@ -478,8 +478,10 @@ async loadData() {
     this.updateResultsCount();
   }
 
-  displayInspections(inspections) {
-	  if (!inspections || inspections.length === 0) {
+  displayInspections(inspections = null) {
+	  const displayInspections = inspections || this.getPagedInspections();
+	  
+	  if (!displayInspections || displayInspections.length === 0) {
 		this.inspectionsTable.innerHTML = `
 		  <tr>
 			<td colspan="8" class="text-center">Aucune inspection trouvée</td>
@@ -491,7 +493,7 @@ async loadData() {
 
 	  let html = '';
 	  
-	  inspections.forEach(inspection => {
+	  displayInspections.forEach(inspection => {
 		const date = inspection.date ? inspection.date.toDate() : new Date();
 		const formattedDate = this.formatDate(date);
 		const typeText = inspection.type === 'trail' ? 'Sentier' : 'Abri';
@@ -501,7 +503,7 @@ async loadData() {
 		// Status badge
 		const statusBadge = this.createStatusBadge(inspection.condition);
 		
-		// NEW: Trail Status badge (only for trail inspections)
+		// Trail Status badge (only for trail inspections)
 		const trailStatusBadge = inspection.type === 'trail' && inspection.trail_status 
 		  ? this.createTrailStatusBadge(inspection.trail_status)
 		  : '<span class="badge badge-secondary">N/A</span>';
@@ -541,7 +543,7 @@ async loadData() {
 	  });
 
 	  this.inspectionsTable.innerHTML = html;
-	  document.getElementById('results-count').textContent = inspections.length.toString();
+	  document.getElementById('results-count').textContent = displayInspections.length.toString();
   }
 
   createInspectionRow(inspection) {
