@@ -497,7 +497,23 @@ async loadData() {
 	  let html = '';
 	  
 	  displayInspections.forEach(inspection => {
-		const date = inspection.date ? inspection.date.toDate() : new Date();
+		// FIXED: Better date handling
+		let date;
+		if (inspection.date) {
+		  if (typeof inspection.date.toDate === 'function') {
+			// Firebase Timestamp
+			date = inspection.date.toDate();
+		  } else if (inspection.date instanceof Date) {
+			// Already a Date object
+			date = inspection.date;
+		  } else {
+			// Try to parse as date
+			date = new Date(inspection.date);
+		  }
+		} else {
+		  date = new Date();
+		}
+		
 		const formattedDate = this.formatDate(date);
 		const typeText = inspection.type === 'trail' ? 'Sentier' : 'Abri';
 		const locationName = inspection.locationName || 'Inconnu';
