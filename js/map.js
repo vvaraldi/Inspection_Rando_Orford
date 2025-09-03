@@ -393,16 +393,44 @@ async function getInspectorName(inspectorId) {
  * @param {Object} trail - Sentier avec ses données
  */
 async function showTrailDetails(trail) {
-  // Récupérer les éléments du panneau d'informations
-  const infoPanel = document.getElementById('piste-info');
-  const defaultPanel = document.getElementById('default-info');
+  console.log('showTrailDetails called for trail:', trail.name);
+  
+  // Wait for DOM to be ready and try multiple times if needed
+  let attempts = 0;
+  let infoPanel, defaultPanel;
+  
+  while (attempts < 3) {
+    infoPanel = document.getElementById('piste-info');
+    defaultPanel = document.getElementById('default-info');
+    
+    if (infoPanel && defaultPanel) {
+      break;
+    }
+    
+    console.warn(`Attempt ${attempts + 1}: Elements not found, waiting...`);
+    await new Promise(resolve => setTimeout(resolve, 100));
+    attempts++;
+  }
   
   if (!infoPanel || !defaultPanel) {
-    console.error("Éléments du panneau d'informations non trouvés");
+    console.error("Éléments du panneau d'informations non trouvés après plusieurs tentatives");
+    console.log("Available elements:", {
+      'piste-info': !!document.getElementById('piste-info'),
+      'default-info': !!document.getElementById('default-info')
+    });
+    
+    // FALLBACK: Show modal instead of panel
+    if (typeof viewInspectionDetails === 'function' && trail.lastInspection) {
+      viewInspectionDetails(trail.lastInspection.id);
+      return;
+    }
+    
+    // FALLBACK: Show basic alert
+    alert(`${trail.name}\nStatut: ${getStatusText(trail.status)}\nLongueur: ${trail.length || '?'} km`);
     return;
   }
   
-  // Masquer le panneau par défaut et afficher le panneau de détails
+  // Hide default panel and show details panel
   defaultPanel.classList.remove('show');
   infoPanel.classList.add('show');
   
@@ -420,119 +448,107 @@ async function showTrailDetails(trail) {
     trailStatusInfo = `<span class="status-badge ${config.class}" title="${config.title}">${config.text}</span>`;
   }
   
-  // Mettre à jour le titre et le statut
+  // Update header with both status badges
   const header = infoPanel.querySelector('.info-header');
-  header.innerHTML = `
-    <h3>${trail.name}</h3>
-    <div class="status-badges">
-      <span class="status-badge status-${trail.status}">${getStatusText(trail.status)}</span>
-      ${trailStatusInfo}
-    </div>
-  `;
+  if (header) {
+    header.innerHTML = `
+      <h3>${trail.name}</h3>
+      <div class="status-badges">
+        <span class="status-badge status-${trail.status}">${getStatusText(trail.status)}</span>
+        ${trailStatusInfo}
+      </div>
+    `;
+  }
   
-  // Afficher les sections d'information
+  // Update inspection information
   if (trail.lastInspection) {
     try {
-      // Récupérer le nom de l'inspecteur
-      let inspectorName = "Inspecteur inconnu";
-      
-      if (trail.lastInspection.inspector_name) {
-        inspectorName = trail.lastInspection.inspector_name;
-      } else if (trail.lastInspection.inspector_id) {
+      // Get inspector name
+      let inspectorName = trail.lastInspection.inspector_name || "Inspecteur inconnu";
+      if (!trail.lastInspection.inspector_name && trail.lastInspection.inspector_id) {
         inspectorName = await getInspectorName(trail.lastInspection.inspector_id);
       }
       
-      // Formater la date
+      // Format date
       let formattedDate = "Date inconnue";
       if (trail.lastInspection.date) {
         const date = trail.lastInspection.date.toDate ? 
           trail.lastInspection.date.toDate() : 
           new Date(trail.lastInspection.date);
-        formattedDate = formatDateWithMonthName(date);
+        formattedDate = formatDateWithMonthName ? formatDateWithMonthName(date) : date.toLocaleDateString('fr-FR');
       }
       
-      // Section d'inspection avec trail status
+      // Update inspection section
       const inspectionSection = infoPanel.querySelector('.info-section:nth-child(2)');
-      inspectionSection.innerHTML = `
-        <div class="info-title">Dernière inspection</div>
-        <p><strong>Date:</strong> ${formattedDate}</p>
-        <p><strong>Inspecteur:</strong> ${inspectorName}</p>
-        <p><strong>État:</strong> <span class="status-badge status-${trail.lastInspection.condition}">${getStatusText(trail.lastInspection.condition)}</span></p>
-        ${trail.lastInspection.trail_status ? `<p><strong>Statut:</strong> ${trailStatusInfo}</p>` : ''}
-        ${trail.lastInspection.snow_condition ? `<p><strong>Neige:</strong> ${getSnowConditionText(trail.lastInspection.snow_condition)}</p>` : ''}
-      `;
+      if (inspectionSection) {
+        inspectionSection.innerHTML = `
+          <div class="info-title">Dernière inspection</div>
+          <p><strong>Date:</strong> ${formattedDate}</p>
+          <p><strong>Inspecteur:</strong> ${inspectorName}</p>
+          <p><strong>État:</strong> <span class="status-badge status-${trail.lastInspection.condition}">${getStatusText(trail.lastInspection.condition)}</span></p>
+          ${trail.lastInspection.trail_status ? `<p><strong>Statut:</strong> ${trailStatusInfo}</p>` : ''}
+          ${trail.lastInspection.snow_condition ? `<p><strong>Neige:</strong> ${getSnowConditionText(trail.lastInspection.snow_condition)}</p>` : ''}
+        `;
+      }
       
-      // Section des problèmes
+      // Update issues section
       const issuesSection = infoPanel.querySelector('.info-section:nth-child(3)');
-      if (trail.lastInspection.issues && trail.lastInspection.issues.length > 0) {
-        issuesSection.innerHTML = `
-          <div class="info-title">Problèmes signalés</div>
-          <ul>
-            ${trail.lastInspection.issues.map(issue => `<li>⚠️ ${issue}</li>`).join('')}
-          </ul>
-        `;
-      } else {
-        issuesSection.innerHTML = `
-          <div class="info-title">Problèmes signalés</div>
-          <p class="no-issues">✅ Aucun problème signalé</p>
-        `;
+      if (issuesSection) {
+        if (trail.lastInspection.issues && trail.lastInspection.issues.length > 0) {
+          issuesSection.innerHTML = `
+            <div class="info-title">Problèmes signalés</div>
+            <ul>
+              ${trail.lastInspection.issues.map(issue => `<li>⚠️ ${issue}</li>`).join('')}
+            </ul>
+          `;
+        } else {
+          issuesSection.innerHTML = `
+            <div class="info-title">Problèmes signalés</div>
+            <p class="no-issues">✅ Aucun problème signalé</p>
+          `;
+        }
       }
       
-      // Section des détails
-      const historySection = infoPanel.querySelector('.info-section:nth-child(4)');
-      let notesHtml = '<p>Aucune note enregistrée</p>';
-      if (trail.lastInspection.notes && trail.lastInspection.notes.trim()) {
-        notesHtml = `<p>${trail.lastInspection.notes.replace(/\n/g, '<br>')}</p>`;
+      // Update notes section
+      const notesSection = infoPanel.querySelector('.info-section:nth-child(4)');
+      if (notesSection) {
+        let notesHtml = '<p>Aucune note enregistrée</p>';
+        if (trail.lastInspection.notes && trail.lastInspection.notes.trim()) {
+          notesHtml = `<p>${trail.lastInspection.notes.replace(/\n/g, '<br>')}</p>`;
+        }
+        
+        notesSection.innerHTML = `
+          <div class="info-title">Notes d'inspection</div>
+          ${notesHtml}
+        `;
       }
-      
-      historySection.innerHTML = `
-        <div class="info-title">Notes d'inspection</div>
-        ${notesHtml}
-      `;
       
     } catch (error) {
       console.error("Erreur lors de l'affichage des détails du sentier:", error);
-      // Fallback display
-      const inspectionSection = infoPanel.querySelector('.info-section:nth-child(2)');
-      inspectionSection.innerHTML = `
-        <div class="info-title">Dernière inspection</div>
-        <p>Erreur lors du chargement des détails</p>
-      `;
     }
   } else {
-    // Aucune inspection trouvée
+    // No inspection found - show default info
     const inspectionSection = infoPanel.querySelector('.info-section:nth-child(2)');
-    inspectionSection.innerHTML = `
-      <div class="info-title">Dernière inspection</div>
-      <p>Aucune inspection récente</p>
-    `;
-    
-    const issuesSection = infoPanel.querySelector('.info-section:nth-child(3)');
-    issuesSection.innerHTML = `
-      <div class="info-title">Problèmes signalés</div>
-      <p>Aucune information disponible</p>
-    `;
-    
-    const historySection = infoPanel.querySelector('.info-section:nth-child(4)');
-    historySection.innerHTML = `
-      <div class="info-title">Détails</div>
-      <p>Aucun détails enregistré</p>
-    `;
+    if (inspectionSection) {
+      inspectionSection.innerHTML = `
+        <div class="info-title">Dernière inspection</div>
+        <p>Aucune inspection récente</p>
+      `;
+    }
   }
   
-  // Mettre à jour les caractéristiques du sentier
-  const characteristicsSection = infoPanel.querySelector('.info-section:nth-child(5)');
-  
-  let difficultyText = "Inconnue";
-  if (trail.difficulty) {
-    difficultyText = getDifficultyText(trail.difficulty);
+  // Update characteristics section
+  const characteristicsSection = infoPanel.querySelector('.info-section:nth-child(5)') || infoPanel.querySelector('.info-section:last-child');
+  if (characteristicsSection) {
+    const difficultyText = getDifficultyText ? getDifficultyText(trail.difficulty) : (trail.difficulty || 'Inconnue');
+    
+    characteristicsSection.innerHTML = `
+      <div class="info-title">Caractéristiques</div>
+      <p>Longueur: ${trail.length || '?'} km • Difficulté: ${difficultyText}</p>
+    `;
   }
-  
-  characteristicsSection.innerHTML = `
-    <div class="info-title">Caractéristiques</div>
-    <p>Longueur: ${trail.length || '?'} km • Difficulté: ${difficultyText}</p>
-  `;
 }
+
 
 // Add these helper functions to map.js if they don't exist:
 function getSnowConditionText(condition) {
