@@ -327,6 +327,10 @@ function initDashboardFilters() {
 /**
  * Charge les inspections des 7 derniers jours pour la section résumé
  */
+/**
+ * Fixed version of loadRecentInspectionsForSummary
+ * Charge les inspections des 7 derniers jours pour la section résumé
+ */
   async function loadRecentInspectionsForSummary() {
 	  try {
 		console.log("Loading recent inspections for summary...");
@@ -349,8 +353,15 @@ function initDashboardFilters() {
 		const sevenDaysAgoTimestamp = firebase.firestore.Timestamp.fromDate(sevenDaysAgo);
 		
 		console.log("Fetching inspections from:", sevenDaysAgo);
+		console.log("Using timestamp:", sevenDaysAgoTimestamp);
+		
+		// Check if db is available
+		if (typeof db === 'undefined') {
+		  throw new Error('Database not available');
+		}
 		
 		// Load trail inspections from last 7 days
+		console.log("Querying trail_inspections...");
 		const trailInspectionsSnapshot = await db.collection('trail_inspections')
 		  .where('date', '>=', sevenDaysAgoTimestamp)
 		  .orderBy('date', 'desc')
@@ -359,6 +370,7 @@ function initDashboardFilters() {
 		console.log("Trail inspections found:", trailInspectionsSnapshot.size);
 		
 		// Load shelter inspections from last 7 days  
+		console.log("Querying shelter_inspections...");
 		const shelterInspectionsSnapshot = await db.collection('shelter_inspections')
 		  .where('date', '>=', sevenDaysAgoTimestamp)
 		  .orderBy('date', 'desc')
@@ -366,91 +378,178 @@ function initDashboardFilters() {
 		
 		console.log("Shelter inspections found:", shelterInspectionsSnapshot.size);
 		
-		// Generate cards for trails and shelters
+		// Load trails and shelters data
+		console.log("Loading trails and shelters data...");
+		const trailsSnapshot = await db.collection('trails').get();
+		const sheltersSnapshot = await db.collection('shelters').get();
+		
+		console.log("Trails found:", trailsSnapshot.size);
+		console.log("Shelters found:", sheltersSnapshot.size);
+		
+		// Create maps for quick lookup
+		const trailsMap = new Map();
+		const sheltersMap = new Map();
+		
+		trailsSnapshot.forEach(doc => {
+		  trailsMap.set(doc.id, doc.data());
+		});
+		
+		sheltersSnapshot.forEach(doc => {
+		  sheltersMap.set(doc.id, doc.data());
+		});
+		
+		console.log("Created maps - Trails:", trailsMap.size, "Shelters:", sheltersMap.size);
+		
+		// Process trail inspections
 		const trailCards = [];
+		const processedTrails = new Set();
+		
+		// Clear and populate allInspectionsData for modal access
+		allInspectionsData = [];
+		
+		trailInspectionsSnapshot.docs.forEach((doc, index) => {
+		  try {
+			const inspection = doc.data();
+			const trailId = inspection.trail_id;
+			
+			console.log(`Processing trail inspection ${index + 1}:`, {
+			  id: doc.id,
+			  trailId,
+			  hasTrailData: trailsMap.has(trailId),
+			  inspectionDate: inspection.date
+			});
+			
+			if (!processedTrails.has(trailId)) {
+			  processedTrails.add(trailId);
+			  
+			  const trail = trailsMap.get(trailId);
+			  if (trail) {
+				// Store inspection data for modal access
+				const inspectionData = {
+				  id: doc.id,
+				  type: 'trail',
+				  ...inspection,
+				  date: inspection.date ? inspection.date.toDate() : new Date(),
+				  locationId: trailId,
+				  locationName: trail.name,
+				  length: trail.length,
+				  difficulty: trail.difficulty
+				};
+				allInspectionsData.push(inspectionData);
+				
+				const formattedDate = inspection.date ? 
+				  new Date(inspection.date.toDate()).toLocaleDateString('fr-FR', {
+					day: '2-digit',
+					month: '2-digit',
+					year: 'numeric'
+				  }) : 'Date inconnue';
+				
+				// Create trail status badge if trail_status exists
+				const trailStatusBadge = inspection.trail_status ? 
+				  createTrailStatusBadge(inspection.trail_status) : '';
+				
+				trailCards.push(`
+				  <div class="inspection-item clickable-card" data-inspection-id="${doc.id}" data-type="trail" style="cursor: pointer;">
+					<div class="item-header">
+					  <h4 class="item-name">${trail.name}</h4>
+					  <div class="item-badges">
+						<span class="badge badge-${getStatusClass(inspection.condition)}">${getStatusText(inspection.condition)}</span>
+						${trailStatusBadge}
+					  </div>
+					</div>
+					<div class="item-details">
+					  📅 ${formattedDate} • 
+					  🏔️ ${getDifficultyText(trail.difficulty)} • 
+					  📏 ${trail.length ? trail.length + ' km' : 'Distance non spécifiée'}
+					  ${inspection.snow_condition ? ` • ❄️ ${getSnowConditionText(inspection.snow_condition)}` : ''}
+					</div>
+					${
+					  inspection.issues && inspection.issues.length > 0 ? 
+					  `<div style="color: #dc2626; margin-top: 0.5rem;">⚠ ${inspection.issues.length} problème(s) signalé(s)</div>` : 
+					  '<div style="color: #059669; margin-top: 0.5rem;">✓ Aucun problème signalé</div>'
+					}
+				  </div>
+				`);
+			  } else {
+				console.warn(`Trail not found for ID: ${trailId}`);
+			  }
+			}
+		  } catch (error) {
+			console.error(`Error processing trail inspection ${index + 1}:`, error);
+		  }
+		});
+		
+		// Process shelter inspections
 		const shelterCards = [];
+		const processedShelters = new Set();
 		
-		trailInspectionsSnapshot.forEach(doc => {
-		  const inspection = { id: doc.id, type: 'trail', ...doc.data() };
-		  const inspectionDate = inspection.date?.toDate ? inspection.date.toDate() : new Date(inspection.date);
-		  const formattedDate = inspectionDate.toLocaleDateString('fr-FR');
-		  
-		  if (inspection.trail && inspection.trail.name) {
-			const condition = inspection.condition || 'not_inspected';
-			const statusClass = condition === 'good' ? 'good' : 
-							   condition === 'attention' ? 'warning' : 
-							   condition === 'urgent' ? 'critical' : 'neutral';
-			const statusText = condition === 'good' ? '✓ Bon' : 
-							 condition === 'attention' ? '⚠ Attention' : 
-							 condition === 'urgent' ? '⚠️ Urgent' : '? Non inspecté';
+		shelterInspectionsSnapshot.docs.forEach((doc, index) => {
+		  try {
+			const inspection = doc.data();
+			const shelterId = inspection.shelter_id;
 			
-			// Trail status badge (NEW)
-			const trailStatus = inspection.trail_status || 'unknown';
-			const trailStatusClass = trailStatus === 'open' ? 'status-open' : 
-									trailStatus === 'closed' ? 'status-closed' : 'status-unknown';
-			const trailStatusText = trailStatus === 'open' ? '🟢 Ouvert' : 
-								  trailStatus === 'closed' ? '🔴 Fermé' : '⚪ Inconnu';
+			console.log(`Processing shelter inspection ${index + 1}:`, {
+			  id: doc.id,
+			  shelterId,
+			  hasShelterData: sheltersMap.has(shelterId),
+			  inspectionDate: inspection.date
+			});
 			
-			trailCards.push(`
-			  <div class="inspection-item clickable-card" data-inspection-id="${inspection.id}" data-type="trail">
-				<div class="item-header">
-				  <h4 class="item-name">${inspection.trail.name}</h4>
-				  <div class="item-badges">
-					<span class="badge badge-${statusClass}">${statusText}</span>
-					<span class="badge ${trailStatusClass}">${trailStatusText}</span>
+			if (!processedShelters.has(shelterId)) {
+			  processedShelters.add(shelterId);
+			  
+			  const shelter = sheltersMap.get(shelterId);
+			  if (shelter) {
+				// Store inspection data for modal access
+				const inspectionData = {
+				  id: doc.id,
+				  type: 'shelter',
+				  ...inspection,
+				  date: inspection.date ? inspection.date.toDate() : new Date(),
+				  locationId: shelterId,
+				  locationName: shelter.name,
+				  capacity: shelter.capacity,
+				  altitude: shelter.altitude
+				};
+				allInspectionsData.push(inspectionData);
+				
+				const formattedDate = inspection.date ? 
+				  new Date(inspection.date.toDate()).toLocaleDateString('fr-FR', {
+					day: '2-digit',
+					month: '2-digit',
+					year: 'numeric'
+				  }) : 'Date inconnue';
+				
+				shelterCards.push(`
+				  <div class="inspection-item clickable-card" data-inspection-id="${doc.id}" data-type="shelter" style="cursor: pointer;">
+					<div class="item-header">
+					  <h4 class="item-name">${shelter.name}</h4>
+					  <div class="item-badges">
+						<span class="badge badge-${getStatusClass(inspection.condition)}">${getStatusText(inspection.condition)}</span>
+					  </div>
+					</div>
+					<div class="item-details">
+					  📅 ${formattedDate} • 
+					  👥 ${shelter.capacity ? shelter.capacity + ' places' : 'Capacité non spécifiée'} • 
+					  🏔️ ${shelter.altitude ? shelter.altitude + 'm' : 'Altitude non spécifiée'}
+					</div>
+					${
+					  inspection.issues && inspection.issues.length > 0 ? 
+					  `<div style="color: #dc2626; margin-top: 0.5rem;">⚠ ${inspection.issues.length} problème(s) signalé(s)</div>` : 
+					  '<div style="color: #059669; margin-top: 0.5rem;">✓ Aucun problème signalé</div>'
+					}
 				  </div>
-				</div>
-				<div class="item-details">
-				  📅 ${formattedDate} • 
-				  🏔️ ${inspection.trail.difficulty ? inspection.trail.difficulty.charAt(0).toUpperCase() + inspection.trail.difficulty.slice(1) : 'Difficulté non spécifiée'} • 
-				  📏 ${inspection.trail.length ? inspection.trail.length + ' km' : 'Distance non spécifiée'}
-				</div>
-				${
-				  inspection.issues && inspection.issues.length > 0 ? 
-				  `<div style="color: #dc2626; margin-top: 0.5rem;">⚠ ${inspection.issues.length} problème(s) signalé(s)</div>` : 
-				  '<div style="color: #059669; margin-top: 0.5rem;">✓ Aucun problème signalé</div>'
-				}
-			  </div>
-			`);
+				`);
+			  } else {
+				console.warn(`Shelter not found for ID: ${shelterId}`);
+			  }
+			}
+		  } catch (error) {
+			console.error(`Error processing shelter inspection ${index + 1}:`, error);
 		  }
 		});
 		
-		shelterInspectionsSnapshot.forEach(doc => {
-		  const inspection = { id: doc.id, type: 'shelter', ...doc.data() };
-		  const inspectionDate = inspection.date?.toDate ? inspection.date.toDate() : new Date(inspection.date);
-		  const formattedDate = inspectionDate.toLocaleDateString('fr-FR');
-		  
-		  if (inspection.shelter && inspection.shelter.name) {
-			const condition = inspection.condition || 'not_inspected';
-			const statusClass = condition === 'good' ? 'good' : 
-							   condition === 'attention' ? 'warning' : 
-							   condition === 'urgent' ? 'critical' : 'neutral';
-			const statusText = condition === 'good' ? '✓ Bon' : 
-							 condition === 'attention' ? '⚠ Attention' : 
-							 condition === 'urgent' ? '⚠️ Urgent' : '? Non inspecté';
-			
-			shelterCards.push(`
-			  <div class="inspection-item clickable-card" data-inspection-id="${inspection.id}" data-type="shelter">
-				<div class="item-header">
-				  <h4 class="item-name">${inspection.shelter.name}</h4>
-				  <div class="item-badges">
-					<span class="badge badge-${statusClass}">${statusText}</span>
-				  </div>
-				</div>
-				<div class="item-details">
-				  📅 ${formattedDate} • 
-				  👥 ${inspection.shelter.capacity ? inspection.shelter.capacity + ' places' : 'Capacité non spécifiée'} • 
-				  🏔️ ${inspection.shelter.altitude ? inspection.shelter.altitude + 'm' : 'Altitude non spécifiée'}
-				</div>
-				${
-				  inspection.issues && inspection.issues.length > 0 ? 
-				  `<div style="color: #dc2626; margin-top: 0.5rem;">⚠ ${inspection.issues.length} problème(s) signalé(s)</div>` : 
-				  '<div style="color: #059669; margin-top: 0.5rem;">✓ Aucun problème signalé</div>'
-				}
-			  </div>
-			`);
-		  }
-		});
+		console.log(`Generated ${trailCards.length} trail cards and ${shelterCards.length} shelter cards`);
 		
 		// Update the display with safety checks
 		if (sentiersContainer) {
@@ -465,27 +564,47 @@ function initDashboardFilters() {
 			'<div style="text-align: center; padding: 2rem; color: #6b7280;">Aucune inspection d\'abri dans les 7 derniers jours</div>';
 		}
 		
-		console.log("Summary loaded - Trails:", trailCards.length, "Shelters:", shelterCards.length);
+		console.log("Summary loaded successfully - Trails:", trailCards.length, "Shelters:", shelterCards.length);
 		
 		// Initialize filter functionality and click handlers
-		initSummaryFilters();
-		initInspectionCardClickHandlers();
+		try {
+		  if (typeof initSummaryFilters === 'function') {
+			initSummaryFilters();
+		  } else {
+			console.warn('initSummaryFilters function not found');
+		  }
+		  
+		  initInspectionCardClickHandlers();
+		} catch (error) {
+		  console.error('Error initializing summary filters and handlers:', error);
+		}
 		
 	  } catch (error) {
 		console.error("Error loading recent inspections for summary:", error);
+		console.error("Error details:", {
+		  message: error.message,
+		  stack: error.stack
+		});
 		
 		const sentiersContainer = document.getElementById('sentiers-list');
 		const abrisContainer = document.getElementById('abris-list');
 		
 		if (sentiersContainer) {
-		  sentiersContainer.innerHTML = '<div style="text-align: center; padding: 2rem; color: #dc2626;">Erreur lors du chargement des sentiers</div>';
+		  sentiersContainer.innerHTML = `<div style="text-align: center; padding: 2rem; color: #dc2626;">
+			Erreur lors du chargement des sentiers<br>
+			<small>${error.message}</small>
+		  </div>`;
 		}
 		
 		if (abrisContainer) {
-		  abrisContainer.innerHTML = '<div style="text-align: center; padding: 2rem; color: #dc2626;">Erreur lors du chargement des abris</div>';
+		  abrisContainer.innerHTML = `<div style="text-align: center; padding: 2rem; color: #dc2626;">
+			Erreur lors du chargement des abris<br>
+			<small>${error.message}</small>
+		  </div>`;
 		}
 	  }
   }
+
 
 /**
  * Initialize click handlers for inspection cards to open modal
@@ -979,5 +1098,18 @@ function handleSummaryFilterClick(event) {
   } else if (filterType === 'abri') {
     sentiersSection.style.display = 'none';
     abrisSection.style.display = 'block';
+  }
+}
+
+if (typeof createTrailStatusBadge !== 'function') {
+  function createTrailStatusBadge(trailStatus) {
+    const statusConfig = {
+      'open': { class: 'status-open', text: '🟢 Ouvert', title: 'Sentier ouvert au public' },
+      'closed': { class: 'status-closed', text: '🔴 Fermé', title: 'Sentier fermé au public' }
+    };
+    
+    const config = statusConfig[trailStatus] || { class: 'status-unknown', text: '❓ Inconnu', title: 'Statut inconnu' };
+    
+    return `<span class="status-badge ${config.class}" title="${config.title}">${config.text}</span>`;
   }
 }
