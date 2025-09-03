@@ -158,3 +158,24 @@
   flex-shrink: 0;
   border: 1px solid rgba(0, 0, 0, 0.1);
 }
+
+.status-badges {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.no-issues {
+  color: var(--color-success, #10b981);
+  font-weight: 500;
+}
+
+.info-section ul {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.info-section li {
+  margin-bottom: 0.25rem;
+}
