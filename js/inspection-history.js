@@ -778,13 +778,30 @@ async loadData() {
 
   // Updated generateModalContent method - ADD TRAIL STATUS
   async generateModalContent(inspection) {
-	  const formattedDate = this.formatDate(inspection.date.toDate());
+	  // FIXED: Better date handling for modal
+	  let date;
+	  if (inspection.date) {
+		if (typeof inspection.date.toDate === 'function') {
+		  // Firebase Timestamp
+		  date = inspection.date.toDate();
+		} else if (inspection.date instanceof Date) {
+		  // Already a Date object
+		  date = inspection.date;
+		} else {
+		  // Try to parse as date
+		  date = new Date(inspection.date);
+		}
+	  } else {
+		date = new Date();
+	  }
+	  
+	  const formattedDate = this.formatDate(date);
 	  const typeText = inspection.type === 'trail' ? 'Sentier' : 'Abri';
 	  const statusBadge = this.createStatusBadge(inspection.condition);
 
 	  let specificInfo = '';
 	  if (inspection.type === 'trail') {
-		// NEW: Trail Status in modal
+		// Trail Status in modal
 		const trailStatusBadge = inspection.trail_status 
 		  ? this.createTrailStatusBadge(inspection.trail_status)
 		  : '<span class="badge badge-secondary">Non spécifié</span>';
@@ -916,39 +933,40 @@ async loadData() {
   }
 
   getDifficultyText(difficulty) {
-    const texts = {
-      easy: 'Facile',
-      medium: 'Moyen',
-      hard: 'Difficile'
-    };
-    return texts[difficulty] || 'Non spécifié';
+	  const difficultyMap = {
+		'easy': 'Facile',
+		'medium': 'Intermédiaire',
+		'hard': 'Difficile'
+	  };
+	  return difficultyMap[difficulty] || difficulty || 'Non spécifié';
   }
 
   getSnowConditionText(condition) {
-    const texts = {
-      good: 'Bonnes',
-      warning: 'Moyennes',
-      critical: 'Mauvaises'
-    };
-    return texts[condition] || 'Non spécifié';
+	  const conditionMap = {
+		'good': 'Bonnes conditions',
+		'warning': 'Conditions moyennes',
+		'critical': 'Mauvaises conditions',
+		'none': 'Non évalué'
+	  };
+	  return conditionMap[condition] || condition;
   }
 
   getCleanlinessText(cleanliness) {
-    const texts = {
-      good: 'Propre',
-      warning: 'Moyen',
-      critical: 'Sale'
-    };
-    return texts[cleanliness] || 'Non spécifié';
+	  const cleanlinessMap = {
+		'clean': 'Propre',
+		'average': 'Moyen',
+		'dirty': 'Sale'
+	  };
+	  return cleanlinessMap[cleanliness] || cleanliness;
   }
 
   getAccessibilityText(accessibility) {
-    const texts = {
+	const accessibilityMap = {
       good: 'Dégagé',
       warning: 'Partiellement obstrué',
       critical: 'Bloqué'
     };
-    return texts[accessibility] || 'Non spécifié';
+	return accessibilityMap[accessibility] || accessibility;
   }
 
   downloadReport(inspectionId) {
