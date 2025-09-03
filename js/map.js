@@ -520,6 +520,7 @@ async function showTrailDetails(trail) {
     <div class="info-title">Caractéristiques</div>
     <p>Longueur: ${trail.length || '?'} km • Difficulté: ${difficultyText}</p>
   `;
+  scrollToInspectionSection();
 }
 
 /**
@@ -666,6 +667,7 @@ async function showShelterDetails(shelter) {
     <div class="info-title">Caractéristiques</div>
     <p>Altitude: ${shelter.altitude || '?'} m</p>
   `;
+  scrollToInspectionSection();
 }
 
 /**
@@ -1302,6 +1304,30 @@ function initMapFilterToggle() {
     }
   });
 }
+
+  function scrollToInspectionSection() {
+	  // Find the "Inspection sélectionnée" section
+	  const cardTitles = document.querySelectorAll('.card-title');
+	  let inspectionSection = null;
+	  
+	  // Look for the card with title "Inspection sélectionnée"
+	  for (const title of cardTitles) {
+		if (title.textContent.includes('Inspection sélectionnée')) {
+		  inspectionSection = title.closest('.content-section');
+		  break;
+		}
+	  }
+	  
+	  // If found, scroll to it smoothly
+	  if (inspectionSection) {
+		setTimeout(() => {
+		  inspectionSection.scrollIntoView({
+			behavior: 'smooth',
+			block: 'start'
+		  });
+		}, 200); // Small delay to ensure content is updated
+	  }
+  }
 
 // Initialisation lors du chargement de la page
 document.addEventListener('DOMContentLoaded', function() {
