@@ -479,7 +479,8 @@ async loadData() {
   }
 
   displayInspections(inspections = null) {
-	  const displayInspections = inspections || this.getPagedInspections();
+	  // Use provided inspections or get current filtered results
+	  const displayInspections = inspections || this.getCurrentPageInspections();
 	  
 	  if (!displayInspections || displayInspections.length === 0) {
 		this.inspectionsTable.innerHTML = `
@@ -487,7 +488,9 @@ async loadData() {
 			<td colspan="8" class="text-center">Aucune inspection trouvée</td>
 		  </tr>
 		`;
-		document.getElementById('results-count').textContent = '0';
+		if (document.getElementById('results-count')) {
+		  document.getElementById('results-count').textContent = '0';
+		}
 		return;
 	  }
 
@@ -543,7 +546,20 @@ async loadData() {
 	  });
 
 	  this.inspectionsTable.innerHTML = html;
-	  document.getElementById('results-count').textContent = displayInspections.length.toString();
+	  if (document.getElementById('results-count')) {
+		document.getElementById('results-count').textContent = displayInspections.length.toString();
+	  }
+  }
+
+  // Add this method to get current page inspections
+  getCurrentPageInspections() {
+	  if (!this.filteredInspections || this.filteredInspections.length === 0) {
+		return [];
+	  }
+	  
+	  const startIndex = (this.currentPage - 1) * this.pageSize;
+	  const endIndex = startIndex + this.pageSize;
+	  return this.filteredInspections.slice(startIndex, endIndex);
   }
 
   createInspectionRow(inspection) {
