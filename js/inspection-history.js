@@ -531,9 +531,9 @@ async loadData() {
 		const photosCount = inspection.photos ? inspection.photos.length : 0;
 		const photosText = photosCount > 0 ? `${photosCount} photo${photosCount > 1 ? 's' : ''}` : 'Aucune';
 		
-		// Admin actions
+		// Admin actions - FIXED: Use correct global variable name
 		const adminActions = this.isAdminUser ? 
-		  `<button class="btn btn-sm btn-danger" onclick="inspectionHistoryManager.deleteInspection('${inspection.id}')" title="Supprimer">🗑️</button>` : 
+		  `<button class="btn btn-sm btn-danger" onclick="inspectionHistory.deleteInspection('${inspection.id}')" title="Supprimer">🗑️</button>` : 
 		  '';
 
 		html += `
@@ -553,7 +553,7 @@ async loadData() {
 			</td>
 			<td>
 			  <div class="btn-group btn-group-sm">
-				<button class="btn btn-sm btn-primary" onclick="inspectionHistoryManager.viewInspectionDetails('${inspection.id}')" title="Voir les détails">👁️</button>
+				<button class="btn btn-sm btn-primary" onclick="inspectionHistory.viewInspectionDetails('${inspection.id}')" title="Voir les détails">👁️</button>
 				${adminActions}
 			  </div>
 			</td>
@@ -1290,6 +1290,10 @@ showSuccessMessage(message) {
     }
   }, 5000);
 }
+
+  viewInspectionDetails(inspectionId) {
+	return this.viewDetails(inspectionId);
+  }
 
 }
 
