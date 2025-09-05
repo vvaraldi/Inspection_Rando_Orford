@@ -1081,19 +1081,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
 /**
  * Ouvre le modal avec les détails d'inspection
- * @param {Object} item - Sentier ou abri sélectionné
  */
 async function openInspectionModal(item) {
   console.log(`Opening modal for ${item.name}`);
   
-  // Vérifier si une inspection récente existe
   if (!item.lastInspection) {
     alert(`Aucune inspection disponible pour ${item.name}`);
     return;
   }
   
   try {
-    // Préparer les données d'inspection pour le modal
     const inspection = {
       id: item.lastInspection.id || `${item.id}_inspection`,
       locationName: item.name,
@@ -1104,27 +1101,21 @@ async function openInspectionModal(item) {
       issues: item.lastInspection.issues || [],
       notes: item.lastInspection.notes || '',
       photos: item.lastInspection.photos || [],
-      // Informations spécifiques aux sentiers
       trail_status: item.lastInspection.trail_status || null,
-      length: item.lastInspection.length || null,
-      difficulty: item.lastInspection.difficulty || null,
+      length: item.lastInspection.length || item.length || null,
+      difficulty: item.lastInspection.difficulty || item.difficulty || null,
       snow_condition: item.lastInspection.snow_condition || null,
-      // Informations spécifiques aux abris
       cleanliness: item.lastInspection.cleanliness || null,
       accessibility: item.lastInspection.accessibility || null,
-      capacity: item.lastInspection.capacity || null
+      capacity: item.lastInspection.capacity || item.capacity || null
     };
     
-    // Générer le contenu du modal
     const modalContent = await generateModalContent(inspection);
-    
-    // Injecter le contenu dans le modal
     const modalBody = document.getElementById('modal-content');
     if (modalBody) {
       modalBody.innerHTML = modalContent;
     }
     
-    // Afficher le modal
     showModal();
     
   } catch (error) {
