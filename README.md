@@ -3,7 +3,6 @@
 To do:
 
 Priority 1
-1 - simplify the status page
 
 
 Priority 2
