@@ -187,6 +187,7 @@
   border-radius: var(--border-radius-md);
   border: var(--border-width) solid var(--theme-border);
   position: relative;
+  text-align: center; /* Center all content in the section */
 }
 
 .badge-toggle-label {
@@ -197,6 +198,7 @@
   color: var(--theme-text);
   cursor: pointer;
   user-select: none;
+  text-align: center; /* Center the label text */
 }
 
 .toggle-switch {
@@ -205,6 +207,7 @@
   width: 60px;
   height: 28px;
   z-index: 10;
+  margin: 0 auto; /* Center the toggle switch */
 }
 
 .toggle-switch input {
@@ -262,10 +265,12 @@
 /* Labels */
 .toggle-labels {
   display: flex;
-  justify-content: space-between;
+  justify-content: center; /* Center the labels container */
   margin-top: var(--space-xs);
   font-size: var(--text-xs);
   color: var(--theme-text-light);
+  align-items: center;
+  gap: var(--space-md); /* Add space between "Détaillé" and "Simple" */
 }
 
 /* Simple view marker styles */
