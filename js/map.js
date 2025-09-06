@@ -177,7 +177,6 @@ function clearExistingMarkers() {
  * @param {Array} trails - Sentiers avec leur statut
  */
 function displayTrailMarkers(trails) {
-  // Sélectionner le conteneur de la carte
   const mapContainer = document.querySelector('.map-bg');
   if (!mapContainer) {
     console.error("Conteneur de carte non trouvé");
@@ -191,10 +190,9 @@ function displayTrailMarkers(trails) {
   
   // Créer et ajouter les nouveaux marqueurs
   trails.forEach(trail => {
-    // Créer l'élément du marqueur
     const marker = document.createElement('div');
     
-    // NEW: Use getMarkerClass function for dynamic styling
+    // UPDATED: Use getMarkerClass function for dynamic styling based on toggle
     marker.className = getMarkerClass(trail, 'trail');
     
     marker.textContent = trail.id.replace('trail_', '');
@@ -206,10 +204,10 @@ function displayTrailMarkers(trails) {
       marker.style.left = `${trail.coordinates.left}px`;
     } else {
       console.warn(`Coordonnées manquantes pour le sentier ${trail.id}`);
-      return; // Sauter ce marqueur
+      return;
     }
     
-    // Ajouter un gestionnaire d'événement pour afficher les détails
+    // Event listeners (unchanged)
     marker.addEventListener('click', async () => {
       try {
         await openInspectionModal(trail);
@@ -219,7 +217,7 @@ function displayTrailMarkers(trails) {
       }
     });
     
-    // NEW: Update tooltip based on current view
+    // UPDATED: Dynamic tooltip based on current view
     let tooltipText = trail.name;
     
     if (currentBadgeView === 'simple') {
@@ -239,10 +237,7 @@ function displayTrailMarkers(trails) {
       }
     }
     
-    // Définir le tooltip complet
     marker.setAttribute('title', tooltipText);
-    
-    // Ajouter le marqueur à la carte
     mapContainer.appendChild(marker);
   });
 }
