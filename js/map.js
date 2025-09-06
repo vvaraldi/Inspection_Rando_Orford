@@ -1067,66 +1067,41 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 /**
- * Ouvre le modal avec les détails d'inspection
+ * Ouvre le modal avec les détails d'inspection - Version simple qui réutilise le système dashboard
  */
 async function openInspectionModal(item) {
   console.log(`Opening modal for ${item.name}`);
-  console.log("Date debug info:");
-  console.log("item.lastInspection.date:", item.lastInspection.date);
-  console.log("Type:", typeof item.lastInspection.date);
-  console.log("Has toDate method:", !!(item.lastInspection.date && item.lastInspection.date.toDate));
-
   
   if (!item.lastInspection) {
     alert(`Aucune inspection disponible pour ${item.name}`);
     return;
   }
   
-  // Make sure the modal exists
-  let modal = document.getElementById('inspection-modal');
-  if (!modal) {
-    console.log("Creating modal...");
-    createModalHTML();
-    modal = document.getElementById('inspection-modal');
-  }
-  
   try {
-	const inspection = {
-	  id: item.lastInspection.id || `${item.id}_inspection`,
-	  locationName: item.name,
-	  type: item.type,
-	  date: item.lastInspection.date || new Date(),
-	  inspector: item.lastInspection.inspector || 'Inspecteur inconnu',
-	  condition: item.status || 'non-specifie',
-	  issues: item.lastInspection.issues || [],
-	  notes: item.lastInspection.notes || '',
-	  photos: item.lastInspection.photos || [],
-	  trail_status: item.lastInspection.trail_status || null,
-	  length: item.lastInspection.length || item.length || null,
-	  difficulty: item.lastInspection.difficulty || item.difficulty || null,
-	  snow_condition: item.lastInspection.snow_condition || null,
-	  cleanliness: item.lastInspection.cleanliness || null,
-	  accessibility: item.lastInspection.accessibility || null,
-	  capacity: item.lastInspection.capacity || item.capacity || null
-	};
+    // Prepare inspection data in the exact same format as dashboard list
+    const inspection = {
+      id: item.lastInspection.id || `${item.id}_inspection`,
+      type: item.type,
+      ...item.lastInspection, // Include all inspection data
+      locationName: item.name,
+      locationId: item.id,
+      // Ensure we have the trail/shelter reference data
+      length: item.lastInspection.length || item.length,
+      difficulty: item.lastInspection.difficulty || item.difficulty,
+      capacity: item.lastInspection.capacity || item.capacity
+    };
     
-    // Check if generateModalContent exists
-    if (typeof generateModalContent === 'function') {
-      const modalContent = await generateModalContent(inspection);
-      const modalBody = document.getElementById('modal-content');
-      if (modalBody) {
-        modalBody.innerHTML = modalContent;
+    // Call the same function that the list uses
+    await viewInspectionDetails(inspection.id);
+    
+    // If viewInspectionDetails doesn't work because inspection isn't in allInspectionsData,
+    // temporarily add it
+    if (typeof allInspectionsData !== 'undefined') {
+      const existingIndex = allInspectionsData.findIndex(i => i.id === inspection.id);
+      if (existingIndex === -1) {
+        allInspectionsData.push(inspection);
       }
-      
-      // Check if showModal exists
-      if (typeof showModal === 'function') {
-        showModal();
-      } else {
-        modal.style.display = 'flex';
-      }
-    } else {
-      console.error('generateModalContent function not found');
-      alert('Erreur: fonction de génération de contenu manquante');
+      await viewInspectionDetails(inspection.id);
     }
     
   } catch (error) {
@@ -1134,7 +1109,6 @@ async function openInspectionModal(item) {
     alert('Erreur lors du chargement des détails d\'inspection');
   }
 }
-
 
 /**
  * Create modal HTML if it doesn't exist
