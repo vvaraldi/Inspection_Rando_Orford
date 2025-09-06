@@ -176,6 +176,10 @@ function clearExistingMarkers() {
  * MODIFIED: Affiche les marqueurs des sentiers sur la carte
  * @param {Array} trails - Sentiers avec leur statut
  */
+/**
+ * MODIFIED: Affiche les marqueurs des sentiers sur la carte avec indicateurs de problèmes
+ * @param {Array} trails - Sentiers avec leur statut
+ */
 function displayTrailMarkers(trails) {
   const mapContainer = document.querySelector('.map-bg');
   if (!mapContainer) {
@@ -195,7 +199,23 @@ function displayTrailMarkers(trails) {
     // UPDATED: Use getMarkerClass function for dynamic styling based on toggle
     marker.className = getMarkerClass(trail, 'trail');
     
-    marker.textContent = trail.id.replace('trail_', '');
+    // Check if there are issues for the exclamation mark indicator
+    const hasIssues = trail.lastInspection && 
+                     trail.lastInspection.issues && 
+                     trail.lastInspection.issues.length > 0;
+    
+    // Create marker content with potential problem indicator
+    if (currentBadgeView === 'detailed' && hasIssues) {
+      // In detail mode with issues: add exclamation mark indicator
+      marker.innerHTML = `
+        <span>${trail.id.replace('trail_', '')}</span>
+        <div class="problem-indicator">!</div>
+      `;
+    } else {
+      // Simple mode or no issues: just show the number
+      marker.textContent = trail.id.replace('trail_', '');
+    }
+    
     marker.setAttribute('data-id', trail.id);
     
     // Positionner le marqueur selon les coordonnées enregistrées
@@ -220,27 +240,27 @@ function displayTrailMarkers(trails) {
     // UPDATED: Dynamic tooltip based on current view
     let tooltipText = trail.name;
     
-	if (currentBadgeView === 'simple') {
-	  // Simple view tooltip: show trail status (open/closed)
-	  const trailStatus = (trail.lastInspection && trail.lastInspection.trail_status) || 'unknown';
-	  const statusText = trailStatus === 'open' ? 'Ouvert' : 
-						trailStatus === 'closed' ? 'Fermé' : 'Statut inconnu';
-	  tooltipText += `\nStatut: ${statusText}`;
-	} else {
-	  // Detailed view tooltip: show condition and inspection date
-	  const conditionText = trail.status === 'good' ? 'Bon état' :
-						   trail.status === 'warning' ? 'Attention' :
-						   trail.status === 'critical' ? 'Critique' : 'Non inspecté';
-	  tooltipText += `\nÉtat: ${conditionText}`;
-	  
-	  if (trail.lastInspection && trail.lastInspection.date) {
-		const date = trail.lastInspection.date.toDate();
-		const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
-		tooltipText += `\nDernière inspection: ${formattedDate}`;
-	  } else {
-		tooltipText += '\nAucune inspection récente';
-	  }
-	}
+    if (currentBadgeView === 'simple') {
+      // Simple view tooltip: show trail status
+      const trailStatus = trail.trail_status || trail.trailStatus || 'unknown';
+      const statusText = trailStatus === 'open' ? 'Ouvert' : 
+                        trailStatus === 'closed' ? 'Fermé' : 'Statut inconnu';
+      tooltipText += `\nStatut: ${statusText}`;
+    } else {
+      // Detailed view tooltip: existing behavior
+      if (trail.lastInspection && trail.lastInspection.date) {
+        const date = trail.lastInspection.date.toDate();
+        const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+        tooltipText += `\nDernière inspection: ${formattedDate}`;
+      } else {
+        tooltipText += '\nAucune inspection récente';
+      }
+      
+      // Add issues info to tooltip in detailed view
+      if (hasIssues) {
+        tooltipText += `\n⚠ ${trail.lastInspection.issues.length} problème(s) signalé(s)`;
+      }
+    }
     
     marker.setAttribute('title', tooltipText);
     mapContainer.appendChild(marker);
@@ -255,18 +275,12 @@ function displayTrailMarkers(trails) {
  * UPDATED: Affiche les marqueurs des abris sur la carte (hide in simple view)
  * @param {Array} shelters - Abris avec leur statut
  */
+/**
+ * MODIFIED: Affiche les marqueurs des abris sur la carte avec indicateurs de problèmes
+ * @param {Array} shelters - Abris avec leur statut
+ */
 function displayShelterMarkers(shelters) {
-  // NEW: Hide shelters in simple view
-  if (currentBadgeView === 'simple') {
-    console.log('Simple view active - hiding shelter markers');
-    // Remove all existing shelter markers
-    document.querySelectorAll('.map-marker-shelter').forEach(marker => {
-      marker.remove();
-    });
-    return; // Exit early, don't display shelters
-  }
-  
-  // Rest of the function stays the same for detailed view
+  // Sélectionner le conteneur de la carte
   const mapContainer = document.querySelector('.map-bg');
   if (!mapContainer) {
     console.error("Conteneur de carte non trouvé");
@@ -278,14 +292,31 @@ function displayShelterMarkers(shelters) {
     marker.remove();
   });
   
-  // Créer et ajouter les nouveaux marqueurs (only in detailed view)
+  // Créer et ajouter les nouveaux marqueurs
   shelters.forEach(shelter => {
+    // Créer l'élément du marqueur
     const marker = document.createElement('div');
     
-    // Use getMarkerClass function for consistency
+    // NEW: Use getMarkerClass function for consistency (shelters unchanged in simple view)
     marker.className = getMarkerClass(shelter, 'shelter');
     
-    marker.innerHTML = `<span>A` + shelter.id.replace('shelter_', '') + '</span>';
+    // Check if there are issues for the exclamation mark indicator
+    const hasIssues = shelter.lastInspection && 
+                     shelter.lastInspection.issues && 
+                     shelter.lastInspection.issues.length > 0;
+    
+    // Create marker content with potential problem indicator
+    if (currentBadgeView === 'detailed' && hasIssues) {
+      // In detail mode with issues: add exclamation mark indicator
+      marker.innerHTML = `
+        <span>A${shelter.id.replace('shelter_', '')}</span>
+        <div class="problem-indicator">!</div>
+      `;
+    } else {
+      // Simple mode or no issues: just show the A + number
+      marker.innerHTML = `<span>A${shelter.id.replace('shelter_', '')}</span>`;
+    }
+    
     marker.setAttribute('data-id', shelter.id);
     
     // Positionner le marqueur selon les coordonnées enregistrées
@@ -297,7 +328,7 @@ function displayShelterMarkers(shelters) {
       return;
     }
     
-    // Ajouter un gestionnaire d'événement pour afficher les détails
+    // Event listeners (unchanged)
     marker.addEventListener('click', async () => {
       try {
         await openInspectionModal(shelter);
@@ -307,15 +338,32 @@ function displayShelterMarkers(shelters) {
       }
     });
     
-    // Préparer le texte du tooltip
+    // Dynamic tooltip based on current view (same logic as trails)
     let tooltipText = shelter.name;
     
-    if (shelter.lastInspection && shelter.lastInspection.date) {
-      const date = shelter.lastInspection.date.toDate();
-      const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
-      tooltipText += `\nDernière inspection: ${formattedDate}`;
+    if (currentBadgeView === 'simple') {
+      // Simple view tooltip: show basic status
+      const statusText = {
+        'good': 'Bon état',
+        'warning': 'Attention', 
+        'critical': 'Critique',
+        'not-inspected': 'Non inspecté'
+      }[shelter.status] || 'Statut inconnu';
+      tooltipText += `\nÉtat: ${statusText}`;
     } else {
-      tooltipText += '\nAucune inspection récente';
+      // Detailed view tooltip: existing behavior
+      if (shelter.lastInspection && shelter.lastInspection.date) {
+        const date = shelter.lastInspection.date.toDate();
+        const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+        tooltipText += `\nDernière inspection: ${formattedDate}`;
+      } else {
+        tooltipText += '\nAucune inspection récente';
+      }
+      
+      // Add issues info to tooltip in detailed view
+      if (hasIssues) {
+        tooltipText += `\n⚠ ${shelter.lastInspection.issues.length} problème(s) signalé(s)`;
+      }
     }
     
     marker.setAttribute('title', tooltipText);
