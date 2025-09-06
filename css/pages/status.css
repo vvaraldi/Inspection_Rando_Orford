@@ -1,24 +1,65 @@
 /* ========================================
-   Status Page Specific Styles
+   Status Page Complete CSS - Clean Version
    ======================================== */
 
-/* Body styles for public page */
+/* CSS Variables (fallbacks if not defined elsewhere) */
+:root {
+  --color-primary: #1b4b72;
+  --color-secondary: #2c7a5d;
+  --color-white: #ffffff;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --theme-surface: #ffffff;
+  --theme-background: #f8f9fb;
+  --theme-text: #1f2937;
+  --theme-border: #e5e7eb;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-xl: 20px;
+  --text-2xl: 24px;
+  --font-semibold: 600;
+  --font-bold: 700;
+  --border-radius-sm: 4px;
+  --border-radius-lg: 8px;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --transition-fast: 0.15s ease;
+  --z-sticky: 100;
+}
+
+/* ========================================
+   Body and Layout
+   ======================================== */
+
 body {
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: var(--theme-background, #f8f9fb);
+  background-color: var(--theme-background);
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200" opacity="0.05"><path d="M100 0 L200 200 L0 200 Z" fill="%231b4b72"/></svg>');
   background-size: 200px;
   background-repeat: repeat;
   background-attachment: fixed;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* Public header */
+/* ========================================
+   Header
+   ======================================== */
+
 .public-header {
-  background: linear-gradient(135deg, var(--color-primary, #1b4b72) 0%, var(--color-secondary, #2c7a5d) 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
   color: var(--color-white);
   padding: var(--space-lg) var(--space-md);
   text-align: center;
@@ -39,6 +80,7 @@ body {
   color: var(--color-white);
   margin: 0;
   font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -51,21 +93,23 @@ body {
   font-size: var(--text-sm);
 }
 
-/* View section styling (replaces filters section) */
+/* ========================================
+   View Toggle Section
+   ======================================== */
+
 .view-section {
-  background: var(--theme-surface, white);
-  padding: var(--space-md, 16px);
-  box-shadow: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.1));
+  background: var(--theme-surface);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-sm);
   position: sticky;
   top: 0;
-  z-index: var(--z-sticky, 100);
+  z-index: var(--z-sticky);
 }
 
 .view-toggle {
   display: flex;
   justify-content: center;
   gap: var(--space-sm);
-  margin-bottom: var(--space-md);
 }
 
 .toggle-btn {
@@ -77,6 +121,7 @@ body {
   cursor: pointer;
   transition: all var(--transition-fast);
   font-weight: var(--font-semibold);
+  font-size: var(--text-sm);
 }
 
 .toggle-btn:hover {
@@ -88,45 +133,23 @@ body {
   color: var(--color-white);
 }
 
-.filter-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-sm);
-  justify-content: center;
-}
+/* ========================================
+   Main Content
+   ======================================== */
 
-.filter-btn {
-  padding: calc(var(--space-sm) * 0.8) calc(var(--space-md) * 0.8);
-  border: 1px solid var(--color-gray-300);
-  background: var(--theme-surface);
-  border-radius: 15px;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  font-size: var(--text-xs);
-}
-
-.filter-btn:hover {
-  border-color: var(--color-primary);
-  background: var(--theme-background);
-}
-
-.filter-btn.active {
-  background: var(--color-primary);
-  color: var(--color-white);
-  border-color: var(--color-primary);
-}
-
-/* Main content */
 .main-content {
   flex: 1;
   padding: var(--space-lg);
   overflow: auto;
 }
 
-/* Map view container */
+/* ========================================
+   Map View
+   ======================================== */
+
 .map-view-container {
   display: none;
-  background: var(--theme-surface) !important;
+  background: var(--theme-surface);
   border-radius: var(--border-radius-lg);
   padding: var(--space-md);
   box-shadow: var(--shadow-sm);
@@ -141,8 +164,8 @@ body {
 }
 
 .map-wrapper {
-  width: 100%;
   position: relative;
+  width: 100%;
   overflow: auto;
   max-height: 80vh;
 }
@@ -154,8 +177,12 @@ body {
   max-width: 100%;
 }
 
+/* ========================================
+   Map Markers - Trail Status Only
+   ======================================== */
+
 .map-marker {
-  position: absolute !important;
+  position: absolute;
   width: 40px;
   height: 40px;
   border-radius: 50%;
@@ -163,120 +190,34 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
+  color: white !important;
+  font-weight: var(--font-bold);
+  cursor: default;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-  font-size: 14px;
+  font-size: 18px;
   z-index: 10;
   border: 2px solid white;
-  transition: transform 0.2s ease;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  line-height: 1;
 }
 
-.map-marker:hover {
-  transform: translate(-50%, -50%) scale(1.1);
-  z-index: 20;
+/* Trail Status Colors (Operational Status) */
+.trail-status-open {
+  background-color: #10b981 !important; /* Green - Trail is open */
 }
 
-/* Status-based marker colors */
-.map-marker-good {
-  background-color: #10b981; /* Green */
+.trail-status-closed {
+  background-color: #ef4444 !important; /* Red - Trail is closed */
 }
 
-.map-marker-warning {
-  background-color: #f59e0b; /* Orange */
+.trail-status-unknown {
+  background-color: #6b7280 !important; /* Gray - Status unknown */
 }
 
-.map-marker-critical {
-  background-color: #ef4444; /* Red */
-}
+/* ========================================
+   List View
+   ======================================== */
 
-.map-marker-not-inspected {
-  background-color: #6b7280; /* Gray */
-}
-
-/* Map markers - positioned absolutely relative to map-wrapper */
-.trail-marker {
-  position: absolute;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-white);
-  font-weight: var(--font-bold);
-  cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-  font-size: var(--text-sm);
-  z-index: 10;
-  border: 2px solid var(--color-white);
-  transition: transform var(--transition-fast);
-}
-
-.trail-marker:hover {
-  transform: translate(-50%, -50%) scale(1.1);
-  z-index: 20;
-}
-
-.marker-good {
-  background-color: var(--color-success);
-}
-
-.marker-warning {
-  background-color: var(--color-warning);
-}
-
-.marker-critical {
-  background-color: var(--color-danger);
-}
-
-.marker-not-inspected {
-  background-color: var(--color-gray-500);
-}
-
-/* Map tooltip */
-.map-tooltip {
-  position: absolute;
-  background: var(--color-gray-800);
-  color: var(--color-white);
-  padding: var(--space-sm) calc(var(--space-sm) * 1.5);
-  border-radius: var(--border-radius-sm);
-  font-size: var(--text-xs);
-  pointer-events: none;
-  z-index: 1000;
-  display: none;
-  white-space: nowrap;
-}
-
-.tooltip-header {
-  font-weight: bold;
-  margin-bottom: 8px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid #4b5563;
-}
-
-.tooltip-row {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 4px;
-}
-
-.tooltip-row:last-child {
-  margin-bottom: 0;
-}
-
-.tooltip-label {
-  font-weight: 500;
-  margin-right: 8px;
-}
-
-.tooltip-value {
-  font-weight: normal;
-}
-
-/* List view container */
 .list-view-container {
   display: none;
   max-width: 1200px;
@@ -289,378 +230,163 @@ body {
   gap: var(--space-lg);
 }
 
-.list-section {
+/* ========================================
+   Tables
+   ======================================== */
+
+.table-section {
   background: var(--theme-surface);
   border-radius: var(--border-radius-lg);
   overflow: hidden;
   box-shadow: var(--shadow-sm);
 }
 
-.list-section-header {
+.table-title {
   background: var(--theme-background);
   padding: var(--space-md);
-  border-bottom: 2px solid var(--color-gray-300);
-  text-align: center;
+  margin: 0;
+  font-size: var(--text-xl);
   font-weight: var(--font-semibold);
   color: var(--theme-text);
-  font-size: var(--text-base);
+  text-align: center;
+  border-bottom: 2px solid var(--color-gray-300);
 }
 
-.list-section-header.shelters {
-  background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
-  color: var(--color-purple-700);
+.table-container {
+  overflow-x: auto;
 }
 
-/* Status table */
-.status-table {
-  width: 100%;
-}
-
-.status-table table {
+.data-table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.status-table th {
+.data-table th {
   background: var(--theme-background);
-  padding: calc(var(--space-sm) * 1.5);
+  padding: var(--space-md);
   text-align: left;
   font-weight: var(--font-semibold);
   color: var(--color-gray-600);
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
   border-bottom: 1px solid var(--color-gray-300);
 }
 
-.status-table td {
-  padding: calc(var(--space-sm) * 1.5);
+.data-table td {
+  padding: var(--space-md);
   border-bottom: 1px solid var(--color-gray-200);
   color: var(--theme-text);
   font-size: var(--text-sm);
+  vertical-align: middle;
 }
 
-.status-table tbody tr:hover {
+.data-table tbody tr:hover {
   background: var(--theme-background);
 }
 
-.status-table tbody tr:last-child td {
+.data-table tbody tr:last-child td {
   border-bottom: none;
 }
 
-/* Type badge */
-.type-badge {
-  display: inline-block;
-  padding: calc(var(--space-xs) * 1.25) calc(var(--space-sm) * 1.2);
-  border-radius: 12px;
-  font-size: calc(var(--text-xs) * 0.9);
-  font-weight: var(--font-semibold);
-}
+/* ========================================
+   Status Badges - For List View
+   ======================================== */
 
-.type-trail {
-  background: rgba(29, 78, 216, 0.1);
-  color: var(--color-blue-700);
-}
-
-.type-shelter {
-  background: rgba(107, 70, 193, 0.1);
-  color: var(--color-purple-700);
-}
-
-/* Status badge */
 .status-badge {
   display: inline-block;
-  padding: calc(var(--space-xs) * 1.5) calc(var(--space-sm) * 1.4);
+  padding: 4px 8px;
   border-radius: 12px;
-  font-size: calc(var(--text-xs) * 0.95);
-  font-weight: var(--font-semibold);
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
+  font-size: 12px;
+  font-weight: 500;
   color: white;
+  text-align: center;
+  white-space: nowrap;
 }
 
+/* Inspection Status Badges (État column) */
 .status-badge.status-good {
-  background-color: #10b981;
+  background-color: #10b981; /* Green - Good condition */
 }
 
 .status-badge.status-warning {
-  background-color: #f59e0b;
+  background-color: #f59e0b; /* Orange - Needs attention */
 }
 
 .status-badge.status-critical {
-  background-color: #ef4444;
+  background-color: #ef4444; /* Red - Critical issues */
 }
 
 .status-badge.status-not-inspected {
-  background-color: #6b7280;
+  background-color: #6b7280; /* Gray - Not inspected */
 }
 
+/* Trail Status Badges (Statut column) */
 .status-badge.status-open {
-  background-color: #10b981;
+  background-color: #10b981; /* Green - Trail open */
 }
 
 .status-badge.status-closed {
-  background-color: #ef4444;
+  background-color: #ef4444; /* Red - Trail closed */
 }
 
 .status-badge.status-unknown {
-  background-color: #6b7280;
+  background-color: #6b7280; /* Gray - Status unknown */
 }
 
+/* ========================================
+   Responsive Design
+   ======================================== */
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-.status-good {
-  background: rgba(16, 185, 129, 0.15);
-  color: #047857;
-}
-
-.status-warning {
-  background: rgba(245, 158, 11, 0.15);
-  color: #b45309;
-}
-
-.status-critical {
-  background: rgba(239, 68, 68, 0.15);
-  color: #b91c1c;
-}
-
-.status-not-inspected {
-  background: rgba(156, 163, 175, 0.15);
-  color: #4b5563;
-}
-
-/* Difficulty badge */
-.difficulty-badge {
-  display: inline-block;
-  padding: calc(var(--space-xs) * 0.75) var(--space-xs);
-  margin-left: var(--space-xs);
-  border-radius: 8px;
-  font-size: calc(var(--text-xs) * 0.85);
-  font-weight: var(--font-medium);
-}
-
-.difficulty-easy {
-  background: rgba(34, 197, 94, 0.1);
-  color: #15803d;
-}
-
-.difficulty-medium {
-  background: rgba(251, 146, 60, 0.1);
-  color: #c2410c;
-}
-
-.difficulty-hard {
-  background: rgba(239, 68, 68, 0.1);
-  color: #b91c1c;
-}
-
-/* Legend section */
-.legend-section {
-  background: var(--theme-surface);
-  border-radius: var(--border-radius-lg);
-  padding: var(--space-lg);
-  margin: var(--space-lg) auto;
-  max-width: 600px;
-  box-shadow: var(--shadow-sm);
-}
-
-.legend-title {
-  font-weight: var(--font-bold);
-  font-size: var(--text-lg);
-  margin-bottom: var(--space-md);
-  text-align: center;
-  color: var(--theme-text);
-}
-
-.legend-items {
-  display: flex;
-  justify-content: space-around;
-  gap: var(--space-xl);
-}
-
-.legend-group {
-  flex: 1;
-}
-
-.legend-group-title {
-  font-weight: var(--font-semibold);
-  font-size: var(--text-sm);
-  margin-bottom: var(--space-sm);
-  color: var(--color-gray-600);
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  margin-bottom: var(--space-xs);
-}
-
-.legend-dot {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  border: 2px solid var(--color-white);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-}
-
-/* Responsive adjustments */
 @media (max-width: 768px) {
   .public-header h1 {
-    font-size: calc(var(--text-xl) * 0.9);
+    font-size: var(--text-xl);
+    flex-direction: column;
+    gap: var(--space-sm);
   }
   
-  .filter-buttons {
-    gap: calc(var(--space-xs) * 1.5);
-  }
-  
-  .filter-btn {
-    font-size: calc(var(--text-xs) * 0.9);
-    padding: calc(var(--space-xs) * 1.5) calc(var(--space-sm) * 1.2);
-  }
-  
-  .toggle-btn {
-    padding: calc(var(--space-sm) * 0.8) var(--space-md);
-    font-size: var(--text-sm);
-  }
-  
-  .status-table {
-    font-size: var(--text-xs);
+  .main-content {
+    padding: var(--space-md);
   }
   
   .list-view-container.active {
     grid-template-columns: 1fr;
-  }
-  
-  .status-table th,
-  .status-table td {
-    padding: var(--space-sm);
-  }
-  
-  .legend-items {
-    flex-direction: column;
     gap: var(--space-md);
   }
-}trails {
-  background: linear-gradient(135deg, #f0f9ff 0%, #dbeafe 100%);
-  color: var(--color-primary);
+  
+  .view-toggle {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .toggle-btn {
+    width: 200px;
+    text-align: center;
+  }
+  
+  .map-wrapper {
+    max-height: 60vh;
+  }
+  
+  .data-table th,
+  .data-table td {
+    padding: var(--space-sm);
+    font-size: var(--text-xs);
+  }
+  
+  .table-title {
+    font-size: var(--text-base);
+    padding: var(--space-sm);
+  }
 }
 
-.status-open {
-  background-color: #d1fae5;
-  color: #065f46;
-  border: 1px solid #10b981;
-}
-
-.status-closed {
-  background-color: #fee2e2;
-  color: #991b1b;  
-  border: 1px solid #ef4444;
-}
-
-.status-unknown {
-  background-color: #f3f4f6;
-  color: #374151;
-  border: 1px solid #9ca3af;
-}
-
-.difficulty-badge {
-  display: inline-block;
-  padding: 0.125rem 0.375rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  border-radius: 9999px;
-  margin-left: 0.5rem;
-}
-
-.difficulty-easy {
-  background-color: #d1fae5;
-  color: #065f46;
-}
-
-.difficulty-medium {
-  background-color: #fef3c7;
-  color: #92400e;
-}
-
-.difficulty-hard {
-  background-color: #fee2e2;
-  color: #991b1b;
-}
-
-/* Ensure map wrapper has relative positioning for absolute positioned markers */
-.map-wrapper {
-  position: relative;
-  width: 100%;
-  overflow: auto;
-  max-height: 80vh;
-}
-
-/* Base map marker styles */
-.map-marker {
-  position: absolute !important;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: bold;
-  cursor: default; /* Changed from pointer since no interactions */
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-  font-size: 16px;
-  z-index: 10;
-  border: 2px solid white;
-  transition: none; /* Removed hover transition */
-}
-
-/* Trail status-based marker colors (instead of inspection status) */
-.trail-status-open {
-  background-color: #10b981; /* Green for open trails */
-}
-
-.trail-status-closed {
-  background-color: #ef4444; /* Red for closed trails */
-}
-
-.trail-status-unknown {
-  background-color: #6b7280; /* Gray for unknown status */
-}
-
-/* Remove all inspection status classes since we're not using them anymore */
-/* Remove all shelter-related classes since we're not showing shelters */
-/* Remove all tooltip-related classes since we're not using tooltips */
-
-/* View section styling (replaces filters section) */
-.view-section {
-  background: var(--theme-surface, white);
-  padding: var(--space-md, 16px);
-  box-shadow: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.1));
-  position: sticky;
-  top: 0;
-  z-index: var(--z-sticky, 100);
-}
-
-.view-toggle {
-  display: flex;
-  justify-content: center;
-  gap: var(--space-sm, 8px);
+@media (max-width: 480px) {
+  .map-marker {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+  
+  .status-badge {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
 }
