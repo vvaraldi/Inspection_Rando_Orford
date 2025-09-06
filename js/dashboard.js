@@ -927,16 +927,30 @@ function handleModalBackdropClick(e) {
 /**
  * Show modal
  */
+/**
+ * Show modal - Improved version to prevent main window scroll
+ */
 function showModal() {
   const modal = document.getElementById('inspection-modal');
   if (modal) {
     console.log("Showing modal");
+    
+    // Store the current scroll position before opening modal
+    const scrollY = window.scrollY;
+    
+    // Apply styles to prevent scrolling and maintain position
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.left = '0';
+    document.body.style.right = '0';
+    document.body.style.width = '100%';
+    
+    // Store scroll position as data attribute for restoration
+    document.body.setAttribute('data-scroll-y', scrollY.toString());
+    
+    // Show the modal
     modal.style.display = 'flex';
     modal.classList.add('show');
-    // Fix scroll issue by preventing body scroll without setting overflow hidden
-    document.body.style.position = 'fixed';
-    document.body.style.top = `-${window.scrollY}px`;
-    document.body.style.width = '100%';
   } else {
     console.error("Modal element not found");
   }
@@ -945,26 +959,37 @@ function showModal() {
 /**
  * Close modal
  */
+/**
+ * Close modal - Improved version to restore scroll position
+ */
 function closeModal() {
   console.log("closeModal function called");
   
   const modal = document.getElementById('inspection-modal');
   if (modal) {
     console.log("Closing modal");
+    
+    // Hide the modal first
     modal.classList.remove('show');
     modal.style.display = 'none';
     
-    // Restore scroll position
-    const scrollY = document.body.style.top;
+    // Get the stored scroll position
+    const scrollY = document.body.getAttribute('data-scroll-y') || '0';
+    
+    // Restore body styles
     document.body.style.position = '';
     document.body.style.top = '';
+    document.body.style.left = '';
+    document.body.style.right = '';
     document.body.style.width = '';
     
-    if (scrollY) {
-      window.scrollTo(0, parseInt(scrollY || '0') * -1);
-    }
+    // Clean up the data attribute
+    document.body.removeAttribute('data-scroll-y');
     
-    console.log("Modal closed successfully");
+    // Restore the scroll position
+    window.scrollTo(0, parseInt(scrollY, 10));
+    
+    console.log("Modal closed successfully, scroll restored to:", scrollY);
   } else {
     console.error("Modal element not found when trying to close");
   }

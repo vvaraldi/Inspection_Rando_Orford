@@ -93,4 +93,26 @@
 .modal-xl .modal-content {
   max-width: 1200px;
 }
+
+/* Add to your modal CSS to prevent any unwanted scrolling */
+.modal.show {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+  overflow-y: auto; /* Allow scrolling within the modal if content is too tall */
+}
+
+/* Ensure modal content doesn't cause issues */
+.modal-content {
+  position: relative;
+  max-height: 90vh;
+  overflow: hidden;
+}
+
+.modal-body {
+  overflow-y: auto;
+  max-height: calc(90vh - 200px); /* Subtract header and footer heights */
+}
+
  
