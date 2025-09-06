@@ -369,12 +369,61 @@ body {
 .status-badge {
   display: inline-block;
   padding: calc(var(--space-xs) * 1.5) calc(var(--space-sm) * 1.4);
-  border-radius: 20px;
+  border-radius: 12px;
   font-size: calc(var(--text-xs) * 0.95);
   font-weight: var(--font-semibold);
   text-transform: uppercase;
   letter-spacing: 0.3px;
+  color: white;
 }
+
+.status-badge.status-good {
+  background-color: #10b981;
+}
+
+.status-badge.status-warning {
+  background-color: #f59e0b;
+}
+
+.status-badge.status-critical {
+  background-color: #ef4444;
+}
+
+.status-badge.status-not-inspected {
+  background-color: #6b7280;
+}
+
+.status-badge.status-open {
+  background-color: #10b981;
+}
+
+.status-badge.status-closed {
+  background-color: #ef4444;
+}
+
+.status-badge.status-unknown {
+  background-color: #6b7280;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 .status-good {
   background: rgba(16, 185, 129, 0.15);

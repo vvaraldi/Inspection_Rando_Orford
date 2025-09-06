@@ -118,9 +118,9 @@ function createShelterListRow(item) {
   const statusText = {
     'good': 'Bon',
     'warning': 'Attention',
-    'critical': 'Critique',
+    'critical': 'Critique', 
     'not-inspected': 'Non inspecté'
-  }[item.status];
+  }[item.status] || 'Non inspecté';
   
   // Last inspection date
   let inspectionDate = 'Jamais';
