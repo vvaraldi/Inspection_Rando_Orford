@@ -44,7 +44,8 @@
 
 /* Map markers */
 .map-marker {
-  position: absolute;
+  /*position: absolute; */
+  position: relative;
   width: 40px;
   height: 40px;
   border-radius: 50%;
@@ -91,10 +92,14 @@
 /* Problem indicator */
 .problem-indicator {
   position: relative;
+/*  position: absolute; */
   top: -8px;
   right: -5px;
   font-size: 20px;
-  background-color: var(--color-white);
+  /*background-color: var(--color-white); */
+  background-color: #dc2626; /* Red background */
+  color: white;
+  border: 2px solid white;
   border-radius: 50%;
   width: 16px;
   height: 16px;
@@ -102,6 +107,18 @@
   justify-content: center;
   align-items: center;
   box-shadow: rgba(255, 0, 0, 0.5) 0px 54px 55px, rgba(255, 0, 0, 0.24) 0px -12px 30px, rgba(255, 0, 0, 0.24) 0px 4px 6px, rgba(255, 0, 0, 0.34) 0px 12px 13px, rgba(255, 0, 0, 0.18) 0px -3px 5px;
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 1;
+  /*box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); */
+  z-index: 10;
+  pointer-events: none; /* Don't interfere with marker clicks */
+}
+
+/* Alternative version with warning symbol */
+.problem-indicator.warning-symbol {
+  background-color: #f59e0b; /* Orange background */
+  font-size: 10px;
 }
 
 /* Map legend */
