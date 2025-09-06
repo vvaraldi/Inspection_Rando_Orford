@@ -1,53 +1,82 @@
 /**
  * status-list.js
- * Handles list view functionality for the public status page
+ * List view functionality for the public status page (No Filters Version)
  */
 
 // Display items in list view
 function displayListItems(data) {
+  console.log(`Displaying ${data.length} items in list view`);
+  
   // Separate trails and shelters
   const trails = data.filter(item => item.type === 'trail');
   const shelters = data.filter(item => item.type === 'shelter');
   
-  // Display trails with trail status
-  const trailsTbody = document.getElementById('trails-tbody');
-  if (trails.length === 0) {
-    trailsTbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Aucun sentier trouvé</td></tr>';
-  } else {
-    trailsTbody.innerHTML = '';
-    trails.forEach(trail => {
-      trailsTbody.appendChild(createTrailListRow(trail));
-    });
-  }
+  // Display trails
+  displayTrailsList(trails);
   
-  // Display shelters (unchanged)
-  const sheltersTbody = document.getElementById('shelters-tbody');
-  if (shelters.length === 0) {
-    sheltersTbody.innerHTML = '<tr><td colspan="3" style="text-align: center;">Aucun abri trouvé</td></tr>';
-  } else {
-    sheltersTbody.innerHTML = '';
-    shelters.forEach(shelter => {
-      sheltersTbody.appendChild(createShelterListRow(shelter));
-    });
-  }
+  // Display shelters
+  displaySheltersList(shelters);
 }
 
-// NEW: Create trail row with trail status column
+// Display trails in the table
+function displayTrailsList(trails) {
+  const trailsTbody = document.getElementById('trails-tbody');
+  
+  if (!trailsTbody) {
+    console.error("Trails tbody element not found");
+    return;
+  }
+  
+  if (trails.length === 0) {
+    trailsTbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Aucun sentier trouvé</td></tr>';
+    return;
+  }
+  
+  // Clear existing content
+  trailsTbody.innerHTML = '';
+  
+  // Add each trail
+  trails.forEach(trail => {
+    const row = createTrailListRow(trail);
+    trailsTbody.appendChild(row);
+  });
+  
+  console.log(`Displayed ${trails.length} trails`);
+}
+
+// Display shelters in the table
+function displaySheltersList(shelters) {
+  const sheltersTbody = document.getElementById('shelters-tbody');
+  
+  if (!sheltersTbody) {
+    console.error("Shelters tbody element not found");
+    return;
+  }
+  
+  if (shelters.length === 0) {
+    sheltersTbody.innerHTML = '<tr><td colspan="3" style="text-align: center;">Aucun abri trouvé</td></tr>';
+    return;
+  }
+  
+  // Clear existing content
+  sheltersTbody.innerHTML = '';
+  
+  // Add each shelter
+  shelters.forEach(shelter => {
+    const row = createShelterListRow(shelter);
+    sheltersTbody.appendChild(row);
+  });
+  
+  console.log(`Displayed ${shelters.length} shelters`);
+}
+
+// Create a row for trail display
 function createTrailListRow(item) {
   const row = document.createElement('tr');
   
-  // Name with difficulty badge
   let nameHtml = item.name;
-  if (item.difficulty) {
-    const difficultyText = {
-      'easy': 'Facile',
-      'medium': 'Intermédiaire',
-      'hard': 'Difficile'
-    }[item.difficulty];
-    nameHtml += ` <span class="difficulty-badge difficulty-${item.difficulty}">${difficultyText}</span>`;
-  }
   
-  // Condition Status
+  // Status (condition)
   const conditionText = {
     'good': 'Bon',
     'warning': 'Attention',
@@ -55,7 +84,7 @@ function createTrailListRow(item) {
     'not-inspected': 'Non inspecté'
   }[item.status];
   
-  // NEW: Trail Status (open/closed)
+  // Trail status (open/closed)
   const trailStatusText = {
     'open': '🟢 Ouvert',
     'closed': '🔴 Fermé',
@@ -79,7 +108,7 @@ function createTrailListRow(item) {
   return row;
 }
 
-// Separate function for shelter rows (unchanged structure)
+// Create a row for shelter display
 function createShelterListRow(item) {
   const row = document.createElement('tr');
   
@@ -107,83 +136,4 @@ function createShelterListRow(item) {
   `;
   
   return row;
-}
-
-// Updated applyFilters function to handle trail status filtering
-function applyFilters() {
-  if (!allData || allData.length === 0) {
-    console.log("No data available for filtering");
-    return;
-  }
-
-  let filteredData = [...allData];
-
-  // Type filter
-  const typeFilter = currentFilters.type;
-  if (typeFilter && typeFilter !== 'all') {
-    filteredData = filteredData.filter(item => item.type === typeFilter);
-  }
-
-  // Status filter (condition: good/warning/critical)
-  const statusFilter = currentFilters.status;
-  if (statusFilter && statusFilter !== 'all') {
-    filteredData = filteredData.filter(item => item.status === statusFilter);
-  }
-  
-  // NEW: Trail Status filter (open/closed) - only for trails
-  const trailStatusFilter = currentFilters.trailStatus;
-  if (trailStatusFilter && trailStatusFilter !== 'all') {
-    filteredData = filteredData.filter(item => {
-      if (item.type === 'trail') {
-        return item.trailStatus === trailStatusFilter;
-      }
-      return true; // Don't filter shelters based on trail status
-    });
-  }
-
-  // Difficulty filter - only for trails
-  const difficultyFilter = currentFilters.difficulty;
-  if (difficultyFilter && difficultyFilter !== 'all') {
-    filteredData = filteredData.filter(item => {
-      if (item.type === 'trail') {
-        return item.difficulty === difficultyFilter;
-      }
-      return true; // Don't filter shelters based on difficulty
-    });
-  }
-
-  // Date filter
-  const dateFilter = currentFilters.date;
-  if (dateFilter && dateFilter !== 'all') {
-    const now = new Date();
-    let cutoffDate;
-    
-    switch (dateFilter) {
-      case 'today':
-        cutoffDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        break;
-      case 'week':
-        cutoffDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-        break;
-      case 'month':
-        cutoffDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-        break;
-      case 'never':
-        filteredData = filteredData.filter(item => !item.lastInspection);
-        break;
-    }
-    
-    if (cutoffDate && dateFilter !== 'never') {
-      filteredData = filteredData.filter(item => {
-        if (!item.lastInspectionDate) return false;
-        const inspectionDate = item.lastInspectionDate.toDate();
-        return inspectionDate >= cutoffDate;
-      });
-    }
-  }
-
-  console.log(`Filters applied: ${filteredData.length} items remaining from ${allData.length} total`);
-  
-  // Update display with filtered data
-  updateFilteredDisplay(filteredData);
 }

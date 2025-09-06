@@ -5,14 +5,12 @@
 
 // Global variables
 let allData = [];
-let currentFilter = 'all';
 let currentView = 'map';
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
   loadPublicData();
   setupViewToggle();
-  setupFilters();
   
   // Auto-refresh every 5 minutes
   setInterval(loadPublicData, 5 * 60 * 1000);
@@ -36,21 +34,6 @@ function setupViewToggle() {
         document.getElementById('map-view').classList.remove('active');
         document.getElementById('list-view').classList.add('active');
       }
-    });
-  });
-}
-
-// Setup filter buttons
-function setupFilters() {
-  document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-      // Update active state
-      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-      this.classList.add('active');
-      
-      // Apply filter
-      currentFilter = this.dataset.filter;
-      displayData();
     });
   });
 }
@@ -202,34 +185,24 @@ function handleLoadError() {
 
 // Display filtered data
 function displayData() {
-  // Filter data
-  let filteredData = allData;
-  
-  switch (currentFilter) {
-    case 'trails':
-      filteredData = allData.filter(item => item.type === 'trail');
-      break;
-    case 'shelters':
-      filteredData = allData.filter(item => item.type === 'shelter');
-      break;
-    case 'good':
-      filteredData = allData.filter(item => item.status === 'good');
-      break;
-    case 'warning':
-      filteredData = allData.filter(item => item.status === 'warning');
-      break;
-    case 'critical':
-      filteredData = allData.filter(item => item.status === 'critical');
-      break;
-    case 'not-inspected':
-      filteredData = allData.filter(item => item.status === 'not-inspected');
-      break;
-  }
   
   // Display in map view
-  displayMapMarkers(filteredData);
+  displayMapMarkers(allData);
   
   // Display in list view
-  displayListItems(filteredData);
+  displayListItems(allData);
+  
+  // Update last update time
+  updateLastUpdateTime();
+
 }
 
+// Update the last update time display
+function updateLastUpdateTime() {
+  const lastUpdateElement = document.getElementById('last-update-time');
+  if (lastUpdateElement) {
+    const now = new Date();
+    const timeString = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+    lastUpdateElement.textContent = timeString;
+  }
+}
