@@ -21,10 +21,7 @@
   .map-legend {
     width: 100%;
   }
-}
 
-/* Mobile (< 768px) */
-@media (max-width: 767px) {
   /* Navigation mobile */
   .nav-links {
     display: none;
@@ -40,6 +37,10 @@
   .grid-cols-4 {
     grid-template-columns: 1fr;
   }
+}
+
+/* Mobile (< 768px) */
+@media (max-width: 767px) {
   
   /* Espacements réduits */
   .main {
