@@ -38,9 +38,9 @@ document.addEventListener('DOMContentLoaded', function() {
   const cancelBtn = document.getElementById('cancel-btn');
   if (cancelBtn) {
     cancelBtn.addEventListener('click', function() {
-      if (confirm('Êtes-vous sûr de vouloir annuler? Toutes les données saisies seront perdues.')) {
+      //if (confirm('Êtes-vous sûr de vouloir annuler? Toutes les données saisies seront perdues.')) {
         window.location.href = '../index.html';
-      }
+      //}
     });
   }
 });
