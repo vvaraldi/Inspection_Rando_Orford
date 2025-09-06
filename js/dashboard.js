@@ -990,79 +990,45 @@ let modalScrollState = {
 };
 
 /**
- * Show modal - Improved version with conflict prevention
+ * Show modal - Simple version that doesn't touch scroll position
  */
 function showModal() {
   const modal = document.getElementById('inspection-modal');
-  if (!modal) {
-    console.error("Modal element not found");
-    return;
-  }
-
-  // Prevent multiple calls if modal is already open
-  if (modalScrollState.isOpen) {
-    console.log("Modal is already open, skipping");
-    return;
-  }
-
-  console.log("Showing modal");
-  
-  // Store the current scroll position
-  modalScrollState.originalScrollY = window.scrollY;
-  modalScrollState.isOpen = true;
-  modalScrollState.scrollRestored = false;
-  
-  // Apply styles to prevent scrolling and maintain position
-  document.body.style.position = 'fixed';
-  document.body.style.top = `-${modalScrollState.originalScrollY}px`;
-  document.body.style.left = '0';
-  document.body.style.right = '0';
-  document.body.style.width = '100%';
-  document.body.style.overflow = 'hidden';
-  
-  // Show the modal
-  modal.style.display = 'flex';
-  
-  // Use setTimeout to ensure DOM update before adding show class
-  setTimeout(() => {
+  if (modal) {
+    console.log("Showing modal");
+    
+    // Simply show the modal without any scroll manipulation
+    modal.style.display = 'flex';
     modal.classList.add('show');
-  }, 10);
-  
-  console.log("Modal opened, scroll position stored:", modalScrollState.originalScrollY);
+    
+    // Only prevent background scrolling while modal is open
+    document.body.style.overflow = 'hidden';
+  } else {
+    console.error("Modal element not found");
+  }
 }
 
 /**
- * Close modal - Improved version with better state management
+ * Close modal - Simple version
  */
 function closeModal() {
   console.log("closeModal function called");
   
   const modal = document.getElementById('inspection-modal');
-  if (!modal) {
-    console.error("Modal element not found when trying to close");
-    return;
-  }
-
-  // Prevent multiple calls if modal is already closed
-  if (!modalScrollState.isOpen) {
-    console.log("Modal is already closed, skipping");
-    return;
-  }
-
-  console.log("Closing modal");
-  
-  // Hide the modal first
-  modal.classList.remove('show');
-  
-  // Wait for animation to complete before restoring scroll
-  setTimeout(() => {
+  if (modal) {
+    console.log("Closing modal");
+    
+    // Hide the modal
+    modal.classList.remove('show');
     modal.style.display = 'none';
     
-    // Only restore scroll if it hasn't been restored yet
-    if (!modalScrollState.scrollRestored) {
-      restoreScrollPosition();
-    }
-  }, 150); // Match this with your CSS transition duration
+    // Restore background scrolling
+    document.body.style.overflow = '';
+    
+    console.log("Modal closed successfully");
+  } else {
+    console.error("Modal element not found when trying to close");
+  }
 }
 
 /**

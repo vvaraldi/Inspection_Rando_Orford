@@ -115,4 +115,54 @@
   max-height: calc(90vh - 200px); /* Subtract header and footer heights */
 }
 
- 
+ .modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  background-color: rgba(0, 0, 0, 0.5);
+  
+  /* Prevent any scroll-related issues */
+  overflow-y: auto;
+  overflow-x: hidden;
+  
+  /* Ensure modal doesn't cause layout shifts */
+  padding: var(--space-lg);
+  box-sizing: border-box;
+}
+
+.modal.show {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  position: relative;
+  background-color: var(--theme-surface);
+  border-radius: var(--border-radius-xl);
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow: hidden;
+  box-shadow: var(--shadow-2xl);
+  
+  /* Prevent the modal content from affecting page layout */
+  margin: auto;
+  flex-shrink: 0;
+}
+
+.modal-body {
+  padding: var(--space-lg);
+  overflow-y: auto;
+  max-height: calc(90vh - 200px);
+  
+  /* Smooth scrolling within modal only */
+  scroll-behavior: smooth;
+}
+
+/* Ensure the modal doesn't interfere with page scrollbar */
+body:has(.modal.show) {
+  overflow: hidden;
+  /* Don't change any positioning or width */
+}
