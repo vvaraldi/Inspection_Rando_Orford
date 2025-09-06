@@ -1071,6 +1071,11 @@ document.addEventListener('DOMContentLoaded', function() {
  */
 async function openInspectionModal(item) {
   console.log(`Opening modal for ${item.name}`);
+  console.log("Date debug info:");
+  console.log("item.lastInspection.date:", item.lastInspection.date);
+  console.log("Type:", typeof item.lastInspection.date);
+  console.log("Has toDate method:", !!(item.lastInspection.date && item.lastInspection.date.toDate));
+
   
   if (!item.lastInspection) {
     alert(`Aucune inspection disponible pour ${item.name}`);
@@ -1086,24 +1091,24 @@ async function openInspectionModal(item) {
   }
   
   try {
-    const inspection = {
-      id: item.lastInspection.id || `${item.id}_inspection`,
-      locationName: item.name,
-      type: item.type,
-      date: item.lastInspection.date,
-      inspector: item.lastInspection.inspector || 'Inspecteur inconnu',
-      condition: item.status || 'non-specifie',
-      issues: item.lastInspection.issues || [],
-      notes: item.lastInspection.notes || '',
-      photos: item.lastInspection.photos || [],
-      trail_status: item.lastInspection.trail_status || null,
-      length: item.lastInspection.length || item.length || null,
-      difficulty: item.lastInspection.difficulty || item.difficulty || null,
-      snow_condition: item.lastInspection.snow_condition || null,
-      cleanliness: item.lastInspection.cleanliness || null,
-      accessibility: item.lastInspection.accessibility || null,
-      capacity: item.lastInspection.capacity || item.capacity || null
-    };
+	const inspection = {
+	  id: item.lastInspection.id || `${item.id}_inspection`,
+	  locationName: item.name,
+	  type: item.type,
+	  date: item.lastInspection.date || new Date(),
+	  inspector: item.lastInspection.inspector || 'Inspecteur inconnu',
+	  condition: item.status || 'non-specifie',
+	  issues: item.lastInspection.issues || [],
+	  notes: item.lastInspection.notes || '',
+	  photos: item.lastInspection.photos || [],
+	  trail_status: item.lastInspection.trail_status || null,
+	  length: item.lastInspection.length || item.length || null,
+	  difficulty: item.lastInspection.difficulty || item.difficulty || null,
+	  snow_condition: item.lastInspection.snow_condition || null,
+	  cleanliness: item.lastInspection.cleanliness || null,
+	  accessibility: item.lastInspection.accessibility || null,
+	  capacity: item.lastInspection.capacity || item.capacity || null
+	};
     
     // Check if generateModalContent exists
     if (typeof generateModalContent === 'function') {

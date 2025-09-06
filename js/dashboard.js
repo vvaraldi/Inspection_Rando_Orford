@@ -974,7 +974,32 @@ function createStatusBadge(condition) {
  * Format date for display
  */
 function formatDate(date) {
-  return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}, ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+  // Handle different date formats safely
+  let actualDate;
+  
+  if (!date) {
+    return 'Date non spécifiée';
+  }
+  
+  // If it's a Firebase Timestamp, convert to Date
+  if (date.toDate && typeof date.toDate === 'function') {
+    actualDate = date.toDate();
+  } 
+  // If it's already a Date object
+  else if (date instanceof Date) {
+    actualDate = date;
+  }
+  // If it's a string or number, try to create a Date
+  else {
+    actualDate = new Date(date);
+  }
+  
+  // Check if the date is valid
+  if (isNaN(actualDate.getTime())) {
+    return 'Date invalide';
+  }
+  
+  return `${actualDate.getDate().toString().padStart(2, '0')}/${(actualDate.getMonth() + 1).toString().padStart(2, '0')}/${actualDate.getFullYear()}, ${actualDate.getHours().toString().padStart(2, '0')}:${actualDate.getMinutes().toString().padStart(2, '0')}`;
 }
 
 // Helper functions
