@@ -20,7 +20,7 @@
     </div>
   </div>
   
-  <!-- Filters Section -->
+  <!-- View Toggle Only (No Filters) -->
   <div class="view-section">
     <div class="view-toggle">
       <button class="toggle-btn active" data-view="map">📍 Vue carte</button>
@@ -34,56 +34,54 @@
     <div class="map-view-container active" id="map-view">
       <div class="map-wrapper">
         <img src="../assets/map3.png" alt="Carte du Mont Orford" class="map-image">
-        <!-- Markers will be added dynamically here -->
+        <!-- Trail markers will be added dynamically here -->
       </div>
-      <div class="map-tooltip" id="map-tooltip"></div>
     </div>
     
     <!-- List View -->
     <div class="list-view-container" id="list-view">
       <!-- Trails Section -->
-		<div class="table-section">
-		  <h3 class="table-title">🏔️ Sentiers</h3>
-		  <div class="table-container">
-			<table class="data-table">
-			  <thead>
-				<tr>
-				  <th>Nom</th>
-				  <th>État</th>
-				  <th>Statut</th> <!-- NEW COLUMN -->
-				  <th>Dernière inspection</th>
-				</tr>
-			  </thead>
-			  <tbody id="trails-tbody">
-				<tr>
-				  <td colspan="4" style="text-align: center;">Chargement...</td> <!-- Updated colspan -->
-				</tr>
-			  </tbody>
-			</table>
-		  </div>
-		</div>
+      <div class="table-section">
+        <h3 class="table-title">🏔️ Sentiers</h3>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Nom</th>
+                <th>État</th>
+                <th>Statut</th>
+                <th>Dernière inspection</th>
+              </tr>
+            </thead>
+            <tbody id="trails-tbody">
+              <tr>
+                <td colspan="4" style="text-align: center;">Chargement...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
       
       <!-- Shelters Section -->
-		<div class="table-section">
-		  <h3 class="table-title">🏠 Abris</h3>
-		  <div class="table-container">
-			<table class="data-table">
-			  <thead>
-				<tr>
-				  <th>Nom</th>
-				  <th>État</th>
-				  <th>Dernière inspection</th>
-				</tr>
-			  </thead>
-			  <tbody id="shelters-tbody">
-				<tr>
-				  <td colspan="3" style="text-align: center;">Chargement...</td>
-				</tr>
-			  </tbody>
-			</table>
-		  </div>
-		</div>
-
+      <div class="table-section">
+        <h3 class="table-title">🏠 Abris</h3>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Nom</th>
+                <th>État</th>
+                <th>Dernière inspection</th>
+              </tr>
+            </thead>
+            <tbody id="shelters-tbody">
+              <tr>
+                <td colspan="3" style="text-align: center;">Chargement...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
   
