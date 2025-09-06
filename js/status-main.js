@@ -1,6 +1,6 @@
 /**
  * status-main.js
- * Main functionality for the public status page
+ * Main functionality for the public status page (No Filters Version)
  */
 
 // Global variables
@@ -39,121 +39,79 @@ function setupViewToggle() {
 }
 
 // Load public data from Firebase
-// Updated loadPublicData to include trail status from trail document
 async function loadPublicData() {
   try {
-    console.log("Starting to load public data...");
+    console.log("Loading public data from Firebase...");
+    
+    // Reset data array
     allData = [];
     
     // Load trails
-    console.log("Loading trails...");
     const trailsSnapshot = await db.collection('trails').get();
-    console.log(`Found ${trailsSnapshot.size} trails`);
-    
-    const trails = new Map();
-    trailsSnapshot.forEach(doc => {
-      const data = doc.data();
-      trails.set(doc.id, { id: doc.id, ...data });
-    });
     
     // Load shelters
-    console.log("Loading shelters...");
     const sheltersSnapshot = await db.collection('shelters').get();
-    console.log(`Found ${sheltersSnapshot.size} shelters`);
     
-    const shelters = new Map();
-    sheltersSnapshot.forEach(doc => {
-      const data = doc.data();
-      shelters.set(doc.id, { id: doc.id, ...data });
-    });
-    
-    // Load ALL trail inspections (no time limit)
-    console.log("Loading all trail inspections...");
-    let trailInspectionsByLocation = {};
-    try {
-      const trailInspectionsSnapshot = await db.collection('trail_inspections')
-        .orderBy('date', 'desc')
-        .get();
+    // Process trails
+    trailsSnapshot.forEach(doc => {
+      const trailData = doc.data();
       
-      console.log(`Found ${trailInspectionsSnapshot.size} trail inspections total`);
-      
-      // Group by trail_id and keep only the most recent
-      trailInspectionsSnapshot.forEach(doc => {
-        const inspection = { id: doc.id, ...doc.data() };
-        const locationId = inspection.trail_id;
+      // Get the most recent inspection
+      let lastInspection = null;
+      if (trailData.inspections && Array.isArray(trailData.inspections) && trailData.inspections.length > 0) {
+        // Sort inspections by date and get the most recent
+        const sortedInspections = trailData.inspections
+          .filter(inspection => inspection && inspection.date)
+          .sort((a, b) => {
+            const dateA = a.date.toDate ? a.date.toDate() : new Date(a.date);
+            const dateB = b.date.toDate ? b.date.toDate() : new Date(b.date);
+            return dateB - dateA;
+          });
         
-        // Keep only the most recent inspection for each trail
-        if (!trailInspectionsByLocation[locationId]) {
-          trailInspectionsByLocation[locationId] = inspection;
+        if (sortedInspections.length > 0) {
+          lastInspection = sortedInspections[0];
         }
-      });
-      
-      console.log(`Processed inspections for ${Object.keys(trailInspectionsByLocation).length} unique trails`);
-    } catch (error) {
-      console.error("Error loading trail inspections:", error);
-    }
-    
-    // Load shelter inspections
-    console.log("Loading all shelter inspections...");
-    let shelterInspectionsByLocation = {};
-    try {
-      const shelterInspectionsSnapshot = await db.collection('shelter_inspections')
-        .orderBy('date', 'desc')
-        .get();
-      
-      console.log(`Found ${shelterInspectionsSnapshot.size} shelter inspections total`);
-      
-      // Group by shelter_id and keep only the most recent
-      shelterInspectionsSnapshot.forEach(doc => {
-        const inspection = { id: doc.id, ...doc.data() };
-        const locationId = inspection.shelter_id;
-        
-        if (!shelterInspectionsByLocation[locationId]) {
-          shelterInspectionsByLocation[locationId] = inspection;
-        }
-      });
-      
-      console.log(`Processed inspections for ${Object.keys(shelterInspectionsByLocation).length} unique shelters`);
-    } catch (error) {
-      console.error("Error loading shelter inspections:", error);
-    }
-    
-    // Process trails with their status
-    console.log("Processing trail data...");
-    trails.forEach((trail, trailId) => {
-      const lastInspection = trailInspectionsByLocation[trailId];
+      }
       
       allData.push({
-        id: trailId,
-        name: trail.name,
+        id: doc.id,
+        name: trailData.name || 'Sentier sans nom',
         type: 'trail',
-        difficulty: trail.difficulty,
-        length: trail.length,
-        coordinates: trail.coordinates,
-        
-        // Status from inspection condition (good/warning/critical)
+        difficulty: trailData.difficulty || 'unknown',
+        trailStatus: trailData.status || 'unknown',
+        coordinates: trailData.coordinates || { top: 0, left: 0 }, // Use top/left pixel coordinates
         status: lastInspection ? lastInspection.condition : 'not-inspected',
-        
-        // NEW: Trail Status from trail document (open/closed) - persistent field
-        trailStatus: trail.status || 'unknown',
-        
         lastInspection: lastInspection,
         lastInspectionDate: lastInspection ? lastInspection.date : null
       });
     });
     
-    // Process shelters (unchanged)
-    console.log("Processing shelter data...");
-    shelters.forEach((shelter, shelterId) => {
-      const lastInspection = shelterInspectionsByLocation[shelterId];
+    // Process shelters
+    sheltersSnapshot.forEach(doc => {
+      const shelterData = doc.data();
+      
+      // Get the most recent inspection
+      let lastInspection = null;
+      if (shelterData.inspections && Array.isArray(shelterData.inspections) && shelterData.inspections.length > 0) {
+        // Sort inspections by date and get the most recent
+        const sortedInspections = shelterData.inspections
+          .filter(inspection => inspection && inspection.date)
+          .sort((a, b) => {
+            const dateA = a.date.toDate ? a.date.toDate() : new Date(a.date);
+            const dateB = b.date.toDate ? b.date.toDate() : new Date(b.date);
+            return dateB - dateA;
+          });
+        
+        if (sortedInspections.length > 0) {
+          lastInspection = sortedInspections[0];
+        }
+      }
       
       allData.push({
-        id: shelterId,
-        name: shelter.name,
+        id: doc.id,
+        name: shelterData.name || 'Abri sans nom',
         type: 'shelter',
-        capacity: shelter.capacity,
-        altitude: shelter.altitude,
-        coordinates: shelter.coordinates,
+        coordinates: shelterData.coordinates || { top: 0, left: 0 }, // Use top/left pixel coordinates
         status: lastInspection ? lastInspection.condition : 'not-inspected',
         lastInspection: lastInspection,
         lastInspectionDate: lastInspection ? lastInspection.date : null
@@ -163,12 +121,12 @@ async function loadPublicData() {
     console.log(`Total data processed: ${allData.length} items`);
     console.log("Data loading completed successfully");
     
-    // Update display
+    // Update display with all data (no filtering)
     displayData();
     
   } catch (error) {
     console.error("Error in loadPublicData:", error);
-//    showError("Erreur lors du chargement des données: " + error.message);
+    handleLoadError();
   }
 }
 
@@ -183,9 +141,8 @@ function handleLoadError() {
   if (sheltersTbody) sheltersTbody.innerHTML = errorMessage;
 }
 
-// Display filtered data
+// Display all data without filtering
 function displayData() {
-  
   // Display in map view
   displayMapMarkers(allData);
   
@@ -194,7 +151,6 @@ function displayData() {
   
   // Update last update time
   updateLastUpdateTime();
-
 }
 
 // Update the last update time display

@@ -68,12 +68,12 @@ function displayShelterMarkers(shelters) {
 // Create a trail marker element
 function createTrailMarker(trail) {
   const marker = document.createElement('div');
-  marker.className = `map-marker trail-marker status-${trail.status}`;
+  marker.className = `map-marker trail-marker map-marker-${trail.status}`;
   
-  // Position the marker based on coordinates
+  // Position the marker based on coordinates (using pixel coordinates from database)
   if (trail.coordinates) {
-    marker.style.left = `${trail.coordinates.x}%`;
-    marker.style.top = `${trail.coordinates.y}%`;
+    marker.style.left = `${trail.coordinates.left}px`;
+    marker.style.top = `${trail.coordinates.top}px`;
   }
   
   // Set marker content based on status
@@ -95,12 +95,12 @@ function createTrailMarker(trail) {
 // Create a shelter marker element
 function createShelterMarker(shelter) {
   const marker = document.createElement('div');
-  marker.className = `map-marker shelter-marker status-${shelter.status}`;
+  marker.className = `map-marker shelter-marker map-marker-${shelter.status}`;
   
-  // Position the marker based on coordinates
+  // Position the marker based on coordinates (using pixel coordinates from database)
   if (shelter.coordinates) {
-    marker.style.left = `${shelter.coordinates.x}%`;
-    marker.style.top = `${shelter.coordinates.y}%`;
+    marker.style.left = `${shelter.coordinates.left}px`;
+    marker.style.top = `${shelter.coordinates.top}px`;
   }
   
   // Set marker content (house icon for shelters)

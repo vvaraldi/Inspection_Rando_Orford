@@ -51,14 +51,14 @@ body {
   font-size: var(--text-sm);
 }
 
-/* Filters section */
-.filters-section {
+/* View section styling (replaces filters section) */
+.view-section {
   background: var(--theme-surface, white);
-  padding: var(--space-md);
-  box-shadow: var(--shadow-sm);
+  padding: var(--space-md, 16px);
+  box-shadow: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.1));
   position: sticky;
   top: 0;
-  z-index: var(--z-sticky);
+  z-index: var(--z-sticky, 100);
 }
 
 .view-toggle {
@@ -154,6 +154,47 @@ body {
   max-width: 100%;
 }
 
+.map-marker {
+  position: absolute !important;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  font-size: 14px;
+  z-index: 10;
+  border: 2px solid white;
+  transition: transform 0.2s ease;
+}
+
+.map-marker:hover {
+  transform: translate(-50%, -50%) scale(1.1);
+  z-index: 20;
+}
+
+/* Status-based marker colors */
+.map-marker-good {
+  background-color: #10b981; /* Green */
+}
+
+.map-marker-warning {
+  background-color: #f59e0b; /* Orange */
+}
+
+.map-marker-critical {
+  background-color: #ef4444; /* Red */
+}
+
+.map-marker-not-inspected {
+  background-color: #6b7280; /* Gray */
+}
+
 /* Map markers - positioned absolutely relative to map-wrapper */
 .trail-marker {
   position: absolute;
@@ -207,6 +248,32 @@ body {
   z-index: 1000;
   display: none;
   white-space: nowrap;
+}
+
+.tooltip-header {
+  font-weight: bold;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #4b5563;
+}
+
+.tooltip-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.tooltip-row:last-child {
+  margin-bottom: 0;
+}
+
+.tooltip-label {
+  font-weight: 500;
+  margin-right: 8px;
+}
+
+.tooltip-value {
+  font-weight: normal;
 }
 
 /* List view container */
