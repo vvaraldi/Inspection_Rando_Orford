@@ -363,7 +363,7 @@ function getDifficultyText(difficulty) {
 }
 
 /**
- * Met à jour les statistiques du tableau de bord
+ * FIXED: Met à jour les statistiques du tableau de bord
  * @param {Array} trails - Sentiers avec leur statut
  * @param {Array} shelters - Abris avec leur statut
  */
@@ -428,7 +428,18 @@ function updateDashboardStats(trails, shelters) {
     }
   });
   
-  // Mettre à jour les éléments du tableau de bord (FIXED - using correct IDs)
+  // FIXED: Declare overallStatus in proper scope
+  let overallStatus = 'Bon';
+  if (stats.critical > 0) {
+    overallStatus = 'Critique';
+  } else if (stats.warning > 0) {
+    overallStatus = 'À surveiller';
+  }
+  
+  // Calculate issues count
+  const issuesCount = stats.warning + stats.critical;
+  
+  // Mettre à jour les éléments du tableau de bord
   
   // 1. Inspections aujourd'hui
   const todayElement = document.getElementById('inspections-today');
@@ -437,8 +448,14 @@ function updateDashboardStats(trails, shelters) {
     console.log("Updated inspections-today:", `${stats.inspectedToday}/${stats.total}`);
   }
   
+  // 2. État général du domaine
+  const statusElement = document.getElementById('overall-status');
+  if (statusElement) {
+    statusElement.textContent = overallStatus;
+    console.log("Updated overall-status:", overallStatus);
+  }
+  
   // 3. Problèmes signalés (warning + critical)
-  const issuesCount = stats.warning + stats.critical;
   const issuesElement = document.getElementById('reported-issues');
   if (issuesElement) {
     issuesElement.textContent = issuesCount;
@@ -450,14 +467,13 @@ function updateDashboardStats(trails, shelters) {
   const hours = String(now.getHours()).padStart(2, '0');
   const minutes = String(now.getMinutes()).padStart(2, '0');
   
-
   const updateElement = document.getElementById('last-update');
   if (updateElement) {
     updateElement.textContent = `${hours}:${minutes}`;
     console.log("Updated last-update:", `${hours}:${minutes}`);
   }
   
-  // 5. the last 3 stats
+  // 5. Individual status counts
   const goodElement = document.getElementById('good-status');
   if (goodElement) {
     goodElement.textContent = stats.good;
@@ -473,6 +489,7 @@ function updateDashboardStats(trails, shelters) {
     criticalElement.textContent = stats.critical;
   }
 
+  // FIXED: Move console.log inside function scope where all variables are defined
   console.log("Stats summary:", {
     total: stats.total,
     inspectedToday: stats.inspectedToday,
@@ -544,17 +561,6 @@ function getDifficultyText(difficulty) {
   }
 }
 
-// Initialisation lors du chargement de la page
-document.addEventListener('DOMContentLoaded', function() {
-  // La fonction loadMapData sera appelée après l'authentification
-  // dans auth.js via checkAuthStatus
-  
-  // Pour les mises à jour en temps réel (optionnel)
-  // Décommentez la ligne suivante pour activer
-  // setupRealtimeListeners();
-});
-
-
 // ajout pour les filtres
 // ajout pour les filtres
 // ajout pour les filtres
@@ -562,8 +568,6 @@ document.addEventListener('DOMContentLoaded', function() {
 // Variables pour stocker les données et les filtres
 let allTrails = [];
 let allShelters = [];
-// Global variable to track current badge view
-let currentBadgeView = 'detailed'; // 'detailed' or 'simple'
 
 let currentFilters = {
   status: 'all',
@@ -1028,17 +1032,6 @@ function initMapFilterToggle() {
   });
 }
 
-// Initialisation lors du chargement de la page
-document.addEventListener('DOMContentLoaded', function() {
-  // Initialiser les contrôles de filtrage
-  initFilterControls();
-  initBadgeViewToggle(); // NEW: Add this line
-   
-  // La fonction loadMapData sera appelée après l'authentification
-  // dans auth.js via checkAuthStatus
-});
-
-
 /**
  * Ouvre le modal avec les détails d'inspection - Version simple qui réutilise le système dashboard
  */
@@ -1084,43 +1077,87 @@ async function openInspectionModal(item) {
 }
 
 
+// Global variable to track current badge view
+let currentBadgeView = 'detailed'; // 'detailed' or 'simple'
+
 /**
- * Initialize badge view toggle functionality
+ * Initialize badge view toggle functionality with debugging
  */
 function initBadgeViewToggle() {
+  console.log('Initializing badge view toggle...');
+  
   const toggle = document.getElementById('badge-view-toggle');
   const detailedLegend = document.getElementById('detailed-legend');
   const simpleLegend = document.getElementById('simple-legend');
   
+  console.log('Toggle elements found:', {
+    toggle: !!toggle,
+    detailedLegend: !!detailedLegend,
+    simpleLegend: !!simpleLegend
+  });
+  
   if (!toggle || !detailedLegend || !simpleLegend) {
     console.warn('Badge toggle elements not found');
+    console.log('Missing elements:', {
+      'badge-view-toggle': !toggle,
+      'detailed-legend': !detailedLegend,
+      'simple-legend': !simpleLegend
+    });
     return;
   }
   
-  toggle.addEventListener('change', function() {
-    if (this.checked) {
-      // Simple view
-      currentBadgeView = 'simple';
-      detailedLegend.style.display = 'none';
-      simpleLegend.style.display = 'block';
-    } else {
-      // Detailed view
-      currentBadgeView = 'detailed';
-      detailedLegend.style.display = 'block';
-      simpleLegend.style.display = 'none';
-    }
-    
-    // Refresh markers with new badge style
-    if (typeof displayFilteredMarkers === 'function') {
-      displayFilteredMarkers();
-    } else {
-      // Fallback for simpler implementations
-      if (allTrails && allShelters) {
-        displayTrailMarkers(allTrails);
-        displayShelterMarkers(allShelters);
-      }
-    }
-  });
+  // Remove any existing event listeners
+  toggle.removeEventListener('change', handleToggleChange);
+  
+  // Add event listener
+  toggle.addEventListener('change', handleToggleChange);
+  
+  console.log('Badge view toggle initialized successfully');
+}
+
+/**
+ * Handle toggle change event
+ */
+function handleToggleChange(event) {
+  console.log('Toggle changed:', event.target.checked);
+  
+  const toggle = event.target;
+  const detailedLegend = document.getElementById('detailed-legend');
+  const simpleLegend = document.getElementById('simple-legend');
+  
+  if (toggle.checked) {
+    // Simple view
+    console.log('Switching to simple view');
+    currentBadgeView = 'simple';
+    detailedLegend.style.display = 'none';
+    simpleLegend.style.display = 'block';
+  } else {
+    // Detailed view
+    console.log('Switching to detailed view');
+    currentBadgeView = 'detailed';
+    detailedLegend.style.display = 'block';
+    simpleLegend.style.display = 'none';
+  }
+  
+  // Refresh markers with new badge style
+  refreshMarkersWithCurrentView();
+}
+
+/**
+ * Refresh markers based on current view
+ */
+function refreshMarkersWithCurrentView() {
+  console.log('Refreshing markers with view:', currentBadgeView);
+  
+  if (typeof displayFilteredMarkers === 'function') {
+    displayFilteredMarkers();
+  } else if (allTrails && allShelters) {
+    // Fallback for simpler implementations
+    displayTrailMarkers(allTrails);
+    displayShelterMarkers(allShelters);
+  } else {
+    console.warn('No data available to refresh markers');
+  }
 }
 
 /**
@@ -1142,4 +1179,60 @@ function getMarkerClass(item, itemType) {
   }
 }
 
+// Initialize when DOM is ready - using a different approach to avoid conflicts
+function initializeMapToggle() {
+  // Wait a bit to ensure all elements are loaded
+  setTimeout(() => {
+    console.log('Attempting to initialize badge toggle...');
+    initBadgeViewToggle();
+  }, 100);
+}
+
+// Also try to initialize when the page is fully loaded
+window.addEventListener('load', function() {
+  console.log('Window loaded - checking toggle initialization...');
+  const toggle = document.getElementById('badge-view-toggle');
+  if (toggle && !toggle.hasAttribute('data-initialized')) {
+    console.log('Toggle not initialized yet, initializing now...');
+    initBadgeViewToggle();
+    toggle.setAttribute('data-initialized', 'true');
+  }
+});
+
+// Test function to manually initialize (for debugging)
+window.testToggleInit = function() {
+  console.log('Manual toggle initialization test...');
+  initBadgeViewToggle();
+};
+
+// Consolidated DOM Content Loaded listener
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('Map: DOM Content Loaded - initializing all controls');
+  
+  // Initialize filter controls if the function exists
+  if (typeof initFilterControls === 'function') {
+    console.log('Initializing filter controls...');
+    initFilterControls();
+  }
+  
+  // Initialize badge view toggle if the function exists
+  if (typeof initBadgeViewToggle === 'function') {
+    console.log('Initializing badge view toggle...');
+    initBadgeViewToggle();
+  }
+  
+  // Check if we're on a page that needs map functionality
+  const mapContainer = document.querySelector('.map-bg');
+  if (mapContainer) {
+    console.log('Map container found - map functionality available');
+  }
+  
+  // Note: loadMapData will be called after authentication
+  // in auth.js via checkAuthStatus - this is correct
+  
+  // Optional: setup real-time listeners (uncomment if needed)
+  // if (typeof setupRealtimeListeners === 'function') {
+  //   setupRealtimeListeners();
+  // }
+});
 
