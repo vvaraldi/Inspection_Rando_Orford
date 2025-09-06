@@ -320,3 +320,9 @@
   margin: 0 !important;
   padding: 0 !important;
 }
+
+.map-marker-hidden {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}

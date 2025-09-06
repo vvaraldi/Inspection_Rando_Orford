@@ -251,8 +251,22 @@ function displayTrailMarkers(trails) {
  * MODIFIED: Affiche les marqueurs des abris sur la carte
  * @param {Array} shelters - Abris avec leur statut
  */
+/**
+ * UPDATED: Affiche les marqueurs des abris sur la carte (hide in simple view)
+ * @param {Array} shelters - Abris avec leur statut
+ */
 function displayShelterMarkers(shelters) {
-  // Sélectionner le conteneur de la carte
+  // NEW: Hide shelters in simple view
+  if (currentBadgeView === 'simple') {
+    console.log('Simple view active - hiding shelter markers');
+    // Remove all existing shelter markers
+    document.querySelectorAll('.map-marker-shelter').forEach(marker => {
+      marker.remove();
+    });
+    return; // Exit early, don't display shelters
+  }
+  
+  // Rest of the function stays the same for detailed view
   const mapContainer = document.querySelector('.map-bg');
   if (!mapContainer) {
     console.error("Conteneur de carte non trouvé");
@@ -264,12 +278,11 @@ function displayShelterMarkers(shelters) {
     marker.remove();
   });
   
-  // Créer et ajouter les nouveaux marqueurs
+  // Créer et ajouter les nouveaux marqueurs (only in detailed view)
   shelters.forEach(shelter => {
-    // Créer l'élément du marqueur
     const marker = document.createElement('div');
     
-    // NEW: Use getMarkerClass function for consistency (shelters unchanged in simple view)
+    // Use getMarkerClass function for consistency
     marker.className = getMarkerClass(shelter, 'shelter');
     
     marker.innerHTML = `<span>A` + shelter.id.replace('shelter_', '') + '</span>';
@@ -281,7 +294,7 @@ function displayShelterMarkers(shelters) {
       marker.style.left = `${shelter.coordinates.left}px`;
     } else {
       console.warn(`Coordonnées manquantes pour l'abri ${shelter.id}`);
-      return; // Sauter ce marqueur
+      return;
     }
     
     // Ajouter un gestionnaire d'événement pour afficher les détails
@@ -294,10 +307,9 @@ function displayShelterMarkers(shelters) {
       }
     });
     
-    // Préparer le texte du tooltip avec la date de dernière inspection
+    // Préparer le texte du tooltip
     let tooltipText = shelter.name;
     
-    // Ajouter la date de dernière inspection si disponible
     if (shelter.lastInspection && shelter.lastInspection.date) {
       const date = shelter.lastInspection.date.toDate();
       const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
@@ -306,10 +318,7 @@ function displayShelterMarkers(shelters) {
       tooltipText += '\nAucune inspection récente';
     }
     
-    // Définir le tooltip complet
     marker.setAttribute('title', tooltipText);
-    
-    // Ajouter le marqueur à la carte
     mapContainer.appendChild(marker);
   });
 }
@@ -1193,21 +1202,22 @@ function handleToggleChange(event) {
  */
 function getMarkerClass(item, itemType) {
   if (currentBadgeView === 'simple') {
-    // Simple view: show only open/closed status for trails
+    // Simple view: only show trails with open/closed status
     if (itemType === 'trail') {
-      // The trail status is in lastInspection.trail_status
       const trailStatus = (item.lastInspection && item.lastInspection.trail_status) || 'unknown';
-      
-      console.log(`Trail "${item.name}" status: ${trailStatus}`); // Debug log
-      
+      console.log(`Trail "${item.name}" status: ${trailStatus}`);
       return `map-marker map-marker-simple-${trailStatus}`;
     } else {
-      // For shelters, keep existing behavior in simple view
-      return `map-marker map-marker-${item.status}`;
+      // Shelters are hidden in simple view
+      return `map-marker map-marker-shelter map-marker-hidden`;
     }
   } else {
-    // Detailed view: use existing status-based classes (condition status)
-    return `map-marker map-marker-${item.status}`;
+    // Detailed view: use existing status-based classes for both trails and shelters
+    if (itemType === 'shelter') {
+      return `map-marker map-marker-shelter map-marker-${item.status}`;
+    } else {
+      return `map-marker map-marker-${item.status}`;
+    }
   }
 }
 
