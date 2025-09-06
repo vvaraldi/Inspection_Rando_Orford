@@ -1,6 +1,7 @@
 /**
  * status-main.js
- * Main functionality for the public status page (No Filters Version)
+ * Main functionality for the public status page
+ * FINAL VERSION - NO FILTERS, CLEAN DATA LOADING
  */
 
 // Global variables
@@ -66,7 +67,7 @@ async function loadPublicData() {
       shelters.set(doc.id, { id: doc.id, ...data });
     });
     
-    // Load ALL trail inspections (no time limit)
+    // Load ALL trail inspections
     console.log("Loading all trail inspections...");
     let trailInspectionsByLocation = {};
     try {
@@ -130,10 +131,10 @@ async function loadPublicData() {
         length: trail.length,
         coordinates: trail.coordinates,
         
-        // Status from inspection condition (good/warning/critical)
+        // Status from inspection condition (good/warning/critical) - FOR LIST VIEW
         status: lastInspection ? lastInspection.condition : 'not-inspected',
         
-        // Trail Status from trail document (open/closed) - persistent field
+        // Trail Status from trail document (open/closed) - FOR MAP VIEW
         trailStatus: trail.status || 'unknown',
         
         lastInspection: lastInspection,
@@ -141,7 +142,7 @@ async function loadPublicData() {
       });
     });
     
-    // Process shelters (unchanged)
+    // Process shelters
     console.log("Processing shelter data...");
     shelters.forEach((shelter, shelterId) => {
       const lastInspection = shelterInspectionsByLocation[shelterId];
@@ -184,10 +185,10 @@ function handleLoadError() {
 
 // Display all data without filtering
 function displayData() {
-  // Display in map view
+  // Display in map view (only trails will show due to status-map.js filtering)
   displayMapMarkers(allData);
   
-  // Display in list view
+  // Display in list view (both trails and shelters)
   displayListItems(allData);
   
   // Update last update time

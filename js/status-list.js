@@ -1,6 +1,7 @@
 /**
  * status-list.js
- * List view functionality for the public status page (No Filters Version)
+ * List view functionality for the public status page
+ * FINAL VERSION - SHOWS INSPECTION DATA + TRAIL STATUS
  */
 
 // Display items in list view
@@ -76,15 +77,15 @@ function createTrailListRow(item) {
   
   let nameHtml = item.name;
   
-  // Status (condition)
+  // État Column: Inspection status (good/warning/critical/not-inspected)
   const conditionText = {
     'good': 'Bon',
-    'warning': 'Attention',
+    'warning': 'Attention', 
     'critical': 'Critique',
     'not-inspected': 'Non inspecté'
-  }[item.status];
+  }[item.status] || 'Non inspecté';
   
-  // Trail status (open/closed)
+  // Statut Column: Trail operational status (open/closed/unknown)
   const trailStatusText = {
     'open': '🟢 Ouvert',
     'closed': '🔴 Fermé',
@@ -114,7 +115,7 @@ function createShelterListRow(item) {
   
   let nameHtml = item.name;
   
-  // Status
+  // Status: Inspection status only for shelters
   const statusText = {
     'good': 'Bon',
     'warning': 'Attention',
