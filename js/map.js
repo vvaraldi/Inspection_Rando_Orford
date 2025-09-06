@@ -220,22 +220,27 @@ function displayTrailMarkers(trails) {
     // UPDATED: Dynamic tooltip based on current view
     let tooltipText = trail.name;
     
-    if (currentBadgeView === 'simple') {
-      // Simple view tooltip: show trail status
-      const trailStatus = trail.trail_status || trail.trailStatus || 'unknown';
-      const statusText = trailStatus === 'open' ? 'Ouvert' : 
-                        trailStatus === 'closed' ? 'Fermé' : 'Statut inconnu';
-      tooltipText += `\nStatut: ${statusText}`;
-    } else {
-      // Detailed view tooltip: existing behavior
-      if (trail.lastInspection && trail.lastInspection.date) {
-        const date = trail.lastInspection.date.toDate();
-        const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
-        tooltipText += `\nDernière inspection: ${formattedDate}`;
-      } else {
-        tooltipText += '\nAucune inspection récente';
-      }
-    }
+	if (currentBadgeView === 'simple') {
+	  // Simple view tooltip: show trail status (open/closed)
+	  const trailStatus = (trail.lastInspection && trail.lastInspection.trail_status) || 'unknown';
+	  const statusText = trailStatus === 'open' ? 'Ouvert' : 
+						trailStatus === 'closed' ? 'Fermé' : 'Statut inconnu';
+	  tooltipText += `\nStatut: ${statusText}`;
+	} else {
+	  // Detailed view tooltip: show condition and inspection date
+	  const conditionText = trail.status === 'good' ? 'Bon état' :
+						   trail.status === 'warning' ? 'Attention' :
+						   trail.status === 'critical' ? 'Critique' : 'Non inspecté';
+	  tooltipText += `\nÉtat: ${conditionText}`;
+	  
+	  if (trail.lastInspection && trail.lastInspection.date) {
+		const date = trail.lastInspection.date.toDate();
+		const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+		tooltipText += `\nDernière inspection: ${formattedDate}`;
+	  } else {
+		tooltipText += '\nAucune inspection récente';
+	  }
+	}
     
     marker.setAttribute('title', tooltipText);
     mapContainer.appendChild(marker);
@@ -1190,14 +1195,18 @@ function getMarkerClass(item, itemType) {
   if (currentBadgeView === 'simple') {
     // Simple view: show only open/closed status for trails
     if (itemType === 'trail') {
-      const trailStatus = item.trail_status || item.trailStatus || 'unknown';
+      // The trail status is in lastInspection.trail_status
+      const trailStatus = (item.lastInspection && item.lastInspection.trail_status) || 'unknown';
+      
+      console.log(`Trail "${item.name}" status: ${trailStatus}`); // Debug log
+      
       return `map-marker map-marker-simple-${trailStatus}`;
     } else {
       // For shelters, keep existing behavior in simple view
       return `map-marker map-marker-${item.status}`;
     }
   } else {
-    // Detailed view: use existing status-based classes
+    // Detailed view: use existing status-based classes (condition status)
     return `map-marker map-marker-${item.status}`;
   }
 }

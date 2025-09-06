@@ -307,7 +307,6 @@
   bottom: -10px;
   cursor: pointer;
   z-index: 1001;
-  background: rgba(255, 0, 0, 0.1); /* Temporary red overlay to see click area */
 }
 
 /* Ensure input is not blocking */
