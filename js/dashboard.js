@@ -26,8 +26,7 @@ function initDashboardFilters() {
   const toggleBtn = document.getElementById('toggle-filters');
   const filtersContent = document.getElementById('filters-content');
   const toggleText = document.getElementById('filter-toggle-text');
-  
-  const statsSection = document.querySelector('.content-section .dashboard-stats')?.closest('.content-section');
+  const statsSection = document.getElementById('Id-dashboard-stats');
 
   if (toggleBtn && filtersContent && toggleText) {
     let filtersVisible = true;
