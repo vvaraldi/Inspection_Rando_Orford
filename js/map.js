@@ -173,7 +173,7 @@ function clearExistingMarkers() {
 }
 
 /**
- * Affiche les marqueurs des sentiers sur la carte
+ * MODIFIED: Affiche les marqueurs des sentiers sur la carte
  * @param {Array} trails - Sentiers avec leur statut
  */
 function displayTrailMarkers(trails) {
@@ -193,10 +193,12 @@ function displayTrailMarkers(trails) {
   trails.forEach(trail => {
     // Créer l'élément du marqueur
     const marker = document.createElement('div');
-    marker.className = `map-marker map-marker-${trail.status}`;
+    
+    // NEW: Use getMarkerClass function for dynamic styling
+    marker.className = getMarkerClass(trail, 'trail');
+    
     marker.textContent = trail.id.replace('trail_', '');
     marker.setAttribute('data-id', trail.id);
-//    marker.setAttribute('title', trail.name);
     
     // Positionner le marqueur selon les coordonnées enregistrées
     if (trail.coordinates) {
@@ -208,69 +210,45 @@ function displayTrailMarkers(trails) {
     }
     
     // Ajouter un gestionnaire d'événement pour afficher les détails
-	marker.addEventListener('click', async () => {
-	  try {
-		await openInspectionModal(trail);
-	  } catch (error) {
-		console.error('Error opening modal:', error);
-		alert('Erreur lors de l\'ouverture des détails');
-	  }
-	});
+    marker.addEventListener('click', async () => {
+      try {
+        await openInspectionModal(trail);
+      } catch (error) {
+        console.error('Error opening modal:', error);
+        alert('Erreur lors de l\'ouverture des détails');
+      }
+    });
     
-	
-    // Préparer le texte du tooltip avec la date de dernière inspection
+    // NEW: Update tooltip based on current view
     let tooltipText = trail.name;
     
-    // Ajouter la date de dernière inspection si disponible
-    if (trail.lastInspection && trail.lastInspection.date) {
-      const date = trail.lastInspection.date.toDate();
-//      const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
-      const formattedDate = formatDateWithMonthName(date);
-      tooltipText += `\n${formattedDate}`;
-    }
-    
-    // MODIFICATION: Vérifier s'il y a des problèmes signalés dans la dernière inspection
-    if (trail.lastInspection && trail.lastInspection.issues && trail.lastInspection.issues.length > 0) {
-      // Ajouter les problèmes au tooltip
-      tooltipText += `\nProblèmes:\n- ${trail.lastInspection.issues.join('\n- ')}`;
-      
-      // Ajouter l'indicateur de problème
-      const problemIndicator = document.createElement('div');
-      problemIndicator.className = 'problem-indicator';
-      
-      // Adapter le style selon la gravité
-      if (trail.status === 'critical') {
-        problemIndicator.innerHTML = '⚠️'; // Emoji d'avertissement
-        problemIndicator.style.color = '#ef4444'; // Rouge
-      } else if (trail.status === 'warning') {
-        problemIndicator.innerHTML = '⚠'; // Emoji d'avertissement simple
-        problemIndicator.style.color = '#ef4444'; // Rouge
+    if (currentBadgeView === 'simple') {
+      // Simple view tooltip: show trail status
+      const trailStatus = trail.trail_status || trail.trailStatus || 'unknown';
+      const statusText = trailStatus === 'open' ? 'Ouvert' : 
+                        trailStatus === 'closed' ? 'Fermé' : 'Statut inconnu';
+      tooltipText += `\nStatut: ${statusText}`;
+    } else {
+      // Detailed view tooltip: existing behavior
+      if (trail.lastInspection && trail.lastInspection.date) {
+        const date = trail.lastInspection.date.toDate();
+        const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+        tooltipText += `\nDernière inspection: ${formattedDate}`;
       } else {
-        // Même pour les sentiers en bon état, montrer un indicateur si des problèmes sont signalés
-        problemIndicator.innerHTML = 'ℹ️'; // Emoji d'information
-        problemIndicator.style.color = '#ef4444'; // Rouge
+        tooltipText += '\nAucune inspection récente';
       }
-
-      marker.appendChild(problemIndicator);
-      
-//      // Ajouter un tooltip avec les problèmes si disponibles
-//      if (trail.lastInspection && trail.lastInspection.issues && trail.lastInspection.issues.length > 0) {
-//        const issues = trail.lastInspection.issues.join('\n- ');
-//        marker.setAttribute('title', `${trail.name}\nProblèmes:\n- ${issues}`);
-//      }
     }
     
     // Définir le tooltip complet
     marker.setAttribute('title', tooltipText);
-
-	
+    
     // Ajouter le marqueur à la carte
     mapContainer.appendChild(marker);
   });
 }
 
 /**
- * Affiche les marqueurs des abris sur la carte
+ * MODIFIED: Affiche les marqueurs des abris sur la carte
  * @param {Array} shelters - Abris avec leur statut
  */
 function displayShelterMarkers(shelters) {
@@ -290,10 +268,12 @@ function displayShelterMarkers(shelters) {
   shelters.forEach(shelter => {
     // Créer l'élément du marqueur
     const marker = document.createElement('div');
-    marker.className = `map-marker map-marker-${shelter.status}`;
+    
+    // NEW: Use getMarkerClass function for consistency (shelters unchanged in simple view)
+    marker.className = getMarkerClass(shelter, 'shelter');
+    
     marker.innerHTML = `<span>A` + shelter.id.replace('shelter_', '') + '</span>';
     marker.setAttribute('data-id', shelter.id);
-//    marker.setAttribute('title', shelter.name);
     
     // Positionner le marqueur selon les coordonnées enregistrées
     if (shelter.coordinates) {
@@ -305,67 +285,30 @@ function displayShelterMarkers(shelters) {
     }
     
     // Ajouter un gestionnaire d'événement pour afficher les détails
-	marker.addEventListener('click', async () => {
-	  try {
-		await openInspectionModal(shelter);
-	  } catch (error) {
-		console.error('Error opening modal:', error);
-		alert('Erreur lors de l\'ouverture des détails');
-	  }
-	});
+    marker.addEventListener('click', async () => {
+      try {
+        await openInspectionModal(shelter);
+      } catch (error) {
+        console.error('Error opening modal:', error);
+        alert('Erreur lors de l\'ouverture des détails');
+      }
+    });
     
-
-
-
     // Préparer le texte du tooltip avec la date de dernière inspection
     let tooltipText = shelter.name;
     
     // Ajouter la date de dernière inspection si disponible
     if (shelter.lastInspection && shelter.lastInspection.date) {
       const date = shelter.lastInspection.date.toDate();
-//	  const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
-	  const formattedDate = formatDateWithMonthName(date);
-      tooltipText += `\n${formattedDate}`;
+      const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+      tooltipText += `\nDernière inspection: ${formattedDate}`;
+    } else {
+      tooltipText += '\nAucune inspection récente';
     }
-	
-    // MODIFICATION: Vérifier s'il y a des problèmes signalés dans la dernière inspection
-    if (shelter.lastInspection && shelter.lastInspection.issues && shelter.lastInspection.issues.length > 0) {
-      // Ajouter les problèmes au tooltip
-      tooltipText += `\nProblèmes:\n- ${shelter.lastInspection.issues.join('\n- ')}`;
-      
-      // Ajouter l'indicateur de problème
-      const problemIndicator = document.createElement('div');
-      problemIndicator.className = 'problem-indicator';
-	  
-      
-      // Adapter le style selon la gravité
-      if (shelter.status === 'critical') {
-        problemIndicator.innerHTML = '⚠️'; // Emoji d'avertissement
-        problemIndicator.style.color = '#ef4444'; // Rouge
-      } else if (shelter.status === 'warning') {
-        problemIndicator.innerHTML = '⚠'; // Emoji d'avertissement simple
-        problemIndicator.style.color = '#ef4444'; // Rouge
-      } else {
-        // Même pour les sentiers en bon état, montrer un indicateur si des problèmes sont signalés
-        problemIndicator.innerHTML = 'ℹ️'; // Emoji d'information
-        problemIndicator.style.color = '#ef4444'; // Rouge
-      }
-      
-      
-//      marker.style.position = 'relative'; // S'assurer que le positionnement relatif fonctionne
-      marker.appendChild(problemIndicator);
-      
-//      // Ajouter un tooltip avec les problèmes si disponibles
-//      if (shelter.lastInspection && shelter.lastInspection.issues && shelter.lastInspection.issues.length > 0) {
-//        const issues = shelter.lastInspection.issues.join('\n- ');
-//        marker.setAttribute('title', `${shelter.name}\nProblèmes:\n- ${issues}`);
-//      }
-    }
-
+    
     // Définir le tooltip complet
     marker.setAttribute('title', tooltipText);
-
-
+    
     // Ajouter le marqueur à la carte
     mapContainer.appendChild(marker);
   });
@@ -619,6 +562,9 @@ document.addEventListener('DOMContentLoaded', function() {
 // Variables pour stocker les données et les filtres
 let allTrails = [];
 let allShelters = [];
+// Global variable to track current badge view
+let currentBadgeView = 'detailed'; // 'detailed' or 'simple'
+
 let currentFilters = {
   status: 'all',
   type: 'all',
@@ -1086,7 +1032,8 @@ function initMapFilterToggle() {
 document.addEventListener('DOMContentLoaded', function() {
   // Initialiser les contrôles de filtrage
   initFilterControls();
-  
+  initBadgeViewToggle(); // NEW: Add this line
+   
   // La fonction loadMapData sera appelée après l'authentification
   // dans auth.js via checkAuthStatus
 });
@@ -1135,3 +1082,64 @@ async function openInspectionModal(item) {
     alert('Erreur lors du chargement des détails d\'inspection');
   }
 }
+
+
+/**
+ * Initialize badge view toggle functionality
+ */
+function initBadgeViewToggle() {
+  const toggle = document.getElementById('badge-view-toggle');
+  const detailedLegend = document.getElementById('detailed-legend');
+  const simpleLegend = document.getElementById('simple-legend');
+  
+  if (!toggle || !detailedLegend || !simpleLegend) {
+    console.warn('Badge toggle elements not found');
+    return;
+  }
+  
+  toggle.addEventListener('change', function() {
+    if (this.checked) {
+      // Simple view
+      currentBadgeView = 'simple';
+      detailedLegend.style.display = 'none';
+      simpleLegend.style.display = 'block';
+    } else {
+      // Detailed view
+      currentBadgeView = 'detailed';
+      detailedLegend.style.display = 'block';
+      simpleLegend.style.display = 'none';
+    }
+    
+    // Refresh markers with new badge style
+    if (typeof displayFilteredMarkers === 'function') {
+      displayFilteredMarkers();
+    } else {
+      // Fallback for simpler implementations
+      if (allTrails && allShelters) {
+        displayTrailMarkers(allTrails);
+        displayShelterMarkers(allShelters);
+      }
+    }
+  });
+}
+
+/**
+ * Get marker class based on current badge view and item data
+ */
+function getMarkerClass(item, itemType) {
+  if (currentBadgeView === 'simple') {
+    // Simple view: show only open/closed status for trails
+    if (itemType === 'trail') {
+      const trailStatus = item.trail_status || item.trailStatus || 'unknown';
+      return `map-marker map-marker-simple-${trailStatus}`;
+    } else {
+      // For shelters, keep existing behavior in simple view
+      return `map-marker map-marker-${item.status}`;
+    }
+  } else {
+    // Detailed view: use existing status-based classes
+    return `map-marker map-marker-${item.status}`;
+  }
+}
+
+

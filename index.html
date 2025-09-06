@@ -198,26 +198,73 @@
         <!-- Map legend on the right -->
         <div class="map-legend">
           <div class="legend-title">Légende</div>
-          
-          <div class="legend-section">
-            <h4>États</h4>
-            <div class="legend-item">
-              <div class="legend-color" style="background-color: #10b981;"></div>
-              <span>Bon état</span>
-            </div>
-            <div class="legend-item">
-              <div class="legend-color" style="background-color: #f59e0b;"></div>
-              <span>Attention</span>
-            </div>
-            <div class="legend-item">
-              <div class="legend-color" style="background-color: #ef4444;"></div>
-              <span>Critique</span>
-            </div>
-            <div class="legend-item">
-              <div class="legend-color" style="background-color: #6b7280;"></div>
-              <span>Non inspecté</span>
-            </div>
-          </div>
+
+			  <!-- NEW: Badge View Toggle Section -->
+			  <div class="badge-toggle-section">
+				<label class="badge-toggle-label">Affichage des badges</label>
+				<div class="toggle-switch">
+				  <input type="checkbox" id="badge-view-toggle">
+				  <span class="toggle-slider"></span>
+				</div>
+				<div class="toggle-labels">
+				  <span>Détaillé</span>
+				  <span>Simple</span>
+				</div>
+			  </div>
+			  
+			  <!-- Dynamic legend content based on toggle -->
+			  <div id="detailed-legend">
+				<div class="legend-section">
+				  <h4>États</h4>
+				  <div class="legend-item">
+					<div class="legend-color" style="background-color: #10b981;"></div>
+					<span>Bon état</span>
+				  </div>
+				  <div class="legend-item">
+					<div class="legend-color" style="background-color: #f59e0b;"></div>
+					<span>Attention</span>
+				  </div>
+				  <div class="legend-item">
+					<div class="legend-color" style="background-color: #ef4444;"></div>
+					<span>Critique</span>
+				  </div>
+				  <div class="legend-item">
+					<div class="legend-color" style="background-color: #6b7280;"></div>
+					<span>Non inspecté</span>
+				  </div>
+				</div>
+				
+				<div class="legend-section">
+				  <h4>Types</h4>
+				  <div class="legend-item">
+					<div class="legend-color" style="background-color: #3b82f6;"></div>
+					<span>Sentiers</span>
+				  </div>
+				  <div class="legend-item">
+					<div class="legend-color" style="background-color: #8b5cf6;"></div>
+					<span>Abris</span>
+				  </div>
+				</div>
+			  </div>
+			  
+			  <div id="simple-legend" style="display: none;">
+				<div class="legend-section">
+				  <h4>Statut</h4>
+				  <div class="legend-item">
+					<div class="legend-color" style="background-color: #10b981;"></div>
+					<span>Ouvert</span>
+				  </div>
+				  <div class="legend-item">
+					<div class="legend-color" style="background-color: #ef4444;"></div>
+					<span>Fermé</span>
+				  </div>
+				  <div class="legend-item">
+					<div class="legend-color" style="background-color: #8b5cf6;"></div>
+					<span>Abris</span>
+				  </div>
+				</div>
+			  </div>
+         
         </div>
       </div>
         
