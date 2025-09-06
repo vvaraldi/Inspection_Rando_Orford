@@ -494,20 +494,6 @@ function updateDashboardStats(trails, shelters) {
     console.log("Updated inspections-today:", `${stats.inspectedToday}/${stats.total}`);
   }
   
-  // 2. État général du domaine
-  let overallStatus = 'Bon';
-  if (stats.critical > 0) {
-    overallStatus = 'Critique';
-  } else if (stats.warning > 0) {
-    overallStatus = 'À surveiller';
-  }
-  
-  const statusElement = document.getElementById('overall-status');
-  if (statusElement) {
-    statusElement.textContent = overallStatus;
-    console.log("Updated overall-status:", overallStatus);
-  }
-  
   // 3. Problèmes signalés (warning + critical)
   const issuesCount = stats.warning + stats.critical;
   const issuesElement = document.getElementById('reported-issues');
