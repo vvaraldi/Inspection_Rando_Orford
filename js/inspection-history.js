@@ -650,97 +650,103 @@ async loadData() {
   }
 
   updatePagination() {
-    const totalPages = Math.ceil(this.filteredInspections.length / this.pageSize);
-    
-    if (totalPages <= 1) {
-      this.paginationButtons.innerHTML = '';
-      return;
-    }
+	  const totalPages = Math.ceil(this.filteredInspections.length / this.pageSize);
+	  
+	  // ADDED: Show/hide pagination container based on whether pagination is needed
+	  if (this.paginationContainer) {
+		if (totalPages <= 1) {
+		  this.paginationContainer.style.display = 'none';
+		  this.paginationButtons.innerHTML = '';
+		  return;
+		} else {
+		  this.paginationContainer.style.display = 'block'; // Show pagination when needed
+		}
+	  }
 
-    let paginationHTML = '';
-    
-    // Previous button
-    paginationHTML += `
-      <button class="page-btn ${this.currentPage === 1 ? 'disabled' : ''}" 
-              onclick="inspectionHistory.goToPage(${this.currentPage - 1})" 
-              ${this.currentPage === 1 ? 'disabled' : ''}>
-        ‹
-      </button>
-    `;
+	  let paginationHTML = '';
+	  
+	  // Previous button
+	  paginationHTML += `
+		<button class="page-btn ${this.currentPage === 1 ? 'disabled' : ''}" 
+				onclick="inspectionHistory.goToPage(${this.currentPage - 1})" 
+				${this.currentPage === 1 ? 'disabled' : ''}>
+		  ‹
+		</button>
+	  `;
 
-    // Page numbers
-    if (totalPages <= 7) {
-      for (let i = 1; i <= totalPages; i++) {
-        paginationHTML += `
-          <button class="page-btn ${i === this.currentPage ? 'active' : ''}" 
-                  onclick="inspectionHistory.goToPage(${i})">
-            ${i}
-          </button>
-        `;
-      }
-    } else {
-      // Complex pagination with ellipsis
-      if (this.currentPage <= 3) {
-        for (let i = 1; i <= 5; i++) {
-          paginationHTML += `
-            <button class="page-btn ${i === this.currentPage ? 'active' : ''}" 
-                    onclick="inspectionHistory.goToPage(${i})">
-              ${i}
-            </button>
-          `;
-        }
-        paginationHTML += '<span class="page-ellipsis">…</span>';
-        paginationHTML += `
-          <button class="page-btn" onclick="inspectionHistory.goToPage(${totalPages})">
-            ${totalPages}
-          </button>
-        `;
-      } else if (this.currentPage >= totalPages - 2) {
-        paginationHTML += `
-          <button class="page-btn" onclick="inspectionHistory.goToPage(1)">1</button>
-        `;
-        paginationHTML += '<span class="page-ellipsis">…</span>';
-        for (let i = totalPages - 4; i <= totalPages; i++) {
-          paginationHTML += `
-            <button class="page-btn ${i === this.currentPage ? 'active' : ''}" 
-                    onclick="inspectionHistory.goToPage(${i})">
-              ${i}
-            </button>
-          `;
-        }
-      } else {
-        paginationHTML += `
-          <button class="page-btn" onclick="inspectionHistory.goToPage(1)">1</button>
-        `;
-        paginationHTML += '<span class="page-ellipsis">…</span>';
-        for (let i = this.currentPage - 1; i <= this.currentPage + 1; i++) {
-          paginationHTML += `
-            <button class="page-btn ${i === this.currentPage ? 'active' : ''}" 
-                    onclick="inspectionHistory.goToPage(${i})">
-              ${i}
-            </button>
-          `;
-        }
-        paginationHTML += '<span class="page-ellipsis">…</span>';
-        paginationHTML += `
-          <button class="page-btn" onclick="inspectionHistory.goToPage(${totalPages})">
-            ${totalPages}
-          </button>
-        `;
-      }
-    }
+	  // Page numbers
+	  if (totalPages <= 7) {
+		for (let i = 1; i <= totalPages; i++) {
+		  paginationHTML += `
+			<button class="page-btn ${i === this.currentPage ? 'active' : ''}" 
+					onclick="inspectionHistory.goToPage(${i})">
+			  ${i}
+			</button>
+		  `;
+		}
+	  } else {
+		// Complex pagination with ellipsis
+		if (this.currentPage <= 3) {
+		  for (let i = 1; i <= 5; i++) {
+			paginationHTML += `
+			  <button class="page-btn ${i === this.currentPage ? 'active' : ''}" 
+					  onclick="inspectionHistory.goToPage(${i})">
+				${i}
+			  </button>
+			`;
+		  }
+		  paginationHTML += '<span class="page-ellipsis">…</span>';
+		  paginationHTML += `
+			<button class="page-btn" onclick="inspectionHistory.goToPage(${totalPages})">
+			  ${totalPages}
+			</button>
+		  `;
+		} else if (this.currentPage >= totalPages - 2) {
+		  paginationHTML += `
+			<button class="page-btn" onclick="inspectionHistory.goToPage(1)">1</button>
+		  `;
+		  paginationHTML += '<span class="page-ellipsis">…</span>';
+		  for (let i = totalPages - 4; i <= totalPages; i++) {
+			paginationHTML += `
+			  <button class="page-btn ${i === this.currentPage ? 'active' : ''}" 
+					  onclick="inspectionHistory.goToPage(${i})">
+				${i}
+			  </button>
+			`;
+		  }
+		} else {
+		  paginationHTML += `
+			<button class="page-btn" onclick="inspectionHistory.goToPage(1)">1</button>
+		  `;
+		  paginationHTML += '<span class="page-ellipsis">…</span>';
+		  for (let i = this.currentPage - 1; i <= this.currentPage + 1; i++) {
+			paginationHTML += `
+			  <button class="page-btn ${i === this.currentPage ? 'active' : ''}" 
+					  onclick="inspectionHistory.goToPage(${i})">
+				${i}
+			  </button>
+			`;
+		  }
+		  paginationHTML += '<span class="page-ellipsis">…</span>';
+		  paginationHTML += `
+			<button class="page-btn" onclick="inspectionHistory.goToPage(${totalPages})">
+			  ${totalPages}
+			</button>
+		  `;
+		}
+	  }
 
-    // Next button
-    paginationHTML += `
-      <button class="page-btn ${this.currentPage === totalPages ? 'disabled' : ''}" 
-              onclick="inspectionHistory.goToPage(${this.currentPage + 1})" 
-              ${this.currentPage === totalPages ? 'disabled' : ''}>
-        ›
-      </button>
-    `;
+	  // Next button
+	  paginationHTML += `
+		<button class="page-btn ${this.currentPage === totalPages ? 'disabled' : ''}" 
+				onclick="inspectionHistory.goToPage(${this.currentPage + 1})" 
+				${this.currentPage === totalPages ? 'disabled' : ''}>
+		  ›
+		</button>
+	  `;
 
-    this.paginationButtons.innerHTML = paginationHTML;
-    this.updatePaginationInfo();
+	  this.paginationButtons.innerHTML = paginationHTML;
+	  this.updatePaginationInfo();
   }
 
   updatePaginationInfo() {
