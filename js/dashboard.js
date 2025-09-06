@@ -618,6 +618,9 @@ function initDashboardFilters() {
 /**
  * Initialize click handlers for inspection cards to open modal
  */
+/**
+ * Initialize click handlers with conflict prevention
+ */
 function initInspectionCardClickHandlers() {
   console.log("Initializing inspection card click handlers");
   
@@ -627,16 +630,27 @@ function initInspectionCardClickHandlers() {
   clickableCards.forEach((card, index) => {
     console.log(`Setting up click handler for card ${index + 1}`);
     
-    // Remove any existing event listeners
-    card.removeEventListener('click', handleCardClick);
-    // Add new event listener
-    card.addEventListener('click', handleCardClick);
+    // Remove any existing event listeners by cloning
+    const newCard = card.cloneNode(true);
+    card.parentNode.replaceChild(newCard, card);
+    
+    // Add new event listener to fresh element
+    newCard.addEventListener('click', handleCardClick);
   });
 }
 
+/**
+ * Enhanced card click handler to prevent event conflicts
+ */
 function handleCardClick(event) {
   event.preventDefault();
   event.stopPropagation();
+  
+  // Prevent rapid clicking
+  if (modalScrollState.isOpen) {
+    console.log("Modal already open, ignoring click");
+    return;
+  }
   
   const card = event.currentTarget;
   const inspectionId = card.getAttribute('data-inspection-id');
@@ -658,11 +672,19 @@ async function viewInspectionDetails(inspectionId) {
   try {
     console.log("Opening modal for inspection:", inspectionId);
     
+    // Prevent opening if modal is already open
+    if (modalScrollState.isOpen) {
+      console.log("Modal already open, closing first");
+      closeModal();
+      // Wait a bit before opening new modal
+      setTimeout(() => viewInspectionDetails(inspectionId), 200);
+      return;
+    }
+    
     // Find the inspection in our stored data
     const inspection = allInspectionsData.find(i => i.id === inspectionId);
     if (!inspection) {
       console.error('Inspection not found:', inspectionId);
-      console.log('Available inspections:', allInspectionsData.map(i => i.id));
       return;
     }
 
@@ -676,10 +698,6 @@ async function viewInspectionDetails(inspectionId) {
       console.log("Modal not found, creating it");
       createModalHTML();
       modal = document.getElementById('inspection-modal');
-    } else {
-      // Modal exists, ensure close events are bound
-      console.log("Modal exists, rebinding close events");
-      bindModalCloseEvents();
     }
     
     const modalContentElement = document.getElementById('modal-content');
@@ -691,11 +709,18 @@ async function viewInspectionDetails(inspectionId) {
       return;
     }
     
+    // Bind events before showing modal
+    bindModalCloseEvents();
+    
+    // Show modal
     showModal();
     console.log("Modal should now be visible");
     
   } catch (error) {
     console.error('Erreur lors de l\'affichage des détails:', error);
+    // Reset modal state on error
+    modalScrollState.isOpen = false;
+    modalScrollState.scrollRestored = false;
   }
 }
 
@@ -732,37 +757,70 @@ function createModalHTML() {
 /**
  * Bind modal close events
  */
+/**
+ * Enhanced modal event binding to prevent conflicts
+ */
 function bindModalCloseEvents() {
   console.log("Binding modal close events");
   
+  const modal = document.getElementById('inspection-modal');
   const closeModalBtn = document.getElementById('close-modal');
   const closeModalBtnFooter = document.getElementById('close-modal-btn');
-  const modal = document.getElementById('inspection-modal');
   
-  if (closeModalBtn) {
-    closeModalBtn.removeEventListener('click', closeModal);
-    closeModalBtn.addEventListener('click', closeModal);
+  if (!modal) {
+    console.error("Modal element not found for event binding");
+    return;
+  }
+  
+  // Remove ALL existing event listeners first
+  const newModal = modal.cloneNode(true);
+  modal.parentNode.replaceChild(newModal, modal);
+  
+  // Re-get references after cloning
+  const freshModal = document.getElementById('inspection-modal');
+  const freshCloseBtn = document.getElementById('close-modal');
+  const freshCloseFooterBtn = document.getElementById('close-modal-btn');
+  
+  // Bind close button events
+  if (freshCloseBtn) {
+    freshCloseBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      closeModal();
+    });
     console.log("Bound close event to X button");
-  } else {
-    console.error("Close modal button (X) not found");
   }
   
-  if (closeModalBtnFooter) {
-    closeModalBtnFooter.removeEventListener('click', closeModal);
-    closeModalBtnFooter.addEventListener('click', closeModal);
+  if (freshCloseFooterBtn) {
+    freshCloseFooterBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      closeModal();
+    });
     console.log("Bound close event to Fermer button");
-  } else {
-    console.error("Close modal footer button not found");
   }
   
-  if (modal) {
-    modal.removeEventListener('click', handleModalBackdropClick);
-    modal.addEventListener('click', handleModalBackdropClick);
-    console.log("Bound close event to modal backdrop");
-  } else {
-    console.error("Modal element not found");
-  }
+  // Bind backdrop click
+  freshModal.addEventListener('click', (e) => {
+    if (e.target === freshModal) {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log("Modal backdrop clicked, closing modal");
+      closeModal();
+    }
+  });
+  
+  // Bind ESC key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modalScrollState.isOpen) {
+      e.preventDefault();
+      closeModal();
+    }
+  });
+  
+  console.log("All modal close events bound successfully");
 }
+
 
 /**
  * Handle modal backdrop click
@@ -924,75 +982,117 @@ function handleModalBackdropClick(e) {
 	  return conditionMap[condition] || condition;
   }
 
+// Global variable to track modal state and prevent conflicts
+let modalScrollState = {
+  isOpen: false,
+  originalScrollY: 0,
+  scrollRestored: false
+};
+
 /**
- * Show modal
- */
-/**
- * Show modal - Improved version to prevent main window scroll
+ * Show modal - Improved version with conflict prevention
  */
 function showModal() {
   const modal = document.getElementById('inspection-modal');
-  if (modal) {
-    console.log("Showing modal");
-    
-    // Store the current scroll position before opening modal
-    const scrollY = window.scrollY;
-    
-    // Apply styles to prevent scrolling and maintain position
-    document.body.style.position = 'fixed';
-    document.body.style.top = `-${scrollY}px`;
-    document.body.style.left = '0';
-    document.body.style.right = '0';
-    document.body.style.width = '100%';
-    
-    // Store scroll position as data attribute for restoration
-    document.body.setAttribute('data-scroll-y', scrollY.toString());
-    
-    // Show the modal
-    modal.style.display = 'flex';
-    modal.classList.add('show');
-  } else {
+  if (!modal) {
     console.error("Modal element not found");
+    return;
   }
+
+  // Prevent multiple calls if modal is already open
+  if (modalScrollState.isOpen) {
+    console.log("Modal is already open, skipping");
+    return;
+  }
+
+  console.log("Showing modal");
+  
+  // Store the current scroll position
+  modalScrollState.originalScrollY = window.scrollY;
+  modalScrollState.isOpen = true;
+  modalScrollState.scrollRestored = false;
+  
+  // Apply styles to prevent scrolling and maintain position
+  document.body.style.position = 'fixed';
+  document.body.style.top = `-${modalScrollState.originalScrollY}px`;
+  document.body.style.left = '0';
+  document.body.style.right = '0';
+  document.body.style.width = '100%';
+  document.body.style.overflow = 'hidden';
+  
+  // Show the modal
+  modal.style.display = 'flex';
+  
+  // Use setTimeout to ensure DOM update before adding show class
+  setTimeout(() => {
+    modal.classList.add('show');
+  }, 10);
+  
+  console.log("Modal opened, scroll position stored:", modalScrollState.originalScrollY);
 }
 
 /**
- * Close modal
- */
-/**
- * Close modal - Improved version to restore scroll position
+ * Close modal - Improved version with better state management
  */
 function closeModal() {
   console.log("closeModal function called");
   
   const modal = document.getElementById('inspection-modal');
-  if (modal) {
-    console.log("Closing modal");
-    
-    // Hide the modal first
-    modal.classList.remove('show');
+  if (!modal) {
+    console.error("Modal element not found when trying to close");
+    return;
+  }
+
+  // Prevent multiple calls if modal is already closed
+  if (!modalScrollState.isOpen) {
+    console.log("Modal is already closed, skipping");
+    return;
+  }
+
+  console.log("Closing modal");
+  
+  // Hide the modal first
+  modal.classList.remove('show');
+  
+  // Wait for animation to complete before restoring scroll
+  setTimeout(() => {
     modal.style.display = 'none';
     
-    // Get the stored scroll position
-    const scrollY = document.body.getAttribute('data-scroll-y') || '0';
-    
-    // Restore body styles
-    document.body.style.position = '';
-    document.body.style.top = '';
-    document.body.style.left = '';
-    document.body.style.right = '';
-    document.body.style.width = '';
-    
-    // Clean up the data attribute
-    document.body.removeAttribute('data-scroll-y');
-    
-    // Restore the scroll position
-    window.scrollTo(0, parseInt(scrollY, 10));
-    
-    console.log("Modal closed successfully, scroll restored to:", scrollY);
-  } else {
-    console.error("Modal element not found when trying to close");
+    // Only restore scroll if it hasn't been restored yet
+    if (!modalScrollState.scrollRestored) {
+      restoreScrollPosition();
+    }
+  }, 150); // Match this with your CSS transition duration
+}
+
+/**
+ * Restore scroll position - Separate function for better control
+ */
+function restoreScrollPosition() {
+  if (modalScrollState.scrollRestored) {
+    console.log("Scroll already restored, skipping");
+    return;
   }
+
+  console.log("Restoring scroll position to:", modalScrollState.originalScrollY);
+  
+  // Restore body styles
+  document.body.style.position = '';
+  document.body.style.top = '';
+  document.body.style.left = '';
+  document.body.style.right = '';
+  document.body.style.width = '';
+  document.body.style.overflow = '';
+  
+  // Restore the scroll position
+  window.scrollTo(0, modalScrollState.originalScrollY);
+  
+  // Reset modal state
+  modalScrollState.isOpen = false;
+  modalScrollState.scrollRestored = true;
+  modalScrollState.originalScrollY = 0;
+  
+  console.log("Modal closed successfully, scroll restored");
 }
 
 /**
@@ -1172,3 +1272,26 @@ if (typeof createTrailStatusBadge !== 'function') {
     return `<span class="status-badge ${config.class}" title="${config.title}">${config.text}</span>`;
   }
 }
+
+// Emergency function to reset modal state (for debugging)
+window.resetModalState = function() {
+  console.log("Emergency modal state reset");
+  modalScrollState.isOpen = false;
+  modalScrollState.scrollRestored = false;
+  modalScrollState.originalScrollY = 0;
+  
+  // Force restore body styles
+  document.body.style.position = '';
+  document.body.style.top = '';
+  document.body.style.left = '';
+  document.body.style.right = '';
+  document.body.style.width = '';
+  document.body.style.overflow = '';
+  
+  // Hide modal
+  const modal = document.getElementById('inspection-modal');
+  if (modal) {
+    modal.style.display = 'none';
+    modal.classList.remove('show');
+  }
+};
