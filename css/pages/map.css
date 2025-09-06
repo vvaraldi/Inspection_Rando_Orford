@@ -280,3 +280,44 @@
 .map-marker-simple-unknown {
   background-color: var(--color-gray-400) !important;
 }
+/* Override any blocking elements */
+.badge-toggle-section * {
+  pointer-events: auto !important;
+}
+
+.toggle-switch {
+  position: relative !important;
+  z-index: 999 !important;
+  isolation: isolate; /* Create new stacking context */
+}
+
+.toggle-slider {
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  z-index: 1000 !important;
+}
+
+/* Make the entire toggle area clickable */
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+  cursor: pointer;
+  z-index: 1001;
+  background: rgba(255, 0, 0, 0.1); /* Temporary red overlay to see click area */
+}
+
+/* Ensure input is not blocking */
+.toggle-switch input {
+  position: absolute !important;
+  opacity: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  cursor: pointer !important;
+  z-index: 1002 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}

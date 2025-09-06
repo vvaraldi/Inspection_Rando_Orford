@@ -1259,3 +1259,86 @@ document.addEventListener('DOMContentLoaded', function() {
   // }
 });
 
+function forceToggleClickability() {
+    console.log('🔧 Forcing toggle clickability...');
+    
+    const toggle = document.getElementById('badge-view-toggle');
+    const toggleSwitch = document.querySelector('.toggle-switch');
+    const slider = document.querySelector('.toggle-slider');
+    const section = document.querySelector('.badge-toggle-section');
+    
+    if (!toggle) {
+        console.log('❌ Toggle not found');
+        return;
+    }
+    
+    // Method 1: Direct input click handler
+    toggle.addEventListener('click', function(e) {
+        console.log('🖱️ Toggle input clicked directly!');
+        // Let the default behavior happen
+    });
+    
+    // Method 2: Slider click handler
+    if (slider) {
+        slider.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('🖱️ Slider clicked - forcing toggle!');
+            toggle.checked = !toggle.checked;
+            toggle.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+    }
+    
+    // Method 3: Toggle switch container click
+    if (toggleSwitch) {
+        toggleSwitch.addEventListener('click', function(e) {
+            console.log('🖱️ Toggle switch container clicked!');
+            if (e.target === this || e.target === slider) {
+                toggle.checked = !toggle.checked;
+                toggle.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        });
+    }
+    
+    // Method 4: Section click (last resort)
+    if (section) {
+        section.addEventListener('click', function(e) {
+            // Only if clicking directly on the section or toggle area
+            if (e.target === this || 
+                e.target.classList.contains('toggle-slider') ||
+                e.target.classList.contains('badge-toggle-label')) {
+                console.log('🖱️ Section clicked - toggling!');
+                toggle.checked = !toggle.checked;
+                toggle.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        });
+    }
+    
+    // Debug click detection
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.badge-toggle-section')) {
+            console.log('🎯 Click detected in toggle area:', {
+                target: e.target.tagName + (e.target.className ? '.' + e.target.className : ''),
+                coordinates: { x: e.clientX, y: e.clientY }
+            });
+        }
+    });
+    
+    console.log('✅ Multiple click handlers added');
+}
+
+// Initialize click fix when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(forceToggleClickability, 500);
+    });
+} else {
+    setTimeout(forceToggleClickability, 500);
+}
+
+// Manual test function
+window.forceClickTest = function() {
+    forceToggleClickability();
+    console.log('Force click test applied. Try clicking the toggle now.');
+};
+
