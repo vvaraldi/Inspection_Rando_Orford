@@ -62,7 +62,7 @@ async function loadMapData() {
     // Afficher les marqueurs sur la carte
     displayTrailMarkers(trailsWithStatus);
     displayShelterMarkers(sheltersWithStatus);
-    
+
     // Mettre à jour les statistiques du tableau de bord
     updateDashboardStats(trailsWithStatus, sheltersWithStatus);
     
@@ -208,10 +208,14 @@ function displayTrailMarkers(trails) {
     }
     
     // Ajouter un gestionnaire d'événement pour afficher les détails
-    marker.addEventListener('click', () => {
-      //showTrailDetails(trail);
-	  await openInspectionModal(trail);
-    });
+	marker.addEventListener('click', async () => {
+	  try {
+		await openInspectionModal(trail);
+	  } catch (error) {
+		console.error('Error opening modal:', error);
+		alert('Erreur lors de l\'ouverture des détails');
+	  }
+	});
     
 	
     // Préparer le texte du tooltip avec la date de dernière inspection
@@ -301,10 +305,14 @@ function displayShelterMarkers(shelters) {
     }
     
     // Ajouter un gestionnaire d'événement pour afficher les détails
-    marker.addEventListener('click', () => {
-      // showShelterDetails(shelter);
-	  await openInspectionModal(shelter);
-    });
+	marker.addEventListener('click', async () => {
+	  try {
+		await openInspectionModal(shelter);
+	  } catch (error) {
+		console.error('Error opening modal:', error);
+		alert('Erreur lors de l\'ouverture des détails');
+	  }
+	});
     
 
 
@@ -412,98 +420,76 @@ function getDifficultyText(difficulty) {
 }
 
 /**
- * Met à jour les statistiques du tableau de bord
- * @param {Array} trails - Sentiers avec leur statut
- * @param {Array} shelters - Abris avec leur statut
+ * Update dashboard statistics
  */
 function updateDashboardStats(trails, shelters) {
-  // Calculer les statistiques
-  const stats = {
-    total: trails.length + shelters.length,
-    inspectedToday: 0,
-    good: 0,
-    warning: 0,
-    critical: 0,
-    notInspected: 0
-  };
+  console.log("Updating dashboard stats...");
   
-  // Date d'aujourd'hui à minuit
+  // Calculate today's inspections
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   
-  // Compter les statuts des sentiers
+  let todayInspections = 0;
+  let totalGood = 0;
+  let totalWarning = 0;
+  let totalCritical = 0;
+  
+  // Count trail inspections
   trails.forEach(trail => {
-    switch (trail.status) {
-      case 'good': stats.good++; break;
-      case 'warning': stats.warning++; break;
-      case 'critical': stats.critical++; break;
-      default: stats.notInspected++; break;
-    }
-    
-    // Vérifier si l'inspection est d'aujourd'hui
     if (trail.lastInspection && trail.lastInspection.date) {
-      const inspectionDate = trail.lastInspection.date.toDate ? 
-                           trail.lastInspection.date.toDate() : 
-                           new Date(trail.lastInspection.date);
+      const inspectionDate = trail.lastInspection.date.toDate();
+      inspectionDate.setHours(0, 0, 0, 0);
       
-      if (inspectionDate >= today) {
-        stats.inspectedToday++;
+      if (inspectionDate.getTime() === today.getTime()) {
+        todayInspections++;
       }
-    }
-  });
-  
-  // Compter les statuts des abris
-  shelters.forEach(shelter => {
-    switch (shelter.status) {
-      case 'good': stats.good++; break;
-      case 'warning': stats.warning++; break;
-      case 'critical': stats.critical++; break;
-      default: stats.notInspected++; break;
     }
     
-    // Vérifier si l'inspection est d'aujourd'hui
-    if (shelter.lastInspection && shelter.lastInspection.date) {
-      const inspectionDate = shelter.lastInspection.date.toDate ? 
-                           shelter.lastInspection.date.toDate() : 
-                           new Date(shelter.lastInspection.date);
-      
-      if (inspectionDate >= today) {
-        stats.inspectedToday++;
-      }
-    }
+    // Count by status
+    if (trail.status === 'good') totalGood++;
+    else if (trail.status === 'warning') totalWarning++;
+    else if (trail.status === 'critical') totalCritical++;
   });
   
-  // Mettre à jour les éléments du tableau de bord
-  if (document.getElementById('inspections-today')) {
-    document.getElementById('inspections-today').textContent = `${stats.inspectedToday}/${stats.total}`;
+  // Count shelter inspections
+  shelters.forEach(shelter => {
+    if (shelter.lastInspection && shelter.lastInspection.date) {
+      const inspectionDate = shelter.lastInspection.date.toDate();
+      inspectionDate.setHours(0, 0, 0, 0);
+      
+      if (inspectionDate.getTime() === today.getTime()) {
+        todayInspections++;
+      }
+    }
+    
+    // Count by status
+    if (shelter.status === 'good') totalGood++;
+    else if (shelter.status === 'warning') totalWarning++;
+    else if (shelter.status === 'critical') totalCritical++;
+  });
+  
+  // Update DOM elements if they exist
+  const todayElement = document.getElementById('inspections-today');
+  if (todayElement) {
+    todayElement.textContent = todayInspections;
   }
   
-  // Déterminer l'état général du domaine
-  let overallStatus = 'Bon';
-  if (stats.critical > 0) {
-    overallStatus = 'Critique';
-  } else if (stats.warning > 0) {
-    overallStatus = 'À surveiller';
+  const goodElement = document.getElementById('inspections-good');
+  if (goodElement) {
+    goodElement.textContent = totalGood;
   }
   
-  if (document.getElementById('overall-status')) {
-    document.getElementById('overall-status').textContent = overallStatus;
+  const warningElement = document.getElementById('inspections-warning');
+  if (warningElement) {
+    warningElement.textContent = totalWarning;
   }
   
-  // Nombre de problèmes signalés (warning + critical)
-  const issuesCount = stats.warning + stats.critical;
-  if (document.getElementById('reported-issues')) {
-    document.getElementById('reported-issues').textContent = issuesCount;
+  const criticalElement = document.getElementById('inspections-critical');
+  if (criticalElement) {
+    criticalElement.textContent = totalCritical;
   }
   
-  // Mise à jour de l'heure
-  const now = new Date();
-  const hours = String(now.getHours()).padStart(2, '0');
-  const minutes = String(now.getMinutes()).padStart(2, '0');
-  
-  if (document.getElementById('last-update')) {
-    document.getElementById('last-update').textContent = `${hours}:${minutes}`;
-  }
+  console.log("Stats updated:", { todayInspections, totalGood, totalWarning, totalCritical });
 }
 
 /**
@@ -1079,6 +1065,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // dans auth.js via checkAuthStatus
 });
 
+
 /**
  * Ouvre le modal avec les détails d'inspection
  */
@@ -1088,6 +1075,14 @@ async function openInspectionModal(item) {
   if (!item.lastInspection) {
     alert(`Aucune inspection disponible pour ${item.name}`);
     return;
+  }
+  
+  // Make sure the modal exists
+  let modal = document.getElementById('inspection-modal');
+  if (!modal) {
+    console.log("Creating modal...");
+    createModalHTML();
+    modal = document.getElementById('inspection-modal');
   }
   
   try {
@@ -1110,16 +1105,54 @@ async function openInspectionModal(item) {
       capacity: item.lastInspection.capacity || item.capacity || null
     };
     
-    const modalContent = await generateModalContent(inspection);
-    const modalBody = document.getElementById('modal-content');
-    if (modalBody) {
-      modalBody.innerHTML = modalContent;
+    // Check if generateModalContent exists
+    if (typeof generateModalContent === 'function') {
+      const modalContent = await generateModalContent(inspection);
+      const modalBody = document.getElementById('modal-content');
+      if (modalBody) {
+        modalBody.innerHTML = modalContent;
+      }
+      
+      // Check if showModal exists
+      if (typeof showModal === 'function') {
+        showModal();
+      } else {
+        modal.style.display = 'flex';
+      }
+    } else {
+      console.error('generateModalContent function not found');
+      alert('Erreur: fonction de génération de contenu manquante');
     }
     
-    showModal();
-    
   } catch (error) {
-    console.error('Erreur lors de l\'ouverture du modal:', error);
+    console.error('Error opening modal:', error);
     alert('Erreur lors du chargement des détails d\'inspection');
   }
+}
+
+
+/**
+ * Create modal HTML if it doesn't exist
+ */
+function createModalHTML() {
+  const modalHTML = `
+    <div class="modal" id="inspection-modal" style="display: none;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title">Détails de l'inspection</h2>
+          <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+        
+        <div class="modal-body" id="modal-content">
+          <!-- Content will be loaded dynamically -->
+        </div>
+        
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeModal()">Fermer</button>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.body.insertAdjacentHTML('beforeend', modalHTML);
 }
