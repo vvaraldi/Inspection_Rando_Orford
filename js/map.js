@@ -1200,6 +1200,9 @@ function handleToggleChange(event) {
 /**
  * Get marker class based on current badge view and item data
  */
+/**
+ * Get marker class based on current badge view and item data
+ */
 function getMarkerClass(item, itemType) {
   if (currentBadgeView === 'simple') {
     // Simple view: only show trails with open/closed status
@@ -1214,8 +1217,10 @@ function getMarkerClass(item, itemType) {
   } else {
     // Detailed view: use existing status-based classes for both trails and shelters
     if (itemType === 'shelter') {
+      // FIXED: Shelters should use their condition status (good/warning/critical)
       return `map-marker map-marker-shelter map-marker-${item.status}`;
     } else {
+      // Trails use their condition status (good/warning/critical) 
       return `map-marker map-marker-${item.status}`;
     }
   }

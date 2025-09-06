@@ -326,3 +326,67 @@
   visibility: hidden !important;
   opacity: 0 !important;
 }
+
+/* Detailed view marker styles for ALL markers (trails and shelters) */
+.map-marker-good {
+  background-color: #10b981 !important; /* Green for good condition */
+}
+
+.map-marker-warning {
+  background-color: #f59e0b !important; /* Orange for warning condition */
+}
+
+.map-marker-critical {
+  background-color: #ef4444 !important; /* Red for critical condition */
+}
+
+.map-marker-not-inspected {
+  background-color: #6b7280 !important; /* Gray for not inspected */
+}
+
+/* Ensure shelter markers use the same color system */
+.map-marker-shelter.map-marker-good {
+  background-color: #10b981 !important;
+}
+
+.map-marker-shelter.map-marker-warning {
+  background-color: #f59e0b !important;
+}
+
+.map-marker-shelter.map-marker-critical {
+  background-color: #ef4444 !important;
+}
+
+.map-marker-shelter.map-marker-not-inspected {
+  background-color: #6b7280 !important;
+}
+
+/* Base map marker styles */
+.map-marker {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  font-size: 14px;
+  z-index: 10;
+  border: 2px solid white;
+  transition: transform 0.2s ease;
+}
+
+.map-marker:hover {
+  transform: translate(-50%, -50%) scale(1.1);
+  z-index: 20;
+}
+
+/* Shelter markers - ensure they inherit base styles */
+.map-marker-shelter {
+  /* Inherits all .map-marker styles */
+}
