@@ -27,6 +27,8 @@ function initDashboardFilters() {
   const filtersContent = document.getElementById('filters-content');
   const toggleText = document.getElementById('filter-toggle-text');
   
+  const statsSection = document.querySelector('.content-section .dashboard-stats')?.closest('.content-section');
+
   if (toggleBtn && filtersContent && toggleText) {
     let filtersVisible = true;
     
@@ -34,10 +36,18 @@ function initDashboardFilters() {
       filtersVisible = !filtersVisible;
       
       if (filtersVisible) {
+        // Show both filters and stats
         filtersContent.style.display = 'block';
+        if (statsSection) {
+          statsSection.style.display = 'block';
+        }
         toggleText.textContent = 'Masquer';
       } else {
+        // Hide both filters and stats
         filtersContent.style.display = 'none';
+        if (statsSection) {
+          statsSection.style.display = 'none';
+        }
         toggleText.textContent = 'Afficher';
       }
     });
