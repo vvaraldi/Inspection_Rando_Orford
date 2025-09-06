@@ -186,7 +186,7 @@
   background: var(--theme-background);
   border-radius: var(--border-radius-md);
   border: var(--border-width) solid var(--theme-border);
-  position: relative; /* Important for proper layering */
+  position: relative;
 }
 
 .badge-toggle-label {
@@ -196,7 +196,7 @@
   margin-bottom: var(--space-sm);
   color: var(--theme-text);
   cursor: pointer;
-  user-select: none; /* Prevent text selection */
+  user-select: none;
 }
 
 .toggle-switch {
@@ -204,14 +204,14 @@
   display: inline-block;
   width: 60px;
   height: 28px;
-  z-index: 10; /* Ensure it's above other elements */
+  z-index: 10;
 }
 
 .toggle-switch input {
   opacity: 0;
   width: 0;
   height: 0;
-  position: absolute; /* Important: don't let it interfere */
+  position: absolute;
 }
 
 .toggle-slider {
@@ -224,9 +224,7 @@
   background-color: var(--color-gray-300);
   transition: var(--transition-base);
   border-radius: 28px;
-  z-index: 5;
-  /* Ensure it's clickable */
-  pointer-events: auto !important;
+  pointer-events: auto;
 }
 
 .toggle-slider:before {
@@ -239,17 +237,29 @@
   background-color: var(--color-white);
   transition: var(--transition-base);
   border-radius: 50%;
-  pointer-events: none; /* Don't block clicks */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  pointer-events: none;
 }
 
-input:checked + .toggle-slider {
+/* Checked state */
+.toggle-switch input:checked + .toggle-slider {
   background-color: var(--color-primary);
 }
 
-input:checked + .toggle-slider:before {
+.toggle-switch input:checked + .toggle-slider:before {
   transform: translateX(32px);
 }
 
+/* Hover effects */
+.toggle-slider:hover {
+  background-color: var(--color-gray-400);
+}
+
+.toggle-switch input:checked + .toggle-slider:hover {
+  background-color: var(--color-primary-dark, #0ea571);
+}
+
+/* Labels */
 .toggle-labels {
   display: flex;
   justify-content: space-between;
@@ -258,41 +268,15 @@ input:checked + .toggle-slider:before {
   color: var(--theme-text-light);
 }
 
-/* NEW: Simple view marker styles */
+/* Simple view marker styles */
 .map-marker-simple-open {
-  background-color: var(--color-success);
+  background-color: var(--color-success) !important;
 }
 
 .map-marker-simple-closed {
-  background-color: var(--color-danger);
+  background-color: var(--color-danger) !important;
 }
 
 .map-marker-simple-unknown {
-  background-color: var(--color-gray-400);
-}
-
-
-
-
-/* Hover effects for better UX */
-.toggle-slider:hover {
-    background-color: #bbb;
-}
-
-.toggle-switch input:checked + .toggle-slider:hover {
-    background-color: #0ea571;
-}
-
-/* Make sure the label can also trigger the toggle */
-.badge-toggle-label {
-    cursor: pointer;
-}
-
-/* Debug styles - remove after testing */
-.toggle-switch {
-    border: 2px solid red !important; /* Temporary - shows clickable area */
-}
-
-.toggle-slider {
-    border: 1px solid blue !important; /* Temporary - shows slider area */
+  background-color: var(--color-gray-400) !important;
 }
