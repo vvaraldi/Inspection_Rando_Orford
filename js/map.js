@@ -784,8 +784,10 @@ function displayFilteredMarkers() {
  * Initialiser les contrôles de filtrage
  */
 function initFilterControls() {
-  // Initialize toggle functionality
-  initMapFilterToggle();
+  console.log('Initializing filter controls...');
+  
+  // REMOVED: initMapFilterToggle() - those elements don't exist in your HTML
+  // We only need the badge toggle, not the map filter toggle
   
   // Get filter elements
   const statusFilter = document.getElementById('status-filter');
@@ -796,11 +798,13 @@ function initFilterControls() {
   const resetBtn = document.getElementById('reset-filters');
   const applyBtn = document.getElementById('apply-map-filters');
   
-  // Check if elements exist
+  // Check if elements exist (these are optional - they exist in some pages but not others)
   if (!statusFilter || !typeFilter || !difficultyFilter || !dateFilter || !issuesFilter) {
-    console.warn("Some filter controls were not found");
+    console.log("Some filter controls were not found - this is normal if not on dashboard page");
     return;
   }
+  
+  console.log('Filter elements found, setting up event listeners...');
   
   // Function to apply filters
   const applyFilters = () => {
@@ -818,7 +822,11 @@ function initFilterControls() {
     
     // Apply filters with a small delay for UI feedback
     setTimeout(() => {
-      filterAndDisplayMarkers();
+      if (typeof filterAndDisplayMarkers === 'function') {
+        filterAndDisplayMarkers();
+      } else if (typeof displayFilteredMarkers === 'function') {
+        displayFilteredMarkers();
+      }
       
       // Hide loading indicator
       if (document.getElementById('map-loading')) {
@@ -853,6 +861,8 @@ function initFilterControls() {
       applyFilters();
     });
   }
+  
+  console.log('Filter controls initialized successfully');
 }
 
 /**
@@ -1006,7 +1016,7 @@ function isSameDay(date1, date2) {
 
 /**
  * Initialize the map filter toggle functionality
- */
+
 function initMapFilterToggle() {
   const toggleBtn = document.getElementById('toggle-map-filters');
   const filtersContent = document.getElementById('map-filters-content');
@@ -1031,7 +1041,9 @@ function initMapFilterToggle() {
     }
   });
 }
-
+ */
+ 
+ 
 /**
  * Ouvre le modal avec les détails d'inspection - Version simple qui réutilise le système dashboard
  */
@@ -1081,7 +1093,7 @@ async function openInspectionModal(item) {
 let currentBadgeView = 'detailed'; // 'detailed' or 'simple'
 
 /**
- * Initialize badge view toggle functionality with debugging
+ * Initialize badge view toggle functionality
  */
 function initBadgeViewToggle() {
   console.log('Initializing badge view toggle...');
@@ -1090,29 +1102,62 @@ function initBadgeViewToggle() {
   const detailedLegend = document.getElementById('detailed-legend');
   const simpleLegend = document.getElementById('simple-legend');
   
-  console.log('Toggle elements found:', {
+  console.log('Badge toggle elements:', {
     toggle: !!toggle,
     detailedLegend: !!detailedLegend,
     simpleLegend: !!simpleLegend
   });
   
-  if (!toggle || !detailedLegend || !simpleLegend) {
-    console.warn('Badge toggle elements not found');
-    console.log('Missing elements:', {
-      'badge-view-toggle': !toggle,
-      'detailed-legend': !detailedLegend,
-      'simple-legend': !simpleLegend
-    });
+  if (!toggle) {
+    console.log('Badge view toggle not found - this is normal if not on main map page');
     return;
   }
   
-  // Remove any existing event listeners
-  toggle.removeEventListener('change', handleToggleChange);
+  if (!detailedLegend || !simpleLegend) {
+    console.warn('Legend elements not found for badge toggle');
+    return;
+  }
   
   // Add event listener
-  toggle.addEventListener('change', handleToggleChange);
+  toggle.addEventListener('change', function() {
+    console.log('Badge toggle changed:', this.checked);
+    
+    if (this.checked) {
+      // Simple view
+      console.log('Switching to simple view');
+      currentBadgeView = 'simple';
+      detailedLegend.style.display = 'none';
+      simpleLegend.style.display = 'block';
+    } else {
+      // Detailed view
+      console.log('Switching to detailed view');
+      currentBadgeView = 'detailed';
+      detailedLegend.style.display = 'block';
+      simpleLegend.style.display = 'none';
+    }
+    
+    // Refresh markers with new badge style
+    refreshMarkersWithCurrentView();
+  });
   
   console.log('Badge view toggle initialized successfully');
+}
+
+/**
+ * Refresh markers based on current view
+ */
+function refreshMarkersWithCurrentView() {
+  console.log('Refreshing markers with view:', currentBadgeView);
+  
+  if (typeof displayFilteredMarkers === 'function') {
+    displayFilteredMarkers();
+  } else if (allTrails && allShelters) {
+    // Fallback for simpler implementations
+    displayTrailMarkers(allTrails);
+    displayShelterMarkers(allShelters);
+  } else {
+    console.warn('No data available to refresh markers');
+  }
 }
 
 /**
@@ -1141,23 +1186,6 @@ function handleToggleChange(event) {
   
   // Refresh markers with new badge style
   refreshMarkersWithCurrentView();
-}
-
-/**
- * Refresh markers based on current view
- */
-function refreshMarkersWithCurrentView() {
-  console.log('Refreshing markers with view:', currentBadgeView);
-  
-  if (typeof displayFilteredMarkers === 'function') {
-    displayFilteredMarkers();
-  } else if (allTrails && allShelters) {
-    // Fallback for simpler implementations
-    displayTrailMarkers(allTrails);
-    displayShelterMarkers(allShelters);
-  } else {
-    console.warn('No data available to refresh markers');
-  }
 }
 
 /**
