@@ -420,76 +420,140 @@ function getDifficultyText(difficulty) {
 }
 
 /**
- * Update dashboard statistics
+ * Met à jour les statistiques du tableau de bord
+ * @param {Array} trails - Sentiers avec leur statut
+ * @param {Array} shelters - Abris avec leur statut
  */
 function updateDashboardStats(trails, shelters) {
   console.log("Updating dashboard stats...");
   
-  // Calculate today's inspections
+  // Calculer les statistiques
+  const stats = {
+    total: trails.length + shelters.length,
+    inspectedToday: 0,
+    good: 0,
+    warning: 0,
+    critical: 0,
+    notInspected: 0
+  };
+  
+  // Date d'aujourd'hui à minuit
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   
-  let todayInspections = 0;
-  let totalGood = 0;
-  let totalWarning = 0;
-  let totalCritical = 0;
-  
-  // Count trail inspections
+  // Compter les statuts des sentiers
   trails.forEach(trail => {
+    switch (trail.status) {
+      case 'good': stats.good++; break;
+      case 'warning': stats.warning++; break;
+      case 'critical': stats.critical++; break;
+      default: stats.notInspected++; break;
+    }
+    
+    // Vérifier si l'inspection est d'aujourd'hui
     if (trail.lastInspection && trail.lastInspection.date) {
-      const inspectionDate = trail.lastInspection.date.toDate();
+      const inspectionDate = trail.lastInspection.date.toDate ? 
+                           trail.lastInspection.date.toDate() : 
+                           new Date(trail.lastInspection.date);
       inspectionDate.setHours(0, 0, 0, 0);
       
       if (inspectionDate.getTime() === today.getTime()) {
-        todayInspections++;
+        stats.inspectedToday++;
       }
     }
-    
-    // Count by status
-    if (trail.status === 'good') totalGood++;
-    else if (trail.status === 'warning') totalWarning++;
-    else if (trail.status === 'critical') totalCritical++;
   });
   
-  // Count shelter inspections
+  // Compter les statuts des abris
   shelters.forEach(shelter => {
+    switch (shelter.status) {
+      case 'good': stats.good++; break;
+      case 'warning': stats.warning++; break;
+      case 'critical': stats.critical++; break;
+      default: stats.notInspected++; break;
+    }
+    
+    // Vérifier si l'inspection est d'aujourd'hui
     if (shelter.lastInspection && shelter.lastInspection.date) {
-      const inspectionDate = shelter.lastInspection.date.toDate();
+      const inspectionDate = shelter.lastInspection.date.toDate ? 
+                           shelter.lastInspection.date.toDate() : 
+                           new Date(shelter.lastInspection.date);
       inspectionDate.setHours(0, 0, 0, 0);
       
       if (inspectionDate.getTime() === today.getTime()) {
-        todayInspections++;
+        stats.inspectedToday++;
       }
     }
-    
-    // Count by status
-    if (shelter.status === 'good') totalGood++;
-    else if (shelter.status === 'warning') totalWarning++;
-    else if (shelter.status === 'critical') totalCritical++;
   });
   
-  // Update DOM elements if they exist
+  // Mettre à jour les éléments du tableau de bord (FIXED - using correct IDs)
+  
+  // 1. Inspections aujourd'hui
   const todayElement = document.getElementById('inspections-today');
   if (todayElement) {
-    todayElement.textContent = todayInspections;
+    todayElement.textContent = `${stats.inspectedToday}/${stats.total}`;
+    console.log("Updated inspections-today:", `${stats.inspectedToday}/${stats.total}`);
   }
   
-  const goodElement = document.getElementById('inspections-good');
+  // 2. État général du domaine
+  let overallStatus = 'Bon';
+  if (stats.critical > 0) {
+    overallStatus = 'Critique';
+  } else if (stats.warning > 0) {
+    overallStatus = 'À surveiller';
+  }
+  
+  const statusElement = document.getElementById('overall-status');
+  if (statusElement) {
+    statusElement.textContent = overallStatus;
+    console.log("Updated overall-status:", overallStatus);
+  }
+  
+  // 3. Problèmes signalés (warning + critical)
+  const issuesCount = stats.warning + stats.critical;
+  const issuesElement = document.getElementById('reported-issues');
+  if (issuesElement) {
+    issuesElement.textContent = issuesCount;
+    console.log("Updated reported-issues:", issuesCount);
+  }
+  
+  // 4. Heure de dernière mise à jour
+  const now = new Date();
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  
+
+  const updateElement = document.getElementById('last-update');
+  if (updateElement) {
+    updateElement.textContent = `${hours}:${minutes}`;
+    console.log("Updated last-update:", `${hours}:${minutes}`);
+  }
+  
+  // 5. the last 3 stats
+  const goodElement = document.getElementById('good-status');
   if (goodElement) {
-    goodElement.textContent = totalGood;
+    goodElement.textContent = stats.good;
   }
-  
-  const warningElement = document.getElementById('inspections-warning');
+
+  const warningElement = document.getElementById('warning-status');
   if (warningElement) {
-    warningElement.textContent = totalWarning;
+    warningElement.textContent = stats.warning;
   }
-  
-  const criticalElement = document.getElementById('inspections-critical');
+
+  const criticalElement = document.getElementById('critical-status');
   if (criticalElement) {
-    criticalElement.textContent = totalCritical;
+    criticalElement.textContent = stats.critical;
   }
-  
-  console.log("Stats updated:", { todayInspections, totalGood, totalWarning, totalCritical });
+
+  console.log("Stats summary:", {
+    total: stats.total,
+    inspectedToday: stats.inspectedToday,
+    good: stats.good,
+    warning: stats.warning,
+    critical: stats.critical,
+    notInspected: stats.notInspected,
+    overallStatus: overallStatus,
+    issuesCount: issuesCount
+  });
 }
 
 /**
@@ -1032,30 +1096,6 @@ function initMapFilterToggle() {
   });
 }
 
-  function scrollToInspectionSection() {
-	  // Find the "Inspection sélectionnée" section
-	  const cardTitles = document.querySelectorAll('.card-title');
-	  let inspectionSection = null;
-	  
-	  // Look for the card with title "Inspection sélectionnée"
-	  for (const title of cardTitles) {
-		if (title.textContent.includes('Inspection sélectionnée')) {
-		  inspectionSection = title.closest('.content-section');
-		  break;
-		}
-	  }
-	  
-	  // If found, scroll to it smoothly
-	  if (inspectionSection) {
-		setTimeout(() => {
-		  inspectionSection.scrollIntoView({
-			behavior: 'smooth',
-			block: 'start'
-		  });
-		}, 200); // Small delay to ensure content is updated
-	  }
-  }
-
 // Initialisation lors du chargement de la page
 document.addEventListener('DOMContentLoaded', function() {
   // Initialiser les contrôles de filtrage
@@ -1108,30 +1148,4 @@ async function openInspectionModal(item) {
     console.error('Error opening modal:', error);
     alert('Erreur lors du chargement des détails d\'inspection');
   }
-}
-
-/**
- * Create modal HTML if it doesn't exist
- */
-function createModalHTML() {
-  const modalHTML = `
-    <div class="modal" id="inspection-modal" style="display: none;">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2 class="modal-title">Détails de l'inspection</h2>
-          <button class="modal-close" onclick="closeModal()">✕</button>
-        </div>
-        
-        <div class="modal-body" id="modal-content">
-          <!-- Content will be loaded dynamically -->
-        </div>
-        
-        <div class="modal-footer">
-          <button class="btn btn-secondary" onclick="closeModal()">Fermer</button>
-        </div>
-      </div>
-    </div>
-  `;
-  
-  document.body.insertAdjacentHTML('beforeend', modalHTML);
 }
