@@ -81,6 +81,77 @@
 		  </div>
 		</div>
 
+      <!-- Map and legend container -->
+      <div class="map-container">
+        <div class="map-view">
+          <div class="map-bg">
+            <img src="assets/map3.png" alt="Carte du Mont Orford" class="map-image">
+            <!-- Map markers will be added dynamically -->
+          </div>
+        </div>
+        
+        <!-- legend on the right -->
+        <div class="map-legend">
+          <div class="legend-title">Légende</div>
+
+			  <!-- NEW: Badge View Toggle Section -->
+			  <div class="badge-toggle-section">
+				<label class="badge-toggle-label">Affichage des badges</label>
+				<div class="toggle-switch">
+				  <input type="checkbox" id="badge-view-toggle">
+				  <span class="toggle-slider"></span>
+				</div>
+				<div class="toggle-labels">
+				  <span>Inspections</span>
+				  <span>Status</span>
+				</div>
+			  </div>
+			  
+			  <!-- Dynamic legend content based on toggle -->
+			  <div id="detailed-legend">
+				<div class="legend-section">
+				  <h4>États</h4>
+				  <div class="legend-item">
+					<div class="legend-color" style="background-color: #10b981;"></div>
+					<span>Bon état</span>
+				  </div>
+				  <div class="legend-item">
+					<div class="legend-color" style="background-color: #f59e0b;"></div>
+					<span>Attention</span>
+				  </div>
+				  <div class="legend-item">
+					<div class="legend-color" style="background-color: #ef4444;"></div>
+					<span>Critique</span>
+				  </div>
+				  <div class="legend-item">
+					<div class="legend-color" style="background-color: #6b7280;"></div>
+					<span>Non inspecté</span>
+				  </div>
+				</div>
+				
+			  </div>
+			  
+			<div id="simple-legend" style="display: none;">
+			  <div class="legend-section">
+				<h4>Statut des sentiers</h4>
+				<div class="legend-item">
+				  <div class="legend-color" style="background-color: #10b981;"></div>
+				  <span>Ouvert</span>
+				</div>
+				<div class="legend-item">
+				  <div class="legend-color" style="background-color: #ef4444;"></div>
+				  <span>Fermé</span>
+				</div>
+				<div class="legend-item">
+				  <div class="legend-color" style="background-color: #6b7280;"></div>
+				  <span>Inconnu</span>
+				</div>
+			  </div>
+			</div>
+         
+        </div>
+      </div>
+        
 		<!-- Filters and stats section -->
 		<div class="content-section">
 		  <div class="card">
@@ -187,77 +258,6 @@
 		  </div>
 		</div>
       
-      <!-- Map and legend container -->
-      <div class="map-container">
-        <div class="map-view">
-          <div class="map-bg">
-            <img src="assets/map3.png" alt="Carte du Mont Orford" class="map-image">
-            <!-- Map markers will be added dynamically -->
-          </div>
-        </div>
-        
-        <!-- legend on the right -->
-        <div class="map-legend">
-          <div class="legend-title">Légende</div>
-
-			  <!-- NEW: Badge View Toggle Section -->
-			  <div class="badge-toggle-section">
-				<label class="badge-toggle-label">Affichage des badges</label>
-				<div class="toggle-switch">
-				  <input type="checkbox" id="badge-view-toggle">
-				  <span class="toggle-slider"></span>
-				</div>
-				<div class="toggle-labels">
-				  <span>Inspections</span>
-				  <span>Status</span>
-				</div>
-			  </div>
-			  
-			  <!-- Dynamic legend content based on toggle -->
-			  <div id="detailed-legend">
-				<div class="legend-section">
-				  <h4>États</h4>
-				  <div class="legend-item">
-					<div class="legend-color" style="background-color: #10b981;"></div>
-					<span>Bon état</span>
-				  </div>
-				  <div class="legend-item">
-					<div class="legend-color" style="background-color: #f59e0b;"></div>
-					<span>Attention</span>
-				  </div>
-				  <div class="legend-item">
-					<div class="legend-color" style="background-color: #ef4444;"></div>
-					<span>Critique</span>
-				  </div>
-				  <div class="legend-item">
-					<div class="legend-color" style="background-color: #6b7280;"></div>
-					<span>Non inspecté</span>
-				  </div>
-				</div>
-				
-			  </div>
-			  
-			<div id="simple-legend" style="display: none;">
-			  <div class="legend-section">
-				<h4>Statut des sentiers</h4>
-				<div class="legend-item">
-				  <div class="legend-color" style="background-color: #10b981;"></div>
-				  <span>Ouvert</span>
-				</div>
-				<div class="legend-item">
-				  <div class="legend-color" style="background-color: #ef4444;"></div>
-				  <span>Fermé</span>
-				</div>
-				<div class="legend-item">
-				  <div class="legend-color" style="background-color: #6b7280;"></div>
-				  <span>Inconnu</span>
-				</div>
-			  </div>
-			</div>
-         
-        </div>
-      </div>
-        
       <!-- List des inspections des 7 derniers jours -->
 		<div class="content-section">
   <div class="card">

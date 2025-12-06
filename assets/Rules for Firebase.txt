@@ -5,15 +5,21 @@ service cloud.firestore {
     // PUBLIC ACCESS - For status page
     // Allow anyone to read trails, shelters, and recent inspections
     match /trails/{document} {
-      allow read: if true;  // Public read access
-      allow write: if request.auth != null && 
-                   get(/databases/$(database)/documents/inspectors/$(request.auth.uid)).data.role == 'admin';
+		  allow read: if true;
+  		// Permettre la mise à jour aux utilisateurs authentifiés (pour le statut après inspection)
+  		allow update: if request.auth != null;
+  		// Création et suppression réservées aux admins
+  		allow create, delete: if request.auth != null && 
+      		get(/databases/$(database)/documents/inspectors/$(request.auth.uid)).data.role == 'admin';
     }
     
     match /shelters/{document} {
-      allow read: if true;  // Public read access
-      allow write: if request.auth != null && 
-                   get(/databases/$(database)/documents/inspectors/$(request.auth.uid)).data.role == 'admin';
+		  allow read: if true;
+  		// Permettre la mise à jour aux utilisateurs authentifiés (pour le statut après inspection)
+  		allow update: if request.auth != null;
+  		// Création et suppression réservées aux admins
+  		allow create, delete: if request.auth != null && 
+      		get(/databases/$(database)/documents/inspectors/$(request.auth.uid)).data.role == 'admin';
     }
     
     // Allow public read of inspections (for status page)
