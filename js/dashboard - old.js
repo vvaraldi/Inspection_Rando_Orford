@@ -4,34 +4,6 @@
 // Global variable to store inspection data for modal access
 let allInspectionsData = [];
 
-/**
- * Récupère le nom de l'inspecteur à partir de son ID
- * @param {string} inspectorId - L'ID de l'inspecteur
- * @returns {Promise<string>} - Le nom de l'inspecteur ou une valeur par défaut
- */
-async function getInspectorName(inspectorId) {
-  if (!inspectorId) {
-    console.warn("ID d'inspecteur manquant");
-    return "Inspecteur inconnu";
-  }
-  
-  try {
-    const inspectorDoc = await db.collection('inspectors').doc(inspectorId).get();
-    
-    if (inspectorDoc.exists) {
-      const data = inspectorDoc.data();
-      return data.name || "Inspecteur sans nom";
-    } else {
-      console.warn(`Inspecteur non trouvé: ${inspectorId}`);
-      return "Inspecteur inconnu";
-    }
-  } catch (error) {
-    console.error("Erreur lors de la récupération du nom de l'inspecteur:", error);
-    return "Inspecteur inconnu";
-  }
-}
-
-
 // Fonction appelée après l'authentification
 function loadDashboardData() {
   console.log("Chargement du tableau de bord");
@@ -444,8 +416,7 @@ function initDashboardFilters() {
 		// Clear and populate allInspectionsData for modal access
 		allInspectionsData = [];
 		
-		for (let index = 0; index < trailInspectionsSnapshot.docs.length; index++) {
-		  const doc = trailInspectionsSnapshot.docs[index];
+		trailInspectionsSnapshot.docs.forEach((doc, index) => {
 		  try {
 			const inspection = doc.data();
 			const trailId = inspection.trail_id;
@@ -462,14 +433,6 @@ function initDashboardFilters() {
 			  
 			  const trail = trailsMap.get(trailId);
 			  if (trail) {
-				// AJOUT: Récupérer le nom de l'inspecteur
-				let inspectorName = "Non spécifié";
-				if (inspection.inspector_name) {
-				  inspectorName = inspection.inspector_name;
-				} else if (inspection.inspector_id) {
-				  inspectorName = await getInspectorName(inspection.inspector_id);
-				}
-				
 				// Store inspection data for modal access
 				const inspectionData = {
 				  id: doc.id,
@@ -479,8 +442,7 @@ function initDashboardFilters() {
 				  locationId: trailId,
 				  locationName: trail.name,
 				  length: trail.length,
-				  difficulty: trail.difficulty,
-				  inspector: inspectorName  // AJOUT: inclure le nom de l'inspecteur
+				  difficulty: trail.difficulty
 				};
 				allInspectionsData.push(inspectionData);
 				
@@ -524,14 +486,13 @@ function initDashboardFilters() {
 		  } catch (error) {
 			console.error(`Error processing trail inspection ${index + 1}:`, error);
 		  }
-		}
+		});
 		
 		// Process shelter inspections
 		const shelterCards = [];
 		const processedShelters = new Set();
 		
-		for (let index = 0; index < shelterInspectionsSnapshot.docs.length; index++) {
-		  const doc = shelterInspectionsSnapshot.docs[index];
+		shelterInspectionsSnapshot.docs.forEach((doc, index) => {
 		  try {
 			const inspection = doc.data();
 			const shelterId = inspection.shelter_id;
@@ -548,14 +509,6 @@ function initDashboardFilters() {
 			  
 			  const shelter = sheltersMap.get(shelterId);
 			  if (shelter) {
-				// AJOUT: Récupérer le nom de l'inspecteur
-				let inspectorName = "Non spécifié";
-				if (inspection.inspector_name) {
-				  inspectorName = inspection.inspector_name;
-				} else if (inspection.inspector_id) {
-				  inspectorName = await getInspectorName(inspection.inspector_id);
-				}
-				
 				// Store inspection data for modal access
 				const inspectionData = {
 				  id: doc.id,
@@ -565,8 +518,7 @@ function initDashboardFilters() {
 				  locationId: shelterId,
 				  locationName: shelter.name,
 				  capacity: shelter.capacity,
-				  altitude: shelter.altitude,
-				  inspector: inspectorName  // AJOUT: inclure le nom de l'inspecteur
+				  altitude: shelter.altitude
 				};
 				allInspectionsData.push(inspectionData);
 				
@@ -604,7 +556,7 @@ function initDashboardFilters() {
 		  } catch (error) {
 			console.error(`Error processing shelter inspection ${index + 1}:`, error);
 		  }
-		}
+		});
 		
 		console.log(`Generated ${trailCards.length} trail cards and ${shelterCards.length} shelter cards`);
 		
@@ -991,7 +943,7 @@ function handleModalBackdropClick(e) {
 			  <h2>${typeText}: ${inspection.locationName}</h2>
 			  <div class="detail-header-meta">
 				<span class="detail-date">${formattedDate}</span>
-				<span class="detail-inspector">Par ${inspection.inspector || inspection.inspector_name || 'Non spécifié'}</span>
+				<span class="detail-inspector">Par ${inspection.inspector}</span>
 			  </div>
 			</div>
 			<div class="detail-header-status">

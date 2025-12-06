@@ -101,21 +101,9 @@ async function getTrailsWithLatestStatus(trails) {
     
     if (!inspectionsSnapshot.empty) {
       const inspectionDoc = inspectionsSnapshot.docs[0];
-      const inspectionData = inspectionDoc.data();
-      
-      // Récupérer le nom de l'inspecteur
-      let inspectorName = "Non spécifié";
-      if (inspectionData.inspector_name) {
-        inspectorName = inspectionData.inspector_name;
-      } else if (inspectionData.inspector_id) {
-        inspectorName = await getInspectorName(inspectionData.inspector_id);
-      }
-      
       lastInspection = {
         id: inspectionDoc.id,
-        ...inspectionData,
-        inspector: inspectorName,
-        inspector_name: inspectorName
+        ...inspectionDoc.data()
       };
       status = lastInspection.condition; // 'good', 'warning', or 'critical'
     }
@@ -151,21 +139,9 @@ async function getSheltersWithLatestStatus(shelters) {
     
     if (!inspectionsSnapshot.empty) {
       const inspectionDoc = inspectionsSnapshot.docs[0];
-      const inspectionData = inspectionDoc.data();
-      
-      // Récupérer le nom de l'inspecteur
-      let inspectorName = "Non spécifié";
-      if (inspectionData.inspector_name) {
-        inspectorName = inspectionData.inspector_name;
-      } else if (inspectionData.inspector_id) {
-        inspectorName = await getInspectorName(inspectionData.inspector_id);
-      }
-      
       lastInspection = {
         id: inspectionDoc.id,
-        ...inspectionData,
-        inspector: inspectorName,
-        inspector_name: inspectorName
+        ...inspectionDoc.data()
       };
       status = lastInspection.condition; // 'good', 'warning', or 'critical'
     }
@@ -1142,7 +1118,6 @@ async function openInspectionModal(item) {
       id: item.lastInspection.id || `${item.id}_inspection`,
       type: item.type,
       ...item.lastInspection, // Include all inspection data
-      inspector: item.lastInspection.inspector || item.lastInspection.inspector_name || 'Non spécifié',
       locationName: item.name,
       locationId: item.id,
       // Ensure we have the trail/shelter reference data
