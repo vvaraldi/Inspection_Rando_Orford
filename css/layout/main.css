@@ -15,8 +15,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--space-xl);
-  padding-bottom: var(--space-lg);
+  margin-bottom: var(--space-md);
+  padding-bottom: var(--space-sm);
   border-bottom: var(--border-width) solid var(--theme-border);
 }
 
