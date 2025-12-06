@@ -29,7 +29,7 @@
 .card-header {
   padding: var(--card-padding);
   background-color: var(--color-gray-50);
-  border-bottom: var(--border-width) solid var(--card-border);
+  border-bottom: var(--card-header-border-width) solid var(--card-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
