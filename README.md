@@ -3,10 +3,9 @@
 To do:
 
 Priority 1
-1 - In the Inpsection-history page when the list is going over the max number of lines it doesn't propose to switch to the next page.
+1 - If Admin user, in a modal view in the dashboard, user can click on trail status to switch it to open in the current inspection
 
 Priority 2
-2 - Shelter and trail inspection forms html should open larger the frame for the forms to have the 3 states side by side when opened in a large enough window.
 3 - Créer un système de notifications plus sophistiqué lorsqu'une inspection est ajoutée
 
 Priority 3

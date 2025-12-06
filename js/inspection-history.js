@@ -516,7 +516,7 @@ async loadData() {
 		
 		const formattedDate = this.formatDate(date);
 		const typeText = inspection.type === 'trail' ? 'Sentier' : 'Abri';
-		const locationName = inspection.locationName || 'Inconnu';
+		const locationName = inspection.location || 'Inconnu';
 		const inspectorName = inspection.inspector_name || 'Inconnu';
 		
 		// Status badge
