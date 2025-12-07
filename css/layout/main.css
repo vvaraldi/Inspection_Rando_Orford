@@ -6,7 +6,7 @@
 
 .main {
   min-height: calc(100vh - 60px);
-  padding: var(--space-md) var(--space-lg);
+  padding: var(--space-md) var(--space-sm);
   max-width: 1400px;
   margin: 0 auto;
 }
