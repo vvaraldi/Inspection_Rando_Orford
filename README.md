@@ -3,9 +3,9 @@
 To do:
 
 Priority 1
-1 - If Admin user, in a modal view in the dashboard, user can click on trail status to switch it to open in the current inspection
 
 Priority 2
+1 - If Admin user, in a modal view in the dashboard, user can click on trail status to switch it to open in the current inspection
 3 - Créer un système de notifications plus sophistiqué lorsqu'une inspection est ajoutée
 
 Priority 3
