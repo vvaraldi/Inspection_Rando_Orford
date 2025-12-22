@@ -5,6 +5,7 @@ To do:
 Priority 1
 
 Priority 2
+0 - Summarize for one track all incident
 1 - If Admin user, in a modal view in the dashboard, user can click on trail status to switch it to open in the current inspection
 3 - Créer un système de notifications plus sophistiqué lorsqu'une inspection est ajoutée
 
@@ -21,4 +22,3 @@ Prochaines améliorations possibles dixit Opus4.1:   Pas sûr de vouloir faire e
 0 - PWA (Progressive Web App) : Transformez l'application en PWA pour une expérience proche d'une application native
 1- Convertir en modules ES6 pour une meilleure organisation
 2- Ajouter des tests unitaires pour les fonctions critiques
-3- Implémenter un système de permissions plus granulaire
