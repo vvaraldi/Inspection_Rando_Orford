@@ -452,13 +452,15 @@ class AdminManager {
   const row = document.createElement('tr');
   const isCurrentUser = userId === this.currentUserId;
   
+  // Role styling
   const roleClass = userData.role === 'admin' ? 'role-admin' : 'role-inspector';
   const roleText = userData.role === 'admin' ? 'Administrateur' : 'Inspecteur';
   
+  // Status styling
   const statusClass = userData.status === 'active' ? 'status-active' : 'status-inactive';
   const statusText = userData.status === 'active' ? 'Actif' : 'Inactif';
 
-  // NEW: Access control badges
+  // Access control styling
   const inspectionAccessClass = userData.allowInspection ? 'access-granted' : 'access-denied';
   const inspectionAccessText = userData.allowInspection ? '✓ Inspection' : '✗ Inspection';
   
@@ -519,7 +521,7 @@ class AdminManager {
   `;
 
   return row;
-  }
+}
 
   bindTableEvents() {
     // Role toggle buttons
