@@ -3,16 +3,16 @@
 To do:
 
 Priority 1
+0 - Summarize for one track all incident
 
 Priority 2
-0 - Summarize for one track all incident
 1 - If Admin user, in a modal view in the dashboard, user can click on trail status to switch it to open in the current inspection
 3 - Créer un système de notifications plus sophistiqué lorsqu'une inspection est ajoutée
 
 Priority 3
 1 - Créer une inspection avec un lieu en cliquant sur l'image.
 2 - Créer un role de super admin pour la gestion des données systèmes (initialisation, reinit des inspections....)
-
+3 - geolocalisation des images
 
 Bug fix :
 - Que fait la touche créer des données de test ? Peut-on mettre un flag pour supprimer les données de test a tout moment

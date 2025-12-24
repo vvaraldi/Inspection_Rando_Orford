@@ -105,6 +105,7 @@
                     <th>Téléphone</th>
                     <th>Rôle</th>
                     <th>Statut</th>
+					<th>Accès Projets</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -163,6 +164,28 @@
                     <option value="inactive">Inactif</option>
                   </select>
                 </div>
+				<div class="form-group">
+				  <label class="form-label">Accès aux projets</label>
+				  <div class="access-checkboxes">
+					<label class="checkbox-label">
+					  <input type="checkbox" id="user-allow-inspection" checked>
+					  <span class="checkbox-text">
+						<span class="checkbox-icon">🔍</span>
+						Inspection (Ski-Track)
+					  </span>
+					</label>
+					<label class="checkbox-label">
+					  <input type="checkbox" id="user-allow-infraction" checked>
+					  <span class="checkbox-text">
+						<span class="checkbox-icon">⚠️</span>
+						Infraction (Patrouille)
+					  </span>
+					</label>
+				  </div>
+				  <small class="form-hint">
+					Sélectionnez les projets auxquels l'utilisateur aura accès
+				  </small>
+				</div>
               </div>
               
               <div class="form-actions">
