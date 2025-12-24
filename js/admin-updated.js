@@ -161,6 +161,8 @@ class AdminManager {
       password: document.getElementById('user-password').value,
       role: document.getElementById('user-role').value,
       status: document.getElementById('user-status').value
+      allowInspection: document.getElementById('user-allow-inspection')?.checked ?? true,
+      allowInfraction: document.getElementById('user-allow-infraction')?.checked ?? true
     };
 
     if (!this.validateUserForm(userData)) {
@@ -182,13 +184,15 @@ class AdminManager {
         userData.password
       );
 
-      // Add user data to Firestore using main database instance
+      // Add user data to Firestore using main database instance with access control fields
       await this.db.collection('inspectors').doc(userCredential.user.uid).set({
         name: userData.name,
         email: userData.email,
         phone: userData.phone || null,
         role: userData.role,
         status: userData.status,
+        allowInspection: userData.allowInspection,
+        allowInfraction: userData.allowInfraction,
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         createdBy: this.currentUserId
       });
@@ -445,51 +449,76 @@ class AdminManager {
   }
 
   createUserRow(userId, userData) {
-    const row = document.createElement('tr');
-    const isCurrentUser = userId === this.currentUserId;
-    
-    const roleClass = userData.role === 'admin' ? 'role-admin' : 'role-inspector';
-    const roleText = userData.role === 'admin' ? 'Administrateur' : 'Inspecteur';
-    
-    const statusClass = userData.status === 'active' ? 'status-active' : 'status-inactive';
-    const statusText = userData.status === 'active' ? 'Actif' : 'Inactif';
+  const row = document.createElement('tr');
+  const isCurrentUser = userId === this.currentUserId;
+  
+  const roleClass = userData.role === 'admin' ? 'role-admin' : 'role-inspector';
+  const roleText = userData.role === 'admin' ? 'Administrateur' : 'Inspecteur';
+  
+  const statusClass = userData.status === 'active' ? 'status-active' : 'status-inactive';
+  const statusText = userData.status === 'active' ? 'Actif' : 'Inactif';
 
-    row.innerHTML = `
-      <td>
-        ${userData.name}
-        ${isCurrentUser ? '<span class="current-user-indicator">(Vous)</span>' : ''}
-      </td>
-      <td>${userData.email}</td>
-      <td>${userData.phone || '-'}</td>
-      <td>
-        <button class="role-badge ${roleClass}" 
-                data-user-id="${userId}" 
-                data-current-role="${userData.role}"
-                ${isCurrentUser ? 'disabled title="Vous ne pouvez pas modifier votre propre rôle"' : ''}>
-          ${roleText}
-        </button>
-      </td>
-      <td>
-        <button class="status-badge ${statusClass}" 
-                data-user-id="${userId}" 
-                data-current-status="${userData.status}"
-                ${isCurrentUser ? 'disabled title="Vous ne pouvez pas modifier votre propre statut"' : ''}>
-          ${statusText}
-        </button>
-      </td>
-      <td>
-        <div class="admin-table-actions">
-          <button class="btn btn-danger btn-icon" 
-                  data-user-id="${userId}"
-                  onclick="adminManager.deleteUser('${userId}')"
-                  ${isCurrentUser ? 'disabled title="Vous ne pouvez pas vous supprimer"' : ''}>
-            🗑️
-          </button>
-        </div>
-      </td>
-    `;
+  // NEW: Access control badges
+  const inspectionAccessClass = userData.allowInspection ? 'access-granted' : 'access-denied';
+  const inspectionAccessText = userData.allowInspection ? '✓ Inspection' : '✗ Inspection';
+  
+  const infractionAccessClass = userData.allowInfraction ? 'access-granted' : 'access-denied';
+  const infractionAccessText = userData.allowInfraction ? '✓ Infraction' : '✗ Infraction';
 
-    return row;
+  row.innerHTML = `
+    <td>
+      ${userData.name}
+      ${isCurrentUser ? '<span class="current-user-indicator">(Vous)</span>' : ''}
+    </td>
+    <td>${userData.email}</td>
+    <td>${userData.phone || '-'}</td>
+    <td>
+      <button class="role-badge ${roleClass}" 
+              data-user-id="${userId}" 
+              data-current-role="${userData.role}"
+              ${isCurrentUser ? 'disabled title="Vous ne pouvez pas modifier votre propre rôle"' : ''}>
+        ${roleText}
+      </button>
+    </td>
+    <td>
+      <button class="status-badge ${statusClass}" 
+              data-user-id="${userId}" 
+              data-current-status="${userData.status}"
+              ${isCurrentUser ? 'disabled title="Vous ne pouvez pas modifier votre propre statut"' : ''}>
+        ${statusText}
+      </button>
+    </td>
+    <td>
+      <div class="access-badges">
+        <button class="access-badge ${inspectionAccessClass}" 
+                data-user-id="${userId}" 
+                data-access-type="inspection"
+                data-current-access="${userData.allowInspection}"
+                title="Accès au projet Inspection">
+          ${inspectionAccessText}
+        </button>
+        <button class="access-badge ${infractionAccessClass}" 
+                data-user-id="${userId}" 
+                data-access-type="infraction"
+                data-current-access="${userData.allowInfraction}"
+                title="Accès au projet Infraction">
+          ${infractionAccessText}
+        </button>
+      </div>
+    </td>
+    <td>
+      <div class="admin-table-actions">
+        <button class="btn btn-danger btn-icon" 
+                data-user-id="${userId}"
+                onclick="adminManager.deleteUser('${userId}')"
+                ${isCurrentUser ? 'disabled title="Vous ne pouvez pas vous supprimer"' : ''}>
+          🗑️
+        </button>
+      </div>
+    </td>
+  `;
+
+  return row;
   }
 
   bindTableEvents() {
@@ -512,6 +541,17 @@ class AdminManager {
         this.toggleUserStatus(userId, newStatus, e.target);
       });
     });
+
+    // Access toggle buttons
+    document.querySelectorAll('.access-badge').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const userId = e.target.dataset.userId;
+        const accessType = e.target.dataset.accessType;
+        const currentAccess = e.target.dataset.currentAccess === 'true';
+        this.toggleUserAccess(userId, accessType, !currentAccess, e.target);
+      });
+  });
+
   }
 
   async toggleUserRole(userId, newRole, buttonElement) {
@@ -562,6 +602,38 @@ class AdminManager {
     } finally {
       buttonElement.disabled = false;
     }
+  }
+
+  async toggleUserAccess(userId, accessType, newAccess, buttonElement) {
+  try {
+    buttonElement.disabled = true;
+    
+    // Determine which field to update
+    const fieldName = accessType === 'inspection' ? 'allowInspection' : 'allowInfraction';
+    
+    await this.db.collection('inspectors').doc(userId).update({
+      [fieldName]: newAccess
+    });
+
+    // Update UI
+    const newClass = newAccess ? 'access-granted' : 'access-denied';
+    const oldClass = newAccess ? 'access-denied' : 'access-granted';
+    const accessLabel = accessType === 'inspection' ? 'Inspection' : 'Infraction';
+    const newText = newAccess ? `✓ ${accessLabel}` : `✗ ${accessLabel}`;
+    
+    buttonElement.classList.remove(oldClass);
+    buttonElement.classList.add(newClass);
+    buttonElement.textContent = newText;
+    buttonElement.dataset.currentAccess = newAccess;
+
+    this.showSuccess(`Accès ${accessLabel} ${newAccess ? 'activé' : 'désactivé'}`);
+    
+  } catch (error) {
+    console.error('Error toggling access:', error);
+    this.showError('Erreur lors de la modification de l\'accès');
+  } finally {
+    buttonElement.disabled = false;
+  }
   }
 
   deleteUser(userId) {
