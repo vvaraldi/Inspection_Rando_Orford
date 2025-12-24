@@ -12,9 +12,18 @@ const firebaseConfig = {
 // Initialisation de Firebase
 firebase.initializeApp(firebaseConfig);
 
-// Références aux services Firebase
-const auth = firebase.auth();
-const db = firebase.firestore();
+// Declare variables but don't initialize them yet
+let auth, db, storage;
+
+// Wait for Firebase to be fully loaded
+window.addEventListener('load', function() {
+  // NOW initialize the Firebase services
+  auth = firebase.auth();
+  db = firebase.firestore();
+  storage = firebase.storage();
+  
+  console.log('Firebase services initialized');
+});
 
 /**
  * Vérifie l'état d'authentification de l'utilisateur
