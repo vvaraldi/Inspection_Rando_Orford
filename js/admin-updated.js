@@ -300,53 +300,66 @@ class AdminManager {
   }
 
   async checkAdminPermissions() {
-    return new Promise((resolve) => {
-      this.auth.onAuthStateChanged(async (user) => {
-        if (user) {
-          this.currentUserId = user.uid;
-          try {
-            const userDoc = await this.db.collection('inspectors').doc(user.uid).get();
+  return new Promise((resolve) => {
+    this.auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        this.currentUserId = user.uid;
+        try {
+          const userDoc = await this.db.collection('inspectors').doc(user.uid).get();
+          
+          if (userDoc.exists) {
+            const userData = userDoc.data();
             
-            if (userDoc.exists) {
-              const userData = userDoc.data();
-              
-              if (userData.status !== 'active') {
-                this.showError('Votre compte a été désactivé');
-                await this.auth.signOut();
-                this.redirectToLogin();
-                resolve(false);
-                return;
-              }
-              
-              if (userData.role !== 'admin') {
-                this.showError('Accès refusé - Droits administrateur requis');
-                setTimeout(() => {
-                  window.location.href = '../index.html';
-                }, 2000);
-                resolve(false);
-                return;
-              }
-              
-              this.updateUserInfo(userData.name);
-              resolve(true);
-            } else {
-              this.showError('Utilisateur non trouvé dans la base de données');
+            // Check 1: Is user active?
+            if (userData.status !== 'active') {
+              this.showError('Votre compte a été désactivé');
+              await this.auth.signOut();
               this.redirectToLogin();
               resolve(false);
+              return;
             }
-          } catch (error) {
-            console.error('Error checking admin permissions:', error);
-            this.showError('Erreur lors de la vérification des permissions');
+            
+            // Check 2: Does user have inspection access?
+            if (userData.allowInspection !== true) {
+              this.showError('Vous n\'avez pas accès au système d\'inspection');
+              await this.auth.signOut();
+              this.redirectToLogin();
+              resolve(false);
+              return;
+            }
+            
+            // Check 3: Is user admin? (for admin page specifically)
+            if (userData.role !== 'admin') {
+              this.showError('Accès refusé - Droits administrateur requis');
+              setTimeout(() => {
+                window.location.href = '../index.html';
+              }, 2000);
+              resolve(false);
+              return;
+            }
+            
+            // ✓ All checks passed
+            this.updateUserInfo(userData.name);
+            resolve(true);
+            
+          } else {
+            this.showError('Utilisateur non trouvé dans la base de données');
             this.redirectToLogin();
             resolve(false);
           }
-        } else {
+        } catch (error) {
+          console.error('Error checking admin permissions:', error);
+          this.showError('Erreur lors de la vérification des permissions');
           this.redirectToLogin();
           resolve(false);
         }
-      });
+      } else {
+        this.redirectToLogin();
+        resolve(false);
+      }
     });
-  }
+  });
+}
 
   updateUserInfo(userName) {
     const userInfoElements = document.querySelectorAll('.user-name, #user-name-display, #admin-name');
