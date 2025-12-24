@@ -1,36 +1,77 @@
-// Configuration Firebase (à remplacer par vos informations)
+/**
+ * auth.js
+ * Firebase Authentication for Inspection system
+ * Uses shared inspectors collection from Ski-Track
+ * SUPER DEFENSIVE VERSION - checks if Firebase is loaded
+ */
+
+console.log('auth.js loading...');
+
+// Check if Firebase is available
+if (typeof firebase === 'undefined') {
+  console.error('CRITICAL: Firebase is not loaded! Check your script tags.');
+  alert('Erreur: Firebase n\'est pas chargé. Veuillez recharger la page.');
+}
+
+// Firebase configuration (same as Ski-Track project)
 const firebaseConfig = {
-    apiKey: "AIzaSyDcBZrwGTskM7QUvanzLTACEJ_T-55j-DA",
-    authDomain: "trail-inspection.firebaseapp.com",
-    projectId: "trail-inspection",
-    storageBucket: "trail-inspection.firebasestorage.app",
-    messagingSenderId: "415995272058",
-    appId: "1:415995272058:web:dc476de8ffee052e2ad4c3",
-    measurementId: "G-EBLYWBM9YB"
+  apiKey: "AIzaSyDcBZrwGTskM7QUvanzLTACEJ_T-55j-DA",
+  authDomain: "trail-inspection.firebaseapp.com",
+  projectId: "trail-inspection",
+  storageBucket: "trail-inspection.firebasestorage.app",
+  messagingSenderId: "415995272058",
+  appId: "1:415995272058:web:dc476de8ffee052e2ad4c3",
+  measurementId: "G-EBLYWBM9YB"
 };
 
-// Initialisation de Firebase
-firebase.initializeApp(firebaseConfig);
+// Initialize Firebase
+try {
+  firebase.initializeApp(firebaseConfig);
+  console.log('Firebase initialized');
+} catch (error) {
+  console.error('Error initializing Firebase:', error);
+}
 
-// Declare variables but don't initialize them yet
+// Firebase services - with error checking
 let auth, db, storage;
 
-// Wait for Firebase to be fully loaded
-window.addEventListener('load', function() {
-  // NOW initialize the Firebase services
+try {
   auth = firebase.auth();
+  console.log('Auth initialized:', typeof auth);
+} catch (error) {
+  console.error('Error initializing auth:', error);
+}
+
+try {
   db = firebase.firestore();
+  console.log('Firestore initialized:', typeof db);
+} catch (error) {
+  console.error('Error initializing firestore:', error);
+}
+
+try {
   storage = firebase.storage();
-  
-  console.log('Firebase services initialized');
-});
+  console.log('Storage initialized:', typeof storage);
+} catch (error) {
+  console.error('Error initializing storage:', error);
+}
+
+// Current user data
+let currentUser = null;
+let currentUserData = null;
 
 /**
- * Vérifie l'état d'authentification de l'utilisateur
- * Redirige vers la page de connexion si non connecté
- * Charge les données du tableau de bord si connecté
+ * Check authentication status and handle redirects
+ * UPDATED: Now checks for allowInfraction access
  */
 function checkAuthStatus() {
+  console.log('checkAuthStatus called, auth is:', typeof auth);
+  
+  if (!auth) {
+    console.error('Auth is not initialized!');
+    return;
+  }
+  
   const loading = document.getElementById('loading');
   const mainContent = document.getElementById('main-content');
   const loginLink = document.getElementById('login-link');
@@ -40,367 +81,247 @@ function checkAuthStatus() {
   
   auth.onAuthStateChanged(async function(user) {
     if (user) {
-      // Utilisateur connecté
-      console.log("Utilisateur connecté:", user.email);
+      currentUser = user;
+      console.log('User logged in:', user.email);
       
       try {
-        // Récupérer une seule fois les informations de l'utilisateur
+        // Get user data from inspectors collection
         const inspectorDoc = await db.collection('inspectors').doc(user.uid).get();
         
         if (inspectorDoc.exists) {
-          const userData = inspectorDoc.data();
+          currentUserData = inspectorDoc.data();
+          currentUserData.uid = user.uid;
+          console.log('User data loaded:', currentUserData);
           
-          // Vérifier si l'utilisateur est actif
-          if (userData.status !== 'active') {
-            console.log("Compte utilisateur désactivé");
-            
-            // Afficher le message AVANT de déconnecter
-            alert('Votre compte a été désactivé. Contactez l\'administrateur.');
-            
-            // Déconnecter l'utilisateur
-            try {
-              await auth.signOut();
-              console.log("Utilisateur déconnecté car compte inactif");
-            } catch (signOutError) {
-              console.error("Erreur lors de la déconnexion:", signOutError);
-            }
-            
-            // Rediriger vers la page de connexion sans recharger
-            const loginUrl = window.location.pathname.includes('/pages/') 
-              ? 'login.html' 
-              : 'pages/login.html';
-            window.location.href = loginUrl;
-            
-            return; // Sortir de la fonction
+          // Check if user is active
+          if (currentUserData.status !== 'active') {
+            console.log('User account is not active');
+            showAccessDenied('Votre compte a été désactivé. Contactez l\'administrateur.');
+            await auth.signOut();
+            return;
           }
           
-          // Utilisateur actif - continuer normalement
-          // Mettre à jour le nom affiché
-          const userName = document.getElementById('user-name');
-          if (userName && userData.name) {
-            userName.textContent = userData.name;
+          // Check if user has inspection access
+          if (currentUserData.allowInspection !== true) {
+            console.log('User does not have inspection access');
+            showAccessDenied('Vous n\'avez pas accès au système d\'inspection. Contactez l\'administrateur.');
+            await auth.signOut();
+            return;
           }
           
-          // Vérifier si l'utilisateur est admin
-          if (userData.role === 'admin') {
-            console.log("L'utilisateur est administrateur");
-            if (adminLink) adminLink.style.display = 'inline';
-            if (mobileAdminLink) mobileAdminLink.style.display = 'inline';
-          }
+          console.log('User authorized, showing content');
+          
+          // User is authorized - show content
+          if (loading) loading.style.display = 'none';
+          if (mainContent) mainContent.style.display = 'block';
+          
+          // Update UI based on role
+          updateUIForRole(currentUserData.role);
+          
+          // Dispatch authenticated event
+          document.dispatchEvent(new CustomEvent('userAuthenticated', {
+            detail: currentUserData
+          }));
+          
         } else {
-          console.warn("Document de l'utilisateur non trouvé dans Firestore");
-          // Créer un document utilisateur de base si nécessaire
-          await createBasicUserDocument(user);
+          // User not found in inspectors collection
+          console.log('User document not found in Firestore');
+          showAccessDenied('Utilisateur non trouvé. Contactez l\'administrateur.');
+          await auth.signOut();
         }
         
-        // Mettre à jour les liens de connexion/déconnexion
-        setupLogoutLinks(loginLink, mobileLoginLink);
-        
-        // Afficher le contenu et charger les données
-        showContentAndLoadData(loading, mainContent);
-        
       } catch (error) {
-        console.error("Erreur lors de la vérification de l'utilisateur:", error);
-        
-        // En cas d'erreur, afficher quand même le contenu mais sans les privilèges admin
-        setupLogoutLinks(loginLink, mobileLoginLink);
-        showContentAndLoadData(loading, mainContent);
+        console.error('Error checking auth status:', error);
+        showAccessDenied('Erreur lors de la vérification des accès.');
+        await auth.signOut();
       }
       
     } else {
-      // Utilisateur non connecté
-      console.log("Aucun utilisateur connecté");
-      redirectToLogin(loading, mainContent);
+      // Not logged in
+      console.log('No user logged in');
+      currentUser = null;
+      currentUserData = null;
+      
+      // Check if we're already on the login page
+      if (!window.location.pathname.includes('login.html')) {
+        console.log('Redirecting to login');
+        redirectToLogin();
+      }
     }
-  }, function(error) {
-    // Gestion des erreurs de Firebase Auth
-    console.error("Erreur d'authentification:", error);
-    
-    // En cas d'erreur critique, afficher le contenu quand même
-    if (loading) loading.style.display = 'none';
-    if (mainContent) mainContent.style.display = 'block';
   });
 }
 
 /**
- * Crée un document utilisateur de base si nécessaire
+ * Update UI elements based on user role
  */
-async function createBasicUserDocument(user) {
-  try {
-    await db.collection('inspectors').doc(user.uid).set({
-      name: user.email.split('@')[0], // Utiliser la partie avant @ comme nom par défaut
-      email: user.email,
-      role: 'inspector',
-      status: 'active',
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    console.log("Document utilisateur de base créé");
-  } catch (error) {
-    console.error("Erreur lors de la création du document utilisateur:", error);
-  }
-}
-
-/**
- * Configure les liens de déconnexion
- */
-function setupLogoutLinks(loginLink, mobileLoginLink) {
-  const logoutHandler = function(e) {
-    e.preventDefault();
-    auth.signOut().then(() => {
-      // Rediriger vers la page de connexion
-      const loginUrl = window.location.pathname.includes('/pages/') 
-        ? 'login.html' 
-        : 'pages/login.html';
-      window.location.href = loginUrl;
-    }).catch(error => {
-      console.error("Erreur lors de la déconnexion:", error);
-    });
-  };
+function updateUIForRole(role) {
+  const adminLink = document.getElementById('admin-link');
+  const mobileAdminLink = document.getElementById('mobile-admin-link');
+  const loginLink = document.getElementById('login-link');
+  const mobileLoginLink = document.getElementById('mobile-login-link');
   
+  // Show admin link for admins
+  if (role === 'admin') {
+    if (adminLink) adminLink.style.display = 'block';
+    if (mobileAdminLink) mobileAdminLink.style.display = 'block';
+  }
+  
+  // Update login links to logout
   if (loginLink) {
     loginLink.textContent = 'Déconnexion';
-    loginLink.onclick = logoutHandler;
+    loginLink.href = '#';
+    loginLink.onclick = handleLogout;
   }
   
   if (mobileLoginLink) {
     mobileLoginLink.textContent = 'Déconnexion';
-    mobileLoginLink.onclick = logoutHandler;
+    mobileLoginLink.href = '#';
+    mobileLoginLink.onclick = handleLogout;
   }
 }
 
 /**
- * Affiche le contenu principal et charge les données
+ * Display access denied message and redirect
  */
-/**
- * Affiche le contenu principal et charge les données
- */
-function showContentAndLoadData(loading, mainContent) {
-  // Afficher le contenu principal et masquer l'indicateur de chargement
+function showAccessDenied(message) {
+  const loading = document.getElementById('loading');
+  const mainContent = document.getElementById('main-content');
+  
+  // Hide loading and main content
   if (loading) loading.style.display = 'none';
-  if (mainContent) mainContent.style.display = 'block';
+  if (mainContent) mainContent.style.display = 'none';
   
-  // Charger les données selon la page
-  if (typeof loadMapData === 'function') {
-    console.log("Chargement des données de la carte...");
-    loadMapData();
+  // Show alert
+  alert(message);
+  
+  // Redirect to login
+  redirectToLogin();
+}
+
+/**
+ * Redirect to login page
+ */
+function redirectToLogin() {
+  const isInPages = window.location.pathname.includes('/pages/');
+  const loginUrl = isInPages ? 'login.html' : 'pages/login.html';
+  console.log('Redirecting to:', loginUrl);
+  window.location.href = loginUrl;
+}
+
+/**
+ * Redirect to main page
+ */
+function redirectToMain() {
+  const isInPages = window.location.pathname.includes('/pages/');
+  const mainUrl = isInPages ? '../index.html' : 'index.html';
+  window.location.href = mainUrl;
+}
+
+/**
+ * Handle user login
+ * @param {string} email - User email
+ * @param {string} password - User password
+ * @returns {Promise} Login result
+ */
+async function loginUser(email, password) {
+  console.log('Attempting login for:', email);
+  
+  if (!auth) {
+    throw new Error('Firebase Auth not initialized');
   }
   
-  if (typeof loadDashboardData === 'function') {
-    console.log("Chargement des données du tableau de bord...");
-    loadDashboardData();
-  }
-  
-  if (typeof loadInspectionHistory === 'function') {
-    console.log("Chargement de l'historique des inspections...");
-    loadInspectionHistory();
-  }
-  
-  // NOUVELLES LIGNES - Charger les données spécifiques aux pages d'inspection
-  if (typeof window.loadTrailInspectionData === 'function') {
-    console.log("Chargement des données pour trail-inspection");
-    window.loadTrailInspectionData();
-  }
-  
-  if (typeof window.loadShelterInspectionData === 'function') {
-    console.log("Chargement des données pour shelter-inspection");
-    window.loadShelterInspectionData();
+  try {
+    const userCredential = await auth.signInWithEmailAndPassword(email, password);
+    console.log('Firebase login successful');
+    
+    // Check if user exists in inspectors collection
+    const inspectorDoc = await db.collection('inspectors').doc(userCredential.user.uid).get();
+    
+    if (!inspectorDoc.exists) {
+      console.log('User not found in inspectors collection');
+      await auth.signOut();
+      throw new Error('account-not-found');
+    }
+    
+    const userData = inspectorDoc.data();
+    console.log('User data:', userData);
+    
+    // Check if user is active
+    if (userData.status !== 'active') {
+      console.log('User account is inactive');
+      await auth.signOut();
+      throw new Error('account-disabled');
+    }
+    
+    // Check if user has inspection access
+    if (userData.allowInspection !== true) {
+      console.log('User does not have inspection access');
+      await auth.signOut();
+      throw new Error('no-inspection-access');
+    }
+    
+    console.log('Login successful, all checks passed');
+    return userCredential.user;
+    
+  } catch (error) {
+    console.error('Login error:', error);
+    throw error;
   }
 }
 
 /**
- * Redirige vers la page de connexion
+ * Handle user logout
  */
-function redirectToLogin(loading, mainContent) {
-  const currentPage = window.location.pathname.split('/').pop();
+async function handleLogout(e) {
+  if (e) e.preventDefault();
   
-  if (currentPage !== 'login.html') {
-    // Rediriger vers la page de connexion
-    window.location.href = window.location.pathname.includes('/pages/') 
-      ? 'login.html' 
-      : 'pages/login.html';
-  } else {
-    // Si on est déjà sur la page de login, masquer le chargement
-    if (loading) loading.style.display = 'none';
-    if (mainContent) mainContent.style.display = 'block';
+  try {
+    await auth.signOut();
+    redirectToLogin();
+  } catch (error) {
+    console.error('Logout error:', error);
+    alert('Erreur lors de la déconnexion.');
   }
 }
 
 /**
- * Gère la connexion d'un utilisateur
- * @param {string} email - Email de l'utilisateur
- * @param {string} password - Mot de passe de l'utilisateur
- * @returns {Promise} - Promesse résolue lors de la connexion réussie
+ * Get current user data
+ * @returns {Object|null} Current user data
  */
-function loginUser(email, password) {
-  return auth.signInWithEmailAndPassword(email, password)
-    .then(async (userCredential) => {
-      console.log("Connexion réussie pour:", email);
-      
-      // Vérifier le statut de l'utilisateur immédiatement après la connexion
-      const userDoc = await db.collection('inspectors').doc(userCredential.user.uid).get();
-      
-      if (userDoc.exists) {
-        const userData = userDoc.data();
-        if (userData.status !== 'active') {
-          // Déconnecter immédiatement si le compte est inactif
-          await auth.signOut();
-          throw new Error('account-disabled');
-        }
-      }
-      
-      return userCredential.user;
-    });
+function getCurrentUser() {
+  return currentUserData;
 }
 
 /**
- * Déconnecte l'utilisateur actuel
- * @returns {Promise} - Promesse résolue lors de la déconnexion
+ * Get current user ID
+ * @returns {string|null} Current user ID
  */
-function logoutUser() {
-  return auth.signOut()
-    .then(() => {
-      console.log("Déconnexion réussie");
-    });
+function getCurrentUserId() {
+  return currentUser ? currentUser.uid : null;
 }
 
 /**
- * Crée un nouvel utilisateur inspecteur
- * @param {Object} userData - Données de l'utilisateur
- * @returns {Promise} - Promesse résolue lors de la création
+ * Check if current user is admin
+ * @returns {boolean} True if admin
  */
-function createInspector(userData) {
-  return auth.createUserWithEmailAndPassword(userData.email, userData.password)
-    .then((userCredential) => {
-      // Ajouter les informations supplémentaires dans Firestore
-      return db.collection('inspectors').doc(userCredential.user.uid).set({
-        name: userData.name,
-        email: userData.email,
-        phone: userData.phone || null,
-        role: userData.role || 'inspector',
-        status: userData.status || 'active',
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      }).then(() => {
-        console.log("Inspecteur créé avec succès:", userData.email);
-        return userCredential.user;
-      });
-    });
+function isAdmin() {
+  return currentUserData && currentUserData.role === 'admin';
 }
 
 /**
- * Crée un administrateur initial (à n'utiliser qu'une seule fois)
- * @param {string} email - Email de l'administrateur
- * @param {string} password - Mot de passe de l'administrateur
- * @param {string} name - Nom de l'administrateur
+ * Get Firebase config for secondary app instances
+ * @returns {Object} Firebase config
  */
-function createInitialAdmin(email, password, name) {
-  auth.createUserWithEmailAndPassword(email, password)
-    .then((userCredential) => {
-      // Ajouter les informations dans Firestore avec le rôle admin
-      return db.collection('inspectors').doc(userCredential.user.uid).set({
-        name: name,
-        email: email,
-        role: 'admin',
-        status: 'active',
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-    })
-    .then(() => {
-      console.log("Administrateur initial créé avec succès!");
-      alert("Administrateur créé avec succès!");
-    })
-    .catch((error) => {
-      console.error("Erreur lors de la création de l'administrateur:", error);
-      alert("Erreur lors de la création de l'administrateur: " + error.message);
-    });
+function getFirebaseConfig() {
+  return firebaseConfig;
 }
 
-// Écouter le chargement du document pour vérifier l'authentification
+// Initialize auth check on page load
 document.addEventListener('DOMContentLoaded', function() {
+  console.log('DOM loaded, checking auth status...');
+  console.log('Firebase available:', typeof firebase);
+  console.log('Auth available:', typeof auth);
   checkAuthStatus();
-  
-  // Gestion du formulaire de connexion sur la page login.html
-  const loginForm = document.getElementById('loginForm');
-  if (loginForm) {
-    loginForm.addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      const errorMessage = document.getElementById('error-message');
-      
-      // Masquer les messages d'erreur précédents
-      if (errorMessage) {
-        errorMessage.style.display = 'none';
-        errorMessage.textContent = '';
-      }
-      
-      // Tenter la connexion
-      loginUser(email, password)
-        .then(() => {
-          // Rediriger vers la page principale en cas de succès
-          window.location.href = '../index.html';
-        })
-        .catch((error) => {
-          console.error("Erreur de connexion:", error);
-          
-          // Afficher l'erreur
-          if (errorMessage) {
-            errorMessage.style.display = 'block';
-            
-            if (error.message === 'account-disabled') {
-              errorMessage.textContent = 'Votre compte a été désactivé. Contactez l\'administrateur.';
-            } else {
-              switch(error.code) {
-                case 'auth/user-not-found':
-                  errorMessage.textContent = 'Aucun utilisateur ne correspond à cette adresse email.';
-                  break;
-                case 'auth/wrong-password':
-                  errorMessage.textContent = 'Mot de passe incorrect.';
-                  break;
-                case 'auth/invalid-email':
-                  errorMessage.textContent = 'Adresse email invalide.';
-                  break;
-                case 'auth/too-many-requests':
-                  errorMessage.textContent = 'Trop de tentatives infructueuses. Veuillez réessayer plus tard.';
-                  break;
-                default:
-                  errorMessage.textContent = 'Erreur de connexion: ' + error.message;
-              }
-            }
-          }
-        });
-    });
-  }
-  
-  // Gestion du bouton de déconnexion global
-  const logoutButton = document.getElementById('logout-btn');
-  if (logoutButton) {
-    logoutButton.addEventListener('click', function(e) {
-      e.preventDefault();
-      logoutUser()
-        .then(() => {
-          window.location.href = window.location.pathname.includes('/pages/') 
-            ? 'login.html' 
-            : 'pages/login.html';
-        })
-        .catch(error => {
-          console.error("Erreur lors de la déconnexion:", error);
-        });
-    });
-  }
 });
 
-// Fonction utilitaire pour vérifier rapidement le statut actif
-function checkUserActiveStatus(user) {
-  return db.collection('inspectors').doc(user.uid).get()
-    .then(doc => {
-      if (doc.exists) {
-        const userData = doc.data();
-        return userData.status === 'active';
-      }
-      return false;
-    });
-}
-
-// Décommentez la ligne suivante uniquement pour créer un admin initial, puis recommentez-la
-// createInitialAdmin('admin@example.com', 'MotDePasse123', 'Administrateur');
+console.log('auth.js loaded successfully');
