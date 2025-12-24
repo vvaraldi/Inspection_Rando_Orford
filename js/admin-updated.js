@@ -160,7 +160,7 @@ class AdminManager {
       phone: document.getElementById('user-phone').value.trim(),
       password: document.getElementById('user-password').value,
       role: document.getElementById('user-role').value,
-      status: document.getElementById('user-status').value
+      status: document.getElementById('user-status').value,
       allowInspection: document.getElementById('user-allow-inspection')?.checked ?? true,
       allowInfraction: document.getElementById('user-allow-infraction')?.checked ?? true
     };
