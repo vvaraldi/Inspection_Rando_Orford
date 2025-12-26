@@ -77,6 +77,10 @@ function checkAuthStatus() {
             if (adminLink) adminLink.style.display = 'inline';
             if (mobileAdminLink) mobileAdminLink.style.display = 'inline';
           }
+          
+          // NEW: Update Infraction link visibility
+          updateInfractionLinkVisibility(currentUserData);
+          
         } else {
           console.warn("Document de l'utilisateur non trouvé dans Firestore");
         }
@@ -240,6 +244,29 @@ function isAdmin() {
  */
 function getFirebaseConfig() {
   return firebaseConfig;
+}
+
+/**
+ * NEW: Update Infraction link visibility based on user permissions
+ * @param {Object} userData - User data from inspectors collection
+ */
+function updateInfractionLinkVisibility(userData) {
+  const infractionLink = document.getElementById('infraction-link');
+  const infractionDivider = document.getElementById('infraction-divider');
+  const mobileInfractionLink = document.getElementById('mobile-infraction-link');
+  
+  // Check if user has infraction access
+  const hasAccess = userData && userData.allowInfraction === true;
+  
+  if (hasAccess) {
+    if (infractionLink) infractionLink.style.display = 'inline-flex';
+    if (infractionDivider) infractionDivider.style.display = 'inline-block';
+    if (mobileInfractionLink) mobileInfractionLink.style.display = 'block';
+  } else {
+    if (infractionLink) infractionLink.style.display = 'none';
+    if (infractionDivider) infractionDivider.style.display = 'none';
+    if (mobileInfractionLink) mobileInfractionLink.style.display = 'none';
+  }
 }
 
 // Écouter le chargement du document pour vérifier l'authentification
