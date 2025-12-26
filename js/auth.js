@@ -77,6 +77,9 @@ function checkAuthStatus() {
             if (adminLink) adminLink.style.display = 'inline';
             if (mobileAdminLink) mobileAdminLink.style.display = 'inline';
           }
+          
+          // Update Infraction link visibility based on user's infraction access
+          updateInfractionLinkVisibility(currentUserData);
         } else {
           console.warn("Document de l'utilisateur non trouvé dans Firestore");
         }
@@ -102,6 +105,31 @@ function checkAuthStatus() {
 }
 
 /**
+ * Update Infraction link visibility based on user's infraction access
+ * @param {Object} userData - User data from inspectors collection
+ */
+function updateInfractionLinkVisibility(userData) {
+  const infractionLink = document.getElementById('infraction-link');
+  const infractionDivider = document.getElementById('infraction-divider');
+  const mobileInfractionLink = document.getElementById('mobile-infraction-link');
+  
+  // Check if user has infraction access
+  const hasInfractionAccess = userData.allowInfraction === true;
+  
+  if (hasInfractionAccess) {
+    // Show Infraction links
+    if (infractionLink) infractionLink.style.display = 'inline-flex';
+    if (infractionDivider) infractionDivider.style.display = 'inline-block';
+    if (mobileInfractionLink) mobileInfractionLink.style.display = 'block';
+  } else {
+    // Hide Infraction links
+    if (infractionLink) infractionLink.style.display = 'none';
+    if (infractionDivider) infractionDivider.style.display = 'none';
+    if (mobileInfractionLink) mobileInfractionLink.style.display = 'none';
+  }
+}
+
+/**
  * Configure les liens de déconnexion
  */
 function setupLogoutLinks(loginLink, mobileLoginLink) {
@@ -112,19 +140,19 @@ function setupLogoutLinks(loginLink, mobileLoginLink) {
         ? 'login.html' 
         : 'pages/login.html';
       window.location.href = loginUrl;
-    }).catch(error => {
+    }).catch((error) => {
       console.error("Erreur lors de la déconnexion:", error);
     });
   };
   
   if (loginLink) {
     loginLink.textContent = 'Déconnexion';
-    loginLink.onclick = logoutHandler;
+    loginLink.addEventListener('click', logoutHandler);
   }
   
   if (mobileLoginLink) {
     mobileLoginLink.textContent = 'Déconnexion';
-    mobileLoginLink.onclick = logoutHandler;
+    mobileLoginLink.addEventListener('click', logoutHandler);
   }
 }
 
@@ -135,30 +163,9 @@ function showContentAndLoadData(loading, mainContent) {
   if (loading) loading.style.display = 'none';
   if (mainContent) mainContent.style.display = 'block';
   
-  // Charger les données selon la page
-  if (typeof loadMapData === 'function') {
-    console.log("Chargement des données de la carte...");
-    loadMapData();
-  }
-  
+  // Charger les données du tableau de bord si la fonction existe
   if (typeof loadDashboardData === 'function') {
-    console.log("Chargement des données du tableau de bord...");
     loadDashboardData();
-  }
-  
-  if (typeof loadInspectionHistory === 'function') {
-    console.log("Chargement de l'historique des inspections...");
-    loadInspectionHistory();
-  }
-  
-  if (typeof window.loadTrailInspectionData === 'function') {
-    console.log("Chargement des données pour trail-inspection");
-    window.loadTrailInspectionData();
-  }
-  
-  if (typeof window.loadShelterInspectionData === 'function') {
-    console.log("Chargement des données pour shelter-inspection");
-    window.loadShelterInspectionData();
   }
 }
 
@@ -166,56 +173,18 @@ function showContentAndLoadData(loading, mainContent) {
  * Redirige vers la page de connexion
  */
 function redirectToLogin(loading, mainContent) {
-  const currentPage = window.location.pathname.split('/').pop();
+  if (loading) loading.style.display = 'none';
+  if (mainContent) mainContent.style.display = 'none';
   
-  if (currentPage !== 'login.html') {
-    window.location.href = window.location.pathname.includes('/pages/') 
-      ? 'login.html' 
-      : 'pages/login.html';
-  } else {
-    if (loading) loading.style.display = 'none';
-    if (mainContent) mainContent.style.display = 'block';
-  }
-}
-
-/**
- * Gère la connexion d'un utilisateur
- */
-function loginUser(email, password) {
-  return auth.signInWithEmailAndPassword(email, password)
-    .then(async (userCredential) => {
-      console.log("Connexion réussie pour:", email);
-      
-      const userDoc = await db.collection('inspectors').doc(userCredential.user.uid).get();
-      
-      if (userDoc.exists) {
-        const userData = userDoc.data();
-        if (userData.status !== 'active') {
-          await auth.signOut();
-          throw new Error('account-disabled');
-        }
-        if (userData.allowInspection !== true) {
-          await auth.signOut();
-          throw new Error('no-inspection-access');
-        }
-      }
-      
-      return userCredential.user;
-    });
-}
-
-/**
- * Déconnecte l'utilisateur actuel
- */
-function logoutUser() {
-  return auth.signOut()
-    .then(() => {
-      console.log("Déconnexion réussie");
-    });
+  const loginUrl = window.location.pathname.includes('/pages/') 
+    ? 'login.html' 
+    : 'pages/login.html';
+  window.location.href = loginUrl;
 }
 
 /**
  * Get current user data
+ * @returns {Object|null} Current user data
  */
 function getCurrentUser() {
   return currentUserData;
@@ -223,6 +192,7 @@ function getCurrentUser() {
 
 /**
  * Get current user ID
+ * @returns {string|null} Current user ID
  */
 function getCurrentUserId() {
   return currentUser ? currentUser.uid : null;
@@ -233,6 +203,14 @@ function getCurrentUserId() {
  */
 function isAdmin() {
   return currentUserData && currentUserData.role === 'admin';
+}
+
+/**
+ * Check if current user has infraction access
+ * @returns {boolean} True if has infraction access
+ */
+function hasInfractionAccess() {
+  return currentUserData && currentUserData.allowInfraction === true;
 }
 
 /**

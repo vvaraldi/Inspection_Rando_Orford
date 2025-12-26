@@ -6,6 +6,7 @@ Priority 1
 0 - Summarize for one track all incident
 1 - remove filters in the history "Type"
 2 - Add a link to infraction sur la page tableau de bord
+3 - Clicking on Public should open a new sheet
 
 Priority 2
 1 - If Admin user, in a modal view in the dashboard, user can click on trail status to switch it to open in the current inspection

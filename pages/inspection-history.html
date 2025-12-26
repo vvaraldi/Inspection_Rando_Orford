@@ -6,6 +6,33 @@
   <title>Ski-Track - Historique des inspections</title>
   <link rel="stylesheet" href="../css/main.css">
   <script src="../js/common.js"></script>
+  <style>
+    /* Infraction link styling */
+    .infraction-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: background 0.2s;
+      text-decoration: none !important;
+      color: var(--color-white, #ffffff) !important;
+    }
+    .infraction-link:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+    .infraction-icon {
+      font-size: 1.1em;
+    }
+    .nav-divider {
+      width: 1px;
+      height: 24px;
+      background: rgba(255, 255, 255, 0.3);
+      margin: 0 0.5rem;
+    }
+  </style>
 </head>
 
 
@@ -25,6 +52,17 @@
         <a href="admin.html" id="admin-link" style="display: none;">Admin</a>
         <a href="change-password.html">MdP</a>
         <a href="#" id="login-link">Connexion</a>
+        <!-- Infraction Link (shown only for users with infraction access) -->
+        <span class="nav-divider" id="infraction-divider" style="display: none;"></span>
+        <a href="https://vvaraldi.github.io/Infraction_Orford/index.html" 
+           target="_blank" 
+           id="infraction-link" 
+           class="infraction-link" 
+           style="display: none;"
+           title="Accéder aux Infractions">
+          <span class="infraction-icon">🚨</span>
+          Infractions
+        </a>
       </div>
       <button class="mobile-menu-btn" id="mobile-menu-btn">☰</button>
     </nav>
@@ -44,6 +82,13 @@
         <a href="admin.html" id="mobile-admin-link" style="display: none;">Admin</a>
         <a href="change-password.html">MdP</a>
         <a href="#" id="mobile-login-link">Connexion</a>
+        <!-- Infraction Link for mobile -->
+        <a href="https://vvaraldi.github.io/Infraction_Orford/index.html" 
+           target="_blank" 
+           id="mobile-infraction-link" 
+           style="display: none;">
+          🚨 Infractions
+        </a>
       </div>
     </div>
   </header>
@@ -52,7 +97,7 @@
   <div id="loading" class="loading-screen">
     <div class="loading-content">
       <div class="loading-spinner"></div>
-      <p>Vérification de l'authentification...</p>
+      <p>Chargement de l'historique...</p>
     </div>
   </div>
   
@@ -60,209 +105,137 @@
   <div id="main-content" class="main" style="display: none;">
     <div class="page-header">
       <h1 class="page-title">Historique des inspections</h1>
-      <div class="page-actions">
-        <button class="btn btn-secondary" id="export-btn">
-          📄 Exporter
-        </button>
-      </div>
     </div>
-
-    <!-- Filters section -->
-    <div class="content-section">
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">Filtres</h2>
-          <button class="btn btn-sm btn-secondary" id="toggle-filters">
-            <span id="filter-toggle-text">Masquer</span>
-          </button>
-        </div>
-        
-        <div class="card-body" id="filters-content">
-          <div class="filters-grid">
-            <div class="form-group">
-              <label class="form-label" for="date-filter">Période</label>
-              <select class="form-control" id="date-filter">
-                <option value="all">Toute la période</option>
-                <option value="today">Aujourd'hui</option>
-                <option value="week">Cette semaine</option>
-                <option value="month">Ce mois</option>
-                <option value="custom">Période personnalisée</option>
-              </select>
-            </div>
-            
-            <div class="form-group" id="custom-date-range" style="display: none;">
-              <label class="form-label">Dates personnalisées</label>
-              <div class="date-range-inputs">
-                <input type="date" class="form-control" id="start-date">
-                <span class="date-separator">à</span>
-                <input type="date" class="form-control" id="end-date">
-              </div>
-            </div>
-            
-            <div class="form-group">
-              <label class="form-label" for="type-filter">Type</label>
-              <select class="form-control" id="type-filter">
-                <option value="all">Tous les types</option>
-                <option value="trail">Sentiers</option>
-                <option value="shelter">Abris</option>
-              </select>
-            </div>
-            
-            <div class="form-group">
-              <label class="form-label" for="location-filter">Lieu</label>
-              <select class="form-control" id="location-filter">
-                <option value="all">Tous</option>
-              </select>
-            </div>
-            
-            <div class="form-group">
-              <label class="form-label" for="status-filter">État</label>
-              <select class="form-control" id="status-filter">
-                <option value="all">Tous les états</option>
-                <option value="good">Bon</option>
-                <option value="warning">Attention</option>
-                <option value="critical">Critique</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label" for="inspector-filter">Inspecteur</label>
-              <select class="form-control" id="inspector-filter">
-                <option value="all">Tous les inspecteurs</option>
-              </select>
-            </div>
-            
-            <div class="form-group">
-              <label class="form-label" for="search-input">Recherche</label>
-              <div class="search-container">
-                <input type="text" class="form-control search-input" id="search-input" placeholder="Rechercher...">
-                <span class="search-icon">🔍</span>
-              </div>
-            </div>
-          </div>
-          
-          <div class="filter-actions">
-            <button class="btn btn-secondary" id="reset-filters">Réinitialiser</button>
-            <button class="btn btn-primary" id="apply-filters">Appliquer</button>
-          </div>
-        </div>
+    
+    <!-- Filters -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">🔍 Filtres</h2>
       </div>
-    </div>
-
-    <!-- Results section -->
-    <div class="content-section">
-      <div class="card">
-        <div class="card-header">
-          <div class="results-info">
-            <h2 class="card-title">Résultats</h2>
-            <div class="results-count">
-              <span id="results-count">0</span> inspection(s) trouvée(s)
-            </div>
-          </div>
-          
-          <div class="table-controls">
-            <label class="form-label" for="page-size">Affichage:</label>
-            <select class="form-control form-control-sm" id="page-size">
-              <option value="10">10 par page</option>
-              <option value="25" selected>25 par page</option>
-              <option value="50">50 par page</option>
-              <option value="100">100 par page</option>
+      <div class="card-body">
+        <div class="filters-grid">
+          <div class="filter-group">
+            <label for="history-date-filter">Période</label>
+            <select id="history-date-filter" class="form-select">
+              <option value="all">Toutes les dates</option>
+              <option value="today">Aujourd'hui</option>
+              <option value="week" selected>Cette semaine</option>
+              <option value="month">Ce mois</option>
+              <option value="custom">Période personnalisée</option>
             </select>
           </div>
-        </div>
-        
-        <div class="card-body">
-          <div class="table-container" id="table-container">
-            <div id="loading-overlay" class="loading-overlay" style="display: none;">
-              <div class="loading-spinner"></div>
+          
+          <div class="filter-group" id="custom-date-range" style="display: none;">
+            <label>Dates</label>
+            <div class="date-range">
+              <input type="date" id="date-from" class="form-input">
+              <span>à</span>
+              <input type="date" id="date-to" class="form-input">
             </div>
-
-			<table class="table table-striped">
-			  <thead>
-				<tr>
-				  <th data-sort="date" class="sortable">Date</th>
-				  <th data-sort="type" class="sortable">Type</th>
-				  <th data-sort="location" class="sortable">Sentier/Abri</th>
-				  <th data-sort="inspector" class="sortable">Inspecteur</th>
-				  <th data-sort="condition" class="sortable">État</th>
-				  <th data-sort="trail_status" class="sortable">Statut sentier</th> <!-- NEW COLUMN -->
-				  <th>Photos</th>
-				  <th>Actions</th>
-				</tr>
-			  </thead>
-			  <tbody id="inspections-table">
-				<tr>
-				  <td colspan="8" class="text-center">Chargement des données...</td> <!-- Updated colspan -->
-				</tr>
-			  </tbody>
-			</table>
           </div>
           
-          <!-- Pagination -->
-          <div class="pagination-container" id="pagination-container" style="display: none;">
-            <div class="pagination-info">
-              <span id="pagination-info">Affichage de 1 à 25 sur 0 inspections</span>
-            </div>
-            <div class="pagination" id="pagination-buttons">
-              <!-- Buttons will be generated dynamically -->
-            </div>
+          <div class="filter-group">
+            <label for="history-type-filter">Type</label>
+            <select id="history-type-filter" class="form-select">
+              <option value="all">Tous</option>
+              <option value="trail">Sentiers</option>
+              <option value="shelter">Abris</option>
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <label for="history-condition-filter">État</label>
+            <select id="history-condition-filter" class="form-select">
+              <option value="all">Tous</option>
+              <option value="good">Bon état</option>
+              <option value="warning">Attention</option>
+              <option value="critical">Critique</option>
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <label for="history-inspector-filter">Inspecteur</label>
+            <select id="history-inspector-filter" class="form-select">
+              <option value="all">Tous</option>
+              <!-- Dynamically populated -->
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <button class="btn btn-secondary" id="apply-filters-btn">Appliquer</button>
+            <button class="btn btn-outline" id="reset-filters-btn">Réinitialiser</button>
           </div>
         </div>
       </div>
     </div>
-
-    <!-- Legend section -->
-    <div class="content-section">
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title">Légende des états</h3>
+    
+    <!-- Results summary -->
+    <div class="results-summary">
+      <span id="results-count">0 inspections</span>
+      <button class="btn btn-secondary btn-sm" id="export-btn">
+        📥 Exporter
+      </button>
+    </div>
+    
+    <!-- Inspections List -->
+    <div class="card">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="data-table" id="history-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Nom</th>
+                <th>État</th>
+                <th>Inspecteur</th>
+                <th>Problèmes</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="history-tbody">
+              <tr>
+                <td colspan="7" class="text-center">Chargement...</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-        <div class="card-body">
-          <div class="legend-grid">
-            <div class="legend-item">
-              <span class="badge badge-success">Bon</span>
-              <span>Aucun problème détecté</span>
-            </div>
-            <div class="legend-item">
-              <span class="badge badge-warning">Attention</span>
-              <span>Problème mineur ou surveillance requise</span>
-            </div>
-            <div class="legend-item">
-              <span class="badge badge-danger">Critique</span>
-              <span>Problème important, action immédiate requise</span>
-            </div>
-          </div>
+        
+        <!-- Pagination -->
+        <div class="pagination" id="pagination">
+          <button class="btn btn-outline btn-sm" id="prev-page" disabled>← Précédent</button>
+          <span id="page-info">Page 1</span>
+          <button class="btn btn-outline btn-sm" id="next-page">Suivant →</button>
         </div>
       </div>
     </div>
   </div>
-
-  <!-- Inspection Details Modal -->
-  <div class="modal" id="inspection-modal">
-    <div class="modal-content">
+  
+  <!-- Detail Modal -->
+  <div id="detail-modal" class="modal">
+    <div class="modal-content modal-large">
       <div class="modal-header">
         <h2 class="modal-title">Détails de l'inspection</h2>
-        <button class="modal-close" id="close-modal">✕</button>
+        <button class="modal-close" id="close-detail-modal">✕</button>
       </div>
-      
-      <div class="modal-body" id="modal-content">
-        <!-- Content will be loaded dynamically -->
+      <div class="modal-body" id="detail-modal-body">
+        <!-- Dynamically populated -->
       </div>
-      
       <div class="modal-footer">
-        <button class="btn btn-secondary" id="close-modal-btn">Fermer</button>
+        <button class="btn btn-secondary" id="close-detail-btn">Fermer</button>
       </div>
     </div>
   </div>
-
-  <!-- Scripts -->
+  
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage-compat.js"></script>
   
+  <!-- App scripts -->
   <script src="../js/auth.js"></script>
-  <script src="../js/mobile-menu.js"></script>
+  <script src="../js/trails-config.js"></script>
   <script src="../js/inspection-history.js"></script>
 </body>
 </html>
