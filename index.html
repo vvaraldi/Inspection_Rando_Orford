@@ -6,20 +6,19 @@
   <title>SkiTrack - Mont Orford</title>
   <link rel="stylesheet" href="css/main.css">
   <script src="js/common.js"></script>
-  <style>
-    .infraction-link { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.875rem; font-weight: 500; transition: background 0.2s; text-decoration: none !important; color: var(--color-white, #ffffff) !important; }
-    .infraction-link:hover { background: rgba(255, 255, 255, 0.15); }
-    .infraction-icon { font-size: 1.1em; }
-    .nav-divider { width: 1px; height: 24px; background: rgba(255, 255, 255, 0.3); margin: 0 0.5rem; }
-  </style>
 </head>
 
 <script>
   window.onerror = function(message, source, lineno, colno, error) {
     console.log("Erreur JavaScript: ", message, "à la ligne", lineno, "colonne", colno);
+    console.log("Source:", source);
+    console.log("Erreur complète:", error);
+    
+    // Afficher le contenu en cas d'erreur
     document.getElementById('loading').style.display = 'none';
     document.getElementById('main-content').style.display = 'block';
-    return true;
+    
+    return true; // Empêche l'affichage de l'erreur dans la console
   };
 </script>
 
@@ -38,12 +37,11 @@
         <a href="pages/admin.html" id="admin-link" style="display: none;">Admin</a>
         <a href="pages/change-password.html">MdP</a>
         <a href="#" id="login-link">Connexion</a>
-        <span class="nav-divider" id="infraction-divider" style="display: none;"></span>
-        <a href="https://vvaraldi.github.io/Infraction_Orford/index.html" target="_blank" id="infraction-link" class="infraction-link" style="display: none;" title="Accéder aux Infractions"><span class="infraction-icon">🚨</span> Infractions</a>
       </div>
-      <button class="mobile-menu-btn" id="mobile-menu-btn">☰</button>
+      <button class="mobile-menu-btn" id="mobile-menu-btn">☰</button>        <!-- Bouton pour ouvrir le menu mobile -->
     </nav>
     
+    <!-- Structure du menu mobile -->
     <div class="mobile-nav" id="mobile-nav">
       <div class="mobile-nav-header">
         <div class="logo">Ski-Track</div>
@@ -56,138 +54,276 @@
         <a href="pages/inspection-history.html">Historique</a>
         <a href="pages/status.html">Public</a>
         <a href="pages/admin.html" id="mobile-admin-link" style="display: none;">Admin</a>
-        <a href="pages/change-password.html">MdP</a>
+        <a href="pages/change-password.html" id="mobile-password-link">MdP</a>
         <a href="#" id="mobile-login-link">Connexion</a>
-        <a href="https://vvaraldi.github.io/Infraction_Orford/index.html" target="_blank" id="mobile-infraction-link" style="display: none;">🚨 Infractions</a>
       </div>
     </div>
   </header>
   
-  <div id="loading" class="loading-screen">
-    <div class="loading-content">
+  <!-- Indicateur de chargement principal -->
+  <div id="loading">
+    <div style="text-align: center;">
       <div class="loading-spinner"></div>
       <p>Vérification de l'authentification...</p>
     </div>
   </div>
+  
+  <!-- Contenu principal - caché initialement -->
+  <div id="main-content">
+    <main class="main">
+	  <div class="dashboard-container">
 
-  <div id="main-content" class="main" style="display: none;">
-    <h1 class="page-title">Tableau de bord des inspections</h1>
-    <p class="user-info">Connecté en tant que: <span id="user-name">Inspecteur</span></p>
-    
-    <div class="map-container">
-      <img src="assets/map3.png" alt="Carte du Mont Orford" class="trail-map" id="trail-map">
+		<!-- Head line -->
+		<div class="page-header">
+		  <h1 class="page-title">Tableau de bord des inspections</h1>
+		  <div class="user-info">
+			Connecté en tant que: <span id="user-name">Inspecteur</span>
+		  </div>
+		</div>
+
+      <!-- Map and legend container -->
+      <div class="map-container">
+        <div class="map-view">
+          <div class="map-bg">
+            <img src="assets/map3.png" alt="Carte du Mont Orford" class="map-image">
+            <!-- Map markers will be added dynamically -->
+          </div>
+        </div>
+        
+        <!-- legend on the right -->
+        <div class="map-legend">
+          <div class="legend-title">Légende</div>
+
+			  <!-- NEW: Badge View Toggle Section -->
+			  <div class="badge-toggle-section">
+				<label class="badge-toggle-label">Affichage des badges</label>
+				<div class="toggle-switch">
+				  <input type="checkbox" id="badge-view-toggle">
+				  <span class="toggle-slider"></span>
+				</div>
+				<div class="toggle-labels">
+				  <span>Inspections</span>
+				  <span>Status</span>
+				</div>
+			  </div>
+			  
+			  <!-- Dynamic legend content based on toggle -->
+			  <div id="detailed-legend">
+				<div class="legend-section">
+				  <h4>États</h4>
+				  <div class="legend-item">
+					<div class="legend-color" style="background-color: #10b981;"></div>
+					<span>Bon état</span>
+				  </div>
+				  <div class="legend-item">
+					<div class="legend-color" style="background-color: #f59e0b;"></div>
+					<span>Attention</span>
+				  </div>
+				  <div class="legend-item">
+					<div class="legend-color" style="background-color: #ef4444;"></div>
+					<span>Critique</span>
+				  </div>
+				  <div class="legend-item">
+					<div class="legend-color" style="background-color: #6b7280;"></div>
+					<span>Non inspecté</span>
+				  </div>
+				</div>
+				
+			  </div>
+			  
+			<div id="simple-legend" style="display: none;">
+			  <div class="legend-section">
+				<h4>Statut des sentiers</h4>
+				<div class="legend-item">
+				  <div class="legend-color" style="background-color: #10b981;"></div>
+				  <span>Ouvert</span>
+				</div>
+				<div class="legend-item">
+				  <div class="legend-color" style="background-color: #ef4444;"></div>
+				  <span>Fermé</span>
+				</div>
+				<div class="legend-item">
+				  <div class="legend-color" style="background-color: #6b7280;"></div>
+				  <span>Inconnu</span>
+				</div>
+			  </div>
+			</div>
+         
+        </div>
+      </div>
+        
+		<!-- Filters and stats section -->
+		<div class="content-section">
+		  <div class="card">
+			<div class="card-header">
+			  <h2 class="card-title">Filtres et stats</h2>
+			  <button class="btn btn-sm btn-secondary" id="toggle-filters">
+				<span id="filter-toggle-text">Masquer</span>
+			  </button>
+			</div>
+
+
+			<div class="card-body" id="Id-dashboard-stats">
+				<div class="card">
+					<div class="dashboard-stats">
+					  <div class="stat-card">
+						<div class="stat-value" id="inspections-today">-/-</div>
+						<div class="stat-label">Insp. aujourd'hui</div>
+					  </div>
+					  <div class="stat-card">
+						<div class="stat-value" id="reported-issues">-</div>
+						<div class="stat-label">Problèmes signalés</div>
+					  </div>
+					  <!-- ADD MORE STATS IF DESIRED -->
+					  <div class="stat-card">
+						<div class="stat-value" id="good-status">-</div>
+						<div class="stat-label">Bon état</div>
+					  </div>
+					  <div class="stat-card">
+						<div class="stat-value" id="warning-status">-</div>
+						<div class="stat-label">Attention</div>
+					  </div>
+					  <div class="stat-card">
+						<div class="stat-value" id="critical-status">-</div>
+						<div class="stat-label">Critique</div>
+					  </div>
+					  <div class="stat-card">
+						<div class="stat-value" id="last-update">--:--</div>
+						<div class="stat-label">Dernière mise à jour</div>
+					  </div>
+					</div>
+				</div>
+			</div>
+			
+			
+			<div class="card-body" id="filters-content">
+			  <div class="filters-grid">
+				<div class="form-group">
+				  <label class="form-label" for="date-filter">Période</label>
+				  <select class="form-control" id="date-filter">
+					<option value="all">Toutes les dates</option>
+					<option value="today">Aujourd'hui</option>
+					<option value="week">Dernière semaine</option>
+					<option value="month">Dernier mois</option>
+				  </select>
+				</div>
+				
+				<div class="form-group">
+				  <label class="form-label" for="status-filter">État</label>
+				  <select class="form-control" id="status-filter">
+					<option value="all">Tous les états</option>
+					<option value="good">Bon état</option>
+					<option value="warning">Attention</option>
+					<option value="critical">Critique</option>
+					<option value="not-inspected">Non inspecté</option>
+				  </select>
+				</div>
+				
+				<div class="form-group">
+				  <label class="form-label" for="issues-filter">Problèmes</label>
+				  <select class="form-control" id="issues-filter">
+					<option value="all">Tous</option>
+					<option value="with-issues">Avec problèmes uniquement</option>
+					<option value="without-issues">Sans problème uniquement</option>
+				  </select>
+				</div>
+				
+				<div class="form-group">
+				  <label class="form-label" for="type-filter">Type</label>
+				  <select class="form-control" id="type-filter">
+					<option value="all">Tous les types</option>
+					<option value="trail">Sentiers uniquement</option>
+					<option value="shelter">Abris uniquement</option>
+				  </select>
+				</div>
+				
+				<div class="form-group">
+				  <label class="form-label" for="difficulty-filter">Difficulté</label>
+				  <select class="form-control" id="difficulty-filter">
+					<option value="all">Toutes difficultés</option>
+					<option value="easy">Facile</option>
+					<option value="medium">Intermédiaire</option>
+					<option value="hard">Difficile</option>
+				  </select>
+				</div>				
+				
+				
+				
+			  </div>
+			  
+			  <div class="filter-actions">
+				<button class="btn btn-secondary" id="reset-filters">Réinitialiser</button>
+			  </div>
+			</div>
+		  </div>
+		</div>
       
-      <div class="map-legend" id="map-legend">
-        <h4>Légende</h4>
-        <div class="legend-toggle">
-          <span>Affichage des badges</span>
-          <div class="toggle-buttons">
-            <button class="toggle-btn active" data-mode="inspections">Inspections</button>
-            <button class="toggle-btn" data-mode="status">Status</button>
-          </div>
-        </div>
-        <h4>États</h4>
-        <div class="legend-item"><span class="legend-color" style="background-color: #4caf50;"></span><span>Bon état</span></div>
-        <div class="legend-item"><span class="legend-color" style="background-color: #ff9800;"></span><span>Attention</span></div>
-        <div class="legend-item"><span class="legend-color" style="background-color: #f44336;"></span><span>Critique</span></div>
-        <div class="legend-item"><span class="legend-color" style="background-color: #9e9e9e;"></span><span>Non inspecté</span></div>
-        <h4>Statut des sentiers</h4>
-        <div class="legend-item"><span class="legend-color" style="background-color: #2196f3;"></span><span>Ouvert</span></div>
-        <div class="legend-item"><span class="legend-color" style="background-color: #9c27b0;"></span><span>Fermé</span></div>
-        <div class="legend-item"><span class="legend-color" style="background-color: #607d8b;"></span><span>Inconnu</span></div>
-      </div>
-    </div>
-    
-    <div class="stats-section">
-      <div class="stats-header">
-        <h2>Filtres et stats</h2>
-        <button class="collapse-btn" id="toggle-stats">Masquer</button>
-      </div>
-      <div class="stats-content" id="stats-content">
-        <div class="quick-stats">
-          <div class="stat-card"><span class="stat-value" id="today-inspections">-/-</span><span class="stat-label">Insp. aujourd'hui</span></div>
-          <div class="stat-card"><span class="stat-value" id="issues-count">-</span><span class="stat-label">Problèmes signalés</span></div>
-          <div class="stat-card"><span class="stat-value" id="good-count">-</span><span class="stat-label">Bon état</span></div>
-          <div class="stat-card"><span class="stat-value" id="warning-count">-</span><span class="stat-label">Attention</span></div>
-          <div class="stat-card"><span class="stat-value" id="critical-count">-</span><span class="stat-label">Critique</span></div>
-          <div class="stat-card"><span class="stat-value" id="last-update">--:--</span><span class="stat-label">Dernière mise à jour</span></div>
-        </div>
-        <div class="filters-grid">
-          <div class="filter-group">
-            <label for="date-filter">Période</label>
-            <select id="date-filter" class="form-select">
-              <option value="all">Toutes les dates</option>
-              <option value="today" selected>Aujourd'hui</option>
-              <option value="week">Dernière semaine</option>
-              <option value="month">Dernier mois</option>
-            </select>
-          </div>
-          <div class="filter-group">
-            <label for="condition-filter">État</label>
-            <select id="condition-filter" class="form-select">
-              <option value="all">Tous les états</option>
-              <option value="good">Bon état</option>
-              <option value="warning">Attention</option>
-              <option value="critical">Critique</option>
-              <option value="not-inspected">Non inspecté</option>
-            </select>
-          </div>
-          <div class="filter-group">
-            <label for="type-filter">Type</label>
-            <select id="type-filter" class="form-select">
-              <option value="all">Tous les types</option>
-              <option value="trail">Sentiers uniquement</option>
-              <option value="shelter">Abris uniquement</option>
-            </select>
-          </div>
-          <div class="filter-group">
-            <button class="btn btn-secondary" id="reset-filters">Réinitialiser</button>
-          </div>
+      <!-- List des inspections des 7 derniers jours -->
+		<div class="content-section">
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Récapitulatif des inspections sur les 7 derniers jours</h2>
+      <div class="card-actions">
+        <div class="summary-filters">
+          <button class="filter-btn active" data-type="all">Tout</button>
+          <button class="filter-btn" data-type="sentier">Sentiers</button>
+          <button class="filter-btn" data-type="abri">Abris</button>
         </div>
       </div>
     </div>
-    
-    <div class="summary-section">
-      <h2>Récapitulatif des inspections sur les 7 derniers jours</h2>
-      <div class="summary-tabs">
-        <button class="tab-btn active" data-tab="all">Tout</button>
-        <button class="tab-btn" data-tab="trails">Sentiers</button>
-        <button class="tab-btn" data-tab="shelters">Abris</button>
-      </div>
+    <div class="card-body">
       <div class="summary-content">
         <div class="summary-section" id="sentiers-summary">
           <h3 class="section-header sentier-header">⛷️ Sentiers</h3>
-          <div class="items-grid" id="sentiers-list"></div>
+          <div class="items-grid" id="sentiers-list">
+            <!-- Les sentiers seront ajoutés dynamiquement ici -->
+          </div>
         </div>
+        
         <div class="summary-section" id="abris-summary">
           <h3 class="section-header abri-header">🏠 Abris</h3>
-          <div class="items-grid" id="abris-list"></div>
+          <div class="items-grid" id="abris-list">
+            <!-- Les abris seront ajoutés dynamiquement ici -->
+          </div>
         </div>
       </div>
     </div>
   </div>
+</div>
+      
+	  </div>
+    </main>
+  </div>
 
+  <!-- Inspection Details Modal (added for clickable functionality) -->
   <div class="modal" id="inspection-modal" style="display: none;">
     <div class="modal-content">
       <div class="modal-header">
         <h2 class="modal-title">Détails de l'inspection</h2>
         <button class="modal-close" id="close-modal">✕</button>
       </div>
-      <div class="modal-body" id="modal-content"></div>
+      
+      <div class="modal-body" id="modal-content">
+        <!-- Content will be loaded dynamically -->
+      </div>
+      
       <div class="modal-footer">
         <button class="btn btn-secondary" id="close-modal-btn">Fermer</button>
       </div>
     </div>
   </div>
   
+  <!-- Scripts Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage-compat.js"></script>
   
+  <!-- Scripts de l'application -->
   <script src="js/auth.js"></script>
   <script src="js/mobile-menu.js"></script>
   <script src="js/map.js"></script>
   <script src="js/dashboard.js"></script>
+
 </body>
 </html>

@@ -6,33 +6,6 @@
   <title>Ski-Track - Inspection de sentier</title>
   <link rel="stylesheet" href="../css/main.css">
   <script src="../js/common.js"></script>
-  <style>
-    /* Infraction link styling */
-    .infraction-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      font-size: 0.875rem;
-      font-weight: 500;
-      transition: background 0.2s;
-      text-decoration: none !important;
-      color: var(--color-white, #ffffff) !important;
-    }
-    .infraction-link:hover {
-      background: rgba(255, 255, 255, 0.15);
-    }
-    .infraction-icon {
-      font-size: 1.1em;
-    }
-    .nav-divider {
-      width: 1px;
-      height: 24px;
-      background: rgba(255, 255, 255, 0.3);
-      margin: 0 0.5rem;
-    }
-  </style>
 </head>
 
 
@@ -52,17 +25,6 @@
         <a href="admin.html" id="admin-link" style="display: none;">Admin</a>
         <a href="change-password.html">MdP</a>
         <a href="#" id="login-link">Connexion</a>
-        <!-- Infraction Link (shown only for users with infraction access) -->
-        <span class="nav-divider" id="infraction-divider" style="display: none;"></span>
-        <a href="https://vvaraldi.github.io/Infraction_Orford/index.html" 
-           target="_blank" 
-           id="infraction-link" 
-           class="infraction-link" 
-           style="display: none;"
-           title="Accéder aux Infractions">
-          <span class="infraction-icon">🚨</span>
-          Infractions
-        </a>
       </div>
       <button class="mobile-menu-btn" id="mobile-menu-btn">☰</button>
     </nav>
@@ -82,13 +44,6 @@
         <a href="admin.html" id="mobile-admin-link" style="display: none;">Admin</a>
         <a href="change-password.html" id="mobile-password-link">MdP</a>
         <a href="#" id="mobile-login-link">Connexion</a>
-        <!-- Infraction Link for mobile -->
-        <a href="https://vvaraldi.github.io/Infraction_Orford/index.html" 
-           target="_blank" 
-           id="mobile-infraction-link" 
-           style="display: none;">
-          🚨 Infractions
-        </a>
       </div>
     </div>
   </header>
@@ -112,158 +67,237 @@
       </div>
     </div>
     
-    <form id="inspection-form" class="inspection-form">
-      <!-- Trail Selection -->
+    <div class="content-section">
       <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">📍 Sélection du sentier</h2>
-        </div>
-        <div class="card-body">
-          <div class="form-group">
-            <label for="trail-select">Sentier *</label>
-            <select id="trail-select" class="form-select" required>
-              <option value="">-- Sélectionner un sentier --</option>
-            </select>
+        <form class="inspection-form" id="trail-inspection-form">
+          <!-- General Information Section -->
+          <div class="form-section">
+            <div class="form-section-header">
+              <h2 class="form-section-title">📍 Informations générales</h2>
+            </div>
+            <div class="form-section-body">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="form-label form-label-required" for="trail-select">Sentier</label>
+                  <select class="form-control" id="trail-select" required>
+                    <option value="">Sélectionner un sentier</option>
+                    <!-- Options loaded dynamically -->
+                  </select>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label" for="inspector-name">Inspecteur</label>
+                  <input type="text" class="form-control" id="inspector-name" readonly>
+                  <input type="hidden" id="inspector-id" name="inspector-id">
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label form-label-required" for="inspection-date">Date d'inspection</label>
+                  <input type="date" class="form-control" id="inspection-date" required>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label form-label-required" for="inspection-time">Heure d'inspection</label>
+                  <input type="time" class="form-control" id="inspection-time" required>
+                </div>
+              </div>
+            </div>
           </div>
-          <div id="trail-info" class="trail-info" style="display: none;">
-            <p><strong>Difficulté:</strong> <span id="trail-difficulty">-</span></p>
-            <p><strong>Longueur:</strong> <span id="trail-length">-</span></p>
+
+          <!-- Trail Status and Condition Section -->
+          <div class="form-section">
+            <div class="form-section-header">
+              <h2 class="form-section-title">🚪 Statut et état du sentier</h2>
+            </div>
+            <div class="form-section-body">
+              <div class="form-grid">
+                <!-- Trail Status -->
+                <div class="form-group">
+                  <label class="form-label form-label-required">Statut du sentier</label>
+                  <div class="radio-group">
+                    <div class="radio-item">
+                      <input type="radio" id="status-open" name="trail-status" value="open" class="form-radio">
+                      <label for="status-open" class="radio-label">
+                        <span class="radio-indicator good"></span>
+                        <span class="radio-text">🟢 Ouvert</span>
+                      </label>
+                    </div>
+                    <div class="radio-item">
+                      <input type="radio" id="status-closed" name="trail-status" value="closed" class="form-radio">
+                      <label for="status-closed" class="radio-label">
+                        <span class="radio-indicator critical"></span>
+                        <span class="radio-text">🔴 Fermé</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- General Condition -->
+                <div class="form-group">
+                  <label class="form-label form-label-required">État général</label>
+                  <div class="radio-group">
+                    <div class="radio-item">
+                      <input type="radio" id="condition-good" name="condition" value="good" class="form-radio">
+                      <label for="condition-good" class="radio-label">
+                        <span class="radio-indicator good"></span>
+                        <span class="radio-text">Bon état</span>
+                      </label>
+                    </div>
+                    <div class="radio-item">
+                      <input type="radio" id="condition-warning" name="condition" value="warning" class="form-radio">
+                      <label for="condition-warning" class="radio-label">
+                        <span class="radio-indicator warning"></span>
+                        <span class="radio-text">Attention requise</span>
+                      </label>
+                    </div>
+                    <div class="radio-item">
+                      <input type="radio" id="condition-critical" name="condition" value="critical" class="form-radio">
+                      <label for="condition-critical" class="radio-label">
+                        <span class="radio-indicator critical"></span>
+                        <span class="radio-text">État critique</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Snow Conditions (Optional) -->
+              <div class="form-group">
+                <label class="form-label">Conditions de neige <span class="form-label-optional">(optionnel)</span></label>
+                <div class="radio-group">
+                  <div class="radio-item">
+                    <input type="radio" id="snow-good" name="snow-condition" value="good" class="form-radio">
+                    <label for="snow-good" class="radio-label">
+                      <span class="radio-indicator good"></span>
+                      <span class="radio-text">Bonnes conditions</span>
+                    </label>
+                  </div>
+                  <div class="radio-item">
+                    <input type="radio" id="snow-warning" name="snow-condition" value="warning" class="form-radio">
+                    <label for="snow-warning" class="radio-label">
+                      <span class="radio-indicator warning"></span>
+                      <span class="radio-text">Conditions moyennes</span>
+                    </label>
+                  </div>
+                  <div class="radio-item">
+                    <input type="radio" id="snow-critical" name="snow-condition" value="critical" class="form-radio">
+                    <label for="snow-critical" class="radio-label">
+                      <span class="radio-indicator critical"></span>
+                      <span class="radio-text">Mauvaises conditions</span>
+                    </label>
+                  </div>
+                  <div class="radio-item">
+                    <input type="radio" id="snow-none" name="snow-condition" value="none" class="form-radio">
+                    <label for="snow-none" class="radio-label">
+                      <span class="radio-indicator"></span>
+                      <span class="radio-text">Non évalué</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
+
+          <!-- Issues Section -->
+          <div class="form-section">
+            <div class="form-section-header">
+              <h2 class="form-section-title">⚠️ Problèmes identifiés</h2>
+            </div>
+            <div class="form-section-body">
+              <div class="issues-container">
+                <div class="issues-checkboxes">
+                  <div class="checkbox-group">
+                    <div class="checkbox-item">
+                      <input type="checkbox" id="issue-icy" value="Glace sur le sentier" class="form-checkbox">
+                      <label for="issue-icy" class="checkbox-label"><span class="checkbox-indicator"></span>Glace sur le sentier</label>
+                    </div>
+                    <div class="checkbox-item">
+                      <input type="checkbox" id="issue-obstacles" value="Obstacles sur le sentier" class="form-checkbox">
+                      <label for="issue-obstacles" class="checkbox-label"><span class="checkbox-indicator"></span>Obstacles sur le sentier</label>
+                    </div>
+                    <div class="checkbox-item">
+                      <input type="checkbox" id="issue-signage" value="Signalisation manquante/endommagée" class="form-checkbox">
+                      <label for="issue-signage" class="checkbox-label"><span class="checkbox-indicator"></span>Signalisation manquante/endommagée</label>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label" for="other-issues">Autres problèmes</label>
+                  <textarea class="form-control" id="other-issues" 
+                           placeholder="Décrivez tout autre problème non listé ci-dessus..." 
+                           rows="3"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Photos Section -->
+          <div class="form-section">
+            <div class="form-section-header">
+              <h2 class="form-section-title">📷 Documentation photographique</h2>
+            </div>
+            <div class="form-section-body">
+              <div class="form-group">
+                <div class="file-upload-area" id="photo-upload">
+                  <div class="file-upload-content">
+                    <div class="file-upload-icon">📷</div>
+                    <p class="file-upload-text">Déposez des photos ici ou cliquez pour parcourir</p>
+                    <p class="file-upload-hint">Format accepté: JPG, PNG • Taille max: 10 MB par photo</p>
+                  </div>
+                  <input type="file" id="file-input" multiple accept="image/*" class="file-input-hidden">
+                </div>
+                
+                <div class="photo-preview-container" id="preview-container">
+                  <!-- Photo previews will be added here dynamically -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Additional Details Section -->
+          <div class="form-section">
+            <div class="form-section-header">
+              <h2 class="form-section-title">📝 Détails supplémentaires</h2>
+            </div>
+            <div class="form-section-body">
+              <div class="form-group">
+                <label class="form-label" for="comments">Commentaires et observations</label>
+                <textarea class="form-control" id="comments" 
+                         placeholder="Ajoutez des commentaires détaillés, observations particulières, recommandations..." 
+                         rows="4"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" id="cancel-action">
+              Annuler
+            </button>
+            <button type="submit" class="btn btn-primary" id="submit-btn">
+              Enregistrer l'inspection
+            </button>
+          </div>
+
+          <!-- Status Messages -->
+          <div class="status-messages">
+            <div id="success-message" class="alert alert-success" style="display: none;"></div>
+            <div id="error-message" class="alert alert-danger" style="display: none;"></div>
+          </div>
+        </form>
       </div>
-      
-      <!-- General Condition -->
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">📊 État général</h2>
-        </div>
-        <div class="card-body">
-          <div class="form-group">
-            <label>État général du sentier *</label>
-            <div class="condition-buttons">
-              <button type="button" class="condition-btn good" data-value="good">
-                ✓ Bon état
-              </button>
-              <button type="button" class="condition-btn warning" data-value="warning">
-                ⚠ Attention
-              </button>
-              <button type="button" class="condition-btn critical" data-value="critical">
-                ✗ Critique
-              </button>
-            </div>
-            <input type="hidden" id="general-condition" name="general-condition" required>
-          </div>
-          
-          <div class="form-group">
-            <label for="trail-status">Statut du sentier *</label>
-            <select id="trail-status" class="form-select" required>
-              <option value="">-- Sélectionner --</option>
-              <option value="open">Ouvert</option>
-              <option value="closed">Fermé</option>
-            </select>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Detailed Inspection -->
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">🔍 Inspection détaillée</h2>
-        </div>
-        <div class="card-body">
-          <div class="inspection-checklist">
-            <div class="checklist-item">
-              <label class="checkbox-label">
-                <input type="checkbox" name="signage-ok" id="signage-ok">
-                <span>Signalisation en bon état</span>
-              </label>
-            </div>
-            <div class="checklist-item">
-              <label class="checkbox-label">
-                <input type="checkbox" name="markers-ok" id="markers-ok">
-                <span>Balises visibles et en place</span>
-              </label>
-            </div>
-            <div class="checklist-item">
-              <label class="checkbox-label">
-                <input type="checkbox" name="surface-ok" id="surface-ok">
-                <span>Surface praticable</span>
-              </label>
-            </div>
-            <div class="checklist-item">
-              <label class="checkbox-label">
-                <input type="checkbox" name="obstacles-clear" id="obstacles-clear">
-                <span>Pas d'obstacles dangereux</span>
-              </label>
-            </div>
-            <div class="checklist-item">
-              <label class="checkbox-label">
-                <input type="checkbox" name="drainage-ok" id="drainage-ok">
-                <span>Drainage fonctionnel</span>
-              </label>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Issues -->
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">⚠️ Problèmes constatés</h2>
-        </div>
-        <div class="card-body">
-          <div class="form-group">
-            <label for="issues-description">Description des problèmes</label>
-            <textarea id="issues-description" class="form-textarea" rows="4" placeholder="Décrivez les problèmes constatés..."></textarea>
-          </div>
-          
-          <div class="form-group">
-            <label>Photos</label>
-            <div class="photo-upload">
-              <input type="file" id="photo-input" accept="image/*" multiple capture="environment" style="display: none;">
-              <button type="button" class="btn btn-secondary" id="add-photo-btn">
-                📷 Ajouter des photos
-              </button>
-              <div id="photo-preview" class="photo-preview-container"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Additional Notes -->
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">📝 Notes additionnelles</h2>
-        </div>
-        <div class="card-body">
-          <div class="form-group">
-            <label for="additional-notes">Commentaires</label>
-            <textarea id="additional-notes" class="form-textarea" rows="3" placeholder="Autres observations..."></textarea>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Submit -->
-      <div class="form-actions">
-        <button type="submit" class="btn btn-primary btn-lg">
-          ✓ Soumettre l'inspection
-        </button>
-        <button type="button" class="btn btn-secondary" id="save-draft-btn">
-          💾 Sauvegarder le brouillon
-        </button>
-      </div>
-    </form>
+    </div>
   </div>
-  
-  <!-- Firebase -->
+
+  <!-- Scripts -->
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage-compat.js"></script>
   
-  <!-- App scripts -->
   <script src="../js/auth.js"></script>
-  <script src="../js/trails-config.js"></script>
+  <script src="../js/mobile-menu.js"></script>
   <script src="../js/trail-inspection.js"></script>
 </body>
 </html>
