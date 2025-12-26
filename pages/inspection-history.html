@@ -7,18 +7,7 @@
   <link rel="stylesheet" href="../css/main.css">
   <script src="../js/common.js"></script>
   <style>
-    .infraction-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      font-size: 0.875rem;
-      font-weight: 500;
-      transition: background 0.2s;
-      text-decoration: none !important;
-      color: var(--color-white, #ffffff) !important;
-    }
+    .infraction-link { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.875rem; font-weight: 500; transition: background 0.2s; text-decoration: none !important; color: var(--color-white, #ffffff) !important; }
     .infraction-link:hover { background: rgba(255, 255, 255, 0.15); }
     .infraction-icon { font-size: 1.1em; }
     .nav-divider { width: 1px; height: 24px; background: rgba(255, 255, 255, 0.3); margin: 0 0.5rem; }
@@ -41,13 +30,10 @@
         <a href="change-password.html">MdP</a>
         <a href="#" id="login-link">Connexion</a>
         <span class="nav-divider" id="infraction-divider" style="display: none;"></span>
-        <a href="https://vvaraldi.github.io/Infraction_Orford/index.html" target="_blank" id="infraction-link" class="infraction-link" style="display: none;" title="Accéder aux Infractions">
-          <span class="infraction-icon">🚨</span> Infractions
-        </a>
+        <a href="https://vvaraldi.github.io/Infraction_Orford/index.html" target="_blank" id="infraction-link" class="infraction-link" style="display: none;" title="Accéder aux Infractions"><span class="infraction-icon">🚨</span> Infractions</a>
       </div>
       <button class="mobile-menu-btn" id="mobile-menu-btn">☰</button>
     </nav>
-    
     <div class="mobile-nav" id="mobile-nav">
       <div class="mobile-nav-header">
         <div class="logo">Ski-Track</div>
@@ -70,107 +56,152 @@
   <div id="loading" class="loading-screen">
     <div class="loading-content">
       <div class="loading-spinner"></div>
-      <p>Chargement de l'historique...</p>
+      <p>Vérification de l'authentification...</p>
     </div>
   </div>
   
   <div id="main-content" class="main" style="display: none;">
     <div class="page-header">
       <h1 class="page-title">Historique des inspections</h1>
+      <div class="page-actions">
+        <button class="btn btn-secondary" id="export-btn">📄 Exporter</button>
+      </div>
     </div>
 
+    <!-- Filters section -->
     <div class="content-section">
       <div class="card">
         <div class="card-header">
-          <h2 class="card-title">🔍 Filtres</h2>
+          <h2 class="card-title">Filtres</h2>
+          <button class="btn btn-sm btn-secondary" id="toggle-filters">
+            <span id="filter-toggle-text">Masquer</span>
+          </button>
         </div>
-        <div class="card-body">
+        
+        <div class="card-body" id="filters-content">
           <div class="filters-grid">
-            <div class="filter-group">
-              <label for="date-filter">Période</label>
-              <select id="date-filter" class="form-select">
-                <option value="all">Toutes les dates</option>
+            <div class="form-group">
+              <label class="form-label" for="date-filter">Période</label>
+              <select class="form-control" id="date-filter">
+                <option value="all">Toute la période</option>
                 <option value="today">Aujourd'hui</option>
-                <option value="week" selected>Cette semaine</option>
+                <option value="week">Cette semaine</option>
                 <option value="month">Ce mois</option>
                 <option value="custom">Période personnalisée</option>
               </select>
             </div>
-            <div class="filter-group" id="custom-date-range" style="display: none;">
-              <label>Dates</label>
-              <div class="date-range">
-                <input type="date" id="start-date" class="form-input">
-                <span>à</span>
-                <input type="date" id="end-date" class="form-input">
+            
+            <div class="form-group" id="custom-date-range" style="display: none;">
+              <label class="form-label">Dates personnalisées</label>
+              <div class="date-range-inputs">
+                <input type="date" class="form-control" id="start-date">
+                <span class="date-separator">à</span>
+                <input type="date" class="form-control" id="end-date">
               </div>
             </div>
-            <div class="filter-group">
-              <label for="type-filter">Type</label>
-              <select id="type-filter" class="form-select">
-                <option value="all">Tous</option>
+            
+            <div class="form-group">
+              <label class="form-label" for="type-filter">Type</label>
+              <select class="form-control" id="type-filter">
+                <option value="all">Tous les types</option>
                 <option value="trail">Sentiers</option>
                 <option value="shelter">Abris</option>
               </select>
             </div>
-            <div class="filter-group">
-              <label for="location-filter">Lieu</label>
-              <select id="location-filter" class="form-select">
+            
+            <div class="form-group">
+              <label class="form-label" for="location-filter">Lieu</label>
+              <select class="form-control" id="location-filter">
                 <option value="all">Tous les lieux</option>
               </select>
             </div>
-            <div class="filter-group">
-              <label for="status-filter">État</label>
-              <select id="status-filter" class="form-select">
-                <option value="all">Tous</option>
+            
+            <div class="form-group">
+              <label class="form-label" for="status-filter">État</label>
+              <select class="form-control" id="status-filter">
+                <option value="all">Tous les états</option>
                 <option value="good">Bon état</option>
                 <option value="warning">Attention</option>
                 <option value="critical">Critique</option>
               </select>
             </div>
-            <div class="filter-group">
-              <label for="inspector-filter">Inspecteur</label>
-              <select id="inspector-filter" class="form-select">
-                <option value="all">Tous</option>
+            
+            <div class="form-group">
+              <label class="form-label" for="inspector-filter">Inspecteur</label>
+              <select class="form-control" id="inspector-filter">
+                <option value="all">Tous les inspecteurs</option>
               </select>
             </div>
           </div>
+          
           <div class="filter-actions">
-            <input type="text" id="search-input" class="form-input" placeholder="Rechercher...">
+            <input type="text" class="form-control" id="search-input" placeholder="Rechercher...">
             <button class="btn btn-secondary" id="reset-filters">Réinitialiser</button>
+            <button class="btn btn-primary" id="apply-filters">Appliquer</button>
           </div>
         </div>
       </div>
     </div>
 
+    <!-- Results section -->
     <div class="content-section">
       <div class="card">
         <div class="card-header">
-          <h2 class="card-title">📋 Résultats</h2>
-          <span id="results-count" class="results-count">0 inspections</span>
+          <h2 class="card-title">Résultats</h2>
+          <div class="results-count">
+            <span id="results-count">0</span> inspection(s) trouvée(s)
+          </div>
         </div>
+        
+        <div class="table-controls">
+          <label class="form-label" for="page-size">Affichage:</label>
+          <select class="form-control form-control-sm" id="page-size">
+            <option value="10">10 par page</option>
+            <option value="25" selected>25 par page</option>
+            <option value="50">50 par page</option>
+            <option value="100">100 par page</option>
+          </select>
+        </div>
+        
         <div class="card-body">
-          <div class="table-responsive">
-            <table class="data-table" id="history-table">
+          <div class="table-container" id="table-container">
+            <div id="loading-overlay" class="loading-overlay" style="display: none;">
+              <div class="loading-spinner"></div>
+            </div>
+
+            <table class="table table-striped">
               <thead>
                 <tr>
-                  <th data-sort="date">Date</th>
-                  <th data-sort="type">Type</th>
-                  <th data-sort="location">Lieu</th>
-                  <th data-sort="condition">État</th>
-                  <th data-sort="inspector">Inspecteur</th>
+                  <th data-sort="date" class="sortable">Date</th>
+                  <th data-sort="type" class="sortable">Type</th>
+                  <th data-sort="location" class="sortable">Sentier/Abri</th>
+                  <th data-sort="inspector" class="sortable">Inspecteur</th>
+                  <th data-sort="condition" class="sortable">État</th>
+                  <th data-sort="trail_status" class="sortable">Statut sentier</th>
+                  <th>Photos</th>
                   <th>Actions</th>
                 </tr>
               </thead>
-              <tbody id="history-tbody">
-                <tr><td colspan="6" class="text-center">Chargement...</td></tr>
+              <tbody id="inspections-table">
+                <tr>
+                  <td colspan="8" class="text-center">Chargement des données...</td>
+                </tr>
               </tbody>
             </table>
           </div>
-          <div class="pagination" id="pagination"></div>
+          
+          <!-- Pagination -->
+          <div class="pagination-container" id="pagination-container" style="display: none;">
+            <div class="pagination-info">
+              <span id="pagination-info">Affichage de 1 à 25 sur 0 inspections</span>
+            </div>
+            <div class="pagination" id="pagination-buttons"></div>
+          </div>
         </div>
       </div>
     </div>
 
+    <!-- Legend -->
     <div class="content-section">
       <div class="card">
         <div class="card-header">
@@ -187,6 +218,7 @@
     </div>
   </div>
 
+  <!-- Inspection Details Modal -->
   <div class="modal" id="inspection-modal">
     <div class="modal-content">
       <div class="modal-header">

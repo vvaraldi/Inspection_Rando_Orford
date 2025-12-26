@@ -7,18 +7,7 @@
   <link rel="stylesheet" href="../css/main.css">
   <script src="../js/common.js"></script>
   <style>
-    .infraction-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      font-size: 0.875rem;
-      font-weight: 500;
-      transition: background 0.2s;
-      text-decoration: none !important;
-      color: var(--color-white, #ffffff) !important;
-    }
+    .infraction-link { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.875rem; font-weight: 500; transition: background 0.2s; text-decoration: none !important; color: var(--color-white, #ffffff) !important; }
     .infraction-link:hover { background: rgba(255, 255, 255, 0.15); }
     .infraction-icon { font-size: 1.1em; }
     .nav-divider { width: 1px; height: 24px; background: rgba(255, 255, 255, 0.3); margin: 0 0.5rem; }
@@ -41,13 +30,10 @@
         <a href="change-password.html">MdP</a>
         <a href="#" id="login-link">Connexion</a>
         <span class="nav-divider" id="infraction-divider" style="display: none;"></span>
-        <a href="https://vvaraldi.github.io/Infraction_Orford/index.html" target="_blank" id="infraction-link" class="infraction-link" style="display: none;" title="Accéder aux Infractions">
-          <span class="infraction-icon">🚨</span> Infractions
-        </a>
+        <a href="https://vvaraldi.github.io/Infraction_Orford/index.html" target="_blank" id="infraction-link" class="infraction-link" style="display: none;" title="Accéder aux Infractions"><span class="infraction-icon">🚨</span> Infractions</a>
       </div>
       <button class="mobile-menu-btn" id="mobile-menu-btn">☰</button>
     </nav>
-    
     <div class="mobile-nav" id="mobile-nav">
       <div class="mobile-nav-header">
         <div class="logo">Ski-Track</div>
@@ -76,53 +62,93 @@
   
   <div id="main-content" class="main" style="display: none;">
     <div class="page-header">
-      <h1 class="page-title">Administration</h1>
+      <h1 class="page-title">Panneau d'administration</h1>
+      <div class="user-info">Connecté en tant que: <span id="admin-name">Administrateur</span></div>
     </div>
-    
-    <div class="admin-tabs">
-      <button class="admin-tab active" data-tab="users">👥 Utilisateurs</button>
-      <button class="admin-tab" data-tab="stats">📊 Statistiques</button>
-      <button class="admin-tab" data-tab="system">⚙️ Système</button>
+
+    <!-- Tab Navigation -->
+    <div class="content-section">
+      <div class="tabs-container">
+        <div class="tabs">
+          <button class="tab-btn active" data-tab="users">👥 Gestion des utilisateurs</button>
+          <button class="tab-btn" data-tab="data">🗄️ Données du système</button>
+          <button class="tab-btn" data-tab="stats">📊 Statistiques</button>
+        </div>
+      </div>
     </div>
-    
-    <div id="users-tab" class="tab-content active">
+
+    <!-- Users Management Tab -->
+    <div class="tab-content active" id="users-tab">
+      <!-- Users List -->
       <div class="content-section">
         <div class="card">
           <div class="card-header">
-            <h2 class="card-title">➕ Ajouter un utilisateur</h2>
+            <h2 class="card-title">Liste des utilisateurs</h2>
+            <div class="card-actions">
+              <button class="btn btn-secondary" id="refresh-users">🔄 Actualiser</button>
+            </div>
           </div>
           <div class="card-body">
-            <form id="add-user-form" class="admin-form">
+            <div class="table-container">
+              <table class="table table-striped" id="inspectors-table">
+                <thead>
+                  <tr>
+                    <th>Nom</th>
+                    <th>Email</th>
+                    <th>Téléphone</th>
+                    <th>Rôle</th>
+                    <th>Statut</th>
+                    <th>Accès Projets</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td colspan="7" class="text-center">Chargement des utilisateurs...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Create User Form -->
+      <div class="content-section">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">➕ Créer un nouvel utilisateur</h2>
+          </div>
+          <div class="card-body">
+            <form id="create-user-form" class="admin-form">
               <div class="form-row">
                 <div class="form-group">
-                  <label for="user-name">Nom complet *</label>
-                  <input type="text" id="user-name" class="form-input" required>
+                  <label class="form-label" for="user-name">Nom complet *</label>
+                  <input type="text" id="user-name" class="form-input" required placeholder="Prénom et nom">
                 </div>
                 <div class="form-group">
-                  <label for="user-email">Email *</label>
-                  <input type="email" id="user-email" class="form-input" required>
+                  <label class="form-label" for="user-email">Email *</label>
+                  <input type="email" id="user-email" class="form-input" required placeholder="email@exemple.com">
                 </div>
               </div>
               <div class="form-row">
                 <div class="form-group">
-                  <label for="user-password">Mot de passe *</label>
-                  <input type="password" id="user-password" class="form-input" required minlength="6">
+                  <label class="form-label" for="user-password">Mot de passe *</label>
+                  <input type="password" id="user-password" class="form-input" required minlength="6" placeholder="Minimum 6 caractères">
                 </div>
                 <div class="form-group">
-                  <label for="user-phone">Téléphone</label>
-                  <input type="tel" id="user-phone" class="form-input">
+                  <label class="form-label" for="user-phone">Téléphone</label>
+                  <input type="tel" id="user-phone" class="form-input" placeholder="(optionnel)">
                 </div>
               </div>
               <div class="form-row">
                 <div class="form-group">
-                  <label for="user-role">Rôle *</label>
+                  <label class="form-label" for="user-role">Rôle *</label>
                   <select id="user-role" class="form-select" required>
                     <option value="inspector">Inspecteur</option>
                     <option value="admin">Administrateur</option>
                   </select>
                 </div>
                 <div class="form-group">
-                  <label for="user-status">Statut *</label>
+                  <label class="form-label" for="user-status">Statut *</label>
                   <select id="user-status" class="form-select" required>
                     <option value="active">Actif</option>
                     <option value="inactive">Inactif</option>
@@ -144,58 +170,41 @@
                 </div>
               </div>
               <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Créer l'utilisateur</button>
+                <button type="submit" class="btn btn-primary" id="create-user-btn">Créer l'utilisateur</button>
                 <button type="reset" class="btn btn-secondary">Réinitialiser</button>
               </div>
             </form>
           </div>
         </div>
       </div>
-      
+    </div>
+
+    <!-- Data Tab -->
+    <div class="tab-content" id="data-tab">
       <div class="content-section">
         <div class="card">
-          <div class="card-header">
-            <h2 class="card-title">👥 Liste des utilisateurs</h2>
-            <div class="card-actions">
-              <input type="text" id="search-users" class="form-input" placeholder="Rechercher...">
-            </div>
-          </div>
+          <div class="card-header"><h2 class="card-title">🗄️ Données du système</h2></div>
           <div class="card-body">
-            <div class="table-responsive">
-              <table class="admin-table" id="users-table">
-                <thead>
-                  <tr>
-                    <th>Nom</th>
-                    <th>Email</th>
-                    <th>Téléphone</th>
-                    <th>Rôle</th>
-                    <th>Statut</th>
-                    <th>Accès</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="users-tbody">
-                  <tr><td colspan="7" class="text-center">Chargement des utilisateurs...</td></tr>
-                </tbody>
-              </table>
+            <p>Gestion des sentiers, abris et données d'inspection.</p>
+            <div class="stats-grid">
+              <div class="stat-item"><div class="stat-label">Sentiers</div><div class="stat-value" id="trails-count">--</div></div>
+              <div class="stat-item"><div class="stat-label">Abris</div><div class="stat-value" id="shelters-count">--</div></div>
+              <div class="stat-item"><div class="stat-label">Inspections totales</div><div class="stat-value" id="total-inspections">--</div></div>
             </div>
           </div>
         </div>
       </div>
     </div>
-    
-    <div id="stats-tab" class="tab-content">
+
+    <!-- Stats Tab -->
+    <div class="tab-content" id="stats-tab">
       <div class="content-section">
         <div class="card">
-          <div class="card-header">
-            <h2 class="card-title">📊 Statistiques générales</h2>
-          </div>
+          <div class="card-header"><h2 class="card-title">📊 Statistiques</h2></div>
           <div class="card-body">
             <div class="stats-grid">
-              <div class="stat-item"><div class="stat-label">Inspections totales</div><div class="stat-value" id="total-inspections">--</div></div>
-              <div class="stat-item"><div class="stat-label">Cette semaine</div><div class="stat-value" id="week-inspections">--</div></div>
-              <div class="stat-item"><div class="stat-label">Sentiers</div><div class="stat-value" id="trail-inspections">--</div></div>
-              <div class="stat-item"><div class="stat-label">Abris</div><div class="stat-value" id="shelter-inspections">--</div></div>
+              <div class="stat-item"><div class="stat-label">Inspections cette semaine</div><div class="stat-value" id="week-inspections">--</div></div>
+              <div class="stat-item"><div class="stat-label">Inspections ce mois</div><div class="stat-value" id="month-inspections">--</div></div>
               <div class="stat-item"><div class="stat-label">Problèmes ouverts</div><div class="stat-value stat-value-danger" id="open-issues">--</div></div>
               <div class="stat-item"><div class="stat-label">Utilisateurs actifs</div><div class="stat-value" id="active-users">--</div></div>
             </div>
@@ -203,24 +212,8 @@
         </div>
       </div>
     </div>
-
-    <div id="system-tab" class="tab-content">
-      <div class="content-section">
-        <div class="card">
-          <div class="card-header">
-            <h2 class="card-title">⚙️ État du système</h2>
-          </div>
-          <div class="card-body">
-            <div class="stats-grid">
-              <div class="stat-item"><div class="stat-label">Stockage utilisé</div><div class="stat-value" id="storage-used">--</div></div>
-              <div class="stat-item"><div class="stat-label">Requêtes Firestore</div><div class="stat-value" id="firestore-requests">--</div></div>
-              <div class="stat-item"><div class="stat-label">Version</div><div class="stat-value">1.0.0</div></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
     
+    <!-- Messages -->
     <div id="admin-messages" class="admin-messages"></div>
   </div>
   
