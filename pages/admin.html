@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="../css/main.css">
   <script src="../js/common.js"></script>
   <style>
-    /* Infraction link styling */
     .infraction-link {
       display: inline-flex;
       align-items: center;
@@ -20,22 +19,11 @@
       text-decoration: none !important;
       color: var(--color-white, #ffffff) !important;
     }
-    .infraction-link:hover {
-      background: rgba(255, 255, 255, 0.15);
-    }
-    .infraction-icon {
-      font-size: 1.1em;
-    }
-    .nav-divider {
-      width: 1px;
-      height: 24px;
-      background: rgba(255, 255, 255, 0.3);
-      margin: 0 0.5rem;
-    }
+    .infraction-link:hover { background: rgba(255, 255, 255, 0.15); }
+    .infraction-icon { font-size: 1.1em; }
+    .nav-divider { width: 1px; height: 24px; background: rgba(255, 255, 255, 0.3); margin: 0 0.5rem; }
   </style>
 </head>
-
-
 
 <body>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏔️</text></svg>">
@@ -52,22 +40,14 @@
         <a href="admin.html" class="active">Admin</a>
         <a href="change-password.html">MdP</a>
         <a href="#" id="login-link">Connexion</a>
-        <!-- Infraction Link (shown only for users with infraction access) -->
         <span class="nav-divider" id="infraction-divider" style="display: none;"></span>
-        <a href="https://vvaraldi.github.io/Infraction_Orford/index.html" 
-           target="_blank" 
-           id="infraction-link" 
-           class="infraction-link" 
-           style="display: none;"
-           title="Accéder aux Infractions">
-          <span class="infraction-icon">🚨</span>
-          Infractions
+        <a href="https://vvaraldi.github.io/Infraction_Orford/index.html" target="_blank" id="infraction-link" class="infraction-link" style="display: none;" title="Accéder aux Infractions">
+          <span class="infraction-icon">🚨</span> Infractions
         </a>
       </div>
       <button class="mobile-menu-btn" id="mobile-menu-btn">☰</button>
     </nav>
     
-    <!-- Structure du menu mobile -->
     <div class="mobile-nav" id="mobile-nav">
       <div class="mobile-nav-header">
         <div class="logo">Ski-Track</div>
@@ -82,18 +62,11 @@
         <a href="admin.html" class="active">Admin</a>
         <a href="change-password.html">MdP</a>
         <a href="#" id="mobile-login-link">Connexion</a>
-        <!-- Infraction Link for mobile -->
-        <a href="https://vvaraldi.github.io/Infraction_Orford/index.html" 
-           target="_blank" 
-           id="mobile-infraction-link" 
-           style="display: none;">
-          🚨 Infractions
-        </a>
+        <a href="https://vvaraldi.github.io/Infraction_Orford/index.html" target="_blank" id="mobile-infraction-link" style="display: none;">🚨 Infractions</a>
       </div>
     </div>
   </header>
   
-  <!-- Loading screen -->
   <div id="loading" class="loading-screen">
     <div class="loading-content">
       <div class="loading-spinner"></div>
@@ -101,22 +74,18 @@
     </div>
   </div>
   
-  <!-- Main content -->
   <div id="main-content" class="main" style="display: none;">
     <div class="page-header">
       <h1 class="page-title">Administration</h1>
     </div>
     
-    <!-- Admin Tabs -->
     <div class="admin-tabs">
       <button class="admin-tab active" data-tab="users">👥 Utilisateurs</button>
       <button class="admin-tab" data-tab="stats">📊 Statistiques</button>
       <button class="admin-tab" data-tab="system">⚙️ Système</button>
     </div>
     
-    <!-- Users Tab Content -->
     <div id="users-tab" class="tab-content active">
-      <!-- Add User Form -->
       <div class="content-section">
         <div class="card">
           <div class="card-header">
@@ -183,7 +152,6 @@
         </div>
       </div>
       
-      <!-- Users List -->
       <div class="content-section">
         <div class="card">
           <div class="card-header">
@@ -207,9 +175,7 @@
                   </tr>
                 </thead>
                 <tbody id="users-tbody">
-                  <tr>
-                    <td colspan="7" class="text-center">Chargement des utilisateurs...</td>
-                  </tr>
+                  <tr><td colspan="7" class="text-center">Chargement des utilisateurs...</td></tr>
                 </tbody>
               </table>
             </div>
@@ -218,7 +184,6 @@
       </div>
     </div>
     
-    <!-- Stats Tab Content -->
     <div id="stats-tab" class="tab-content">
       <div class="content-section">
         <div class="card">
@@ -227,37 +192,18 @@
           </div>
           <div class="card-body">
             <div class="stats-grid">
-              <div class="stat-item">
-                <div class="stat-label">Inspections totales</div>
-                <div class="stat-value" id="total-inspections">--</div>
-              </div>
-              <div class="stat-item">
-                <div class="stat-label">Cette semaine</div>
-                <div class="stat-value" id="week-inspections">--</div>
-              </div>
-              <div class="stat-item">
-                <div class="stat-label">Sentiers</div>
-                <div class="stat-value" id="trail-inspections">--</div>
-              </div>
-              <div class="stat-item">
-                <div class="stat-label">Abris</div>
-                <div class="stat-value" id="shelter-inspections">--</div>
-              </div>
-              <div class="stat-item">
-                <div class="stat-label">Problèmes ouverts</div>
-                <div class="stat-value stat-value-danger" id="open-issues">--</div>
-              </div>
-              <div class="stat-item">
-                <div class="stat-label">Utilisateurs actifs</div>
-                <div class="stat-value" id="active-users">--</div>
-              </div>
+              <div class="stat-item"><div class="stat-label">Inspections totales</div><div class="stat-value" id="total-inspections">--</div></div>
+              <div class="stat-item"><div class="stat-label">Cette semaine</div><div class="stat-value" id="week-inspections">--</div></div>
+              <div class="stat-item"><div class="stat-label">Sentiers</div><div class="stat-value" id="trail-inspections">--</div></div>
+              <div class="stat-item"><div class="stat-label">Abris</div><div class="stat-value" id="shelter-inspections">--</div></div>
+              <div class="stat-item"><div class="stat-label">Problèmes ouverts</div><div class="stat-value stat-value-danger" id="open-issues">--</div></div>
+              <div class="stat-item"><div class="stat-label">Utilisateurs actifs</div><div class="stat-value" id="active-users">--</div></div>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- System Tab Content -->
     <div id="system-tab" class="tab-content">
       <div class="content-section">
         <div class="card">
@@ -266,36 +212,25 @@
           </div>
           <div class="card-body">
             <div class="stats-grid">
-              <div class="stat-item">
-                <div class="stat-label">Stockage utilisé</div>
-                <div class="stat-value" id="storage-used">--</div>
-              </div>
-              <div class="stat-item">
-                <div class="stat-label">Requêtes Firestore</div>
-                <div class="stat-value" id="firestore-requests">--</div>
-              </div>
-              <div class="stat-item">
-                <div class="stat-label">Version</div>
-                <div class="stat-value">1.0.0</div>
-              </div>
+              <div class="stat-item"><div class="stat-label">Stockage utilisé</div><div class="stat-value" id="storage-used">--</div></div>
+              <div class="stat-item"><div class="stat-label">Requêtes Firestore</div><div class="stat-value" id="firestore-requests">--</div></div>
+              <div class="stat-item"><div class="stat-label">Version</div><div class="stat-value">1.0.0</div></div>
             </div>
           </div>
         </div>
       </div>
     </div>
     
-    <!-- Messages -->
     <div id="admin-messages" class="admin-messages"></div>
   </div>
   
-  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage-compat.js"></script>
   
-  <!-- App scripts -->
   <script src="../js/auth.js"></script>
+  <script src="../js/mobile-menu.js"></script>
   <script src="../js/admin-updated.js"></script>
 </body>
 </html>

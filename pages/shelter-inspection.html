@@ -7,36 +7,12 @@
   <link rel="stylesheet" href="../css/main.css">
   <script src="../js/common.js"></script>
   <style>
-    /* Infraction link styling */
-    .infraction-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      font-size: 0.875rem;
-      font-weight: 500;
-      transition: background 0.2s;
-      text-decoration: none !important;
-      color: var(--color-white, #ffffff) !important;
-    }
-    .infraction-link:hover {
-      background: rgba(255, 255, 255, 0.15);
-    }
-    .infraction-icon {
-      font-size: 1.1em;
-    }
-    .nav-divider {
-      width: 1px;
-      height: 24px;
-      background: rgba(255, 255, 255, 0.3);
-      margin: 0 0.5rem;
-    }
+    .infraction-link { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.875rem; font-weight: 500; transition: background 0.2s; text-decoration: none !important; color: var(--color-white, #ffffff) !important; }
+    .infraction-link:hover { background: rgba(255, 255, 255, 0.15); }
+    .infraction-icon { font-size: 1.1em; }
+    .nav-divider { width: 1px; height: 24px; background: rgba(255, 255, 255, 0.3); margin: 0 0.5rem; }
   </style>
 </head>
-
-
-
 <body>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏔️</text></svg>">
   
@@ -52,22 +28,11 @@
         <a href="admin.html" id="admin-link" style="display: none;">Admin</a>
         <a href="change-password.html">MdP</a>
         <a href="#" id="login-link">Connexion</a>
-        <!-- Infraction Link (shown only for users with infraction access) -->
         <span class="nav-divider" id="infraction-divider" style="display: none;"></span>
-        <a href="https://vvaraldi.github.io/Infraction_Orford/index.html" 
-           target="_blank" 
-           id="infraction-link" 
-           class="infraction-link" 
-           style="display: none;"
-           title="Accéder aux Infractions">
-          <span class="infraction-icon">🚨</span>
-          Infractions
-        </a>
+        <a href="https://vvaraldi.github.io/Infraction_Orford/index.html" target="_blank" id="infraction-link" class="infraction-link" style="display: none;" title="Accéder aux Infractions"><span class="infraction-icon">🚨</span> Infractions</a>
       </div>
       <button class="mobile-menu-btn" id="mobile-menu-btn">☰</button>
     </nav>
-    
-    <!-- Structure du menu mobile -->
     <div class="mobile-nav" id="mobile-nav">
       <div class="mobile-nav-header">
         <div class="logo">Ski-Track</div>
@@ -82,18 +47,11 @@
         <a href="admin.html" id="mobile-admin-link" style="display: none;">Admin</a>
         <a href="change-password.html" id="mobile-password-link">MdP</a>
         <a href="#" id="mobile-login-link">Connexion</a>
-        <!-- Infraction Link for mobile -->
-        <a href="https://vvaraldi.github.io/Infraction_Orford/index.html" 
-           target="_blank" 
-           id="mobile-infraction-link" 
-           style="display: none;">
-          🚨 Infractions
-        </a>
+        <a href="https://vvaraldi.github.io/Infraction_Orford/index.html" target="_blank" id="mobile-infraction-link" style="display: none;">🚨 Infractions</a>
       </div>
     </div>
   </header>
   
-  <!-- Loading screen -->
   <div id="loading" class="loading-screen">
     <div class="loading-content">
       <div class="loading-spinner"></div>
@@ -101,166 +59,99 @@
     </div>
   </div>
   
-  <!-- Main content -->
   <div id="main-content" class="main" style="display: none;">
     <div class="page-header">
       <h1 class="page-title">Inspection d'abri</h1>
       <div class="page-actions">
-        <button class="btn btn-secondary" id="cancel-btn">
-          ← Retour au tableau de bord
-        </button>
+        <button class="btn btn-secondary" id="cancel-action">← Retour au tableau de bord</button>
       </div>
     </div>
     
     <form id="shelter-inspection-form" class="inspection-form">
-      <!-- Shelter Selection -->
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">📍 Sélection de l'abri</h2>
-        </div>
-        <div class="card-body">
+      <div class="form-section">
+        <div class="form-section-header"><h2 class="form-section-title">📍 Sélection de l'abri</h2></div>
+        <div class="form-section-body">
           <div class="form-group">
-            <label for="shelter-select">Abri *</label>
-            <select id="shelter-select" class="form-select" required>
-              <option value="">-- Sélectionner un abri --</option>
-            </select>
-          </div>
-          <div id="shelter-info" class="shelter-info" style="display: none;">
-            <p><strong>Type:</strong> <span id="shelter-type">-</span></p>
-            <p><strong>Capacité:</strong> <span id="shelter-capacity">-</span></p>
+            <label class="form-label" for="shelter-select">Abri *</label>
+            <select id="shelter-select" class="form-select" required><option value="">-- Sélectionner un abri --</option></select>
           </div>
         </div>
       </div>
       
-      <!-- General Condition -->
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">📊 État général</h2>
-        </div>
-        <div class="card-body">
+      <div class="form-section">
+        <div class="form-section-header"><h2 class="form-section-title">📊 État général</h2></div>
+        <div class="form-section-body">
           <div class="form-group">
-            <label>État général de l'abri *</label>
+            <label class="form-label">État général *</label>
             <div class="condition-buttons">
-              <button type="button" class="condition-btn good" data-value="good">
-                ✓ Bon état
-              </button>
-              <button type="button" class="condition-btn warning" data-value="warning">
-                ⚠ Attention
-              </button>
-              <button type="button" class="condition-btn critical" data-value="critical">
-                ✗ Critique
-              </button>
+              <button type="button" class="condition-btn good" data-value="good">✓ Bon état</button>
+              <button type="button" class="condition-btn warning" data-value="warning">⚠ Attention</button>
+              <button type="button" class="condition-btn critical" data-value="critical">✗ Critique</button>
             </div>
             <input type="hidden" id="general-condition" name="general-condition" required>
           </div>
         </div>
       </div>
       
-      <!-- Detailed Inspection -->
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">🔍 Inspection détaillée</h2>
-        </div>
-        <div class="card-body">
+      <div class="form-section">
+        <div class="form-section-header"><h2 class="form-section-title">🔍 Inspection détaillée</h2></div>
+        <div class="form-section-body">
           <div class="inspection-checklist">
-            <div class="checklist-item">
-              <label class="checkbox-label">
-                <input type="checkbox" name="structure-ok" id="structure-ok">
-                <span>Structure en bon état</span>
-              </label>
-            </div>
-            <div class="checklist-item">
-              <label class="checkbox-label">
-                <input type="checkbox" name="roof-ok" id="roof-ok">
-                <span>Toiture sans dommage</span>
-              </label>
-            </div>
-            <div class="checklist-item">
-              <label class="checkbox-label">
-                <input type="checkbox" name="cleanliness-ok" id="cleanliness-ok">
-                <span>Propreté satisfaisante</span>
-              </label>
-            </div>
-            <div class="checklist-item">
-              <label class="checkbox-label">
-                <input type="checkbox" name="furniture-ok" id="furniture-ok">
-                <span>Mobilier en place et utilisable</span>
-              </label>
-            </div>
-            <div class="checklist-item">
-              <label class="checkbox-label">
-                <input type="checkbox" name="signage-ok" id="signage-ok">
-                <span>Signalisation visible</span>
-              </label>
-            </div>
-            <div class="checklist-item">
-              <label class="checkbox-label">
-                <input type="checkbox" name="access-ok" id="access-ok">
-                <span>Accès dégagé</span>
-              </label>
-            </div>
+            <div class="checklist-item"><label class="checkbox-label"><input type="checkbox" id="structure-ok"><span>Structure en bon état</span></label></div>
+            <div class="checklist-item"><label class="checkbox-label"><input type="checkbox" id="roof-ok"><span>Toiture sans dommage</span></label></div>
+            <div class="checklist-item"><label class="checkbox-label"><input type="checkbox" id="cleanliness-ok"><span>Propreté satisfaisante</span></label></div>
+            <div class="checklist-item"><label class="checkbox-label"><input type="checkbox" id="furniture-ok"><span>Mobilier en place</span></label></div>
+            <div class="checklist-item"><label class="checkbox-label"><input type="checkbox" id="signage-ok"><span>Signalisation visible</span></label></div>
+            <div class="checklist-item"><label class="checkbox-label"><input type="checkbox" id="access-ok"><span>Accès dégagé</span></label></div>
           </div>
         </div>
       </div>
       
-      <!-- Issues -->
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">⚠️ Problèmes constatés</h2>
-        </div>
-        <div class="card-body">
+      <div class="form-section">
+        <div class="form-section-header"><h2 class="form-section-title">📸 Photos</h2></div>
+        <div class="form-section-body">
           <div class="form-group">
-            <label for="issues-description">Description des problèmes</label>
-            <textarea id="issues-description" class="form-textarea" rows="4" placeholder="Décrivez les problèmes constatés..."></textarea>
-          </div>
-          
-          <div class="form-group">
-            <label>Photos</label>
-            <div class="photo-upload">
-              <input type="file" id="photo-input" accept="image/*" multiple capture="environment" style="display: none;">
-              <button type="button" class="btn btn-secondary" id="add-photo-btn">
-                📷 Ajouter des photos
-              </button>
-              <div id="photo-preview" class="photo-preview-container"></div>
+            <div class="file-upload-area" id="file-upload-area">
+              <div class="file-upload-content">
+                <span class="file-upload-icon">📷</span>
+                <p class="file-upload-text">Glissez vos photos ici ou cliquez pour parcourir</p>
+              </div>
+              <input type="file" id="file-input" multiple accept="image/*" class="file-input-hidden">
             </div>
+            <div class="photo-preview-container" id="preview-container"></div>
           </div>
         </div>
       </div>
       
-      <!-- Additional Notes -->
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">📝 Notes additionnelles</h2>
-        </div>
-        <div class="card-body">
+      <div class="form-section">
+        <div class="form-section-header"><h2 class="form-section-title">📝 Commentaires</h2></div>
+        <div class="form-section-body">
           <div class="form-group">
-            <label for="additional-notes">Commentaires</label>
-            <textarea id="additional-notes" class="form-textarea" rows="3" placeholder="Autres observations..."></textarea>
+            <label class="form-label" for="comments">Commentaires et observations</label>
+            <textarea class="form-control" id="comments" rows="4" placeholder="Ajoutez des commentaires..."></textarea>
           </div>
         </div>
       </div>
       
-      <!-- Submit -->
       <div class="form-actions">
-        <button type="submit" class="btn btn-primary btn-lg">
-          ✓ Soumettre l'inspection
-        </button>
-        <button type="button" class="btn btn-secondary" id="save-draft-btn">
-          💾 Sauvegarder le brouillon
-        </button>
+        <button type="button" class="btn btn-secondary" id="cancel-action">Annuler</button>
+        <button type="submit" class="btn btn-primary" id="submit-btn">Enregistrer l'inspection</button>
+      </div>
+      
+      <div class="status-messages">
+        <div id="success-message" class="alert alert-success" style="display: none;"></div>
+        <div id="error-message" class="alert alert-danger" style="display: none;"></div>
       </div>
     </form>
   </div>
-  
-  <!-- Firebase -->
+
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage-compat.js"></script>
   
-  <!-- App scripts -->
   <script src="../js/auth.js"></script>
-  <script src="../js/trails-config.js"></script>
+  <script src="../js/mobile-menu.js"></script>
   <script src="../js/shelter-inspection.js"></script>
 </body>
 </html>
