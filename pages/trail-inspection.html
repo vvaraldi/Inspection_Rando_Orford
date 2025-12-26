@@ -6,6 +6,23 @@
   <title>Ski-Track - Inspection de sentier</title>
   <link rel="stylesheet" href="../css/main.css">
   <script src="../js/common.js"></script>
+  <style>
+  .infraction-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.5rem 1rem;
+	border-radius: 6px;
+	font-size: 0.875rem;
+	font-weight: 500;
+	transition: background 0.2s;
+	text-decoration: none !important;
+	color: var(--color-white, #ffffff) !important;
+  }
+  .infraction-link:hover { background: rgba(255, 255, 255, 0.15); }
+  .infraction-icon { font-size: 1.1em; }
+  .nav-divider { width: 1px; height: 24px; background: rgba(255, 255, 255, 0.3); margin: 0 0.5rem; }
+  </style>
 </head>
 
 
@@ -25,6 +42,10 @@
         <a href="admin.html" id="admin-link" style="display: none;">Admin</a>
         <a href="change-password.html">MdP</a>
         <a href="#" id="login-link">Connexion</a>
+		<span class="nav-divider" id="infraction-divider" style="display: none;"></span>
+		<a href="https://vvaraldi.github.io/Infraction_Orford/index.html" target="_blank" id="infraction-link" class="infraction-link" style="display: none;" title="Accéder aux Infractions">
+			<span class="infraction-icon">🚨</span> Infractions
+		</a>
       </div>
       <button class="mobile-menu-btn" id="mobile-menu-btn">☰</button>
     </nav>
@@ -44,6 +65,7 @@
         <a href="admin.html" id="mobile-admin-link" style="display: none;">Admin</a>
         <a href="change-password.html" id="mobile-password-link">MdP</a>
         <a href="#" id="mobile-login-link">Connexion</a>
+		<a href="https://vvaraldi.github.io/Infraction_Orford/index.html" target="_blank" id="mobile-infraction-link" style="display: none;">🚨 Infractions</a>
       </div>
     </div>
   </header>
