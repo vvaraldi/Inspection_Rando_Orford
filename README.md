@@ -3,11 +3,12 @@
 To do:
 
 Priority 1
-1 - Simplification des pages :
-        - remove filters in the history "Type"
+1 - replace the link in the nav bar at the right side from infractions (if user has access to it to a return to the main portal (whatever the profil of the person).
+2 - simplify the admin page of Inspections.
 
 Priority 2
-0 - Summarize for one track all incident
+1 - Simplification des pages :
+        - remove filters in the history "Type"
 1 - If Admin user, in a modal view in the dashboard, user can click on trail status to switch it to open in the current inspection
 3 - Créer un système de notifications plus sophistiqué lorsqu'une inspection est ajoutée
 
