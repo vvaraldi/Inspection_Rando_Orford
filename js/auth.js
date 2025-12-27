@@ -112,10 +112,7 @@ function setupLogoutLinks(loginLink, mobileLoginLink) {
   const logoutHandler = function(e) {
     e.preventDefault();
     auth.signOut().then(() => {
-      const loginUrl = window.location.pathname.includes('/pages/') 
-        ? 'login.html' 
-        : 'pages/login.html';
-      window.location.href = loginUrl;
+		window.location.href = 'https://vvaraldi.github.io/Orford_Patrouille/pages/login.html';
     }).catch(error => {
       console.error("Erreur lors de la déconnexion:", error);
     });
@@ -173,9 +170,10 @@ function redirectToLogin(loading, mainContent) {
   const currentPage = window.location.pathname.split('/').pop();
   
   if (currentPage !== 'login.html') {
-    window.location.href = window.location.pathname.includes('/pages/') 
-      ? 'login.html' 
-      : 'pages/login.html';
+//    window.location.href = window.location.pathname.includes('/pages/') 
+//      ? 'login.html' 
+//      : 'pages/login.html';
+	window.location.href = 'https://vvaraldi.github.io/Orford_Patrouille/pages/login.html';
   } else {
     if (loading) loading.style.display = 'none';
     if (mainContent) mainContent.style.display = 'block';
