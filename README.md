@@ -3,7 +3,7 @@
 To do:
 
 Priority 1
-2 - simplify the admin page of Inspections.
+
 
 Priority 2
 1 - Simplification des pages :
