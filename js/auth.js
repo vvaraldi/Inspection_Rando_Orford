@@ -79,7 +79,7 @@ function checkAuthStatus() {
           }
           
           // NEW: Update Infraction link visibility
-          updateInfractionLinkVisibility(currentUserData);
+          updateMainMenuLinkVisibility(currentUserData);
           
         } else {
           console.warn("Document de l'utilisateur non trouvé dans Firestore");
@@ -250,23 +250,15 @@ function getFirebaseConfig() {
  * NEW: Update Infraction link visibility based on user permissions
  * @param {Object} userData - User data from inspectors collection
  */
-function updateInfractionLinkVisibility(userData) {
-  const infractionLink = document.getElementById('infraction-link');
-  const infractionDivider = document.getElementById('infraction-divider');
-  const mobileInfractionLink = document.getElementById('mobile-infraction-link');
+function updateMainMenuLinkVisibility(userData) {
+  const mainMenuLink = document.getElementById('main-menu-link');
+  const mainMenuDivider = document.getElementById('main-menu-divider');
+  const mobileMainMenuLink = document.getElementById('mobile-main-menu-link');
   
-  // Check if user has infraction access
-  const hasAccess = userData && userData.allowInfraction === true;
-  
-  if (hasAccess) {
-    if (infractionLink) infractionLink.style.display = 'inline-flex';
-    if (infractionDivider) infractionDivider.style.display = 'inline-block';
-    if (mobileInfractionLink) mobileInfractionLink.style.display = 'block';
-  } else {
-    if (infractionLink) infractionLink.style.display = 'none';
-    if (infractionDivider) infractionDivider.style.display = 'none';
-    if (mobileInfractionLink) mobileInfractionLink.style.display = 'none';
-  }
+  // Afficher toujours le lien Menu principal (pas de condition d'accès)
+  if (mainMenuLink) mainMenuLink.style.display = 'inline-flex';
+  if (mainMenuDivider) mainMenuDivider.style.display = 'inline-block';
+  if (mobileMainMenuLink) mobileMainMenuLink.style.display = 'block';
 }
 
 // Écouter le chargement du document pour vérifier l'authentification
