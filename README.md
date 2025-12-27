@@ -3,7 +3,6 @@
 To do:
 
 Priority 1
-1 - replace the link in the nav bar at the right side from infractions (if user has access to it to a return to the main portal (whatever the profil of the person).
 2 - simplify the admin page of Inspections.
 
 Priority 2
