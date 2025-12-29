@@ -2,10 +2,12 @@
 
 ## Prochaines étapes
 Priority 1
+1 - Improve the export
+2 - simplify the status page with only the map
 
 Priority 2
 1 - Simplification des pages :
-2 - Possiiliter de modifier une inspection ? par admin ou par créateur
+2 - Possibilité de modifier une inspection ? par admin ou par créateur
 3 - Créer un système de notifications plus sophistiqué lorsqu'une inspection est ajoutée
 
 Priority 3

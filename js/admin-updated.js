@@ -186,13 +186,13 @@ class AdminManager {
     }
     
     if (this.exportModal) {
-      this.exportModal.classList.add('active');
+		this.exportModal.classList.add('show');
     }
   }
 
   closeExportModal() {
     if (this.exportModal) {
-      this.exportModal.classList.remove('active');
+		this.exportModal.classList.remove('show');
     }
   }
 
