@@ -1188,154 +1188,154 @@ class AdminManager {
     }
   }
 
-async executeExport() {
-  const dateInput = document.getElementById('export-start-date');
-  if (!dateInput || !dateInput.value) {
-    alert('Veuillez sélectionner une date de début');
-    return;
-  }
-
-  const startDate = new Date(dateInput.value);
-  startDate.setHours(0, 0, 0, 0);
-  const startTimestamp = firebase.firestore.Timestamp.fromDate(startDate);
-
-  try {
-    // Close modal and show loading state
-    this.closeExportModal();
-    
-    const button = document.getElementById('export-data-btn');
-    if (button) {
-      button.disabled = true;
-      button.textContent = 'Export en cours...';
+  async executeExport() {
+    const dateInput = document.getElementById('export-start-date');
+    if (!dateInput || !dateInput.value) {
+      alert('Veuillez sélectionner une date de début');
+      return;
     }
-    
-    // Load reference data (all)
-    const [trails, shelters, inspectors] = await Promise.all([
-      this.db.collection('trails').get(),
-      this.db.collection('shelters').get(),
-      this.db.collection('inspectors').get()
-    ]);
 
-    // Create lookup maps for ID -> name resolution
-    const trailsMap = new Map();
-    trails.docs.forEach(doc => {
-      const data = doc.data();
-      trailsMap.set(doc.id, data.name || doc.id);
-    });
+    const startDate = new Date(dateInput.value);
+    startDate.setHours(0, 0, 0, 0);
+    const startTimestamp = firebase.firestore.Timestamp.fromDate(startDate);
 
-    const sheltersMap = new Map();
-    shelters.docs.forEach(doc => {
-      const data = doc.data();
-      sheltersMap.set(doc.id, data.name || doc.id);
-    });
-
-    const inspectorsMap = new Map();
-    inspectors.docs.forEach(doc => {
-      const data = doc.data();
-      inspectorsMap.set(doc.id, data.name || doc.id);
-    });
-
-    // Load inspections filtered by date
-    const [trailInspections, shelterInspections] = await Promise.all([
-      this.db.collection('trail_inspections')
-        .where('date', '>=', startTimestamp)
-        .orderBy('date', 'desc')
-        .get(),
-      this.db.collection('shelter_inspections')
-        .where('date', '>=', startTimestamp)
-        .orderBy('date', 'desc')
-        .get()
-    ]);
-
-    // Process trail inspections - resolve IDs to names
-    const processedTrailInspections = trailInspections.docs.map(doc => {
-      const data = this.formatDocumentDates(doc.data());
+    try {
+      // Close modal and show loading state
+      this.closeExportModal();
       
-      // Replace trail_id with trail_name
-      if (data.trail_id) {
-        data.trail_name = trailsMap.get(data.trail_id) || data.trail_id;
-        delete data.trail_id;
+      const button = document.getElementById('export-data-btn');
+      if (button) {
+        button.disabled = true;
+        button.textContent = 'Export en cours...';
       }
       
-      // Replace inspector_id with inspector_name (if not already present)
-      if (data.inspector_id && !data.inspector_name) {
-        data.inspector_name = inspectorsMap.get(data.inspector_id) || data.inspector_id;
-      }
-      delete data.inspector_id;
-      
-      return { id: doc.id, ...data };
-    });
+      // Load reference data (all)
+      const [trails, shelters, inspectors] = await Promise.all([
+        this.db.collection('trails').get(),
+        this.db.collection('shelters').get(),
+        this.db.collection('inspectors').get()
+      ]);
 
-    // Process shelter inspections - resolve IDs to names
-    const processedShelterInspections = shelterInspections.docs.map(doc => {
-      const data = this.formatDocumentDates(doc.data());
+      // Create lookup maps for ID -> name resolution
+      const trailsMap = new Map();
+      trails.docs.forEach(doc => {
+        const data = doc.data();
+        trailsMap.set(doc.id, data.name || doc.id);
+      });
+
+      const sheltersMap = new Map();
+      shelters.docs.forEach(doc => {
+        const data = doc.data();
+        sheltersMap.set(doc.id, data.name || doc.id);
+      });
+
+      const inspectorsMap = new Map();
+      inspectors.docs.forEach(doc => {
+        const data = doc.data();
+        inspectorsMap.set(doc.id, data.name || doc.id);
+      });
+
+      // Load inspections filtered by date
+      const [trailInspections, shelterInspections] = await Promise.all([
+        this.db.collection('trail_inspections')
+          .where('date', '>=', startTimestamp)
+          .orderBy('date', 'desc')
+          .get(),
+        this.db.collection('shelter_inspections')
+          .where('date', '>=', startTimestamp)
+          .orderBy('date', 'desc')
+          .get()
+      ]);
+
+      // Process trail inspections - resolve IDs to names
+      const processedTrailInspections = trailInspections.docs.map(doc => {
+        const data = this.formatDocumentDates(doc.data());
+        
+        // Replace trail_id with trail_name
+        if (data.trail_id) {
+          data.trail_name = trailsMap.get(data.trail_id) || data.trail_id;
+          delete data.trail_id;
+        }
+        
+        // Replace inspector_id with inspector_name (if not already present)
+        if (data.inspector_id && !data.inspector_name) {
+          data.inspector_name = inspectorsMap.get(data.inspector_id) || data.inspector_id;
+        }
+        delete data.inspector_id;
+        
+        return { id: doc.id, ...data };
+      });
+
+      // Process shelter inspections - resolve IDs to names
+      const processedShelterInspections = shelterInspections.docs.map(doc => {
+        const data = this.formatDocumentDates(doc.data());
+        
+        // Replace shelter_id with shelter_name
+        if (data.shelter_id) {
+          data.shelter_name = sheltersMap.get(data.shelter_id) || data.shelter_id;
+          delete data.shelter_id;
+        }
+        
+        // Replace inspector_id with inspector_name (if not already present)
+        if (data.inspector_id && !data.inspector_name) {
+          data.inspector_name = inspectorsMap.get(data.inspector_id) || data.inspector_id;
+        }
+        delete data.inspector_id;
+        
+        return { id: doc.id, ...data };
+      });
       
-      // Replace shelter_id with shelter_name
-      if (data.shelter_id) {
-        data.shelter_name = sheltersMap.get(data.shelter_id) || data.shelter_id;
-        delete data.shelter_id;
-      }
+      // Prepare export data with formatted dates
+      const exportData = {
+        exportDate: this.formatExportDate(new Date()),
+        exportPeriod: {
+          from: this.formatExportDate(startDate),
+          to: this.formatExportDate(new Date())
+        },
+        trails: trails.docs.map(doc => ({ id: doc.id, ...this.formatDocumentDates(doc.data()) })),
+        shelters: shelters.docs.map(doc => ({ id: doc.id, ...this.formatDocumentDates(doc.data()) })),
+        inspectors: inspectors.docs.map(doc => ({ id: doc.id, ...this.formatDocumentDates(doc.data()) })),
+        trailInspections: processedTrailInspections,
+        shelterInspections: processedShelterInspections,
+        summary: {
+          totalTrails: trails.size,
+          totalShelters: shelters.size,
+          totalInspectors: inspectors.size,
+          trailInspectionsCount: trailInspections.size,
+          shelterInspectionsCount: shelterInspections.size
+        }
+      };
       
-      // Replace inspector_id with inspector_name (if not already present)
-      if (data.inspector_id && !data.inspector_name) {
-        data.inspector_name = inspectorsMap.get(data.inspector_id) || data.inspector_id;
-      }
-      delete data.inspector_id;
+      // Create filename with date range
+      const fromDateStr = startDate.toISOString().split('T')[0];
+      const toDateStr = new Date().toISOString().split('T')[0];
+      const filename = `Inspections-from-${fromDateStr}-to-${toDateStr}.json`;
       
-      return { id: doc.id, ...data };
-    });
-    
-    // Prepare export data with formatted dates
-    const exportData = {
-      exportDate: this.formatExportDate(new Date()),
-      exportPeriod: {
-        from: this.formatExportDate(startDate),
-        to: this.formatExportDate(new Date())
-      },
-      trails: trails.docs.map(doc => ({ id: doc.id, ...this.formatDocumentDates(doc.data()) })),
-      shelters: shelters.docs.map(doc => ({ id: doc.id, ...this.formatDocumentDates(doc.data()) })),
-      inspectors: inspectors.docs.map(doc => ({ id: doc.id, ...this.formatDocumentDates(doc.data()) })),
-      trailInspections: processedTrailInspections,
-      shelterInspections: processedShelterInspections,
-      summary: {
-        totalTrails: trails.size,
-        totalShelters: shelters.size,
-        totalInspectors: inspectors.size,
-        trailInspectionsCount: trailInspections.size,
-        shelterInspectionsCount: shelterInspections.size
+      // Create and download file
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      console.log(`✓ Données exportées avec succès (${trailInspections.size + shelterInspections.size} inspections)`);
+      
+    } catch (error) {
+      console.error('✗ Erreur lors de l\'export:', error);
+      alert('Erreur lors de l\'export: ' + error.message);
+    } finally {
+      const button = document.getElementById('export-data-btn');
+      if (button) {
+        button.disabled = false;
+        button.textContent = 'Exporter les données';
       }
-    };
-    
-    // Create filename with date range (keep YYYY-MM-DD format for filename)
-    const fromDateStr = startDate.toISOString().split('T')[0];
-    const toDateStr = new Date().toISOString().split('T')[0];
-    const filename = `Inspections-from-${fromDateStr}-to-${toDateStr}.json`;
-    
-    // Create and download file
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    
-    console.log(`✓ Données exportées avec succès (${trailInspections.size + shelterInspections.size} inspections)`);
-    
-  } catch (error) {
-    console.error('✗ Erreur lors de l\'export:', error);
-    alert('Erreur lors de l\'export: ' + error.message);
-  } finally {
-    const button = document.getElementById('export-data-btn');
-    if (button) {
-      button.disabled = false;
-      button.textContent = 'Exporter les données';
     }
   }
-}
 
 // Global admin manager instance
 let adminManager;
