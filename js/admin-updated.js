@@ -1337,6 +1337,8 @@ class AdminManager {
     }
   }
 
+}
+
 // Global admin manager instance
 let adminManager;
 
