@@ -2,11 +2,6 @@
 
 ## Prochaines étapes
 Priority 1
-1 - Improve the export
-2 - simplify the public status page with only the map
-
-I want to simplify the public status page with only the map shown and remove the toggle between map and list.
-
 
 Priority 2
 1 - Simplification des pages :
@@ -18,10 +13,6 @@ Priority 3
 2 - Créer un role de super admin pour la gestion des données systèmes (initialisation, reinit des inspections....)
 3 - geolocalisation des images
 4 - Que fait la touche créer des données de test ? Peut-on mettre un flag pour supprimer les données de test a tout moment
-
-
-
-
 
 Prochaines améliorations possibles dixit Opus4.1:   Pas sûr de vouloir faire et intérêt
 0 - PWA (Progressive Web App) : Transformez l'application en PWA pour une expérience proche d'une application native
