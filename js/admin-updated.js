@@ -1127,6 +1127,111 @@ class AdminManager {
     }
   }
 
+  async deleteOldInspections() {
+	  const cutoffDateInput = document.getElementById('cutoff-date');
+	  
+	  if (!cutoffDateInput || !cutoffDateInput.value) {
+		this.showStatus('delete-old-status', 'Veuillez sélectionner une date limite.', 'warning');
+		return;
+	  }
+
+	  const cutoffDate = new Date(cutoffDateInput.value);
+	  cutoffDate.setHours(23, 59, 59, 999); // End of the selected day
+	  
+	  const cutoffTimestamp = firebase.firestore.Timestamp.fromDate(cutoffDate);
+	  const formattedDate = cutoffDate.toLocaleDateString('fr-CA');
+
+	  if (!confirm(`⚠️ ATTENTION: Vous êtes sur le point de supprimer TOUTES les inspections antérieures au ${formattedDate}.\n\nCette action est IRRÉVERSIBLE.\n\nContinuer?`)) {
+		return;
+	  }
+
+	  try {
+		this.showStatus('delete-old-status', 'Recherche des inspections à supprimer...', 'info');
+
+		// Query inspections before cutoff date
+		const [trailInspections, shelterInspections] = await Promise.all([
+		  this.db.collection('trail_inspections').where('date', '<', cutoffTimestamp).get(),
+		  this.db.collection('shelter_inspections').where('date', '<', cutoffTimestamp).get()
+		]);
+
+		const totalToDelete = trailInspections.size + shelterInspections.size;
+
+		if (totalToDelete === 0) {
+		  this.showStatus('delete-old-status', 'Aucune inspection trouvée avant cette date.', 'info');
+		  return;
+		}
+
+		this.showStatus('delete-old-status', `Suppression de ${totalToDelete} inspections en cours...`, 'info');
+
+		// Delete in batches (Firestore limit is 500 per batch)
+		const batchSize = 400;
+		let deletedCount = 0;
+
+		// Delete trail inspections
+		const trailDocs = trailInspections.docs;
+		for (let i = 0; i < trailDocs.length; i += batchSize) {
+		  const batch = this.db.batch();
+		  const chunk = trailDocs.slice(i, i + batchSize);
+		  
+		  for (const doc of chunk) {
+			// Delete associated photos from storage if they exist
+			const data = doc.data();
+			if (data.photos && data.photos.length > 0) {
+			  for (const photoUrl of data.photos) {
+				try {
+				  const storageRef = this.storage.refFromURL(photoUrl);
+				  await storageRef.delete();
+				} catch (photoError) {
+				  console.warn('Could not delete photo:', photoError);
+				}
+			  }
+			}
+			batch.delete(doc.ref);
+		  }
+		  
+		  await batch.commit();
+		  deletedCount += chunk.length;
+		  this.showStatus('delete-old-status', `Suppression en cours... ${deletedCount}/${totalToDelete}`, 'info');
+		}
+
+		// Delete shelter inspections
+		const shelterDocs = shelterInspections.docs;
+		for (let i = 0; i < shelterDocs.length; i += batchSize) {
+		  const batch = this.db.batch();
+		  const chunk = shelterDocs.slice(i, i + batchSize);
+		  
+		  for (const doc of chunk) {
+			// Delete associated photos from storage if they exist
+			const data = doc.data();
+			if (data.photos && data.photos.length > 0) {
+			  for (const photoUrl of data.photos) {
+				try {
+				  const storageRef = this.storage.refFromURL(photoUrl);
+				  await storageRef.delete();
+				} catch (photoError) {
+				  console.warn('Could not delete photo:', photoError);
+				}
+			  }
+			}
+			batch.delete(doc.ref);
+		  }
+		  
+		  await batch.commit();
+		  deletedCount += chunk.length;
+		  this.showStatus('delete-old-status', `Suppression en cours... ${deletedCount}/${totalToDelete}`, 'info');
+		}
+
+		this.showStatus('delete-old-status', `✓ ${totalToDelete} inspections supprimées avec succès!`, 'success');
+		
+		// Refresh statistics
+		this.loadStatistics();
+
+	  } catch (error) {
+		console.error('Error deleting old inspections:', error);
+		this.showStatus('delete-old-status', `✗ Erreur: ${error.message}`, 'error');
+	  }
+  }
+
   async createSampleData() {
     if (!confirm('Cela ajoutera plusieurs inspections fictives. Continuer?')) {
       return;

@@ -20,96 +20,39 @@
     </div>
   </div>
   
-  <!-- View Toggle Only (No Filters) -->
-  <div class="view-section">
-    <div class="view-toggle">
-      <button class="toggle-btn active" data-view="map">📍 Carte - status des sentiers</button>
-      <button class="toggle-btn" data-view="list">📋 liste - détails d'inspection</button>
-    </div>
-  </div>
-  
-  <!-- Main Content -->
+  <!-- Main Content - Map Only -->
   <div class="main-content">
-    <!-- Map View -->
     <div class="map-view-container active" id="map-view">
+      <!-- Legend -->
+      <div class="map-legend">
+        <div class="legend-item">
+          <span class="legend-marker trail-status-open"></span>
+          <span>Ouvert</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-marker trail-status-closed"></span>
+          <span>Fermé</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-marker trail-status-unknown"></span>
+          <span>Inconnu</span>
+        </div>
+      </div>
+      
       <div class="map-wrapper">
         <img src="../assets/map3.png" alt="Carte du Mont Orford" class="map-image">
         <!-- Trail markers will be added dynamically here -->
       </div>
     </div>
-    
-    <!-- List View -->
-    <div class="list-view-container" id="list-view">
-      <!-- Trails Section -->
-      <div class="table-section">
-        <h3 class="table-title">🏔️ Sentiers</h3>
-        <div class="table-container">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Nom</th>
-                <th>État</th>
-                <th>Statut</th>
-                <th>Dernière inspection</th>
-              </tr>
-            </thead>
-            <tbody id="trails-tbody">
-              <tr>
-                <td colspan="4" style="text-align: center;">Chargement...</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-      
-      <!-- Shelters Section -->
-      <div class="table-section">
-        <h3 class="table-title">🏠 Abris</h3>
-        <div class="table-container">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Nom</th>
-                <th>État</th>
-                <th>Dernière inspection</th>
-              </tr>
-            </thead>
-            <tbody id="shelters-tbody">
-              <tr>
-                <td colspan="3" style="text-align: center;">Chargement...</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
   </div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
   
-  <!-- Firebase Scripts -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-  
-  <!-- Firebase Configuration (minimal for public access) -->
-  <script>
-    // Firebase configuration - Same as your main project
-    const firebaseConfig = {
-      apiKey: "AIzaSyDcBZrwGTskM7QUvanzLTACEJ_T-55j-DA",
-      authDomain: "trail-inspection.firebaseapp.com",
-      projectId: "trail-inspection",
-      storageBucket: "trail-inspection.firebasestorage.app",
-      messagingSenderId: "415995272058",
-      appId: "1:415995272058:web:dc476de8ffee052e2ad4c3",
-      measurementId: "G-EBLYWBM9YB"
-    };
-    
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-  </script>
-  
-  <!-- Application Scripts -->
+  <!-- Status Page Scripts -->
   <script src="../js/status-main.js"></script>
   <script src="../js/status-map.js"></script>
-  <script src="../js/status-list.js"></script>
 </body>
 </html>
