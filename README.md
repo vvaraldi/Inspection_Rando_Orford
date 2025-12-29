@@ -3,7 +3,10 @@
 ## Prochaines étapes
 Priority 1
 1 - Improve the export
-2 - simplify the status page with only the map
+2 - simplify the public status page with only the map
+
+I want to simplify the public status page with only the map shown and remove the toggle between map and list.
+
 
 Priority 2
 1 - Simplification des pages :
