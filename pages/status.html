@@ -19,15 +19,7 @@
       Dernière mise à jour: <span id="last-update-time">--:--</span>
     </div>
   </div>
-  
-  <!-- View Toggle Only (No Filters) -->
-  <div class="view-section">
-    <div class="view-toggle">
-      <button class="toggle-btn active" data-view="map">📍 Carte - status des sentiers</button>
-      <button class="toggle-btn" data-view="list">📋 liste - détails d'inspection</button>
-    </div>
-  </div>
-  
+    
   <!-- Main Content -->
   <div class="main-content">
     <!-- Map View -->
@@ -38,51 +30,6 @@
       </div>
     </div>
     
-    <!-- List View -->
-    <div class="list-view-container" id="list-view">
-      <!-- Trails Section -->
-      <div class="table-section">
-        <h3 class="table-title">🏔️ Sentiers</h3>
-        <div class="table-container">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Nom</th>
-                <th>État</th>
-                <th>Statut</th>
-                <th>Dernière inspection</th>
-              </tr>
-            </thead>
-            <tbody id="trails-tbody">
-              <tr>
-                <td colspan="4" style="text-align: center;">Chargement...</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-      
-      <!-- Shelters Section -->
-      <div class="table-section">
-        <h3 class="table-title">🏠 Abris</h3>
-        <div class="table-container">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Nom</th>
-                <th>État</th>
-                <th>Dernière inspection</th>
-              </tr>
-            </thead>
-            <tbody id="shelters-tbody">
-              <tr>
-                <td colspan="3" style="text-align: center;">Chargement...</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
   </div>
   
   <!-- Firebase Scripts -->
@@ -110,6 +57,5 @@
   <!-- Application Scripts -->
   <script src="../js/status-main.js"></script>
   <script src="../js/status-map.js"></script>
-  <script src="../js/status-list.js"></script>
 </body>
 </html>

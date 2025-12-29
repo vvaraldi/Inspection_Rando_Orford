@@ -6,38 +6,14 @@
 
 // Global variables
 let allData = [];
-let currentView = 'map';
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
   loadPublicData();
-  setupViewToggle();
   
   // Auto-refresh every 5 minutes
   setInterval(loadPublicData, 5 * 60 * 1000);
 });
-
-// Setup view toggle (map/list)
-function setupViewToggle() {
-  document.querySelectorAll('.toggle-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-      // Update active state
-      document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
-      this.classList.add('active');
-      
-      // Change view
-      currentView = this.dataset.view;
-      
-      if (currentView === 'map') {
-        document.getElementById('map-view').classList.add('active');
-        document.getElementById('list-view').classList.remove('active');
-      } else {
-        document.getElementById('map-view').classList.remove('active');
-        document.getElementById('list-view').classList.add('active');
-      }
-    });
-  });
-}
 
 // Load public data from Firebase
 async function loadPublicData() {
@@ -187,9 +163,6 @@ function handleLoadError() {
 function displayData() {
   // Display in map view (only trails will show due to status-map.js filtering)
   displayMapMarkers(allData);
-  
-  // Display in list view (both trails and shelters)
-  displayListItems(allData);
   
   // Update last update time
   updateLastUpdateTime();
