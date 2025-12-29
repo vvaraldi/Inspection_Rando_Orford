@@ -1,206 +1,77 @@
 /**
  * status-main.js
  * Main functionality for the public status page
- * FINAL VERSION - NO FILTERS, CLEAN DATA LOADING
+ * SIMPLIFIED VERSION - MAP ONLY, TRAILS ONLY
  */
 
 // Global variables
 let allData = [];
-let currentView = 'map';
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
   loadPublicData();
-  setupViewToggle();
   
   // Auto-refresh every 5 minutes
   setInterval(loadPublicData, 5 * 60 * 1000);
 });
 
-// Setup view toggle (map/list)
-function setupViewToggle() {
-  document.querySelectorAll('.toggle-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-      // Update active state
-      document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
-      this.classList.add('active');
-      
-      // Change view
-      currentView = this.dataset.view;
-      
-      if (currentView === 'map') {
-        document.getElementById('map-view').classList.add('active');
-        document.getElementById('list-view').classList.remove('active');
-      } else {
-        document.getElementById('map-view').classList.remove('active');
-        document.getElementById('list-view').classList.add('active');
-      }
-    });
-  });
-}
-
-// Load public data from Firebase
+// Load public data from Firebase (trails only)
 async function loadPublicData() {
   try {
     console.log("Starting to load public data...");
     allData = [];
     
-    // Load trails
+    // Load trails only (no shelters needed for public status)
     console.log("Loading trails...");
     const trailsSnapshot = await db.collection('trails').get();
     console.log(`Found ${trailsSnapshot.size} trails`);
     
-    const trails = new Map();
-    trailsSnapshot.forEach(doc => {
-      const data = doc.data();
-      trails.set(doc.id, { id: doc.id, ...data });
-    });
-    
-    // Load shelters
-    console.log("Loading shelters...");
-    const sheltersSnapshot = await db.collection('shelters').get();
-    console.log(`Found ${sheltersSnapshot.size} shelters`);
-    
-    const shelters = new Map();
-    sheltersSnapshot.forEach(doc => {
-      const data = doc.data();
-      shelters.set(doc.id, { id: doc.id, ...data });
-    });
-    
-    // Load ALL trail inspections
-    console.log("Loading all trail inspections...");
-    let trailInspectionsByLocation = {};
-    try {
-      const trailInspectionsSnapshot = await db.collection('trail_inspections')
+    for (const doc of trailsSnapshot.docs) {
+      const trail = doc.data();
+      trail.id = doc.id;
+      trail.type = 'trail';
+      
+      // Fetch last inspection
+      const inspectionSnapshot = await db.collection('inspections')
+        .where('trail_id', '==', doc.id)
         .orderBy('date', 'desc')
+        .limit(1)
         .get();
       
-      console.log(`Found ${trailInspectionsSnapshot.size} trail inspections total`);
+      if (!inspectionSnapshot.empty) {
+        trail.lastInspection = inspectionSnapshot.docs[0].data();
+        trail.status = trail.lastInspection.condition || 'not-inspected';
+        trail.trailStatus = trail.lastInspection.trail_status || 'unknown';
+      } else {
+        trail.lastInspection = null;
+        trail.status = 'not-inspected';
+        trail.trailStatus = 'unknown';
+      }
       
-      // Group by trail_id and keep only the most recent
-      trailInspectionsSnapshot.forEach(doc => {
-        const inspection = { id: doc.id, ...doc.data() };
-        const locationId = inspection.trail_id;
-        
-        // Keep only the most recent inspection for each trail
-        if (!trailInspectionsByLocation[locationId]) {
-          trailInspectionsByLocation[locationId] = inspection;
-        }
-      });
-      
-      console.log(`Processed inspections for ${Object.keys(trailInspectionsByLocation).length} unique trails`);
-    } catch (error) {
-      console.error("Error loading trail inspections:", error);
+      allData.push(trail);
     }
     
-    // Load shelter inspections
-    console.log("Loading all shelter inspections...");
-    let shelterInspectionsByLocation = {};
-    try {
-      const shelterInspectionsSnapshot = await db.collection('shelter_inspections')
-        .orderBy('date', 'desc')
-        .get();
-      
-      console.log(`Found ${shelterInspectionsSnapshot.size} shelter inspections total`);
-      
-      // Group by shelter_id and keep only the most recent
-      shelterInspectionsSnapshot.forEach(doc => {
-        const inspection = { id: doc.id, ...doc.data() };
-        const locationId = inspection.shelter_id;
-        
-        if (!shelterInspectionsByLocation[locationId]) {
-          shelterInspectionsByLocation[locationId] = inspection;
-        }
-      });
-      
-      console.log(`Processed inspections for ${Object.keys(shelterInspectionsByLocation).length} unique shelters`);
-    } catch (error) {
-      console.error("Error loading shelter inspections:", error);
-    }
+    console.log(`Total trails loaded: ${allData.length}`);
     
-    // Process trails with their status
-    console.log("Processing trail data...");
-    trails.forEach((trail, trailId) => {
-      const lastInspection = trailInspectionsByLocation[trailId];
-      
-      allData.push({
-        id: trailId,
-        name: trail.name,
-        type: 'trail',
-        difficulty: trail.difficulty,
-        length: trail.length,
-        coordinates: trail.coordinates,
-        
-        // Status from inspection condition (good/warning/critical) - FOR LIST VIEW
-        status: lastInspection ? lastInspection.condition : 'not-inspected',
-        
-        // Trail Status from trail document (open/closed) - FOR MAP VIEW
-        trailStatus: trail.status || 'unknown',
-        
-        lastInspection: lastInspection,
-        lastInspectionDate: lastInspection ? lastInspection.date : null
-      });
-    });
+    // Update last update time
+    updateLastUpdateTime();
     
-    // Process shelters
-    console.log("Processing shelter data...");
-    shelters.forEach((shelter, shelterId) => {
-      const lastInspection = shelterInspectionsByLocation[shelterId];
-      
-      allData.push({
-        id: shelterId,
-        name: shelter.name,
-        type: 'shelter',
-        capacity: shelter.capacity,
-        altitude: shelter.altitude,
-        coordinates: shelter.coordinates,
-        status: lastInspection ? lastInspection.condition : 'not-inspected',
-        lastInspection: lastInspection,
-        lastInspectionDate: lastInspection ? lastInspection.date : null
-      });
-    });
-    
-    console.log(`Total data processed: ${allData.length} items`);
-    console.log("Data loading completed successfully");
-    
-    // Update display with all data (no filtering)
-    displayData();
+    // Display on map
+    displayMapItems(allData);
     
   } catch (error) {
-    console.error("Error in loadPublicData:", error);
-    handleLoadError();
+    console.error("Error loading public data:", error);
   }
-}
-
-// Handle loading errors
-function handleLoadError() {
-  const errorMessage = '<tr><td colspan="4" style="text-align: center; color: #e02424;">Erreur lors du chargement des données.</td></tr>';
-  
-  const trailsTbody = document.getElementById('trails-tbody');
-  const sheltersTbody = document.getElementById('shelters-tbody');
-  
-  if (trailsTbody) trailsTbody.innerHTML = errorMessage;
-  if (sheltersTbody) sheltersTbody.innerHTML = errorMessage;
-}
-
-// Display all data without filtering
-function displayData() {
-  // Display in map view (only trails will show due to status-map.js filtering)
-  displayMapMarkers(allData);
-  
-  // Display in list view (both trails and shelters)
-  displayListItems(allData);
-  
-  // Update last update time
-  updateLastUpdateTime();
 }
 
 // Update the last update time display
 function updateLastUpdateTime() {
-  const lastUpdateElement = document.getElementById('last-update-time');
-  if (lastUpdateElement) {
+  const timeElement = document.getElementById('last-update-time');
+  if (timeElement) {
     const now = new Date();
-    const timeString = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-    lastUpdateElement.textContent = timeString;
+    timeElement.textContent = now.toLocaleString('fr-CA', {
+      dateStyle: 'short',
+      timeStyle: 'short'
+    });
   }
 }

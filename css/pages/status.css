@@ -1,79 +1,23 @@
 /* ========================================
-   Status Page Complete CSS - Clean Version
+   Status Page Styles
+   SIMPLIFIED VERSION - MAP ONLY
    ======================================== */
 
-/* CSS Variables (fallbacks if not defined elsewhere) */
-:root {
-  --color-primary: #1b4b72;
-  --color-secondary: #2c7a5d;
-  --color-white: #ffffff;
-  --color-gray-200: #e5e7eb;
-  --color-gray-300: #d1d5db;
-  --color-gray-400: #9ca3af;
-  --color-gray-500: #6b7280;
-  --color-gray-600: #4b5563;
-  --color-gray-700: #374151;
-  --color-gray-800: #1f2937;
-  --theme-surface: #ffffff;
-  --theme-background: #f8f9fb;
-  --theme-text: #1f2937;
-  --theme-border: #e5e7eb;
-  --space-sm: 8px;
-  --space-md: 16px;
-  --space-lg: 24px;
-  --space-xl: 32px;
-  --text-xs: 12px;
-  --text-sm: 14px;
-  --text-base: 16px;
-  --text-xl: 20px;
-  --text-2xl: 24px;
-  --font-semibold: 600;
-  --font-bold: 700;
-  --border-radius-sm: 4px;
-  --border-radius-lg: 8px;
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
-  --transition-fast: 0.15s ease;
-  --z-sticky: 100;
-}
-
 /* ========================================
-   Body and Layout
-   ======================================== */
-
-body {
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  background-color: var(--theme-background);
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200" opacity="0.05"><path d="M100 0 L200 200 L0 200 Z" fill="%231b4b72"/></svg>');
-  background-size: 200px;
-  background-repeat: repeat;
-  background-attachment: fixed;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-/* ========================================
-   Header
+   Public Header
    ======================================== */
 
 .public-header {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  background: linear-gradient(135deg, #1a5d1a, #2e7d32);
   color: var(--color-white);
-  padding: var(--space-lg) var(--space-md);
+  padding: var(--space-lg);
   text-align: center;
-  position: relative;
+  box-shadow: 0 2px 8px rgba(26, 93, 26, 0.3);
 }
 
-.public-header::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #43a047, #2196f3, #f44336, #212121);
+[data-theme="dark"] .public-header {
+  background: linear-gradient(135deg, #1b5e20, #2e7d32);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 .public-header h1 {
@@ -91,46 +35,6 @@ body {
   margin-top: var(--space-sm);
   opacity: 0.9;
   font-size: var(--text-sm);
-}
-
-/* ========================================
-   View Toggle Section
-   ======================================== */
-
-.view-section {
-  background: var(--theme-surface);
-  padding: var(--space-md);
-  box-shadow: var(--shadow-sm);
-  position: sticky;
-  top: 0;
-  z-index: var(--z-sticky);
-}
-
-.view-toggle {
-  display: flex;
-  justify-content: center;
-  gap: var(--space-sm);
-}
-
-.toggle-btn {
-  padding: var(--space-sm) var(--space-lg);
-  border: 2px solid var(--color-primary);
-  background: var(--theme-surface);
-  color: var(--color-primary);
-  border-radius: 20px;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  font-weight: var(--font-semibold);
-  font-size: var(--text-sm);
-}
-
-.toggle-btn:hover {
-  background: var(--theme-background);
-}
-
-.toggle-btn.active {
-  background: var(--color-primary);
-  color: var(--color-white);
 }
 
 /* ========================================
@@ -178,6 +82,36 @@ body {
 }
 
 /* ========================================
+   Map Legend
+   ======================================== */
+
+.map-legend {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-lg);
+  padding: var(--space-md);
+  background: var(--theme-background);
+  border-radius: var(--border-radius-md);
+  margin-bottom: var(--space-md);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: var(--text-sm);
+  color: var(--theme-text);
+}
+
+.legend-marker {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* ========================================
    Map Markers - Trail Status Only
    ======================================== */
 
@@ -201,7 +135,7 @@ body {
   line-height: 1;
 }
 
-/* Trail Status Colors (Operational Status) */
+/* Trail Status Colors */
 .trail-status-open {
   background-color: #10b981 !important; /* Green - Trail is open */
 }
@@ -212,124 +146,6 @@ body {
 
 .trail-status-unknown {
   background-color: #6b7280 !important; /* Gray - Status unknown */
-}
-
-/* ========================================
-   List View
-   ======================================== */
-
-.list-view-container {
-  display: none;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.list-view-container.active {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-lg);
-}
-
-/* ========================================
-   Tables
-   ======================================== */
-
-.table-section {
-  background: var(--theme-surface);
-  border-radius: var(--border-radius-lg);
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
-}
-
-.table-title {
-  background: var(--theme-background);
-  padding: var(--space-md);
-  margin: 0;
-  font-size: var(--text-xl);
-  font-weight: var(--font-semibold);
-  color: var(--theme-text);
-  text-align: center;
-  border-bottom: 2px solid var(--color-gray-300);
-}
-
-.table-container {
-  overflow-x: auto;
-}
-
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.data-table th {
-  background: var(--theme-background);
-  padding: var(--space-md);
-  text-align: left;
-  font-weight: var(--font-semibold);
-  color: var(--color-gray-600);
-  font-size: var(--text-sm);
-  border-bottom: 1px solid var(--color-gray-300);
-}
-
-.data-table td {
-  padding: var(--space-md);
-  border-bottom: 1px solid var(--color-gray-200);
-  color: var(--theme-text);
-  font-size: var(--text-sm);
-  vertical-align: middle;
-}
-
-.data-table tbody tr:hover {
-  background: var(--theme-background);
-}
-
-.data-table tbody tr:last-child td {
-  border-bottom: none;
-}
-
-/* ========================================
-   Status Badges - For List View
-   ======================================== */
-
-.status-badge {
-  display: inline-block;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 500;
-  color: white;
-  text-align: center;
-  white-space: nowrap;
-}
-
-/* Inspection Status Badges (État column) */
-.status-badge.status-good {
-  background-color: #10b981; /* Green - Good condition */
-}
-
-.status-badge.status-warning {
-  background-color: #f59e0b; /* Orange - Needs attention */
-}
-
-.status-badge.status-critical {
-  background-color: #ef4444; /* Red - Critical issues */
-}
-
-.status-badge.status-not-inspected {
-  background-color: #6b7280; /* Gray - Not inspected */
-}
-
-/* Trail Status Badges (Statut column) */
-.status-badge.status-open {
-  background-color: #10b981; /* Green - Trail open */
-}
-
-.status-badge.status-closed {
-  background-color: #ef4444; /* Red - Trail closed */
-}
-
-.status-badge.status-unknown {
-  background-color: #6b7280; /* Gray - Status unknown */
 }
 
 /* ========================================
@@ -347,34 +163,13 @@ body {
     padding: var(--space-md);
   }
   
-  .list-view-container.active {
-    grid-template-columns: 1fr;
-    gap: var(--space-md);
-  }
-  
-  .view-toggle {
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .toggle-btn {
-    width: 200px;
-    text-align: center;
-  }
-  
   .map-wrapper {
     max-height: 60vh;
   }
   
-  .data-table th,
-  .data-table td {
-    padding: var(--space-sm);
-    font-size: var(--text-xs);
-  }
-  
-  .table-title {
-    font-size: var(--text-base);
-    padding: var(--space-sm);
+  .map-legend {
+    flex-wrap: wrap;
+    gap: var(--space-md);
   }
 }
 
@@ -385,8 +180,12 @@ body {
     font-size: 14px;
   }
   
-  .status-badge {
-    font-size: 10px;
-    padding: 2px 6px;
+  .legend-marker {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .legend-item {
+    font-size: var(--text-xs);
   }
 }
