@@ -43,8 +43,6 @@ class AdminManager {
     this.userSuccessMessage = document.getElementById('user-success-message');
     this.userErrorMessage = document.getElementById('user-error-message');
     
-    // Export modal element
-    this.exportModal = document.getElementById('export-modal');
   }
 
   initializeFirebase() {
@@ -94,9 +92,6 @@ class AdminManager {
     // Data management buttons
     this.bindDataManagementEvents();
     
-    // Export modal events
-    this.bindExportModalEvents();
-    
     // Statistics refresh
     const refreshStatsBtn = document.getElementById('refresh-stats');
     if (refreshStatsBtn) {
@@ -137,132 +132,11 @@ class AdminManager {
     }
   }
 
-  bindExportModalEvents() {
-    const exportModalClose = document.getElementById('export-modal-close');
-    const exportModalCancel = document.getElementById('export-modal-cancel');
-    const exportModalConfirm = document.getElementById('export-modal-confirm');
-
-    if (exportModalClose) {
-      exportModalClose.addEventListener('click', () => this.closeExportModal());
-    }
-
-    if (exportModalCancel) {
-      exportModalCancel.addEventListener('click', () => this.closeExportModal());
-    }
-
-    if (exportModalConfirm) {
-      exportModalConfirm.addEventListener('click', () => this.executeExport());
-    }
-
-    // Close modal when clicking outside
-    if (this.exportModal) {
-      this.exportModal.addEventListener('click', (e) => {
-        if (e.target === this.exportModal) {
-          this.closeExportModal();
-        }
-      });
-    }
-  }
-
-  showExportModal() {
-    // Calculate default date: September 1st of the current season
-    // If we're before September, use last year's September 1st
-    const today = new Date();
-    let defaultYear = today.getFullYear();
-    
-    // If we're before September (months 0-8 in JS), use previous year
-    if (today.getMonth() < 8) { // 8 = September (0-indexed)
-      defaultYear = defaultYear - 1;
-    }
-    
-    const defaultDate = new Date(defaultYear, 8, 1); // September 1st
-    
-    // Format date for input (YYYY-MM-DD)
-    const formattedDate = defaultDate.toISOString().split('T')[0];
-    
-    const dateInput = document.getElementById('export-start-date');
-    if (dateInput) {
-      dateInput.value = formattedDate;
-    }
-    
-    if (this.exportModal) {
-		this.exportModal.classList.add('show');
-    }
-  }
-
-  closeExportModal() {
-    if (this.exportModal) {
-		this.exportModal.classList.remove('show');
-    }
-  }
-
-  // Helper method to format dates as "hh:mm of DD-MM-YYYY"
-  formatExportDate(value) {
-    if (!value) return null;
-    
-    let date;
-    
-    // Handle Firestore Timestamp
-    if (value && typeof value.toDate === 'function') {
-      date = value.toDate();
-    }
-    // Handle existing Date object
-    else if (value instanceof Date) {
-      date = value;
-    }
-    // Handle string or number
-    else if (typeof value === 'string' || typeof value === 'number') {
-      date = new Date(value);
-    }
-    // Handle Firestore Timestamp-like object with seconds
-    else if (value && value.seconds) {
-      date = new Date(value.seconds * 1000);
-    }
-    else {
-      return value; // Return as-is if we can't parse it
-    }
-    
-    // Check for valid date
-    if (isNaN(date.getTime())) {
-      return value;
-    }
-    
-    // Format as "hh:mm of DD-MM-YYYY"
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    
-    return `${hours}:${minutes} of ${day}-${month}-${year}`;
-  }
-
-  // Helper method to process document data and format dates
-  formatDocumentDates(data) {
-    const formatted = { ...data };
-    
-    // List of known date fields to format
-    const dateFields = ['date', 'createdAt', 'updatedAt', 'created_at', 'updated_at', 'lastLogin', 'last_login'];
-    
-    for (const key of Object.keys(formatted)) {
-      const value = formatted[key];
-      
-      // Check if this is a known date field or looks like a Firestore Timestamp
-      if (dateFields.includes(key) || (value && (typeof value.toDate === 'function' || value.seconds))) {
-        formatted[key] = this.formatExportDate(value);
-      }
-    }
-    
-    return formatted;
-  }
-
-
   bindDataManagementEvents() {
     const buttons = [
       { id: 'init-trails-btn', handler: () => this.initializeTrails() },
       { id: 'init-shelters-btn', handler: () => this.initializeShelters() },
       { id: 'create-sample-btn', handler: () => this.createSampleData() },
-      { id: 'export-data-btn', handler: () => this.showExportModal() },
       { id: 'delete-old-inspections-btn', handler: () => this.deleteOldInspections() },
       { id: 'reset-inspections-btn', handler: () => this.resetAllInspections() }
     ];
@@ -1290,138 +1164,6 @@ class AdminManager {
     } catch (error) {
       console.error('✗ Erreur lors de la création des données de test:', error);
       this.showStatus('sample-status', 'Erreur lors de la création des données de test: ' + error.message, 'danger');
-    }
-  }
-
-  async executeExport() {
-    const dateInput = document.getElementById('export-start-date');
-    if (!dateInput || !dateInput.value) {
-      alert('Veuillez sélectionner une date de début');
-      return;
-    }
-
-    const startDate = new Date(dateInput.value);
-    startDate.setHours(0, 0, 0, 0);
-    const startTimestamp = firebase.firestore.Timestamp.fromDate(startDate);
-
-    try {
-      this.closeExportModal();
-      
-      const button = document.getElementById('export-data-btn');
-      if (button) {
-        button.disabled = true;
-        button.textContent = 'Export en cours...';
-      }
-      
-      // Load reference data for name resolution only
-      const [trails, shelters, inspectors] = await Promise.all([
-        this.db.collection('trails').get(),
-        this.db.collection('shelters').get(),
-        this.db.collection('inspectors').get()
-      ]);
-
-      // Create lookup maps for ID -> name resolution
-      const trailsMap = new Map();
-      trails.docs.forEach(doc => {
-        const data = doc.data();
-        trailsMap.set(doc.id, data.name || doc.id);
-      });
-
-      const sheltersMap = new Map();
-      shelters.docs.forEach(doc => {
-        const data = doc.data();
-        sheltersMap.set(doc.id, data.name || doc.id);
-      });
-
-      const inspectorsMap = new Map();
-      inspectors.docs.forEach(doc => {
-        const data = doc.data();
-        inspectorsMap.set(doc.id, data.name || doc.id);
-      });
-
-      // Load inspections filtered by date
-      const [trailInspections, shelterInspections] = await Promise.all([
-        this.db.collection('trail_inspections')
-          .where('date', '>=', startTimestamp)
-          .orderBy('date', 'desc')
-          .get(),
-        this.db.collection('shelter_inspections')
-          .where('date', '>=', startTimestamp)
-          .orderBy('date', 'desc')
-          .get()
-      ]);
-
-      // Process trail inspections - resolve IDs to names
-      const processedTrailInspections = trailInspections.docs.map(doc => {
-        const data = this.formatDocumentDates(doc.data());
-        if (data.trail_id) {
-          data.trail_name = trailsMap.get(data.trail_id) || data.trail_id;
-          delete data.trail_id;
-        }
-        if (data.inspector_id && !data.inspector_name) {
-          data.inspector_name = inspectorsMap.get(data.inspector_id) || data.inspector_id;
-        }
-        delete data.inspector_id;
-        return { id: doc.id, ...data };
-      });
-
-      // Process shelter inspections - resolve IDs to names
-      const processedShelterInspections = shelterInspections.docs.map(doc => {
-        const data = this.formatDocumentDates(doc.data());
-        if (data.shelter_id) {
-          data.shelter_name = sheltersMap.get(data.shelter_id) || data.shelter_id;
-          delete data.shelter_id;
-        }
-        if (data.inspector_id && !data.inspector_name) {
-          data.inspector_name = inspectorsMap.get(data.inspector_id) || data.inspector_id;
-        }
-        delete data.inspector_id;
-        return { id: doc.id, ...data };
-      });
-      
-      // Prepare export data - inspections only
-      const exportData = {
-        exportDate: this.formatExportDate(new Date()),
-        exportPeriod: {
-          from: this.formatExportDate(startDate),
-          to: this.formatExportDate(new Date())
-        },
-        trailInspections: processedTrailInspections,
-        shelterInspections: processedShelterInspections,
-        summary: {
-          trailInspectionsCount: trailInspections.size,
-          shelterInspectionsCount: shelterInspections.size
-        }
-      };
-      
-      // Create filename with date range
-      const fromDateStr = startDate.toISOString().split('T')[0];
-      const toDateStr = new Date().toISOString().split('T')[0];
-      const filename = `Inspections-from-${fromDateStr}-to-${toDateStr}.json`;
-      
-      // Create and download file
-      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      
-      console.log('✓ Données exportées avec succès (' + (trailInspections.size + shelterInspections.size) + ' inspections)');
-      
-    } catch (error) {
-      console.error('✗ Erreur lors de l\'export:', error);
-      alert('Erreur lors de l\'export: ' + error.message);
-    } finally {
-      const button = document.getElementById('export-data-btn');
-      if (button) {
-        button.disabled = false;
-        button.textContent = 'Exporter les données';
-      }
     }
   }
 

@@ -146,19 +146,6 @@
                 </div>
               </div>
 
-              <!-- Export Data Section -->
-              <div class="admin-section">
-                <div class="admin-section-header">
-                  <h3 class="admin-section-title">💾 Sauvegarde</h3>
-                  <button class="btn btn-secondary" id="export-data-btn">
-                    Exporter les données
-                  </button>
-                </div>
-                <p class="admin-section-description">
-                  Exporter toutes les données du système en format JSON.
-                </p>
-              </div>
-
               <!-- Reset Section -->
               <div class="admin-section admin-section-danger">
                 <div class="admin-section-header">
@@ -334,28 +321,6 @@
       <div class="modal-footer">
         <button class="btn btn-secondary" id="modal-cancel">Annuler</button>
         <button class="btn btn-danger" id="confirm-delete">Supprimer</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Export Modal -->
-  <div class="modal" id="export-modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2 class="modal-title">Exporter les données</h2>
-        <button class="modal-close" id="export-modal-close">✕</button>
-      </div>
-      <div class="modal-body">
-        <p>Sélectionnez la date de début pour l'export des inspections.</p>
-        <p style="color: var(--theme-text-light); font-size: 0.9rem;">Les données de référence (pistes, abris, inspecteurs) seront toujours incluses en totalité.</p>
-        <div class="form-group" style="margin-top: 1rem;">
-          <label class="form-label" for="export-start-date">Exporter les inspections depuis le :</label>
-          <input type="date" class="form-control" id="export-start-date" required>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" id="export-modal-cancel">Annuler</button>
-        <button class="btn btn-primary" id="export-modal-confirm">Exporter</button>
       </div>
     </div>
   </div>
