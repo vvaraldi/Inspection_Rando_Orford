@@ -834,14 +834,6 @@ async loadData() {
 				<span class="detail-label">Statut du sentier</span>
 				<span class="detail-value">${trailStatusBadge}</span>
 			  </li>
-			  <li class="detail-item">
-				<span class="detail-label">Longueur</span>
-				<span class="detail-value">${inspection.length || 'Non spécifié'} km</span>
-			  </li>
-			  <li class="detail-item">
-				<span class="detail-label">Difficulté</span>
-				<span class="detail-value">${this.getDifficultyText(inspection.difficulty)}</span>
-			  </li>
 			  ${inspection.snow_condition ? `
 			  <li class="detail-item">
 				<span class="detail-label">Conditions de neige</span>
@@ -864,11 +856,6 @@ async loadData() {
 			  <li class="detail-item">
 				<span class="detail-label">Accessibilité</span>
 				<span class="detail-value">${this.getAccessibilityText(inspection.accessibility)}</span>
-			  </li>` : ''}
-			  ${inspection.capacity ? `
-			  <li class="detail-item">
-				<span class="detail-label">Capacité</span>
-				<span class="detail-value">${inspection.capacity} personnes</span>
 			  </li>` : ''}
 			</ul>
 		  </div>
