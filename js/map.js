@@ -197,7 +197,7 @@ function clearExistingMarkers() {
 }
 
 // ============================================================================
-// QUICK STATUS TOGGLE FEATURE (Right-click for admin users)
+// QUICK STATUS TOGGLE FEATURE (Right-click for admin users in status view)
 // ============================================================================
 
 /**
@@ -212,8 +212,8 @@ async function handleQuickStatusToggle(e, item, itemType) {
   
   // Check if we're in simple/status view mode
   if (currentBadgeView !== 'simple') {
-    console.log('Quick status toggle: Only available in status view mode');
-    return; // Silent return - don't show any message, just show default context menu behavior
+    // Not in status view - don't prevent default context menu
+    return;
   }
   
   // Check if user is admin
@@ -433,7 +433,7 @@ function displayTrailMarkers(trails) {
       return;
     }
     
-    // Event listeners - Left click opens modal
+    // Event listeners (unchanged)
     marker.addEventListener('click', async () => {
       try {
         await openInspectionModal(trail);
@@ -443,7 +443,7 @@ function displayTrailMarkers(trails) {
       }
     });
     
-    // NEW: Right-click for quick status toggle (admin only)
+    // NEW: Right-click for quick status toggle (admin only, status view only)
     marker.addEventListener('contextmenu', (e) => handleQuickStatusToggle(e, trail, 'trail'));
     
     // UPDATED: Dynamic tooltip based on current view
@@ -542,7 +542,7 @@ function displayShelterMarkers(shelters) {
       return;
     }
     
-    // Event listeners - Left click opens modal
+    // Event listeners (unchanged)
     marker.addEventListener('click', async () => {
       try {
         await openInspectionModal(shelter);
@@ -552,7 +552,7 @@ function displayShelterMarkers(shelters) {
       }
     });
     
-    // NEW: Right-click for quick status toggle (admin only)
+    // NEW: Right-click for quick status toggle (admin only, status view only)
     marker.addEventListener('contextmenu', (e) => handleQuickStatusToggle(e, shelter, 'shelter'));
     
     // Dynamic tooltip based on current view (same logic as trails)
@@ -707,25 +707,147 @@ function updateDashboardStats(trails, shelters) {
     }
   });
   
-  // Mettre à jour les éléments du DOM
-  const totalElements = document.getElementById('total-elements');
-  const inspectedToday = document.getElementById('inspected-today');
-  const goodStatus = document.getElementById('good-status');
-  const warningStatus = document.getElementById('warning-status');
-  const criticalStatus = document.getElementById('critical-status');
-  const notInspected = document.getElementById('not-inspected');
+  // FIXED: Declare overallStatus in proper scope
+  let overallStatus = 'Bon';
+  if (stats.critical > 0) {
+    overallStatus = 'Critique';
+  } else if (stats.warning > 0) {
+    overallStatus = 'À surveiller';
+  }
   
-  if (totalElements) totalElements.textContent = stats.total;
-  if (inspectedToday) inspectedToday.textContent = stats.inspectedToday;
-  if (goodStatus) goodStatus.textContent = stats.good;
-  if (warningStatus) warningStatus.textContent = stats.warning;
-  if (criticalStatus) criticalStatus.textContent = stats.critical;
-  if (notInspected) notInspected.textContent = stats.notInspected;
+  // Calculate issues count
+  const issuesCount = stats.warning + stats.critical;
   
-  console.log("Dashboard stats updated:", stats);
+  // Mettre à jour les éléments du tableau de bord
+  
+  // 1. Inspections aujourd'hui
+  const todayElement = document.getElementById('inspections-today');
+  if (todayElement) {
+    todayElement.textContent = `${stats.inspectedToday}/${stats.total}`;
+    console.log("Updated inspections-today:", `${stats.inspectedToday}/${stats.total}`);
+  }
+  
+  // 2. État général du domaine
+  const statusElement = document.getElementById('overall-status');
+  if (statusElement) {
+    statusElement.textContent = overallStatus;
+    console.log("Updated overall-status:", overallStatus);
+  }
+  
+  // 3. Problèmes signalés (warning + critical)
+  const issuesElement = document.getElementById('reported-issues');
+  if (issuesElement) {
+    issuesElement.textContent = issuesCount;
+    console.log("Updated reported-issues:", issuesCount);
+  }
+  
+  // 4. Heure de dernière mise à jour
+  const now = new Date();
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  
+  const updateElement = document.getElementById('last-update');
+  if (updateElement) {
+    updateElement.textContent = `${hours}:${minutes}`;
+    console.log("Updated last-update:", `${hours}:${minutes}`);
+  }
+  
+  // 5. Individual status counts
+  const goodElement = document.getElementById('good-status');
+  if (goodElement) {
+    goodElement.textContent = stats.good;
+  }
+
+  const warningElement = document.getElementById('warning-status');
+  if (warningElement) {
+    warningElement.textContent = stats.warning;
+  }
+
+  const criticalElement = document.getElementById('critical-status');
+  if (criticalElement) {
+    criticalElement.textContent = stats.critical;
+  }
+
+  // FIXED: Move console.log inside function scope where all variables are defined
+  console.log("Stats summary:", {
+    total: stats.total,
+    inspectedToday: stats.inspectedToday,
+    good: stats.good,
+    warning: stats.warning,
+    critical: stats.critical,
+    notInspected: stats.notInspected,
+    overallStatus: overallStatus,
+    issuesCount: issuesCount
+  });
 }
 
-// Global variables for filters and badge view
+/**
+ * Configure des écouteurs en temps réel pour les mises à jour automatiques
+ */
+function setupRealtimeListeners() {
+  // Écouteur pour les inspections de sentiers
+  db.collection('trail_inspections')
+    .orderBy('date', 'desc')
+    .limit(1)
+    .onSnapshot(snapshot => {
+      if (!snapshot.empty) {
+        console.log("Nouvelles données d'inspection de sentiers détectées");
+        loadMapData();
+      }
+    }, error => {
+      console.error("Erreur dans l'écouteur d'inspections de sentiers:", error);
+    });
+  
+  // Écouteur pour les inspections d'abris
+  db.collection('shelter_inspections')
+    .orderBy('date', 'desc')
+    .limit(1)
+    .onSnapshot(snapshot => {
+      if (!snapshot.empty) {
+        console.log("Nouvelles données d'inspection d'abris détectées");
+        loadMapData();
+      }
+    }, error => {
+      console.error("Erreur dans l'écouteur d'inspections d'abris:", error);
+    });
+}
+
+/**
+ * Convertit les codes de statut en texte lisible
+ * @param {string} status - Code de statut ('good', 'warning', etc.)
+ * @returns {string} - Texte correspondant au statut
+ */
+function getStatusText(status) {
+  switch (status) {
+    case 'good': return 'Bon';
+    case 'warning': return 'Attention';
+    case 'critical': return 'Critique';
+    default: return 'Non inspecté';
+  }
+}
+
+/**
+ * Convertit les codes de difficulté en texte lisible
+ * @param {string} difficulty - Code de difficulté ('easy', 'medium', etc.)
+ * @returns {string} - Texte correspondant à la difficulté
+ */
+function getDifficultyText(difficulty) {
+  switch (difficulty) {
+    case 'easy': return 'Facile';
+    case 'medium': return 'Intermédiaire';
+    case 'hard': return 'Difficile';
+    default: return difficulty;
+  }
+}
+
+// ajout pour les filtres
+// ajout pour les filtres
+// ajout pour les filtres
+
+// Variables pour stocker les données et les filtres
+let allTrails = [];
+let allShelters = [];
+
 let currentFilters = {
   status: 'all',
   type: 'all',
@@ -734,9 +856,73 @@ let currentFilters = {
   issues: 'all'
 };
 
-let currentBadgeView = 'detailed'; // 'detailed' or 'simple'
-let allTrails = [];
-let allShelters = [];
+/**
+ * Fonction principale pour charger les données de la carte
+ * Récupère les sentiers, abris et leurs dernières inspections
+ */
+async function loadMapData() {
+  try {
+    // Afficher un indicateur de chargement si disponible
+    if (document.getElementById('map-loading')) {
+      document.getElementById('map-loading').style.display = 'flex';
+    }
+    
+    // Récupérer les données des sentiers
+    const trailsSnapshot = await db.collection('trails').get();
+    const trails = [];
+    
+    trailsSnapshot.forEach(doc => {
+      trails.push({
+        id: doc.id,
+        ...doc.data()
+      });
+    });
+    
+    // Récupérer les données des abris
+    const sheltersSnapshot = await db.collection('shelters').get();
+    const shelters = [];
+    
+    sheltersSnapshot.forEach(doc => {
+      shelters.push({
+        id: doc.id,
+        ...doc.data()
+      });
+    });
+    
+    // Récupérer les dernières inspections pour chaque sentier
+    const trailsWithStatus = await getTrailsWithLatestStatus(trails);
+    
+    // Récupérer les dernières inspections pour chaque abri
+    const sheltersWithStatus = await getSheltersWithLatestStatus(shelters);
+    
+    // Stocker les données complètes
+    allTrails = trailsWithStatus;
+    allShelters = sheltersWithStatus;
+    
+    // Masquer l'indicateur de chargement
+    if (document.getElementById('map-loading')) {
+      document.getElementById('map-loading').style.display = 'none';
+    }
+    
+    // Afficher les marqueurs sur la carte (avec filtres)
+    displayFilteredMarkers();
+    
+    // Mettre à jour les statistiques du tableau de bord
+    updateDashboardStats(trailsWithStatus, sheltersWithStatus);
+    
+    console.log("Carte mise à jour avec succès");
+    return { trails: trailsWithStatus, shelters: sheltersWithStatus };
+  } catch (error) {
+    console.error("Erreur lors du chargement des données de la carte:", error);
+    
+    // Masquer l'indicateur de chargement en cas d'erreur
+    if (document.getElementById('map-loading')) {
+      document.getElementById('map-loading').style.display = 'none';
+    }
+    
+    return { trails: [], shelters: [] };
+  }
+}
 
 /**
  * Filtre les données selon les critères actuels et affiche les marqueurs
@@ -782,9 +968,244 @@ function displayFilteredMarkers() {
           if (inspectionDate < oneMonthAgo) return false;
           break;
       }
+    } else if (currentFilters.date !== 'all' && !trail.lastInspection) {
+      // S'il n'y a pas d'inspection et qu'un filtre de date est actif, ne pas afficher
+      return false;
+    }
+
+    // NOUVEAU: Filtre par problèmes
+    if (currentFilters.issues !== 'all') {
+      const hasIssues = trail.lastInspection && 
+                        trail.lastInspection.issues && 
+                        trail.lastInspection.issues.length > 0;
+                        
+      if (currentFilters.issues === 'with-issues' && !hasIssues) {
+        return false;
+      }
+      
+      if (currentFilters.issues === 'without-issues' && hasIssues) {
+        return false;
+      }
     }
     
-    // Filtre par problèmes
+    return true;
+  });
+  
+  // Filtrer les abris
+  const filteredShelters = allShelters.filter(shelter => {
+    // Filtre par statut
+    if (currentFilters.status !== 'all' && shelter.status !== currentFilters.status) {
+      return false;
+    }
+    
+    // Filtre par type (toujours true pour les abris si type=all ou type=shelter)
+    if (currentFilters.type !== 'all' && currentFilters.type !== 'shelter') {
+      return false;
+    }
+    
+    // Les abris n'ont pas de difficulté, donc on les affiche toujours 
+    // sauf si un filtre de difficulté est actif
+    if (currentFilters.difficulty !== 'all') {
+      return false;
+    }
+    
+      // Filtre par date d'inspection
+    if (currentFilters.date !== 'all' && shelter.lastInspection) {
+      const inspectionDate = shelter.lastInspection.date.toDate();
+      
+      switch (currentFilters.date) {
+        case 'today':
+          if (inspectionDate < today) return false;
+          break;
+        case 'week':
+          if (inspectionDate < oneWeekAgo) return false;
+          break;
+        case 'month':
+          if (inspectionDate < oneMonthAgo) return false;
+          break;
+      }
+    } else if (currentFilters.date !== 'all' && !shelter.lastInspection) {
+      // S'il n'y a pas d'inspection et qu'un filtre de date est actif, ne pas afficher
+      return false;
+    }
+    
+    // NOUVEAU: Filtre par problèmes
+    if (currentFilters.issues !== 'all') {
+      const hasIssues = shelter.lastInspection && 
+                        shelter.lastInspection.issues && 
+                        shelter.lastInspection.issues.length > 0;
+                        
+      if (currentFilters.issues === 'with-issues' && !hasIssues) {
+        return false;
+      }
+      
+      if (currentFilters.issues === 'without-issues' && hasIssues) {
+        return false;
+      }
+    }
+
+	return true;
+  });
+  
+  // Afficher les marqueurs filtrés
+  displayTrailMarkers(filteredTrails);
+  displayShelterMarkers(filteredShelters);
+  
+  // Mettre à jour le compteur d'éléments affichés si un tel élément existe
+  const filterCounter = document.getElementById('filter-counter');
+  if (filterCounter) {
+    updateFilterCounter(filteredTrails.length + filteredShelters.length);
+	// filterCounter.textContent = `${filteredTrails.length + filteredShelters.length} éléments affichés`;
+  }
+}
+
+/**
+ * Initialiser les contrôles de filtrage
+ */
+function initFilterControls() {
+  console.log('Initializing filter controls...');
+  
+  // REMOVED: initMapFilterToggle() - those elements don't exist in your HTML
+  // We only need the badge toggle, not the map filter toggle
+  
+  // Get filter elements
+  const statusFilter = document.getElementById('status-filter');
+  const typeFilter = document.getElementById('type-filter');
+  const difficultyFilter = document.getElementById('difficulty-filter');
+  const dateFilter = document.getElementById('date-filter');
+  const issuesFilter = document.getElementById('issues-filter');
+  const resetBtn = document.getElementById('reset-filters');
+  const applyBtn = document.getElementById('apply-map-filters');
+  
+  // Check if elements exist (these are optional - they exist in some pages but not others)
+  if (!statusFilter || !typeFilter || !difficultyFilter || !dateFilter || !issuesFilter) {
+    console.log("Some filter controls were not found - this is normal if not on dashboard page");
+    return;
+  }
+  
+  console.log('Filter elements found, setting up event listeners...');
+  
+  // Function to apply filters
+  const applyFilters = () => {
+    // Show loading indicator
+    if (document.getElementById('map-loading')) {
+      document.getElementById('map-loading').style.display = 'flex';
+    }
+    
+    // Update current filters
+    currentFilters.status = statusFilter.value;
+    currentFilters.type = typeFilter.value;
+    currentFilters.difficulty = difficultyFilter.value;
+    currentFilters.date = dateFilter.value;
+    currentFilters.issues = issuesFilter.value;
+    
+    // Apply filters with a small delay for UI feedback
+    setTimeout(() => {
+      if (typeof filterAndDisplayMarkers === 'function') {
+        filterAndDisplayMarkers();
+      } else if (typeof displayFilteredMarkers === 'function') {
+        displayFilteredMarkers();
+      }
+      
+      // Hide loading indicator
+      if (document.getElementById('map-loading')) {
+        document.getElementById('map-loading').style.display = 'none';
+      }
+    }, 100);
+  };
+  
+  // Add event listeners for auto-apply (existing functionality)
+  statusFilter.addEventListener('change', applyFilters);
+  typeFilter.addEventListener('change', applyFilters);
+  difficultyFilter.addEventListener('change', applyFilters);
+  dateFilter.addEventListener('change', applyFilters);
+  issuesFilter.addEventListener('change', applyFilters);
+  
+  // Add event listener for manual apply button
+  if (applyBtn) {
+    applyBtn.addEventListener('click', applyFilters);
+  }
+  
+  // Reset filters functionality
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      // Reset all filter values
+      statusFilter.value = 'all';
+      typeFilter.value = 'all';
+      difficultyFilter.value = 'all';
+      dateFilter.value = 'all';
+      issuesFilter.value = 'all';
+      
+      // Apply the reset filters
+      applyFilters();
+    });
+  }
+  
+  console.log('Filter controls initialized successfully');
+}
+
+/**
+ * Update the filter counter display with better styling
+ */
+function updateFilterCounter(count) {
+  const filterCounter = document.getElementById('filter-counter');
+  if (filterCounter) {
+    filterCounter.textContent = `${count} élément${count !== 1 ? 's' : ''} affiché${count !== 1 ? 's' : ''}`;
+  }
+}
+
+/**
+ * Update the existing filterAndDisplayMarkers function to use new counter
+ */
+function filterAndDisplayMarkers() {
+  if (!allTrails || !allShelters) {
+    console.warn('Data not loaded yet');
+    return;
+  }
+  
+  // Filter trails
+  const filteredTrails = allTrails.filter(trail => {
+    // Date filter
+    if (currentFilters.date !== 'all') {
+      if (!trail.lastInspection) {
+        return currentFilters.date === 'not-inspected';
+      }
+      
+      const inspectionDate = trail.lastInspection.date.toDate();
+      const now = new Date();
+      
+      switch (currentFilters.date) {
+        case 'today':
+          if (!isSameDay(inspectionDate, now)) return false;
+          break;
+        case 'week':
+          const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          if (inspectionDate < weekAgo) return false;
+          break;
+        case 'month':
+          const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+          if (inspectionDate < monthAgo) return false;
+          break;
+      }
+    }
+    
+    // Status filter
+    if (currentFilters.status !== 'all') {
+      const status = trail.lastInspection ? trail.lastInspection.condition : 'not-inspected';
+      if (status !== currentFilters.status) return false;
+    }
+    
+    // Type filter
+    if (currentFilters.type !== 'all' && currentFilters.type !== 'trail') {
+      return false;
+    }
+    
+    // Difficulty filter
+    if (currentFilters.difficulty !== 'all' && trail.difficulty !== currentFilters.difficulty) {
+      return false;
+    }
+    
+    // Issues filter
     if (currentFilters.issues !== 'all') {
       const hasIssues = trail.lastInspection && 
                         trail.lastInspection.issues && 
@@ -802,8 +1223,32 @@ function displayFilteredMarkers() {
     return true;
   });
   
-  // Filtrer les abris
+  // Filter shelters
   const filteredShelters = allShelters.filter(shelter => {
+    // Date filter
+    if (currentFilters.date !== 'all') {
+      if (!shelter.lastInspection) {
+        return currentFilters.date === 'not-inspected';
+      }
+      
+      const inspectionDate = shelter.lastInspection.date.toDate();
+      const now = new Date();
+      
+      switch (currentFilters.date) {
+        case 'today':
+          if (!isSameDay(inspectionDate, now)) return false;
+          break;
+        case 'week':
+          const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          if (inspectionDate < weekAgo) return false;
+          break;
+        case 'month':
+          const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+          if (inspectionDate < monthAgo) return false;
+          break;
+      }
+    }
+    
     // Status filter
     if (currentFilters.status !== 'all') {
       const status = shelter.lastInspection ? shelter.lastInspection.condition : 'not-inspected';
@@ -898,325 +1343,46 @@ async function openInspectionModal(item) {
       inspector: item.lastInspection.inspector || item.lastInspection.inspector_name || 'Non spécifié',
       locationName: item.name,
       locationId: item.id,
-      // Ensure we have the trail/shelter specific data
-      length: item.length,
-      difficulty: item.difficulty,
-      capacity: item.capacity
+      // Ensure we have the trail/shelter reference data
+      length: item.lastInspection.length || item.length,
+      difficulty: item.lastInspection.difficulty || item.difficulty,
+      capacity: item.lastInspection.capacity || item.capacity
     };
     
-    // Format the date if needed
-    if (inspection.date && inspection.date.toDate) {
-      inspection.date = inspection.date.toDate();
+    // Call the same function that the list uses
+    await viewInspectionDetails(inspection.id);
+    
+    // If viewInspectionDetails doesn't work because inspection isn't in allInspectionsData,
+    // temporarily add it
+    if (typeof allInspectionsData !== 'undefined') {
+      const existingIndex = allInspectionsData.findIndex(i => i.id === inspection.id);
+      if (existingIndex === -1) {
+        allInspectionsData.push(inspection);
+      }
+      await viewInspectionDetails(inspection.id);
     }
-    
-    // Generate modal content using same function as dashboard
-    const modalContent = await generateModalContent(inspection);
-    
-    // Find or create modal
-    let modal = document.getElementById('inspection-modal');
-    if (!modal) {
-      // Create modal if it doesn't exist
-      modal = document.createElement('div');
-      modal.id = 'inspection-modal';
-      modal.className = 'modal';
-      modal.innerHTML = `
-        <div class="modal-content">
-          <div class="modal-header">
-            <h2 class="modal-title">Détails de l'inspection</h2>
-            <button class="modal-close" id="close-modal">&times;</button>
-          </div>
-          <div class="modal-body" id="modal-body"></div>
-          <div class="modal-footer">
-            <button class="btn btn-secondary" id="close-modal-btn">Fermer</button>
-          </div>
-        </div>
-      `;
-      document.body.appendChild(modal);
-      
-      // Add event listeners
-      document.getElementById('close-modal').addEventListener('click', closeModal);
-      document.getElementById('close-modal-btn').addEventListener('click', closeModal);
-      modal.addEventListener('click', (e) => {
-        if (e.target === modal) closeModal();
-      });
-    }
-    
-    // Update modal body
-    document.getElementById('modal-body').innerHTML = modalContent;
-    
-    // Show modal
-    modal.style.display = 'flex';
-    modal.classList.add('show');
-    document.body.style.overflow = 'hidden';
     
   } catch (error) {
     console.error('Error opening modal:', error);
-    alert('Erreur lors de l\'ouverture des détails');
+    alert('Erreur lors du chargement des détails d\'inspection');
   }
 }
 
-/**
- * Close the inspection modal
- */
-function closeModal() {
-  const modal = document.getElementById('inspection-modal');
-  if (modal) {
-    modal.classList.remove('show');
-    modal.style.display = 'none';
-    document.body.style.overflow = '';
-  }
-}
+
+// Global variable to track current badge view
+let currentBadgeView = 'detailed'; // 'detailed' or 'simple'
 
 /**
- * Generate modal content HTML (same as dashboard)
- */
-async function generateModalContent(inspection) {
-  const formattedDate = inspection.date ? formatDateWithMonthName(inspection.date) : 'Non disponible';
-  const typeText = inspection.type === 'trail' ? 'Sentier' : 'Abri';
-  
-  // Status badge
-  const statusConfig = {
-    'good': { class: 'status-good', text: '🟢 Bon état' },
-    'warning': { class: 'status-warning', text: '🟠 Attention' },
-    'critical': { class: 'status-critical', text: '🔴 Critique' },
-    'not-inspected': { class: 'status-not-inspected', text: '⚪ Non inspecté' }
-  };
-  const status = statusConfig[inspection.condition] || statusConfig['not-inspected'];
-  const statusBadge = `<span class="status-badge ${status.class}">${status.text}</span>`;
-  
-  let specificInfo = '';
-  
-  if (inspection.type === 'trail') {
-    // Trail status badge
-    const trailStatusConfig = {
-      'open': { class: 'status-open', text: '🟢 Ouvert' },
-      'closed': { class: 'status-closed', text: '🔴 Fermé' }
-    };
-    const trailStatus = trailStatusConfig[inspection.trail_status] || { class: 'status-unknown', text: '❓ Inconnu' };
-    const trailStatusBadge = `<span class="status-badge ${trailStatus.class}">${trailStatus.text}</span>`;
-    
-    specificInfo = `
-      <div class="detail-section">
-        <h3>Informations du sentier</h3>
-        <ul class="detail-list">
-          <li class="detail-item">
-            <span class="detail-label">Statut du sentier</span>
-            <span class="detail-value">${trailStatusBadge}</span>
-          </li>
-          <li class="detail-item">
-            <span class="detail-label">Longueur</span>
-            <span class="detail-value">${inspection.length || 'Non spécifié'} km</span>
-          </li>
-          <li class="detail-item">
-            <span class="detail-label">Difficulté</span>
-            <span class="detail-value">${getDifficultyText(inspection.difficulty)}</span>
-          </li>
-          ${inspection.snow_condition ? `
-          <li class="detail-item">
-            <span class="detail-label">Conditions de neige</span>
-            <span class="detail-value">${getSnowConditionText(inspection.snow_condition)}</span>
-          </li>
-          ` : ''}
-        </ul>
-      </div>
-    `;
-  } else {
-    specificInfo = `
-      <div class="detail-section">
-        <h3>Informations de l'abri</h3>
-        <ul class="detail-list">
-          <li class="detail-item">
-            <span class="detail-label">Capacité</span>
-            <span class="detail-value">${inspection.capacity || 'Non spécifié'} personnes</span>
-          </li>
-          ${inspection.cleanliness ? `
-          <li class="detail-item">
-            <span class="detail-label">Propreté</span>
-            <span class="detail-value">${inspection.cleanliness}</span>
-          </li>
-          ` : ''}
-          ${inspection.accessibility ? `
-          <li class="detail-item">
-            <span class="detail-label">Accessibilité</span>
-            <span class="detail-value">${inspection.accessibility}</span>
-          </li>
-          ` : ''}
-        </ul>
-      </div>
-    `;
-  }
-  
-  // Issues section
-  let issuesHtml = '';
-  if (inspection.issues && inspection.issues.length > 0) {
-    issuesHtml = `
-      <div class="detail-section">
-        <h3>⚠️ Problèmes signalés</h3>
-        <ul class="issues-list">
-          ${inspection.issues.map(issue => `<li>${issue}</li>`).join('')}
-        </ul>
-      </div>
-    `;
-  }
-  
-  // Notes section
-  let notesHtml = '';
-  if (inspection.notes) {
-    notesHtml = `
-      <div class="detail-section">
-        <h3>📝 Notes</h3>
-        <p class="notes-content">${inspection.notes}</p>
-      </div>
-    `;
-  }
-  
-  // Photos section
-  let photosHtml = '';
-  if (inspection.photos && inspection.photos.length > 0) {
-    photosHtml = `
-      <div class="detail-section">
-        <h3>📷 Photos (${inspection.photos.length})</h3>
-        <div class="photos-grid">
-          ${inspection.photos.map(photo => `
-            <div class="photo-item">
-              <img src="${photo}" alt="Photo d'inspection" onclick="window.open('${photo}', '_blank')">
-            </div>
-          `).join('')}
-        </div>
-      </div>
-    `;
-  }
-  
-  return `
-    <div class="inspection-details">
-      <div class="detail-section">
-        <h3>Informations générales</h3>
-        <ul class="detail-list">
-          <li class="detail-item">
-            <span class="detail-label">Type</span>
-            <span class="detail-value">${typeText}</span>
-          </li>
-          <li class="detail-item">
-            <span class="detail-label">Lieu</span>
-            <span class="detail-value">${inspection.locationName || 'Non spécifié'}</span>
-          </li>
-          <li class="detail-item">
-            <span class="detail-label">Date d'inspection</span>
-            <span class="detail-value">${formattedDate}</span>
-          </li>
-          <li class="detail-item">
-            <span class="detail-label">Inspecteur</span>
-            <span class="detail-value">${inspection.inspector}</span>
-          </li>
-          <li class="detail-item">
-            <span class="detail-label">État général</span>
-            <span class="detail-value">${statusBadge}</span>
-          </li>
-        </ul>
-      </div>
-      ${specificInfo}
-      ${issuesHtml}
-      ${notesHtml}
-      ${photosHtml}
-    </div>
-  `;
-}
-
-/**
- * Update filter counter display
- */
-function updateFilterCounter(count) {
-  const filterCounter = document.getElementById('filter-counter');
-  if (filterCounter) {
-    filterCounter.textContent = `${count} élément${count !== 1 ? 's' : ''} affiché${count !== 1 ? 's' : ''}`;
-  }
-}
-
-/**
- * Initialize filter controls
- */
-function initFilterControls() {
-  const statusFilter = document.getElementById('status-filter');
-  const typeFilter = document.getElementById('type-filter');
-  const difficultyFilter = document.getElementById('difficulty-filter');
-  const dateFilter = document.getElementById('date-filter');
-  const issuesFilter = document.getElementById('issues-filter');
-  const applyBtn = document.getElementById('apply-filters-btn');
-  const resetBtn = document.getElementById('reset-filters-btn');
-  
-  if (!statusFilter || !typeFilter) {
-    console.log('Filter elements not found - this is normal if not on main map page');
-    return;
-  }
-  
-  // Function to apply filters
-  const applyFilters = () => {
-    // Show loading indicator
-    if (document.getElementById('map-loading')) {
-      document.getElementById('map-loading').style.display = 'flex';
-    }
-    
-    // Update current filters
-    currentFilters.status = statusFilter.value;
-    currentFilters.type = typeFilter.value;
-    currentFilters.difficulty = difficultyFilter.value;
-    currentFilters.date = dateFilter.value;
-    currentFilters.issues = issuesFilter.value;
-    
-    // Apply filters with a small delay for UI feedback
-    setTimeout(() => {
-      if (typeof filterAndDisplayMarkers === 'function') {
-        filterAndDisplayMarkers();
-      } else if (typeof displayFilteredMarkers === 'function') {
-        displayFilteredMarkers();
-      }
-      
-      // Hide loading indicator
-      if (document.getElementById('map-loading')) {
-        document.getElementById('map-loading').style.display = 'none';
-      }
-    }, 100);
-  };
-  
-  // Add event listeners for auto-apply (existing functionality)
-  statusFilter.addEventListener('change', applyFilters);
-  typeFilter.addEventListener('change', applyFilters);
-  difficultyFilter.addEventListener('change', applyFilters);
-  dateFilter.addEventListener('change', applyFilters);
-  issuesFilter.addEventListener('change', applyFilters);
-  
-  // Add event listener for manual apply button
-  if (applyBtn) {
-    applyBtn.addEventListener('click', applyFilters);
-  }
-  
-  // Reset filters functionality
-  if (resetBtn) {
-    resetBtn.addEventListener('click', () => {
-      // Reset all filter values
-      statusFilter.value = 'all';
-      typeFilter.value = 'all';
-      difficultyFilter.value = 'all';
-      dateFilter.value = 'all';
-      issuesFilter.value = 'all';
-      
-      // Apply the reset filters
-      applyFilters();
-    });
-  }
-  
-  console.log('Filter controls initialized successfully');
-}
-
-/**
- * Initialize badge view toggle
+ * Initialize badge view toggle functionality
  */
 function initBadgeViewToggle() {
+  console.log('Initializing badge view toggle...');
+  
   const toggle = document.getElementById('badge-view-toggle');
   const detailedLegend = document.getElementById('detailed-legend');
   const simpleLegend = document.getElementById('simple-legend');
   
-  console.log('Attempting to initialize badge toggle with elements:', {
+  console.log('Badge toggle elements:', {
     toggle: !!toggle,
     detailedLegend: !!detailedLegend,
     simpleLegend: !!simpleLegend
