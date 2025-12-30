@@ -450,8 +450,8 @@ function displayTrailMarkers(trails) {
     let tooltipText = trail.name;
     
     if (currentBadgeView === 'simple') {
-      // Simple view tooltip: show trail status
-      const trailStatus = trail.trail_status || trail.trailStatus || 'unknown';
+      // Simple view tooltip: show trail status (check lastInspection first)
+      const trailStatus = (trail.lastInspection && trail.lastInspection.trail_status) || trail.trail_status || trail.trailStatus || 'unknown';
       const statusText = trailStatus === 'open' ? 'Ouvert' : 
                         trailStatus === 'closed' ? 'Fermé' : 'Statut inconnu';
       tooltipText += `\nStatut: ${statusText}`;
