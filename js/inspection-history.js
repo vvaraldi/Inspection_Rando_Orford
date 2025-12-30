@@ -241,14 +241,28 @@ async loadData() {
         shelters.set(doc.id, doc.data());
       });
 
-      // Update inspection location names
+      // Update inspection location names AND additional data
       this.allInspections.forEach(inspection => {
         if (inspection.type === 'trail' && inspection.locationId) {
           const trail = trails.get(inspection.locationId);
-          inspection.location = trail ? trail.name : 'Sentier inconnu';
+          if (trail) {
+            inspection.location = trail.name || 'Sentier inconnu';
+            // Also load trail-specific data if not already present
+            if (!inspection.length) inspection.length = trail.length;
+            if (!inspection.difficulty) inspection.difficulty = trail.difficulty;
+          } else {
+            inspection.location = 'Sentier inconnu';
+          }
         } else if (inspection.type === 'shelter' && inspection.locationId) {
           const shelter = shelters.get(inspection.locationId);
-          inspection.location = shelter ? shelter.name : 'Abri inconnu';
+          if (shelter) {
+            inspection.location = shelter.name || 'Abri inconnu';
+            // Also load shelter-specific data if not already present
+            if (!inspection.capacity) inspection.capacity = shelter.capacity;
+            if (!inspection.altitude) inspection.altitude = shelter.altitude;
+          } else {
+            inspection.location = 'Abri inconnu';
+          }
         } else {
           inspection.location = 'Lieu non spécifié';
         }
@@ -517,7 +531,7 @@ async loadData() {
 		const formattedDate = this.formatDate(date);
 		const typeText = inspection.type === 'trail' ? 'Sentier' : 'Abri';
 		const locationName = inspection.location || 'Inconnu';
-		const inspectorName = inspection.inspector_name || 'Inconnu';
+		const inspectorName = inspection.inspector || inspection.inspector_name || 'Inconnu';
 		
 		// Status badge
 		const statusBadge = this.createStatusBadge(inspection.condition);
@@ -908,10 +922,10 @@ async loadData() {
 		<div class="inspection-details">
 		  <div class="detail-header">
 			<div class="detail-header-main">
-			  <h2>${typeText}: ${inspection.locationName}</h2>
+			  <h2>${typeText}: ${inspection.location || inspection.locationName || 'Non spécifié'}</h2>
 			  <div class="detail-header-meta">
 				<span class="detail-date">${formattedDate}</span>
-				<span class="detail-inspector">Par ${inspection.inspector_name}</span>
+				<span class="detail-inspector">Par ${inspection.inspector || inspection.inspector_name || 'Non spécifié'}</span>
 			  </div>
 			</div>
 			<div class="detail-header-status">
