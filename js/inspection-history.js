@@ -102,9 +102,6 @@ class InspectionHistoryManager {
     this.closeModalBtn = document.getElementById('close-modal');
     this.closeModalBtnFooter = document.getElementById('close-modal-btn');
     
-    // Export button
-    this.exportBtn = document.getElementById('export-btn');
-    
     console.log('Elements initialized successfully');
     return true;
   }
@@ -139,10 +136,7 @@ class InspectionHistoryManager {
         if (e.target === this.modal) this.closeModal();
       });
     }
-    
-    // Export
-    if (this.exportBtn) this.exportBtn.addEventListener('click', () => this.exportData());
-    
+        
     console.log('Events bound successfully');
   }
 
@@ -1031,51 +1025,6 @@ async loadData() {
     }
     
     return report;
-  }
-
-  exportData() {
-    const csv = this.generateCSV();
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `inspections-export-${this.formatDateForFilename(new Date())}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }
-
-  generateCSV() {
-    const headers = [
-      'Date',
-      'Type',
-      'Lieu',
-      'Inspecteur',
-      'État',
-      'Notes',
-      'Problèmes',
-      'Nombre de photos'
-    ];
-    
-    let csv = headers.join(',') + '\n';
-    
-    this.filteredInspections.forEach(inspection => {
-      const row = [
-        this.formatDate(inspection.date),
-        inspection.type === 'trail' ? 'Sentier' : 'Abri',
-        `"${inspection.location || ''}"`,
-        `"${inspection.inspector || ''}"`,
-        inspection.condition || '',
-        `"${inspection.notes || ''}"`,
-        `"${inspection.issues ? inspection.issues.join('; ') : ''}"`,
-        inspection.photos ? inspection.photos.length : 0
-      ];
-      csv += row.join(',') + '\n';
-    });
-    
-    return csv;
   }
 
   resetFilters() {

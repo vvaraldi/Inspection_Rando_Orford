@@ -2,7 +2,6 @@
 
 ## Prochaines étapes
 Priority 1
-1 - Add a way to close quickly trails (following weather or other element).
 
 
 Priority 2
