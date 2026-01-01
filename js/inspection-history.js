@@ -838,21 +838,31 @@ async loadData() {
 		`;
 	  } else if (inspection.type === 'shelter') {
 		specificInfo = `
-		  <div class="detail-section">
-			<h3>Informations de l'abri</h3>
-			<ul class="detail-list">
-			  ${inspection.cleanliness ? `
-			  <li class="detail-item">
-				<span class="detail-label">Propreté</span>
-				<span class="detail-value">${this.getCleanlinessText(inspection.cleanliness)}</span>
-			  </li>` : ''}
-			  ${inspection.accessibility ? `
-			  <li class="detail-item">
-				<span class="detail-label">Accessibilité</span>
-				<span class="detail-value">${this.getAccessibilityText(inspection.accessibility)}</span>
-			  </li>` : ''}
-			</ul>
-		  </div>
+			<div class="detail-section">
+			  <h3>Informations de l'abri</h3>
+			  <ul class="detail-list">
+				${inspection.cleanliness ? `
+				<li class="detail-item">
+				  <span class="detail-label">Propreté</span>
+				  <span class="detail-value">${this.getCleanlinessText(inspection.cleanliness)}</span>
+				</li>` : ''}
+				${inspection.cleanliness_details ? `
+				<li class="detail-item">
+				  <span class="detail-label">Détails propreté</span>
+				  <span class="detail-value">${inspection.cleanliness_details}</span>
+				</li>` : ''}
+				${inspection.accessibility ? `
+				<li class="detail-item">
+				  <span class="detail-label">Accessibilité</span>
+				  <span class="detail-value">${this.getAccessibilityText(inspection.accessibility)}</span>
+				</li>` : ''}
+				${inspection.accessibility_details ? `
+				<li class="detail-item">
+				  <span class="detail-label">Détails accessibilité</span>
+				  <span class="detail-value">${inspection.accessibility_details}</span>
+				</li>` : ''}
+			  </ul>
+			</div>
 		`;
 	  }
 
