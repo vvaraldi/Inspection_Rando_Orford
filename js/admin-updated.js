@@ -8,7 +8,10 @@
  * 
  * @requires Firebase Auth, Firestore, Storage
  * @author Ski-Track Team
- * @version 2.0.0
+ * @version 2.1.0
+ * 
+ * Note: User management has been removed - now handled centrally
+ * at https://vvaraldi.github.io/Orford_Patrouille/index.html
  */
 
 class AdminManager {
@@ -19,7 +22,6 @@ class AdminManager {
     this.storage = null;
     this.loadingScreen = null;
     this.mainContent = null;
-    this.userToDelete = null;
     
     this.initializeElements();
     this.initializeFirebase();
@@ -34,15 +36,9 @@ class AdminManager {
     this.tabBtns = document.querySelectorAll('.tab-btn');
     this.tabContents = document.querySelectorAll('.tab-content');
     
-    // User management elements
-    this.userForm = document.getElementById('user-form');
-    this.inspectorsTable = document.getElementById('inspectors-table');
-    this.deleteModal = document.getElementById('delete-modal');
-    
     // Status message elements
     this.userSuccessMessage = document.getElementById('user-success-message');
     this.userErrorMessage = document.getElementById('user-error-message');
-    
   }
 
   initializeFirebase() {
@@ -75,20 +71,6 @@ class AdminManager {
       btn.addEventListener('click', (e) => this.switchTab(e.target.dataset.tab));
     });
 
-    // User form
-    if (this.userForm) {
-      this.userForm.addEventListener('submit', (e) => this.handleUserFormSubmit(e));
-    }
-
-    // Cancel user form
-    const cancelBtn = document.getElementById('cancel-user-btn');
-    if (cancelBtn) {
-      cancelBtn.addEventListener('click', () => this.resetUserForm());
-    }
-
-    // Modal events
-    this.bindModalEvents();
-    
     // Data management buttons
     this.bindDataManagementEvents();
     
@@ -96,39 +78,6 @@ class AdminManager {
     const refreshStatsBtn = document.getElementById('refresh-stats');
     if (refreshStatsBtn) {
       refreshStatsBtn.addEventListener('click', () => this.loadStatistics());
-    }
-
-    // Users refresh
-    const refreshUsersBtn = document.getElementById('refresh-users');
-    if (refreshUsersBtn) {
-      refreshUsersBtn.addEventListener('click', () => this.loadInspectors());
-    }
-  }
-
-  bindModalEvents() {
-    const modalClose = document.getElementById('modal-close');
-    const modalCancel = document.getElementById('modal-cancel');
-    const confirmDelete = document.getElementById('confirm-delete');
-
-    if (modalClose) {
-      modalClose.addEventListener('click', () => this.closeModal());
-    }
-
-    if (modalCancel) {
-      modalCancel.addEventListener('click', () => this.closeModal());
-    }
-
-    if (confirmDelete) {
-      confirmDelete.addEventListener('click', () => this.confirmDeleteUser());
-    }
-
-    // Close modal when clicking outside
-    if (this.deleteModal) {
-      this.deleteModal.addEventListener('click', (e) => {
-        if (e.target === this.deleteModal) {
-          this.closeModal();
-        }
-      });
     }
   }
 
@@ -149,217 +98,67 @@ class AdminManager {
     });
   }
 
-  // FIXED USER CREATION METHOD - Option B Implementation
-  async handleUserFormSubmit(e) {
-    e.preventDefault();
-    
-    const formData = new FormData(e.target);
-    const userData = {
-      name: document.getElementById('user-name').value.trim(),
-      email: document.getElementById('user-email').value.trim(),
-      phone: document.getElementById('user-phone').value.trim(),
-      password: document.getElementById('user-password').value,
-      role: document.getElementById('user-role').value,
-      status: document.getElementById('user-status').value,
-      allowInspection: document.getElementById('user-allow-inspection')?.checked ?? true,
-      allowInfraction: document.getElementById('user-allow-infraction')?.checked ?? true
-    };
-
-    if (!this.validateUserForm(userData)) {
-      return;
-    }
-
-    let secondaryApp = null;
-
-    try {
-      this.setFormLoading(true);
-      
-      // Create secondary Firebase app instance to avoid automatic login
-      secondaryApp = firebase.initializeApp(this.getFirebaseConfig(), "secondary");
-      const secondaryAuth = secondaryApp.auth();
-      
-      // Create user with secondary app (this won't affect current session)
-      const userCredential = await secondaryAuth.createUserWithEmailAndPassword(
-        userData.email, 
-        userData.password
-      );
-
-      // Add user data to Firestore using main database instance with access control fields
-      await this.db.collection('inspectors').doc(userCredential.user.uid).set({
-        name: userData.name,
-        email: userData.email,
-        phone: userData.phone || null,
-        role: userData.role,
-        status: userData.status,
-        allowInspection: userData.allowInspection,
-        allowInfraction: userData.allowInfraction,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        createdBy: this.currentUserId
-      });
-
-      this.showSuccess('Utilisateur créé avec succès');
-      this.resetUserForm();
-      this.loadInspectors(); // Refresh the table
-      
-    } catch (error) {
-      console.error('Error creating user:', error);
-      this.handleUserCreationError(error);
-    } finally {
-      // Always clean up the secondary app
-      if (secondaryApp) {
-        try {
-          await secondaryApp.delete();
-        } catch (cleanupError) {
-          console.warn('Error cleaning up secondary app:', cleanupError);
-        }
-      }
-      this.setFormLoading(false);
-    }
-  }
-
-  validateUserForm(userData) {
-    if (!userData.name) {
-      this.showError('Le nom est requis');
-      return false;
-    }
-    
-    if (!userData.email) {
-      this.showError('L\'email est requis');
-      return false;
-    }
-    
-    if (!userData.password || userData.password.length < 6) {
-      this.showError('Le mot de passe doit contenir au moins 6 caractères');
-      return false;
-    }
-
-    if (!userData.role) {
-      this.showError('Le rôle est requis');
-      return false;
-    }
-
-    if (!userData.status) {
-      this.showError('Le statut est requis');
-      return false;
-    }
-
-    return true;
-  }
-
-  handleUserCreationError(error) {
-    let message = 'Erreur lors de la création de l\'utilisateur';
-    
-    switch (error.code) {
-      case 'auth/email-already-in-use':
-        message = 'Cette adresse email est déjà utilisée';
-        break;
-      case 'auth/invalid-email':
-        message = 'Adresse email invalide';
-        break;
-      case 'auth/weak-password':
-        message = 'Le mot de passe est trop faible';
-        break;
-      case 'auth/operation-not-allowed':
-        message = 'La création de comptes est désactivée';
-        break;
-      default:
-        message = error.message || message;
-    }
-    
-    this.showError(message);
-  }
-
-  setFormLoading(loading) {
-    const submitBtn = document.getElementById('submit-user-btn');
-    const form = this.userForm;
-    
-    if (loading) {
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Création...';
-      }
-      if (form) {
-        form.style.opacity = '0.6';
-      }
-    } else {
-      if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Créer l\'utilisateur';
-      }
-      if (form) {
-        form.style.opacity = '1';
-      }
-    }
-  }
-
-  resetUserForm() {
-    if (this.userForm) {
-      this.userForm.reset();
-    }
-    this.hideMessages();
-  }
-
   async checkAdminPermissions() {
-  return new Promise((resolve) => {
-    this.auth.onAuthStateChanged(async (user) => {
-      if (user) {
-        this.currentUserId = user.uid;
-        try {
-          const userDoc = await this.db.collection('inspectors').doc(user.uid).get();
-          
-          if (userDoc.exists) {
-            const userData = userDoc.data();
+    return new Promise((resolve) => {
+      this.auth.onAuthStateChanged(async (user) => {
+        if (user) {
+          this.currentUserId = user.uid;
+          try {
+            const userDoc = await this.db.collection('inspectors').doc(user.uid).get();
             
-            // Check 1: Is user active?
-            if (userData.status !== 'active') {
-              this.showError('Votre compte a été désactivé');
-              await this.auth.signOut();
+            if (userDoc.exists) {
+              const userData = userDoc.data();
+              
+              // Check 1: Is user active?
+              if (userData.status !== 'active') {
+                this.showError('Votre compte a été désactivé');
+                await this.auth.signOut();
+                this.redirectToLogin();
+                resolve(false);
+                return;
+              }
+              
+              // Check 2: Does user have inspection access?
+              if (userData.allowInspection !== true) {
+                this.showError('Vous n\'avez pas accès au système d\'inspection');
+                await this.auth.signOut();
+                this.redirectToLogin();
+                resolve(false);
+                return;
+              }
+              
+              // Check 3: Is user admin? (for admin page specifically)
+              if (userData.role !== 'admin') {
+                this.showError('Accès refusé - Droits administrateur requis');
+                setTimeout(() => {
+                  window.location.href = '../index.html';
+                }, 2000);
+                resolve(false);
+                return;
+              }
+              
+              // ✓ All checks passed
+              this.updateUserInfo(userData.name);
+              resolve(true);
+              
+            } else {
+              this.showError('Utilisateur non trouvé dans la base de données');
               this.redirectToLogin();
               resolve(false);
-              return;
             }
-            
-            // Check 2: Does user have inspection access?
-            if (userData.allowInspection !== true) {
-              this.showError('Vous n\'avez pas accès au système d\'inspection');
-              await this.auth.signOut();
-              this.redirectToLogin();
-              resolve(false);
-              return;
-            }
-            
-            // Check 3: Is user admin? (for admin page specifically)
-            if (userData.role !== 'admin') {
-              this.showError('Accès refusé - Droits administrateur requis');
-              setTimeout(() => {
-                window.location.href = '../index.html';
-              }, 2000);
-              resolve(false);
-              return;
-            }
-            
-            // ✓ All checks passed
-            this.updateUserInfo(userData.name);
-            resolve(true);
-            
-          } else {
-            this.showError('Utilisateur non trouvé dans la base de données');
+          } catch (error) {
+            console.error('Error checking admin permissions:', error);
+            this.showError('Erreur lors de la vérification des permissions');
             this.redirectToLogin();
             resolve(false);
           }
-        } catch (error) {
-          console.error('Error checking admin permissions:', error);
-          this.showError('Erreur lors de la vérification des permissions');
+        } else {
           this.redirectToLogin();
           resolve(false);
         }
-      } else {
-        this.redirectToLogin();
-        resolve(false);
-      }
+      });
     });
-  });
-}
+  }
 
   updateUserInfo(userName) {
     const userInfoElements = document.querySelectorAll('.user-name, #user-name-display, #admin-name');
@@ -396,287 +195,10 @@ class AdminManager {
 
     // Load data based on active tab
     switch (tabName) {
-      case 'statistics':
+      case 'stats':
         this.loadStatistics();
         break;
-      case 'users':
-        this.loadInspectors();
-        break;
     }
-  }
-
-  async loadInspectors() {
-    try {
-      console.log('Loading inspectors...');
-      
-      // Show loading state
-      if (this.inspectorsTable) {
-        const tbody = this.inspectorsTable.querySelector('tbody');
-        if (tbody) {
-          tbody.innerHTML = '<tr><td colspan="6" class="text-center">Chargement des utilisateurs...</td></tr>';
-        }
-      }
-      
-      const snapshot = await this.db.collection('inspectors')
-        .orderBy('createdAt', 'desc')
-        .get();
-
-      console.log('Inspectors loaded:', snapshot.size);
-
-      if (this.inspectorsTable) {
-        const tbody = this.inspectorsTable.querySelector('tbody');
-        if (!tbody) {
-          console.error('Table tbody not found');
-          return;
-        }
-        
-        tbody.innerHTML = '';
-        
-        if (snapshot.empty) {
-          tbody.innerHTML = '<tr><td colspan="6" class="text-center">Aucun utilisateur trouvé</td></tr>';
-          return;
-        }
-
-        snapshot.forEach((doc) => {
-          const userData = doc.data();
-          const userId = doc.id;
-          console.log('Creating row for user:', userData.name, userId);
-          const row = this.createUserRow(userId, userData);
-          tbody.appendChild(row);
-        });
-
-        // Bind events for interactive elements
-        this.bindTableEvents();
-      } else {
-        console.error('inspectorsTable not found');
-      }
-    } catch (error) {
-      console.error('Error loading inspectors:', error);
-      if (this.inspectorsTable) {
-        const tbody = this.inspectorsTable.querySelector('tbody');
-        if (tbody) {
-          tbody.innerHTML = `<tr><td colspan="6" class="text-center" style="color: var(--color-danger);">Erreur: ${error.message}</td></tr>`;
-        }
-      }
-    }
-  }
-
-  createUserRow(userId, userData) {
-  const row = document.createElement('tr');
-  const isCurrentUser = userId === this.currentUserId;
-  
-  // Role styling
-  const roleClass = userData.role === 'admin' ? 'role-admin' : 'role-inspector';
-  const roleText = userData.role === 'admin' ? 'Administrateur' : 'Inspecteur';
-  
-  // Status styling
-  const statusClass = userData.status === 'active' ? 'status-active' : 'status-inactive';
-  const statusText = userData.status === 'active' ? 'Actif' : 'Inactif';
-
-  // Access control styling
-  const inspectionAccessClass = userData.allowInspection ? 'access-granted' : 'access-denied';
-  const inspectionAccessText = userData.allowInspection ? '✓ Inspection' : '✗ Inspection';
-  
-  const infractionAccessClass = userData.allowInfraction ? 'access-granted' : 'access-denied';
-  const infractionAccessText = userData.allowInfraction ? '✓ Infraction' : '✗ Infraction';
-
-  row.innerHTML = `
-    <td>
-      ${userData.name}
-      ${isCurrentUser ? '<span class="current-user-indicator">(Vous)</span>' : ''}
-    </td>
-    <td>${userData.email}</td>
-    <td>${userData.phone || '-'}</td>
-    <td>
-      <button class="role-badge ${roleClass}" 
-              data-user-id="${userId}" 
-              data-current-role="${userData.role}"
-              ${isCurrentUser ? 'disabled title="Vous ne pouvez pas modifier votre propre rôle"' : ''}>
-        ${roleText}
-      </button>
-    </td>
-    <td>
-      <button class="status-badge ${statusClass}" 
-              data-user-id="${userId}" 
-              data-current-status="${userData.status}"
-              ${isCurrentUser ? 'disabled title="Vous ne pouvez pas modifier votre propre statut"' : ''}>
-        ${statusText}
-      </button>
-    </td>
-    <td>
-      <div class="access-badges">
-        <button class="access-badge ${inspectionAccessClass}" 
-                data-user-id="${userId}" 
-                data-access-type="inspection"
-                data-current-access="${userData.allowInspection}"
-                title="Accès au projet Inspection">
-          ${inspectionAccessText}
-        </button>
-        <button class="access-badge ${infractionAccessClass}" 
-                data-user-id="${userId}" 
-                data-access-type="infraction"
-                data-current-access="${userData.allowInfraction}"
-                title="Accès au projet Infraction">
-          ${infractionAccessText}
-        </button>
-      </div>
-    </td>
-    <td>
-      <div class="admin-table-actions">
-        <button class="btn btn-danger btn-icon" 
-                data-user-id="${userId}"
-                onclick="adminManager.deleteUser('${userId}')"
-                ${isCurrentUser ? 'disabled title="Vous ne pouvez pas vous supprimer"' : ''}>
-          🗑️
-        </button>
-      </div>
-    </td>
-  `;
-
-  return row;
-}
-
-  bindTableEvents() {
-    // Role toggle buttons
-    document.querySelectorAll('.role-badge:not([disabled])').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const userId = e.target.dataset.userId;
-        const currentRole = e.target.dataset.currentRole;
-        const newRole = currentRole === 'admin' ? 'inspector' : 'admin';
-        this.toggleUserRole(userId, newRole, e.target);
-      });
-    });
-
-    // Status toggle buttons
-    document.querySelectorAll('.status-badge:not([disabled])').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const userId = e.target.dataset.userId;
-        const currentStatus = e.target.dataset.currentStatus;
-        const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
-        this.toggleUserStatus(userId, newStatus, e.target);
-      });
-    });
-
-    // Access toggle buttons
-    document.querySelectorAll('.access-badge').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const userId = e.target.dataset.userId;
-        const accessType = e.target.dataset.accessType;
-        const currentAccess = e.target.dataset.currentAccess === 'true';
-        this.toggleUserAccess(userId, accessType, !currentAccess, e.target);
-      });
-  });
-
-  }
-
-  async toggleUserRole(userId, newRole, buttonElement) {
-    try {
-      buttonElement.disabled = true;
-      
-      await this.db.collection('inspectors').doc(userId).update({
-        role: newRole
-      });
-
-      // Update UI
-      const newText = newRole === 'admin' ? 'Administrateur' : 'Inspecteur';
-      const newClass = newRole === 'admin' ? 'role-admin' : 'role-inspector';
-      
-      buttonElement.textContent = newText;
-      buttonElement.className = `role-badge ${newClass}`;
-      buttonElement.dataset.currentRole = newRole;
-
-      this.showSuccess('Rôle mis à jour avec succès');
-    } catch (error) {
-      console.error('Error updating user role:', error);
-      this.showError('Erreur lors de la mise à jour du rôle');
-    } finally {
-      buttonElement.disabled = false;
-    }
-  }
-
-  async toggleUserStatus(userId, newStatus, buttonElement) {
-    try {
-      buttonElement.disabled = true;
-      
-      await this.db.collection('inspectors').doc(userId).update({
-        status: newStatus
-      });
-
-      // Update UI
-      const newText = newStatus === 'active' ? 'Actif' : 'Inactif';
-      const newClass = newStatus === 'active' ? 'status-active' : 'status-inactive';
-      
-      buttonElement.textContent = newText;
-      buttonElement.className = `status-badge ${newClass}`;
-      buttonElement.dataset.currentStatus = newStatus;
-
-      this.showSuccess('Statut mis à jour avec succès');
-    } catch (error) {
-      console.error('Error updating user status:', error);
-      this.showError('Erreur lors de la mise à jour du statut');
-    } finally {
-      buttonElement.disabled = false;
-    }
-  }
-
-  async toggleUserAccess(userId, accessType, newAccess, buttonElement) {
-  try {
-    buttonElement.disabled = true;
-    
-    // Determine which field to update
-    const fieldName = accessType === 'inspection' ? 'allowInspection' : 'allowInfraction';
-    
-    await this.db.collection('inspectors').doc(userId).update({
-      [fieldName]: newAccess
-    });
-
-    // Update UI
-    const newClass = newAccess ? 'access-granted' : 'access-denied';
-    const oldClass = newAccess ? 'access-denied' : 'access-granted';
-    const accessLabel = accessType === 'inspection' ? 'Inspection' : 'Infraction';
-    const newText = newAccess ? `✓ ${accessLabel}` : `✗ ${accessLabel}`;
-    
-    buttonElement.classList.remove(oldClass);
-    buttonElement.classList.add(newClass);
-    buttonElement.textContent = newText;
-    buttonElement.dataset.currentAccess = newAccess;
-
-    this.showSuccess(`Accès ${accessLabel} ${newAccess ? 'activé' : 'désactivé'}`);
-    
-  } catch (error) {
-    console.error('Error toggling access:', error);
-    this.showError('Erreur lors de la modification de l\'accès');
-  } finally {
-    buttonElement.disabled = false;
-  }
-  }
-
-  deleteUser(userId) {
-    this.userToDelete = userId;
-    if (this.deleteModal) {
-      this.deleteModal.classList.add('show');
-    }
-  }
-
-  async confirmDeleteUser() {
-    if (!this.userToDelete) return;
-
-    try {
-      await this.db.collection('inspectors').doc(this.userToDelete).delete();
-      this.showSuccess('Utilisateur supprimé avec succès');
-      this.loadInspectors();
-      this.closeModal();
-    } catch (error) {
-      console.error('Error deleting user:', error);
-      this.showError('Erreur lors de la suppression de l\'utilisateur');
-    }
-  }
-
-  closeModal() {
-    if (this.deleteModal) {
-      this.deleteModal.classList.remove('show');
-    }
-    this.userToDelete = null;
   }
 
   async loadStatistics() {
@@ -806,9 +328,6 @@ class AdminManager {
 
       // Initialize the interface
       this.showMainContent();
-      
-      // Load initial data
-      this.loadInspectors();
       
       console.log('Admin panel initialized successfully');
       
@@ -1002,108 +521,108 @@ class AdminManager {
   }
 
   async deleteOldInspections() {
-	  const cutoffDateInput = document.getElementById('cutoff-date');
-	  
-	  if (!cutoffDateInput || !cutoffDateInput.value) {
-		this.showStatus('delete-old-status', 'Veuillez sélectionner une date limite.', 'warning');
-		return;
-	  }
+    const cutoffDateInput = document.getElementById('cutoff-date');
+    
+    if (!cutoffDateInput || !cutoffDateInput.value) {
+      this.showStatus('delete-old-status', 'Veuillez sélectionner une date limite.', 'warning');
+      return;
+    }
 
-	  const cutoffDate = new Date(cutoffDateInput.value);
-	  cutoffDate.setHours(23, 59, 59, 999); // End of the selected day
-	  
-	  const cutoffTimestamp = firebase.firestore.Timestamp.fromDate(cutoffDate);
-	  const formattedDate = cutoffDate.toLocaleDateString('fr-CA');
+    const cutoffDate = new Date(cutoffDateInput.value);
+    cutoffDate.setHours(23, 59, 59, 999); // End of the selected day
+    
+    const cutoffTimestamp = firebase.firestore.Timestamp.fromDate(cutoffDate);
+    const formattedDate = cutoffDate.toLocaleDateString('fr-CA');
 
-	  if (!confirm(`⚠️ ATTENTION: Vous êtes sur le point de supprimer TOUTES les inspections antérieures au ${formattedDate}.\n\nCette action est IRRÉVERSIBLE.\n\nContinuer?`)) {
-		return;
-	  }
+    if (!confirm(`⚠️ ATTENTION: Vous êtes sur le point de supprimer TOUTES les inspections antérieures au ${formattedDate}.\n\nCette action est IRRÉVERSIBLE.\n\nContinuer?`)) {
+      return;
+    }
 
-	  try {
-		this.showStatus('delete-old-status', 'Recherche des inspections à supprimer...', 'info');
+    try {
+      this.showStatus('delete-old-status', 'Recherche des inspections à supprimer...', 'info');
 
-		// Query inspections before cutoff date
-		const [trailInspections, shelterInspections] = await Promise.all([
-		  this.db.collection('trail_inspections').where('date', '<', cutoffTimestamp).get(),
-		  this.db.collection('shelter_inspections').where('date', '<', cutoffTimestamp).get()
-		]);
+      // Query inspections before cutoff date
+      const [trailInspections, shelterInspections] = await Promise.all([
+        this.db.collection('trail_inspections').where('date', '<', cutoffTimestamp).get(),
+        this.db.collection('shelter_inspections').where('date', '<', cutoffTimestamp).get()
+      ]);
 
-		const totalToDelete = trailInspections.size + shelterInspections.size;
+      const totalToDelete = trailInspections.size + shelterInspections.size;
 
-		if (totalToDelete === 0) {
-		  this.showStatus('delete-old-status', 'Aucune inspection trouvée avant cette date.', 'info');
-		  return;
-		}
+      if (totalToDelete === 0) {
+        this.showStatus('delete-old-status', 'Aucune inspection trouvée avant cette date.', 'info');
+        return;
+      }
 
-		this.showStatus('delete-old-status', `Suppression de ${totalToDelete} inspections en cours...`, 'info');
+      this.showStatus('delete-old-status', `Suppression de ${totalToDelete} inspections en cours...`, 'info');
 
-		// Delete in batches (Firestore limit is 500 per batch)
-		const batchSize = 400;
-		let deletedCount = 0;
+      // Delete in batches (Firestore limit is 500 per batch)
+      const batchSize = 400;
+      let deletedCount = 0;
 
-		// Delete trail inspections
-		const trailDocs = trailInspections.docs;
-		for (let i = 0; i < trailDocs.length; i += batchSize) {
-		  const batch = this.db.batch();
-		  const chunk = trailDocs.slice(i, i + batchSize);
-		  
-		  for (const doc of chunk) {
-			// Delete associated photos from storage if they exist
-			const data = doc.data();
-			if (data.photos && data.photos.length > 0) {
-			  for (const photoUrl of data.photos) {
-				try {
-				  const storageRef = this.storage.refFromURL(photoUrl);
-				  await storageRef.delete();
-				} catch (photoError) {
-				  console.warn('Could not delete photo:', photoError);
-				}
-			  }
-			}
-			batch.delete(doc.ref);
-		  }
-		  
-		  await batch.commit();
-		  deletedCount += chunk.length;
-		  this.showStatus('delete-old-status', `Suppression en cours... ${deletedCount}/${totalToDelete}`, 'info');
-		}
+      // Delete trail inspections
+      const trailDocs = trailInspections.docs;
+      for (let i = 0; i < trailDocs.length; i += batchSize) {
+        const batch = this.db.batch();
+        const chunk = trailDocs.slice(i, i + batchSize);
+        
+        for (const doc of chunk) {
+          // Delete associated photos from storage if they exist
+          const data = doc.data();
+          if (data.photos && data.photos.length > 0) {
+            for (const photoUrl of data.photos) {
+              try {
+                const storageRef = this.storage.refFromURL(photoUrl);
+                await storageRef.delete();
+              } catch (photoError) {
+                console.warn('Could not delete photo:', photoError);
+              }
+            }
+          }
+          batch.delete(doc.ref);
+        }
+        
+        await batch.commit();
+        deletedCount += chunk.length;
+        this.showStatus('delete-old-status', `Suppression en cours... ${deletedCount}/${totalToDelete}`, 'info');
+      }
 
-		// Delete shelter inspections
-		const shelterDocs = shelterInspections.docs;
-		for (let i = 0; i < shelterDocs.length; i += batchSize) {
-		  const batch = this.db.batch();
-		  const chunk = shelterDocs.slice(i, i + batchSize);
-		  
-		  for (const doc of chunk) {
-			// Delete associated photos from storage if they exist
-			const data = doc.data();
-			if (data.photos && data.photos.length > 0) {
-			  for (const photoUrl of data.photos) {
-				try {
-				  const storageRef = this.storage.refFromURL(photoUrl);
-				  await storageRef.delete();
-				} catch (photoError) {
-				  console.warn('Could not delete photo:', photoError);
-				}
-			  }
-			}
-			batch.delete(doc.ref);
-		  }
-		  
-		  await batch.commit();
-		  deletedCount += chunk.length;
-		  this.showStatus('delete-old-status', `Suppression en cours... ${deletedCount}/${totalToDelete}`, 'info');
-		}
+      // Delete shelter inspections
+      const shelterDocs = shelterInspections.docs;
+      for (let i = 0; i < shelterDocs.length; i += batchSize) {
+        const batch = this.db.batch();
+        const chunk = shelterDocs.slice(i, i + batchSize);
+        
+        for (const doc of chunk) {
+          // Delete associated photos from storage if they exist
+          const data = doc.data();
+          if (data.photos && data.photos.length > 0) {
+            for (const photoUrl of data.photos) {
+              try {
+                const storageRef = this.storage.refFromURL(photoUrl);
+                await storageRef.delete();
+              } catch (photoError) {
+                console.warn('Could not delete photo:', photoError);
+              }
+            }
+          }
+          batch.delete(doc.ref);
+        }
+        
+        await batch.commit();
+        deletedCount += chunk.length;
+        this.showStatus('delete-old-status', `Suppression en cours... ${deletedCount}/${totalToDelete}`, 'info');
+      }
 
-		this.showStatus('delete-old-status', `✓ ${totalToDelete} inspections supprimées avec succès!`, 'success');
-		
-		// Refresh statistics
-		this.loadStatistics();
+      this.showStatus('delete-old-status', `✓ ${totalToDelete} inspections supprimées avec succès!`, 'success');
+      
+      // Refresh statistics
+      this.loadStatistics();
 
-	  } catch (error) {
-		console.error('Error deleting old inspections:', error);
-		this.showStatus('delete-old-status', `✗ Erreur: ${error.message}`, 'error');
-	  }
+    } catch (error) {
+      console.error('Error deleting old inspections:', error);
+      this.showStatus('delete-old-status', `✗ Erreur: ${error.message}`, 'error');
+    }
   }
 
   async createSampleData() {

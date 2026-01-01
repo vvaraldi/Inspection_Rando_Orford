@@ -85,10 +85,7 @@
     <div class="content-section">
       <div class="tabs-container">
         <div class="tabs">
-          <button class="tab-btn active" data-tab="users">
-            👥 Gestion des utilisateurs
-          </button>
-          <button class="tab-btn" data-tab="data">
+          <button class="tab-btn active" data-tab="data">
             🗄️ Données du système
           </button>
           <button class="tab-btn" data-tab="stats">
@@ -98,27 +95,8 @@
       </div>
     </div>
 
-    <!-- Users Management Tab - SIMPLIFIED -->
-    <div class="tab-content active" id="users-tab">
-      <div class="content-section">
-        <div class="card">
-          <div class="card-body" style="text-align: center; padding: 3rem 2rem;">
-            <h2 style="margin-bottom: 1.5rem;">👥 Gestion des utilisateurs</h2>
-            <p style="font-size: 1.1rem; margin-bottom: 2rem;">
-              La gestion des utilisateurs est maintenant centralisée 
-              <a href="https://vvaraldi.github.io/Orford_Patrouille/index.html" 
-                 target="_blank" 
-                 style="color: var(--theme-primary); font-weight: 600; text-decoration: underline;">
-                ici
-              </a>
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- System Data Tab -->
-    <div class="tab-content" id="data-tab">
+    <div class="tab-content active" id="data-tab">
       <!-- Data Initialization -->
       <div class="content-section">
         <div class="card">
@@ -302,25 +280,6 @@
             </div>
           </div>
         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Delete User Modal (kept for compatibility with admin.js) -->
-  <div class="modal" id="delete-modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2 class="modal-title">Confirmer la suppression</h2>
-        <button class="modal-close" id="modal-close">✕</button>
-      </div>
-      <div class="modal-body">
-        <p>Êtes-vous sûr de vouloir supprimer cet utilisateur?</p>
-        <p><strong>Cette action est irréversible.</strong></p>
-        <p>Toutes les inspections associées à cet utilisateur seront conservées.</p>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" id="modal-cancel">Annuler</button>
-        <button class="btn btn-danger" id="confirm-delete">Supprimer</button>
       </div>
     </div>
   </div>
