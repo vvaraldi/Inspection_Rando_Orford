@@ -3,10 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache">
   <title>Mont Orford - État des sentiers</title>
-  <link rel="stylesheet" href="../css/main.css">
-  <link rel="stylesheet" href="../css/pages/status.css">
-  <script src="../js/common.js"></script>
+  
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏔️</text></svg>">
+
+  <!-- Load version manager first -->
+  <script src="../js/version-config.js"></script>
+  
+  <!-- Load CSS with version -->
+  <script>
+    document.write(`<link rel="stylesheet" href="../css/main.css?v=${window.AppVersion.version}">`);
+    document.write(`<link rel="stylesheet" href="../css/status.css?v=${window.AppVersion.version}">`);
+  </script>
+
+  <!-- Application Scripts -->
+  <script>
+    const v = window.AppVersion.version;
+    document.write(`<script src="../js/common.js?v=${v}"><\/script>`);
+  </script>
+
 </head>
 
 <body>
@@ -55,7 +72,11 @@
   </script>
   
   <!-- Application Scripts -->
-  <script src="../js/status-main.js"></script>
-  <script src="../js/status-map.js"></script>
+  <script>
+    const v = window.AppVersion.version;
+    document.write(`<script src="../js/status-main.js?v=${v}"><\/script>`);
+    document.write(`<script src="../js/status-map.js?v=${v}"><\/script>`);
+  </script>
+  
 </body>
 </html>
