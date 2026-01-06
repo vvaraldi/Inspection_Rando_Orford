@@ -87,9 +87,16 @@ class TrailInspectionManager {
     });
   }
 
-  setCurrentDateTime() {
+setCurrentDateTime() {
     const now = new Date();
-    const dateStr = now.toISOString().split('T')[0];
+    
+    // FIX: Use local date components instead of toISOString() which uses UTC
+    // This prevents the date from showing tomorrow when creating reports late in the evening
+    const year = now.getFullYear();
+    const month = (now.getMonth() + 1).toString().padStart(2, '0');
+    const day = now.getDate().toString().padStart(2, '0');
+    const dateStr = `${year}-${month}-${day}`;
+    
     const timeStr = now.toTimeString().split(' ')[0].substring(0, 5);
     
     if (this.inspectionDate) {

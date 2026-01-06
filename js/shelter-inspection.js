@@ -97,12 +97,18 @@ class ShelterInspectionManager {
   setCurrentDateTime() {
     const now = new Date();
     
-    // Set current date
+    // FIX: Use local date components instead of toISOString() which uses UTC
+    // This prevents the date from showing tomorrow when creating reports late in the evening
+    const year = now.getFullYear();
+    const month = (now.getMonth() + 1).toString().padStart(2, '0');
+    const day = now.getDate().toString().padStart(2, '0');
+    
+    // Set current date using local timezone
     if (this.inspectionDate) {
-      this.inspectionDate.value = now.toISOString().split('T')[0];
+      this.inspectionDate.value = `${year}-${month}-${day}`;
     }
     
-    // Set current time
+    // Set current time (already uses local time)
     if (this.inspectionTime) {
       const hours = now.getHours().toString().padStart(2, '0');
       const minutes = now.getMinutes().toString().padStart(2, '0');

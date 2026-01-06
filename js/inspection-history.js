@@ -1040,13 +1040,18 @@ async loadData() {
       report += `\n`;
     }
     
-    if (inspection.photos && inspection.photos.length > 0) {
-      report += `PHOTOS:\n`;
+	if (inspection.photos && inspection.photos.length > 0) {
+	  report += `PHOTOS:\n`;
 	  inspection.photos.forEach((photo, index) => {
-        const photoUrl = typeof photo === 'string' ? photo : photo.url;
-        report += `${index + 1}. ${photoUrl}\n`;
-      });
-    }
+		const photoUrl = typeof photo === 'string' ? photo : photo.url;
+		const coordinates = (typeof photo === 'object' && photo.coordinates) ? photo.coordinates : null;
+		report += `${index + 1}. ${photoUrl}\n`;
+		if (coordinates) {
+		  report += `   📍 ${coordinates.latitude.toFixed(4)}° ${coordinates.latitude >= 0 ? 'N' : 'S'}, ${Math.abs(coordinates.longitude).toFixed(4)}° ${coordinates.longitude >= 0 ? 'E' : 'O'}\n`;
+		  report += `   🗺️ https://www.google.com/maps?q=${coordinates.latitude},${coordinates.longitude}\n`;
+		}
+	  });
+	}
     
     return report;
   }
