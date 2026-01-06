@@ -5,13 +5,13 @@
  * It's designed to work with cell phone photos that contain location metadata.
  * 
  * Usage:
- *   const metadata = await extractPhotoMetadata(file);
- *   // Returns: { coordinates: { latitude, longitude } | null, timestamp: Date | null, filename: string }
+ *   const metadata = await ExifUtils.extractPhotoMetadata(file);
+ *   // Returns: { coordinates: { latitude, longitude } | null, timestamp: string | null, filename: string, hasGpsData: boolean }
  * 
  * Dependencies:
  *   - exif-js library (loaded via CDN in HTML)
  * 
- * @version 1.0.0
+ * @version 1.1.0 - Fixed EXIF reading to use File directly instead of Image element
  */
 
 const ExifUtils = (function() {
@@ -57,6 +57,7 @@ const ExifUtils = (function() {
 
   /**
    * Read EXIF data from a file using exif-js library
+   * FIXED: Read directly from File object, not from Image element
    * @param {File} file - The image file
    * @returns {Promise<Object|null>} - Raw EXIF data or null
    */
@@ -69,34 +70,12 @@ const ExifUtils = (function() {
         return;
       }
 
-      const reader = new FileReader();
-      
-      reader.onload = function(e) {
-        try {
-          const img = new Image();
-          img.onload = function() {
-            EXIF.getData(img, function() {
-              const allTags = EXIF.getAllTags(this);
-              resolve(allTags && Object.keys(allTags).length > 0 ? allTags : null);
-            });
-          };
-          img.onerror = function() {
-            console.warn('ExifUtils: Failed to load image for EXIF extraction');
-            resolve(null);
-          };
-          img.src = e.target.result;
-        } catch (error) {
-          console.warn('ExifUtils: Error processing image:', error);
-          resolve(null);
-        }
-      };
-      
-      reader.onerror = function() {
-        console.warn('ExifUtils: Failed to read file');
-        resolve(null);
-      };
-      
-      reader.readAsDataURL(file);
+      // Use EXIF.getData directly on the File object
+      // This preserves all EXIF data including GPS coordinates
+      EXIF.getData(file, function() {
+        const allTags = EXIF.getAllTags(this);
+        resolve(allTags && Object.keys(allTags).length > 0 ? allTags : null);
+      });
     });
   }
 
@@ -312,7 +291,7 @@ const ExifUtils = (function() {
   /**
    * Format coordinates for display
    * @param {Object} coordinates - { latitude, longitude }
-   * @returns {string} - Formatted string like "45.3214° N, 72.1856° W"
+   * @returns {string} - Formatted string like "45.3214° N, 72.1856° O"
    */
   function formatCoordinates(coordinates) {
     if (!coordinates || coordinates.latitude == null || coordinates.longitude == null) {
@@ -363,7 +342,7 @@ const ExifUtils = (function() {
     normalizePhotoData: normalizePhotoData,
     formatCoordinates: formatCoordinates,
     getGoogleMapsLink: getGoogleMapsLink,
-    getPhotoUrl: getPhotoUrl,  // NEW: Helper for backward compatibility
+    getPhotoUrl: getPhotoUrl,
     
     // Expose for testing
     _internal: {
