@@ -353,7 +353,8 @@ setCurrentDateTime() {
    */
   async uploadPhotos() {
     const uploadPromises = this.selectedFiles.map(async (file, index) => {
-      const inspectionId = Date.now();
+	alert('Uploading photo: ' + file.name);
+	const inspectionId = Date.now();
       const fileName = `inspections/trails/${inspectionId}/${index}-${file.name}`;
       const storageRef = this.storage.ref(fileName);
       
