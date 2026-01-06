@@ -882,21 +882,31 @@ async loadData() {
 	  // Photos section
 	  let photosSection = '';
 	  if (inspection.photos && inspection.photos.length > 0) {
-		photosSection = `
-			<div class="detail-section">
-			  <h3>Photos (${inspection.photos.length})</h3>
-			  <div class="photos-grid">
-				${inspection.photos.map((photo, index) => {
-				  const photoUrl = typeof photo === 'string' ? photo : photo.url;
-				  return `
-					<div class="photo-thumbnail" onclick="window.open('${photoUrl}', '_blank')">
-					  <img src="${photoUrl}" alt="Photo ${index + 1}" loading="lazy" />
-					</div>
-				  `;
-				}).join('')}
+		  photosSection = `
+			  <div class="detail-section">
+				<h3>Photos (${inspection.photos.length})</h3>
+				<div class="photos-grid">
+				  ${inspection.photos.map((photo, index) => {
+					const photoUrl = typeof photo === 'string' ? photo : photo.url;
+					const coordinates = (typeof photo === 'object' && photo.coordinates) ? photo.coordinates : null;
+					const locationHtml = coordinates 
+					  ? `<div class="photo-location">
+						   <span class="photo-coords">📍 ${coordinates.latitude.toFixed(4)}° ${coordinates.latitude >= 0 ? 'N' : 'S'}, ${Math.abs(coordinates.longitude).toFixed(4)}° ${coordinates.longitude >= 0 ? 'E' : 'O'}</span>
+						   <a href="https://www.google.com/maps?q=${coordinates.latitude},${coordinates.longitude}" target="_blank" class="photo-map-link">Voir sur carte</a>
+						 </div>`
+					  : '';
+					return `
+					  <div class="photo-item">
+						<div class="photo-thumbnail" onclick="window.open('${photoUrl}', '_blank')">
+						  <img src="${photoUrl}" alt="Photo ${index + 1}" loading="lazy" />
+						</div>
+						${locationHtml}
+					  </div>
+					`;
+				  }).join('')}
+				</div>
 			  </div>
-			</div>
-		`;
+		  `;
 	  }
 
 	  // Notes section

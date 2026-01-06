@@ -736,3 +736,61 @@
   border-radius: 9999px;
   white-space: nowrap;
 }
+
+
+/* Photo GPS Location Styles */
+.photo-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.photo-location {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  background-color: var(--color-gray-50, #f8fafc);
+  border-radius: var(--border-radius-sm, 0.25rem);
+  font-size: 0.75rem;
+}
+
+.photo-coords {
+  color: var(--theme-text, #374151);
+  font-family: monospace;
+  white-space: nowrap;
+}
+
+.photo-map-link {
+  color: var(--theme-primary, #3b82f6);
+  text-decoration: none;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.photo-map-link:hover {
+  text-decoration: underline;
+}
+
+.photo-map-link::before {
+  content: "🗺️";
+  font-size: 0.875rem;
+}
+
+.photos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+@media (max-width: 480px) {
+  .photo-location {
+    font-size: 0.7rem;
+  }
+  
+  .photos-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+}
