@@ -58,9 +58,12 @@ const ExifUtils = (function() {
 
     // Fallback: If no EXIF GPS, try browser geolocation
     // This is useful for photos taken directly from camera in browser
-    if (!result.coordinates) {
-      try {
-        const browserCoords = await getBrowserGeolocation();
+	if (!result.coordinates) {
+	  alert('No EXIF GPS found - trying browser location...');
+	  try {
+		const browserCoords = await getBrowserGeolocation();
+		if (browserCoords) {
+		  alert('Got browser location: ' + browserCoords.latitude + ', ' + browserCoords.longitude);
         if (browserCoords) {
           result.coordinates = browserCoords;
           result.hasGpsData = true;
@@ -68,8 +71,9 @@ const ExifUtils = (function() {
           console.log('ExifUtils: Using browser geolocation for', file.name);
         }
       } catch (geoError) {
-        console.log('ExifUtils: Browser geolocation not available:', geoError.message);
-      }
+        //console.log('ExifUtils: Browser geolocation not available:', geoError.message);
+        alert('Geolocation error: ' + geoError.message);
+		}
     }
 
     return result;
