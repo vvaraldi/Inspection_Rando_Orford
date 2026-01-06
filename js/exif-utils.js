@@ -3,15 +3,15 @@
  * 
  * This utility extracts GPS coordinates and timestamp from photo EXIF data.
  * It's designed to work with cell phone photos that contain location metadata.
+ * Falls back to browser geolocation for live camera photos without EXIF GPS.
  * 
  * Usage:
  *   const metadata = await ExifUtils.extractPhotoMetadata(file);
- *   // Returns: { coordinates: { latitude, longitude } | null, timestamp: string | null, filename: string, hasGpsData: boolean }
  * 
  * Dependencies:
  *   - exif-js library (loaded via CDN in HTML)
  * 
- * @version 1.1.0 - Fixed EXIF reading to use File directly instead of Image element
+ * @version 1.2.0 - Added browser geolocation fallback for live camera photos
  */
 
 const ExifUtils = (function() {
@@ -38,6 +38,7 @@ const ExifUtils = (function() {
       return result;
     }
 
+    // Step 1: Try to extract GPS from EXIF data
     try {
       const exifData = await readExifData(file);
       
@@ -47,6 +48,7 @@ const ExifUtils = (function() {
         if (result.coordinates) {
           result.hasGpsData = true;
           result.gpsSource = 'exif';
+          console.log('ExifUtils: GPS extracted from EXIF for', file.name);
         }
         
         // Extract timestamp (when photo was taken)
@@ -56,24 +58,21 @@ const ExifUtils = (function() {
       console.warn('ExifUtils: Error reading EXIF data for', file.name, error);
     }
 
-    // Fallback: If no EXIF GPS, try browser geolocation
+    // Step 2: Fallback to browser geolocation if no EXIF GPS
     // This is useful for photos taken directly from camera in browser
-	if (!result.coordinates) {
-	  alert('No EXIF GPS found - trying browser location...');
-	  try {
-		const browserCoords = await getBrowserGeolocation();
-		if (browserCoords) {
-		  alert('Got browser location: ' + browserCoords.latitude + ', ' + browserCoords.longitude);
+    if (!result.coordinates) {
+      console.log('ExifUtils: No EXIF GPS, trying browser geolocation...');
+      try {
+        const browserCoords = await getBrowserGeolocation();
         if (browserCoords) {
           result.coordinates = browserCoords;
           result.hasGpsData = true;
           result.gpsSource = 'browser';
-          console.log('ExifUtils: Using browser geolocation for', file.name);
+          console.log('ExifUtils: Using browser geolocation for', file.name, browserCoords);
         }
       } catch (geoError) {
-        //console.log('ExifUtils: Browser geolocation not available:', geoError.message);
-        alert('Geolocation error: ' + geoError.message);
-		}
+        console.log('ExifUtils: Browser geolocation not available:', geoError.message);
+      }
     }
 
     return result;
@@ -111,7 +110,6 @@ const ExifUtils = (function() {
 
   /**
    * Read EXIF data from a file using exif-js library
-   * FIXED: Read directly from File object, not from Image element
    * @param {File} file - The image file
    * @returns {Promise<Object|null>} - Raw EXIF data or null
    */
@@ -397,6 +395,7 @@ const ExifUtils = (function() {
     formatCoordinates: formatCoordinates,
     getGoogleMapsLink: getGoogleMapsLink,
     getPhotoUrl: getPhotoUrl,
+    getBrowserGeolocation: getBrowserGeolocation,  // Exposed for testing
     
     // Expose for testing
     _internal: {
