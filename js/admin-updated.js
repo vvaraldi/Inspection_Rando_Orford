@@ -570,9 +570,10 @@ class AdminManager {
           // Delete associated photos from storage if they exist
           const data = doc.data();
           if (data.photos && data.photos.length > 0) {
-            for (const photoUrl of data.photos) {
-              try {
-                const storageRef = this.storage.refFromURL(photoUrl);
+		  for (const photo of data.photos) {
+			try {
+				const photoUrl = typeof photo === 'string' ? photo : photo.url;
+				const storageRef = this.storage.refFromURL(photoUrl);
                 await storageRef.delete();
               } catch (photoError) {
                 console.warn('Could not delete photo:', photoError);
@@ -597,9 +598,10 @@ class AdminManager {
           // Delete associated photos from storage if they exist
           const data = doc.data();
           if (data.photos && data.photos.length > 0) {
-            for (const photoUrl of data.photos) {
-              try {
-                const storageRef = this.storage.refFromURL(photoUrl);
+		  for (const photo of data.photos) {
+			try {
+				const photoUrl = typeof photo === 'string' ? photo : photo.url;
+				const storageRef = this.storage.refFromURL(photoUrl);
                 await storageRef.delete();
               } catch (photoError) {
                 console.warn('Could not delete photo:', photoError);

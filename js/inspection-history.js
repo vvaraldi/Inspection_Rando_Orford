@@ -1190,11 +1190,12 @@ async deleteInspection(inspectionId) {
     if (inspection.photos && inspection.photos.length > 0) {
       console.log(`Deleting ${inspection.photos.length} photos from storage...`);
       
-      const photoDeletePromises = inspection.photos.map(async (photoUrl) => {
-        try {
-          // Extract the storage path from the download URL
-          const storageRef = this.storage.refFromURL(photoUrl);
-          await storageRef.delete();
+	const photoDeletePromises = inspection.photos.map(async (photo) => {
+		try {
+		  // Handle both old (string) and new (object) photo formats
+		  const photoUrl = typeof photo === 'string' ? photo : photo.url;
+		  const storageRef = this.storage.refFromURL(photoUrl);
+		  await storageRef.delete();
           console.log(`Deleted photo: ${storageRef.fullPath}`);
         } catch (photoError) {
           console.warn(`Failed to delete photo: ${photoUrl}`, photoError);
