@@ -19,6 +19,7 @@ const ExifUtils = (function() {
 
   /**
    * Extract metadata from a photo file
+   * If no GPS in EXIF data, falls back to browser geolocation (for live camera photos)
    * @param {File} file - The image file to extract metadata from
    * @returns {Promise<Object>} - Photo metadata object
    */
@@ -27,7 +28,8 @@ const ExifUtils = (function() {
       filename: file.name,
       coordinates: null,
       timestamp: null,
-      hasGpsData: false
+      hasGpsData: false,
+      gpsSource: null  // 'exif' or 'browser'
     };
 
     // Only process image files
@@ -40,19 +42,67 @@ const ExifUtils = (function() {
       const exifData = await readExifData(file);
       
       if (exifData) {
-        // Extract GPS coordinates
+        // Extract GPS coordinates from EXIF
         result.coordinates = extractGpsCoordinates(exifData);
-        result.hasGpsData = result.coordinates !== null;
+        if (result.coordinates) {
+          result.hasGpsData = true;
+          result.gpsSource = 'exif';
+        }
         
         // Extract timestamp (when photo was taken)
         result.timestamp = extractTimestamp(exifData);
       }
     } catch (error) {
       console.warn('ExifUtils: Error reading EXIF data for', file.name, error);
-      // Return result with null values - graceful degradation
+    }
+
+    // Fallback: If no EXIF GPS, try browser geolocation
+    // This is useful for photos taken directly from camera in browser
+    if (!result.coordinates) {
+      try {
+        const browserCoords = await getBrowserGeolocation();
+        if (browserCoords) {
+          result.coordinates = browserCoords;
+          result.hasGpsData = true;
+          result.gpsSource = 'browser';
+          console.log('ExifUtils: Using browser geolocation for', file.name);
+        }
+      } catch (geoError) {
+        console.log('ExifUtils: Browser geolocation not available:', geoError.message);
+      }
     }
 
     return result;
+  }
+
+  /**
+   * Get current position from browser geolocation API
+   * @returns {Promise<Object|null>} - { latitude, longitude } or null
+   */
+  function getBrowserGeolocation() {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error('Geolocation not supported'));
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          resolve({
+            latitude: Math.round(position.coords.latitude * 1000000) / 1000000,
+            longitude: Math.round(position.coords.longitude * 1000000) / 1000000
+          });
+        },
+        (error) => {
+          reject(error);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 60000  // Cache position for 1 minute
+        }
+      );
+    });
   }
 
   /**
