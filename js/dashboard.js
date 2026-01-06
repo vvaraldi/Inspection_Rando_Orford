@@ -967,18 +967,21 @@ function handleModalBackdropClick(e) {
 	  // Photos section
 	  let photosSection = '';
 	  if (inspection.photos && inspection.photos.length > 0) {
-		photosSection = `
-		  <div class="detail-section">
-			<h3>Photos (${inspection.photos.length})</h3>
-			<div class="photos-grid">
-			  ${inspection.photos.map((photo, index) => `
-				<div class="photo-thumbnail" onclick="openPhotoModal('${photo}')">
-				  <img src="${photo}" alt="Photo ${index + 1}" loading="lazy" />
-				</div>
-			  `).join('')}
+		  photosSection = `
+			<div class="detail-section">
+			  <h3>Photos (${inspection.photos.length})</h3>
+			  <div class="photos-grid">
+				${inspection.photos.map((photo, index) => {
+				  const photoUrl = typeof photo === 'string' ? photo : photo.url;
+				  return `
+					<div class="photo-thumbnail" onclick="openPhotoModal('${photoUrl}')">
+					  <img src="${photoUrl}" alt="Photo ${index + 1}" loading="lazy" />
+					</div>
+				  `;
+				}).join('')}
+			  </div>
 			</div>
-		  </div>
-		`;
+	    `;
 	  }
 
 	  // Notes section

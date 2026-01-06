@@ -1,6 +1,8 @@
 /**
  * Shelter Inspection Form Management
  * Handles form functionality, photo uploads, and data submission
+ * 
+ * v2.1.0 - Added GPS coordinate extraction from photos
  */
 
 class ShelterInspectionManager {
@@ -181,7 +183,7 @@ class ShelterInspectionManager {
     }
   }
 
-  // Photo upload handling (same as trail inspection)
+  // Photo upload handling
   handleDragOver(e) {
     e.preventDefault();
     e.stopPropagation();
@@ -299,7 +301,7 @@ class ShelterInspectionManager {
       // Collect form data
       const formData = this.collectFormData();
       
-      // Upload photos if any
+      // Upload photos if any (now with GPS extraction)
       if (this.selectedFiles.length > 0) {
         formData.photos = await this.uploadPhotos();
       }
@@ -367,20 +369,57 @@ class ShelterInspectionManager {
     return issues;
   }
 
-	async uploadPhotos() {
-		const uploadPromises = this.selectedFiles.map(async (file, index) => {
-			const inspectionId = Date.now();
-			const fileName = `inspections/shelters/${inspectionId}/${index}-${file.name}`;
-			const storageRef = this.storage.ref(fileName);
-			
-			const snapshot = await storageRef.put(file);
-			const downloadURL = await snapshot.ref.getDownloadURL();
-			
-			return downloadURL;
-		});
+  /**
+   * Upload photos with GPS metadata extraction
+   * Returns array of photo objects with url, coordinates, timestamp, and filename
+   * 
+   * @returns {Promise<Array>} Array of photo objects
+   */
+  async uploadPhotos() {
+    const uploadPromises = this.selectedFiles.map(async (file, index) => {
+      const inspectionId = Date.now();
+      const fileName = `inspections/shelters/${inspectionId}/${index}-${file.name}`;
+      const storageRef = this.storage.ref(fileName);
+      
+      // Extract EXIF metadata (GPS coordinates and timestamp) if available
+      let metadata = {
+        filename: file.name,
+        coordinates: null,
+        timestamp: null
+      };
+      
+      // Check if ExifUtils is available and extract metadata
+      if (typeof ExifUtils !== 'undefined') {
+        try {
+          const exifData = await ExifUtils.extractPhotoMetadata(file);
+          metadata.coordinates = exifData.coordinates;
+          metadata.timestamp = exifData.timestamp;
+          
+          if (exifData.hasGpsData) {
+            console.log(`GPS data extracted for ${file.name}:`, exifData.coordinates);
+          }
+        } catch (exifError) {
+          console.warn('Could not extract EXIF data:', exifError);
+          // Continue without EXIF data - graceful degradation
+        }
+      }
+      
+      // Upload file to Firebase Storage
+      const snapshot = await storageRef.put(file);
+      const downloadURL = await snapshot.ref.getDownloadURL();
+      
+      // Return photo object with all metadata
+      return {
+        url: downloadURL,
+        filename: metadata.filename,
+        coordinates: metadata.coordinates,
+        timestamp: metadata.timestamp,
+        caption: ''  // Can be added later if needed
+      };
+    });
 
-		return Promise.all(uploadPromises); // ← Keep this!
-	}
+    return Promise.all(uploadPromises);
+  }
 
   async saveInspection(formData) {
     const docRef = await this.db.collection('shelter_inspections').add(formData);
@@ -396,61 +435,39 @@ class ShelterInspectionManager {
     } else if (error.code === 'unavailable') {
       errorMessage = 'Service temporairement indisponible. Veuillez réessayer.';
     } else if (error.message) {
-      errorMessage = error.message;
+      errorMessage += `: ${error.message}`;
     }
     
     this.showError(errorMessage);
   }
 
-  // Form state management
-  setFormLoading(isLoading) {
-    if (isLoading) {
-      this.form.classList.add('form-loading');
-      this.submitBtn.disabled = true;
-      this.submitBtn.innerHTML = '<span>Enregistrement en cours...</span>';
-      
-      // Disable all form inputs
-      const inputs = this.form.querySelectorAll('input, select, textarea, button');
-      inputs.forEach(input => input.disabled = true);
-    } else {
-      this.form.classList.remove('form-loading');
-      this.submitBtn.disabled = false;
-      this.submitBtn.innerHTML = 'Enregistrer l\'inspection';
-      
-      // Re-enable all form inputs
-      const inputs = this.form.querySelectorAll('input, select, textarea, button');
-      inputs.forEach(input => input.disabled = false);
+  setFormLoading(loading) {
+    if (this.submitBtn) {
+      this.submitBtn.disabled = loading;
+      this.submitBtn.textContent = loading ? 'Enregistrement...' : 'Enregistrer l\'inspection';
     }
   }
 
   resetForm() {
-	// Store inspector info before reset
-	const inspectorId = this.inspectorId.value;
-	const inspectorName = this.inspectorName.value;
-
-    // Reset form fields
-    this.form.reset();
-    
-	// Restore inspector info
-	this.inspectorId.value = inspectorId;
-	this.inspectorName.value = inspectorName;
-  
-	// Clear selected files
-    this.selectedFiles = [];
+    if (this.form) {
+      this.form.reset();
+    }
     
     // Clear photo previews
-    this.previewContainer.innerHTML = '';
+    if (this.previewContainer) {
+      this.previewContainer.innerHTML = '';
+    }
+    this.selectedFiles = [];
     
-    // Reset validation classes
-    const validatedFields = this.form.querySelectorAll('.is-valid, .is-invalid');
-    validatedFields.forEach(field => {
+    // Reset datetime
+    this.setCurrentDateTime();
+    
+    // Clear validation states
+    const fields = this.form.querySelectorAll('.is-valid, .is-invalid');
+    fields.forEach(field => {
       field.classList.remove('is-valid', 'is-invalid');
     });
     
-    // Reset date and time
-    this.setCurrentDateTime();
-    
-    // Hide messages
     this.hideMessages();
   }
 
@@ -554,7 +571,7 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
       // Redirect to login if not authenticated
       const loginUrl = window.location.pathname.includes('/pages/') 
-        ? 'login.html' 
+        ? '../pages/login.html' 
         : 'pages/login.html';
       window.location.href = loginUrl;
     }

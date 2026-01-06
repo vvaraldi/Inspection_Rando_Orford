@@ -2,6 +2,8 @@
  * Trail Inspection Form Management - Updated Version
  * Handles form functionality, photo uploads, and data submission
  * Now includes trail status (open/closed) and optional snow conditions
+ * 
+ * v2.1.0 - Added GPS coordinate extraction from photos
  */
 
 class TrailInspectionManager {
@@ -100,46 +102,30 @@ class TrailInspectionManager {
 
   async loadInspectionData() {
     try {
-      // Load current user info
-      if (this.auth.currentUser) {
-        this.currentUser = this.auth.currentUser;
-        
+      // Load inspector info
+      const user = this.auth.currentUser;
+      if (user) {
         // Try to get inspector name from Firestore
-        try {
-          const inspectorDoc = await this.db.collection('inspectors').doc(this.currentUser.uid).get();
-          if (inspectorDoc.exists) {
-            const inspectorData = inspectorDoc.data();
-            this.inspectorName.value = inspectorData.name || this.currentUser.displayName || this.currentUser.email;
-          } else {
-            this.inspectorName.value = this.currentUser.displayName || this.currentUser.email || 'Inspecteur';
-          }
-        } catch (error) {
-          console.warn('Could not load inspector data:', error);
-          this.inspectorName.value = this.currentUser.displayName || this.currentUser.email || 'Inspecteur';
+        const inspectorDoc = await this.db.collection('inspectors').doc(user.uid).get();
+        if (inspectorDoc.exists) {
+          const inspectorData = inspectorDoc.data();
+          this.inspectorName.value = inspectorData.name || user.email;
+        } else {
+          this.inspectorName.value = user.email;
         }
-        
-        this.inspectorId.value = this.currentUser.uid;
+        this.inspectorId.value = user.uid;
       }
-      
-      // Load trails for the select dropdown
-      await this.loadTrails();
-      
-    } catch (error) {
-      console.error('Error loading inspection data:', error);
-      throw error;
-    }
-  }
 
-  async loadTrails() {
-    try {
-      const trailsSnapshot = await this.db.collection('trails').get();
+      // Load trails for selection
+      const trailsSnapshot = await this.db.collection('trails').orderBy('name').get();
+      
       this.trailSelect.innerHTML = '<option value="">Sélectionner un sentier</option>';
       
       trailsSnapshot.forEach(doc => {
         const trail = doc.data();
         const option = document.createElement('option');
         option.value = doc.id;
-        option.textContent = `${trail.name} (${trail.length || '?'} km - ${this.getDifficultyText(trail.difficulty)})`;
+        option.textContent = `${trail.name} (${trail.length} km - ${this.getDifficultyText(trail.difficulty)})`;
         this.trailSelect.appendChild(option);
       });
       
@@ -282,15 +268,19 @@ class TrailInspectionManager {
       // Collect form data
       const formData = this.collectFormData();
       
-      // Upload photos if any
+      // Upload photos if any (now with GPS extraction)
       if (this.selectedFiles.length > 0) {
         formData.photos = await this.uploadPhotos();
       }
       
-      // Save inspection to Firestore
+      // Save inspection AND update trail status
       await this.saveInspection(formData);
       
-      this.showSuccess('Inspection enregistrée avec succès!');
+      // Get trail name for confirmation message
+      const trailName = this.trailSelect.selectedOptions[0]?.textContent || 'le sentier';
+      const statusText = formData.trail_status === 'open' ? 'ouvert' : 'fermé';
+      
+      this.showSuccess(`Inspection enregistrée avec succès! ${trailName} est maintenant marqué comme ${statusText}.`);
       
       // Reset form after short delay
       setTimeout(() => {
@@ -311,9 +301,9 @@ class TrailInspectionManager {
       inspector_id: this.inspectorId.value,
       inspector_name: this.inspectorName.value,
       date: this.createTimestamp(),
-      trail_status: this.form.querySelector('input[name="trail-status"]:checked')?.value, // NEW: Trail status
+      trail_status: this.form.querySelector('input[name="trail-status"]:checked')?.value,
       condition: this.form.querySelector('input[name="condition"]:checked')?.value,
-      snow_condition: this.form.querySelector('input[name="snow-condition"]:checked')?.value || null, // UPDATED: Optional
+      snow_condition: this.form.querySelector('input[name="snow-condition"]:checked')?.value || null,
       issues: this.collectIssues(),
       notes: this.comments.value.trim(),
       photos: [], // Will be populated after upload
@@ -348,84 +338,81 @@ class TrailInspectionManager {
     return issues;
   }
 
+  /**
+   * Upload photos with GPS metadata extraction
+   * Returns array of photo objects with url, coordinates, timestamp, and filename
+   * 
+   * @returns {Promise<Array>} Array of photo objects
+   */
   async uploadPhotos() {
     const uploadPromises = this.selectedFiles.map(async (file, index) => {
       const inspectionId = Date.now();
       const fileName = `inspections/trails/${inspectionId}/${index}-${file.name}`;
       const storageRef = this.storage.ref(fileName);
       
+      // Extract EXIF metadata (GPS coordinates and timestamp) if available
+      let metadata = {
+        filename: file.name,
+        coordinates: null,
+        timestamp: null
+      };
+      
+      // Check if ExifUtils is available and extract metadata
+      if (typeof ExifUtils !== 'undefined') {
+        try {
+          const exifData = await ExifUtils.extractPhotoMetadata(file);
+          metadata.coordinates = exifData.coordinates;
+          metadata.timestamp = exifData.timestamp;
+          
+          if (exifData.hasGpsData) {
+            console.log(`GPS data extracted for ${file.name}:`, exifData.coordinates);
+          }
+        } catch (exifError) {
+          console.warn('Could not extract EXIF data:', exifError);
+          // Continue without EXIF data - graceful degradation
+        }
+      }
+      
+      // Upload file to Firebase Storage
       const snapshot = await storageRef.put(file);
       const downloadURL = await snapshot.ref.getDownloadURL();
       
-      return downloadURL;
+      // Return photo object with all metadata
+      return {
+        url: downloadURL,
+        filename: metadata.filename,
+        coordinates: metadata.coordinates,
+        timestamp: metadata.timestamp,
+        caption: ''  // Can be added later if needed
+      };
     });
 
     return Promise.all(uploadPromises);
   }
 
   async saveInspection(formData) {
-	// Use a batch to save both the inspection and update the trail status
-	const batch = this.db.batch();
-	  
-	// 1. Save the inspection document
-	const inspectionRef = this.db.collection('trail_inspections').doc();
-	batch.set(inspectionRef, formData);
-	  
-	// 2. Update the trail's status field
-	const trailRef = this.db.collection('trails').doc(formData.trail_id);
-	batch.update(trailRef, {
-		status: formData.trail_status, // Update trail status based on inspection
-		lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
-		lastInspectionId: inspectionRef.id
-	});
-	// Execute both operations atomically
-	await batch.commit();
+    // Use a batch to save both the inspection and update the trail status
+    const batch = this.db.batch();
+      
+    // 1. Save the inspection document
+    const inspectionRef = this.db.collection('trail_inspections').doc();
+    batch.set(inspectionRef, formData);
+      
+    // 2. Update the trail's status field
+    const trailRef = this.db.collection('trails').doc(formData.trail_id);
+    batch.update(trailRef, {
+      status: formData.trail_status,
+      lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
+      lastInspectionId: inspectionRef.id
+    });
+    
+    // Execute both operations atomically
+    await batch.commit();
   
-	console.log('Inspection saved with ID:', inspectionRef.id);
-	console.log('Trail status updated to:', formData.trail_status);
+    console.log('Inspection saved with ID:', inspectionRef.id);
+    console.log('Trail status updated to:', formData.trail_status);
   
-	return inspectionRef.id;
-  }
-
-  async handleSubmit(e) {
-	  e.preventDefault();
-	  
-	  if (!this.validateForm()) {
-		return;
-	  }
-	  
-	  try {
-		this.setFormLoading(true);
-		this.hideMessages();
-		
-		// Collect form data
-		const formData = this.collectFormData();
-		
-		// Upload photos if any
-		if (this.selectedFiles.length > 0) {
-		  formData.photos = await this.uploadPhotos();
-		}
-		
-		// Save inspection AND update trail status
-		await this.saveInspection(formData);
-		
-		// Get trail name for confirmation message
-		const trailName = this.trailSelect.selectedOptions[0]?.textContent || 'le sentier';
-		const statusText = formData.trail_status === 'open' ? 'ouvert' : 'fermé';
-		
-		this.showSuccess(`Inspection enregistrée avec succès! ${trailName} est maintenant marqué comme ${statusText}.`);
-		
-		// Reset form after short delay
-		setTimeout(() => {
-		  this.resetForm();
-		}, 2000);
-		
-	  } catch (error) {
-		console.error('Error submitting inspection:', error);
-		this.handleSubmissionError(error);
-	  } finally {
-		this.setFormLoading(false);
-	  }
+    return inspectionRef.id;
   }
 
   handleSubmissionError(error) {
@@ -436,61 +423,39 @@ class TrailInspectionManager {
     } else if (error.code === 'unavailable') {
       errorMessage = 'Service temporairement indisponible. Veuillez réessayer.';
     } else if (error.message) {
-      errorMessage = error.message;
+      errorMessage += `: ${error.message}`;
     }
     
     this.showError(errorMessage);
   }
 
-  // Form state management
-  setFormLoading(isLoading) {
-    if (isLoading) {
-      this.form.classList.add('form-loading');
-      this.submitBtn.disabled = true;
-      this.submitBtn.innerHTML = '<span>Enregistrement en cours...</span>';
-      
-      // Disable all form inputs
-      const inputs = this.form.querySelectorAll('input, select, textarea, button');
-      inputs.forEach(input => input.disabled = true);
-    } else {
-      this.form.classList.remove('form-loading');
-      this.submitBtn.disabled = false;
-      this.submitBtn.innerHTML = 'Enregistrer l\'inspection';
-      
-      // Re-enable all form inputs
-      const inputs = this.form.querySelectorAll('input, select, textarea, button');
-      inputs.forEach(input => input.disabled = false);
+  setFormLoading(loading) {
+    if (this.submitBtn) {
+      this.submitBtn.disabled = loading;
+      this.submitBtn.textContent = loading ? 'Enregistrement...' : 'Enregistrer l\'inspection';
     }
   }
 
   resetForm() {
-    // Store inspector info before reset
-    const inspectorId = this.inspectorId.value;
-    const inspectorName = this.inspectorName.value;
-  
-    // Reset form fields
-    this.form.reset();
-    
-    // Restore inspector info
-    this.inspectorId.value = inspectorId;
-    this.inspectorName.value = inspectorName;
-  
-    // Clear selected files
-    this.selectedFiles = [];
+    if (this.form) {
+      this.form.reset();
+    }
     
     // Clear photo previews
-    this.previewContainer.innerHTML = '';
+    if (this.previewContainer) {
+      this.previewContainer.innerHTML = '';
+    }
+    this.selectedFiles = [];
     
-    // Reset validation classes
-    const validatedFields = this.form.querySelectorAll('.is-valid, .is-invalid');
-    validatedFields.forEach(field => {
+    // Reset datetime
+    this.setCurrentDateTime();
+    
+    // Clear validation states
+    const fields = this.form.querySelectorAll('.is-valid, .is-invalid');
+    fields.forEach(field => {
       field.classList.remove('is-valid', 'is-invalid');
     });
     
-    // Reset date and time
-    this.setCurrentDateTime();
-    
-    // Hide messages
     this.hideMessages();
   }
 

@@ -883,16 +883,19 @@ async loadData() {
 	  let photosSection = '';
 	  if (inspection.photos && inspection.photos.length > 0) {
 		photosSection = `
-		  <div class="detail-section">
-			<h3>Photos (${inspection.photos.length})</h3>
-			<div class="photos-grid">
-			  ${inspection.photos.map((photo, index) => `
-				<div class="photo-thumbnail" onclick="window.open('${photo}', '_blank')">
-				  <img src="${photo}" alt="Photo ${index + 1}" loading="lazy" />
-				</div>
-			  `).join('')}
+			<div class="detail-section">
+			  <h3>Photos (${inspection.photos.length})</h3>
+			  <div class="photos-grid">
+				${inspection.photos.map((photo, index) => {
+				  const photoUrl = typeof photo === 'string' ? photo : photo.url;
+				  return `
+					<div class="photo-thumbnail" onclick="window.open('${photoUrl}', '_blank')">
+					  <img src="${photoUrl}" alt="Photo ${index + 1}" loading="lazy" />
+					</div>
+				  `;
+				}).join('')}
+			  </div>
 			</div>
-		  </div>
 		`;
 	  }
 
@@ -1029,8 +1032,9 @@ async loadData() {
     
     if (inspection.photos && inspection.photos.length > 0) {
       report += `PHOTOS:\n`;
-      inspection.photos.forEach((photo, index) => {
-        report += `${index + 1}. ${photo}\n`;
+	  inspection.photos.forEach((photo, index) => {
+        const photoUrl = typeof photo === 'string' ? photo : photo.url;
+        report += `${index + 1}. ${photoUrl}\n`;
       });
     }
     
