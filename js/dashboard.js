@@ -977,7 +977,10 @@ function handleModalBackdropClick(e) {
 					const locationHtml = coordinates 
 					  ? `<div class="photo-location">
 						   <span class="photo-coords">📍 ${coordinates.latitude.toFixed(4)}° ${coordinates.latitude >= 0 ? 'N' : 'S'}, ${Math.abs(coordinates.longitude).toFixed(4)}° ${coordinates.longitude >= 0 ? 'E' : 'O'}</span>
-						   <a href="https://www.google.com/maps?q=${coordinates.latitude},${coordinates.longitude}" target="_blank" class="photo-map-link">Voir sur carte</a>
+						  <div class="photo-location-links">
+						    <a href="#" onclick="openPhotoLocationModal(${coordinates.latitude}, ${coordinates.longitude}); return false;" class="photo-local-map-link">Carte locale</a>
+						    <a href="https://www.google.com/maps?q=${coordinates.latitude},${coordinates.longitude}" target="_blank" class="photo-map-link">Google Maps</a>
+						  </div>
 						 </div>`
 					  : '';
 					return `
