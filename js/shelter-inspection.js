@@ -455,10 +455,18 @@ class ShelterInspectionManager {
   }
 
   resetForm() {
+	// Save inspector info before reset (it never changes during session)
+	const inspectorNameValue = this.inspectorName.value;
+	const inspectorIdValue = this.inspectorId.value;
+
     if (this.form) {
       this.form.reset();
     }
     
+    // Restore inspector info
+    this.inspectorName.value = inspectorNameValue;
+    this.inspectorId.value = inspectorIdValue;
+  
     // Clear photo previews
     if (this.previewContainer) {
       this.previewContainer.innerHTML = '';
