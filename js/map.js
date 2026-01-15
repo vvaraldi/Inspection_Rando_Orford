@@ -403,15 +403,30 @@ function initBulkStatusButtons() {
     return;
   }
   
-  // Show buttons for admin users (only if in simple/status view)
+  console.log('Bulk status buttons: Admin user detected, binding click events');
+  
+  // ALWAYS bind click events for admin users (regardless of current view)
+  // The visibility will be controlled by updateBulkButtonsVisibility()
+  closeAllBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    console.log('Close all trails button clicked');
+    handleBulkStatusToggle('closed');
+  });
+  
+  openAllBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    console.log('Open all trails button clicked');
+    handleBulkStatusToggle('open');
+  });
+  
+  // Set initial visibility based on current view
   if (currentBadgeView === 'simple') {
     bulkButtonsContainer.style.display = 'block';
+  } else {
+    bulkButtonsContainer.style.display = 'none';
   }
-  console.log('Bulk status buttons initialized for admin user');
   
-  // Bind click events
-  closeAllBtn.addEventListener('click', () => handleBulkStatusToggle('closed'));
-  openAllBtn.addEventListener('click', () => handleBulkStatusToggle('open'));
+  console.log('Bulk status buttons initialized for admin user');
 }
 
 /**
