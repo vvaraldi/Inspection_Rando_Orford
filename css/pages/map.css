@@ -412,3 +412,67 @@
 .map-marker-shelter {
   /* Inherits all .map-marker styles */
 }
+/* ========================================
+   BULK STATUS BUTTONS (Admin only)
+   ======================================== */
+
+.bulk-status-section {
+  margin-top: var(--space-lg);
+  padding-top: var(--space-md);
+  border-top: var(--border-width) solid var(--theme-border);
+}
+
+.bulk-status-section h4 {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--theme-text);
+  margin-bottom: var(--space-sm);
+  text-align: center;
+}
+
+.btn-bulk-status {
+  display: block;
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  margin-bottom: var(--space-xs);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border: none;
+}
+
+.btn-bulk-status:last-child {
+  margin-bottom: 0;
+}
+
+.btn-bulk-status.btn-danger {
+  background-color: #ef4444;
+  color: white;
+}
+
+.btn-bulk-status.btn-danger:hover {
+  background-color: #dc2626;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-bulk-status.btn-success {
+  background-color: #10b981;
+  color: white;
+}
+
+.btn-bulk-status.btn-success:hover {
+  background-color: #059669;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .btn-bulk-status {
+    padding: var(--space-xs) var(--space-sm);
+    font-size: var(--text-xs);
+  }
+}

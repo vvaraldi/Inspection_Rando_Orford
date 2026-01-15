@@ -378,6 +378,216 @@ async function saveQuickInspection(item, itemType, newStatus) {
 // END QUICK STATUS TOGGLE FEATURE
 // ============================================================================
 
+// ============================================================================
+// BULK STATUS TOGGLE FEATURE (Admin only - Close/Open all trails at once)
+// ============================================================================
+
+/**
+ * Initialize bulk status buttons (admin only, status view only)
+ * Should be called after authentication is confirmed
+ */
+function initBulkStatusButtons() {
+  const bulkButtonsContainer = document.getElementById('bulk-status-buttons');
+  const closeAllBtn = document.getElementById('close-all-trails-btn');
+  const openAllBtn = document.getElementById('open-all-trails-btn');
+  
+  if (!bulkButtonsContainer || !closeAllBtn || !openAllBtn) {
+    console.log('Bulk status buttons not found - this is normal if not on main map page');
+    return;
+  }
+  
+  // Check if user is admin
+  if (typeof isAdmin !== 'function' || !isAdmin()) {
+    console.log('Bulk status buttons: User is not admin, hiding buttons');
+    bulkButtonsContainer.style.display = 'none';
+    return;
+  }
+  
+  // Show buttons for admin users (only if in simple/status view)
+  if (currentBadgeView === 'simple') {
+    bulkButtonsContainer.style.display = 'block';
+  }
+  console.log('Bulk status buttons initialized for admin user');
+  
+  // Bind click events
+  closeAllBtn.addEventListener('click', () => handleBulkStatusToggle('closed'));
+  openAllBtn.addEventListener('click', () => handleBulkStatusToggle('open'));
+}
+
+/**
+ * Handle bulk status toggle for all trails
+ * @param {string} newStatus - 'open' or 'closed'
+ */
+async function handleBulkStatusToggle(newStatus) {
+  // Double-check admin status
+  if (typeof isAdmin !== 'function' || !isAdmin()) {
+    console.log('Bulk status toggle: User is not admin');
+    alert('Accès refusé - Droits administrateur requis');
+    return;
+  }
+  
+  // Check if we're in simple/status view mode
+  if (currentBadgeView !== 'simple') {
+    alert('Cette action est uniquement disponible en mode Status.');
+    return;
+  }
+  
+  // Build confirmation message
+  const statusLabel = newStatus === 'open' ? '🟢 OUVERTS' : '🔴 FERMÉS';
+  const actionVerb = newStatus === 'open' ? 'OUVRIR' : 'FERMER';
+  const frenchComment = newStatus === 'open' 
+    ? 'Ouverture de toutes les pistes en une seule fois pour réinitialiser la montagne'
+    : 'Fermeture de toutes les pistes en une seule fois pour réinitialiser la montagne';
+  
+  const trailCount = allTrails ? allTrails.length : 0;
+  
+  const confirmMessage = `⚠️ Action groupée - ${actionVerb} TOUS LES SENTIERS\n\n` +
+    `Cette action va changer le statut de ${trailCount} sentier(s) à ${statusLabel}.\n\n` +
+    `Un rapport d'inspection sera créé pour chaque sentier avec le commentaire:\n` +
+    `"${frenchComment}"\n\n` +
+    `Êtes-vous sûr de vouloir continuer?`;
+  
+  if (!confirm(confirmMessage)) {
+    return;
+  }
+  
+  try {
+    // Show loading indicator
+    if (document.getElementById('map-loading')) {
+      document.getElementById('map-loading').style.display = 'flex';
+    }
+    
+    // Process all trails
+    const results = await processBulkStatusChange(newStatus, frenchComment);
+    
+    // Reload map data to refresh markers
+    await loadMapData();
+    
+    // Show success message
+    const successMessage = `✅ Opération terminée!\n\n` +
+      `${results.success} sentier(s) mis à jour avec succès.\n` +
+      (results.errors > 0 ? `${results.errors} erreur(s) rencontrée(s).` : '');
+    
+    alert(successMessage);
+    
+    console.log(`Bulk status toggle completed: ${results.success} success, ${results.errors} errors`);
+    
+  } catch (error) {
+    console.error('Error in bulk status toggle:', error);
+    alert('Erreur lors du changement de statut groupé: ' + error.message);
+  } finally {
+    // Hide loading indicator
+    if (document.getElementById('map-loading')) {
+      document.getElementById('map-loading').style.display = 'none';
+    }
+  }
+}
+
+/**
+ * Process bulk status change for all trails
+ * @param {string} newStatus - 'open' or 'closed'
+ * @param {string} comment - French comment for the inspection report
+ * @returns {Object} - { success: number, errors: number }
+ */
+async function processBulkStatusChange(newStatus, comment) {
+  // Get current user info
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    throw new Error('Utilisateur non connecté');
+  }
+  
+  // Get user data from inspectors collection
+  const userDoc = await db.collection('inspectors').doc(user.uid).get();
+  if (!userDoc.exists) {
+    throw new Error('Données utilisateur non trouvées');
+  }
+  const userData = userDoc.data();
+  
+  let successCount = 0;
+  let errorCount = 0;
+  
+  // Process each trail
+  for (const trail of allTrails) {
+    try {
+      await saveBulkTrailInspection(trail, newStatus, comment, user, userData);
+      successCount++;
+    } catch (error) {
+      console.error(`Error updating trail ${trail.id}:`, error);
+      errorCount++;
+    }
+  }
+  
+  return { success: successCount, errors: errorCount };
+}
+
+/**
+ * Save a bulk inspection report for a single trail
+ * @param {Object} trail - The trail object
+ * @param {string} newStatus - The new status ('open' or 'closed')
+ * @param {string} comment - The French comment
+ * @param {Object} user - Firebase user object
+ * @param {Object} userData - User data from inspectors collection
+ */
+async function saveBulkTrailInspection(trail, newStatus, comment, user, userData) {
+  // Prepare the inspection data
+  const now = new Date();
+  
+  // Preserve last inspection data if available, or use defaults
+  const lastInspection = trail.lastInspection || {};
+  
+  // Create inspection data - preserve existing condition data
+  const inspectionData = {
+    trail_id: trail.id,
+    inspector_id: user.uid,
+    inspector_name: userData.name || 'Admin',
+    date: firebase.firestore.Timestamp.fromDate(now),
+    trail_status: newStatus,
+    condition: lastInspection.condition || 'good',
+    snow_condition: lastInspection.snow_condition || null,
+    issues: lastInspection.issues || [],
+    notes: comment,
+    photos: [],
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    isBulkToggle: true // Flag to identify bulk toggle inspections
+  };
+  
+  // Use batch to save inspection and update trail
+  const batch = db.batch();
+  
+  const inspectionRef = db.collection('trail_inspections').doc();
+  batch.set(inspectionRef, inspectionData);
+  
+  const trailRef = db.collection('trails').doc(trail.id);
+  batch.update(trailRef, {
+    status: newStatus,
+    lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
+    lastInspectionId: inspectionRef.id
+  });
+  
+  await batch.commit();
+  console.log(`Bulk trail inspection saved for ${trail.name}: ${inspectionRef.id}`);
+}
+
+/**
+ * Update visibility of bulk status buttons based on current view
+ * Called when badge view toggle changes
+ */
+function updateBulkButtonsVisibility() {
+  const bulkButtonsContainer = document.getElementById('bulk-status-buttons');
+  if (!bulkButtonsContainer) return;
+  
+  // Only show in simple/status view AND if user is admin
+  if (currentBadgeView === 'simple' && typeof isAdmin === 'function' && isAdmin()) {
+    bulkButtonsContainer.style.display = 'block';
+  } else {
+    bulkButtonsContainer.style.display = 'none';
+  }
+}
+
+// ============================================================================
+// END BULK STATUS TOGGLE FEATURE
+// ============================================================================
+
 /**
  * MODIFIED: Affiche les marqueurs des sentiers sur la carte
  * @param {Array} trails - Sentiers avec leur statut
@@ -1418,6 +1628,9 @@ function initBadgeViewToggle() {
     
     // Refresh markers with new badge style
     refreshMarkersWithCurrentView();
+    
+    // Update bulk buttons visibility (admin only feature)
+    updateBulkButtonsVisibility();
   });
   
   console.log('Badge view toggle initialized successfully');
@@ -1538,6 +1751,14 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('Initializing badge view toggle...');
     initBadgeViewToggle();
   }
+  
+  // Initialize bulk status buttons (admin only, delayed to ensure auth state is ready)
+  setTimeout(() => {
+    if (typeof initBulkStatusButtons === 'function') {
+      console.log('Initializing bulk status buttons...');
+      initBulkStatusButtons();
+    }
+  }, 500);
   
   // Check if we're on a page that needs map functionality
   const mapContainer = document.querySelector('.map-bg');
