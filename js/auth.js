@@ -139,7 +139,13 @@ function showContentAndLoadData(loading, mainContent) {
   // Charger les données selon la page
   if (typeof loadMapData === 'function') {
     console.log("Chargement des données de la carte...");
-    loadMapData();
+    loadMapData().then(() => {
+      // Initialize bulk status buttons after map data is loaded (admin only)
+      if (typeof initBulkStatusButtons === 'function') {
+        console.log("Initializing bulk status buttons...");
+        initBulkStatusButtons();
+      }
+    });
   }
   
   if (typeof loadDashboardData === 'function') {
