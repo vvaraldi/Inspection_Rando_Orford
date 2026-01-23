@@ -169,6 +169,17 @@ async updateStatusOptionsForTrail(trailId) {
       currentStatus = lastInspection.trail_status || 'unknown';
     }
 
+    // Update the section label with current status
+    if (statusLabel) {
+      if (currentStatus === 'open') {
+        statusLabel.innerHTML = 'Statut du sentier post inspection <span style="font-weight: normal; color: #10b981;">(actuellement ouvert)</span>';
+      } else if (currentStatus === 'closed') {
+        statusLabel.innerHTML = 'Statut du sentier post inspection <span style="font-weight: normal; color: #ef4444;">(actuellement fermé)</span>';
+      } else {
+        statusLabel.innerHTML = 'Statut du sentier post inspection <span style="font-weight: normal; color: #6b7280;">(statut inconnu)</span>';
+      }
+    }
+	
     // Update labels based on current status
     if (currentStatus === 'open') {
       this.setStatusLabels('🟢 Laisser ouvert', '🔴 À fermer');
