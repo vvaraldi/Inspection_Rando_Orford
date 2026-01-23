@@ -820,6 +820,14 @@ async loadData() {
 		  ? this.createTrailStatusBadge(inspection.trail_status)
 		  : '<span class="badge badge-secondary">Non spécifié</span>';
 		  
+		// Build previous status text if available
+		let previousStatusHtml = '';
+		if (inspection.previous_trail_status && inspection.previous_trail_status !== 'unknown') {
+		  const prevIcon = inspection.previous_trail_status === 'open' ? '🟢' : '🔴';
+		  const prevText = inspection.previous_trail_status === 'open' ? 'ouvert' : 'fermé';
+		  previousStatusHtml = `<span style="font-size: 0.85em; color: #6b7280; margin-left: 8px;">(était: ${prevIcon} ${prevText})</span>`;
+		}
+      
 		specificInfo = `
 		  <div class="detail-section">
 			<h3>Informations du sentier</h3>

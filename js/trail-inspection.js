@@ -12,7 +12,8 @@ class TrailInspectionManager {
     this.storage = null;
     this.auth = null;
     this.db = null;
-    this.currentUser = null;
+	this.currentUser = null;
+	this.currentTrailStatus = null;
     
     this.initializeElements();
     this.initializeFirebase();
@@ -171,6 +172,8 @@ async updateStatusOptionsForTrail(trailId) {
       const lastInspection = inspectionsSnapshot.docs[0].data();
       currentStatus = lastInspection.trail_status || 'unknown';
     }
+    // Store the current status for later use when saving
+	this.currentTrailStatus = currentStatus;
 
     // Update the section label with current status
     if (statusLabel) {
@@ -379,6 +382,7 @@ setStatusLabels(openLabel, closedLabel) {
       inspector_id: this.inspectorId.value,
       inspector_name: this.inspectorName.value,
       date: this.createTimestamp(),
+      previous_trail_status: this.currentTrailStatus || 'unknown',  // Add this line
       trail_status: this.form.querySelector('input[name="trail-status"]:checked')?.value,
       condition: this.form.querySelector('input[name="condition"]:checked')?.value,
       snow_condition: this.form.querySelector('input[name="snow-condition"]:checked')?.value || null,
