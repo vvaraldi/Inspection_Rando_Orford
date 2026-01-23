@@ -79,6 +79,12 @@ class TrailInspectionManager {
       this.fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
     }
     
+	if (this.trailSelect) {
+	  this.trailSelect.addEventListener('change', (e) => {
+		this.updateStatusOptionsForTrail(e.target.value);
+	  });
+	}
+
     // Form validation on input change
     const requiredInputs = this.form.querySelectorAll('[required]');
     requiredInputs.forEach(input => {
@@ -141,6 +147,50 @@ setCurrentDateTime() {
       this.showError('Erreur lors du chargement des sentiers');
     }
   }
+
+async updateStatusOptionsForTrail(trailId) {
+  if (!trailId) {
+    // Reset to default labels if no trail selected
+    this.setStatusLabels('🟢 Ouvert', '🔴 Fermé');
+    return;
+  }
+
+  try {
+    // Get the latest inspection for this trail to find current status
+    const inspectionsSnapshot = await this.db.collection('trail_inspections')
+      .where('trail_id', '==', trailId)
+      .orderBy('date', 'desc')
+      .limit(1)
+      .get();
+
+    let currentStatus = 'unknown';
+    if (!inspectionsSnapshot.empty) {
+      const lastInspection = inspectionsSnapshot.docs[0].data();
+      currentStatus = lastInspection.trail_status || 'unknown';
+    }
+
+    // Update labels based on current status
+    if (currentStatus === 'open') {
+      this.setStatusLabels('🟢 Rester ouvert', '🔴 À fermer');
+    } else if (currentStatus === 'closed') {
+      this.setStatusLabels('🟢 À ouvrir', '🔴 Rester fermé');
+    } else {
+      this.setStatusLabels('🟢 Ouvert', '🔴 Fermé');
+    }
+
+  } catch (error) {
+    console.error('Error fetching trail status:', error);
+    this.setStatusLabels('🟢 Ouvert', '🔴 Fermé');
+  }
+}
+
+setStatusLabels(openLabel, closedLabel) {
+  const openText = document.querySelector('#status-open + .radio-label .radio-text');
+  const closedText = document.querySelector('#status-closed + .radio-label .radio-text');
+  
+  if (openText) openText.textContent = openLabel;
+  if (closedText) closedText.textContent = closedLabel;
+}
 
   getDifficultyText(difficulty) {
     const difficultyMap = {
