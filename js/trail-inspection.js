@@ -149,6 +149,7 @@ setCurrentDateTime() {
   }
 
 async updateStatusOptionsForTrail(trailId) {
+  const statusLabel = document.querySelector('.form-group:has(input[name="trail-status"]) .form-label');
   if (!trailId) {
     // Reset to default labels if no trail selected
     this.setStatusLabels('🟢 À ouvrir', '🔴 À fermer');
