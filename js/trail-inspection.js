@@ -185,11 +185,15 @@ async updateStatusOptionsForTrail(trailId) {
 	
     // Update labels based on current status
     if (currentStatus === 'open') {
-      this.setStatusLabels('🟢 Laisser ouvert', '🔴 À fermer');
+		this.setStatusLabels('🟢 Laisser ouvert', '🔴 À fermer');
+		// Pre-select "Laisser ouvert"
+		document.getElementById('status-open').checked = true;
     } else if (currentStatus === 'closed') {
-      this.setStatusLabels('🟢 À ouvrir', '🔴 Laisser fermé');
-    } else {
-      this.setStatusLabels('🟢 À ouvrir', '🔴 À fermer');
+		this.setStatusLabels('🟢 À ouvrir', '🔴 Laisser fermé');
+		// Pre-select "Laisser fermé"
+		document.getElementById('status-closed').checked = true;
+	} else {
+		this.setStatusLabels('🟢 À ouvrir', '🔴 À fermer');
     }
 
   } catch (error) {
