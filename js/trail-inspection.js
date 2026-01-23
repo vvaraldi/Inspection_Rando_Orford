@@ -171,16 +171,16 @@ async updateStatusOptionsForTrail(trailId) {
 
     // Update labels based on current status
     if (currentStatus === 'open') {
-      this.setStatusLabels('🟢 Rester ouvert', '🔴 À fermer');
+      this.setStatusLabels('🟢 Laisser ouvert', '🔴 À fermer');
     } else if (currentStatus === 'closed') {
-      this.setStatusLabels('🟢 À ouvrir', '🔴 Rester fermé');
+      this.setStatusLabels('🟢 À ouvrir', '🔴 Laisser fermé');
     } else {
-      this.setStatusLabels('🟢 Ouvert', '🔴 Fermé');
+      this.setStatusLabels('🟢 À ouvrir', '🔴 À fermer');
     }
 
   } catch (error) {
     console.error('Error fetching trail status:', error);
-    this.setStatusLabels('🟢 Ouvert', '🔴 Fermé');
+    this.setStatusLabels('🟢 À ouvrir', '🔴 À fermer');
   }
 }
 
