@@ -151,8 +151,10 @@ setCurrentDateTime() {
 async updateStatusOptionsForTrail(trailId) {
   if (!trailId) {
     // Reset to default labels if no trail selected
-    this.setStatusLabels('🟢 Ouvert', '🔴 Fermé');
-    return;
+    this.setStatusLabels('🟢 À ouvrir', '🔴 À fermer');
+    if (statusLabel) {
+      statusLabel.innerHTML = 'Statut du sentier post inspection';
+    }    return;
   }
 
   try {
@@ -191,6 +193,9 @@ async updateStatusOptionsForTrail(trailId) {
 
   } catch (error) {
     console.error('Error fetching trail status:', error);
+    if (statusLabel) {
+      statusLabel.innerHTML = 'Statut du sentier post inspection';
+    }
     this.setStatusLabels('🟢 À ouvrir', '🔴 À fermer');
   }
 }
