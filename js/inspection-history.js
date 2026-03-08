@@ -1163,7 +1163,7 @@ async checkUserRole() {
     
     if (userDoc.exists) {
       const userData = userDoc.data();
-      this.isAdminUser = (userData.role === 'admin');
+      this.isAdminUser = (userData.role === 'admin'|| userData.role === 'system_admin');
       console.log('User role check complete - isAdmin:', this.isAdminUser, 'userData:', userData); // Add this line
     }
   } catch (error) {

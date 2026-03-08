@@ -72,7 +72,8 @@ function checkAuthStatus() {
           }
           
           // Vérifier si l'utilisateur est admin
-          if (currentUserData.role === 'admin') {
+//          if (currentUserData.role === 'admin') {
+          if (currentUserData.role === 'admin' || currentUserData.role === 'system_admin') {
             console.log("L'utilisateur est administrateur");
             if (adminLink) adminLink.style.display = 'inline';
             if (mobileAdminLink) mobileAdminLink.style.display = 'inline';
@@ -240,7 +241,8 @@ function getCurrentUserId() {
  * Check if current user is admin
  */
 function isAdmin() {
-  return currentUserData && currentUserData.role === 'admin';
+//  return currentUserData && currentUserData.role === 'admin';
+  return currentUserData && (currentUserData.role === 'admin' || currentUserData.role === 'system_admin');
 }
 
 /**

@@ -128,7 +128,7 @@ class AdminManager {
               }
               
               // Check 3: Is user admin? (for admin page specifically)
-              if (userData.role !== 'admin') {
+              if (userData.role !== 'admin' && userData.role !== 'system_admin') {
                 this.showError('Accès refusé - Droits administrateur requis');
                 setTimeout(() => {
                   window.location.href = '../index.html';
